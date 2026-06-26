@@ -1,0 +1,2154 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "shogun-helper": {
+      "type": "shogun-helper",
+      "settings": {}
+    },
+    "section_7MBJGX": {
+      "type": "section",
+      "blocks": {
+        "group_dBALTE": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 8,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fill",
+            "custom_height": 100,
+            "inherit_color_scheme": false,
+            "color_scheme": "scheme-5",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "hero-apparel-2",
+            "padding-block-start": 30,
+            "padding-block-end": 30,
+            "padding-inline-start": 80,
+            "padding-inline-end": 80
+          },
+          "blocks": {
+            "text_TLG4aC": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h6><em>——— By DEVICE Compatibility ——— </em></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "h6",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_PWbUQc": {
+              "type": "text",
+              "settings": {
+                "text": "<h1>Apple</h1>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "center",
+                "padding_left": "0",
+                "type_preset": "h1",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_WdEy9N": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Explore Apple device accessories curated to help wholesale buyers cover iPhone, iPad, AirPods, Apple Watch, and everyday Apple accessory demand. Find cases, screen protectors, chargers, cables, MagSafe accessories, AirPods cases, watch accessories, and compatible add-ons organized to stock a stronger Apple device accessory mix.</p>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "center",
+                "padding_left": "0",
+                "type_preset": "custom",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "16px",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_TLG4aC",
+            "text_PWbUQc",
+            "text_WdEy9N"
+          ]
+        }
+      },
+      "block_order": [
+        "group_dBALTE"
+      ],
+      "custom_css": [
+        "/* 1. Force the parent to clip the square child backgrounds */.custom-section-content {overflow: hidden !important; border-radius: 40px !important;}",
+        " /* 2. Fix internal seam (optional but recommended for a clean look) */[data-testid=\"group-block\"]:first-child {border-radius: 40px 0 0 40px !important;}",
+        "[data-testid=\"group-block\"]:last-child {border-radius: 0 40px 40px 0 !important;}",
+        "[data-testid=\"group-block\"]:only-child {border-radius: 40px !important;}"
+      ],
+      "name": "t:names.split_showcase",
+      "settings": {
+        "section_width": "page-width",
+        "content_direction": "row",
+        "vertical_on_mobile": true,
+        "scroll_on_mobile": false,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 0,
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 40,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 20,
+        "padding-block-end": 0
+      }
+    },
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "100%",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "heading_bold_highlight_color": "#c54448",
+            "heading_italic_highlight_color": "#63b9de",
+            "heading_bold_highlight_bold": true,
+            "heading_italic_highlight_italic": true,
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "text_padding": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "disabled": true,
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "collection_list_7ACLEg": {
+      "type": "collection-list",
+      "blocks": {
+        "group_tURdtN": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_VVknwb": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 17 Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_VVknwb"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_RmYAwf": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_FwTYgU": {
+              "type": "group",
+              "name": "t:names.group",
+              "disabled": true,
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "custom_liquid_edNAwx": {
+                  "type": "custom-liquid",
+                  "name": "t:names.custom_liquid",
+                  "settings": {
+                    "custom_liquid": "<div class=\"device-meta\" style=\"text-align: center; width: 100%;\">\n  <div class=\"m\" style=\"display: inline-block;\">\n    <span class=\"m-lbl\" style=\"display: inline;\">SKUs available: </span>\n    <span class=\"m-val\" style=\"display: inline; font-weight: bold;\">\n      {%- assign count = collection.all_products_count | default: collection.object.all_products_count -%}\n      \n      {%- if count > 0 -%}\n        {{ count | money_without_currency | remove: '.00' | remove: '.0' }}\n      {%- else -%}\n        0\n      {%- endif -%}\n    </span>\n  </div>\n</div>"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "custom_liquid_edNAwx"
+              ]
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_RmYAwf",
+            "group_FwTYgU"
+          ]
+        }
+      },
+      "block_order": [
+        "group_tURdtN"
+      ],
+      "name": "iPhone 17",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-air-accessories",
+          "apple-iphone-17-accessories",
+          "apple-iphone-17-pro-accessories",
+          "apple-iphone-17-pro-max-accessories",
+          "apple-iphone-17e-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_XfUCCV": {
+      "type": "collection-list",
+      "blocks": {
+        "group_QrtpVP": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_d4DWXF": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 16 Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_d4DWXF"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_VBLBPc": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_VBLBPc"
+          ]
+        }
+      },
+      "block_order": [
+        "group_QrtpVP"
+      ],
+      "name": "iPhone 16",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-16-accessories",
+          "apple-iphone-16-plus-accessories",
+          "apple-iphone-16-pro-accessories",
+          "apple-iphone-16-pro-max-accessories",
+          "apple-iphone-16e-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_rGi8dz": {
+      "type": "collection-list",
+      "blocks": {
+        "group_J4zEAM": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_GC3nnE": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 15 Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_GC3nnE"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_PHQqn3": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_PHQqn3"
+          ]
+        }
+      },
+      "block_order": [
+        "group_J4zEAM"
+      ],
+      "name": "iPhone 15",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-15-accessories",
+          "apple-iphone-15-plus-accessories",
+          "apple-iphone-15-pro-accessories",
+          "iphone-15-pro-max-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_nEkEXw": {
+      "type": "collection-list",
+      "blocks": {
+        "group_kBkEkD": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_WiRTEM": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 14 Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_WiRTEM"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_g6KFr6": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_g6KFr6"
+          ]
+        }
+      },
+      "block_order": [
+        "group_kBkEkD"
+      ],
+      "name": "iPhone 14",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-14-accessories",
+          "apple-iphone-14-plus-accessories",
+          "apple-iphone-14-pro-accessories",
+          "apple-iphone-14-pro-max-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_BLaFHL": {
+      "type": "collection-list",
+      "blocks": {
+        "group_TAMBjm": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_ExyRab": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 13 Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_ExyRab"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_4mtc9U": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_4mtc9U"
+          ]
+        }
+      },
+      "block_order": [
+        "group_TAMBjm"
+      ],
+      "name": "iPhone 13",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-13-accessories",
+          "apple-iphone-13-mini-accessories",
+          "apple-iphone-13-pro-accessories",
+          "apple-iphone-13-pro-max-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_HftbDh": {
+      "type": "collection-list",
+      "blocks": {
+        "group_qhM97n": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_YYjAhR": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 12 Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_YYjAhR"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_73cdLg": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_73cdLg"
+          ]
+        }
+      },
+      "block_order": [
+        "group_qhM97n"
+      ],
+      "name": "iPhone 12",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-12-12-pro-accessories",
+          "apple-iphone-12-mini-accessories",
+          "apple-iphone-12-pro-max-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_JEBGXD": {
+      "type": "collection-list",
+      "blocks": {
+        "group_GGJQQE": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_gBpekp": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPhone 11 and older Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_gBpekp"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_pzVXtA": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_pzVXtA"
+          ]
+        }
+      },
+      "block_order": [
+        "group_GGJQQE"
+      ],
+      "name": "Old iPhones",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-iphone-11-accessories",
+          "wholesale-apple-iphone-11-pro-accessories",
+          "wholesale-apple-iphone-11-pro-max-accessories",
+          "wholesale-apple-iphone-xr-accessories",
+          "whoelsale-apple-iphone-xs-max-accessories",
+          "wholesale-apple-iphone-xs-x-accessories",
+          "wholesale-apple-iphone-8-7-accessories",
+          "apple-iphone-8-plus-7-plus-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_9Q3PxP": {
+      "type": "collection-list",
+      "blocks": {
+        "group_Wwd76R": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_3HHRqx": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— iPad Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_3HHRqx"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_AF9YJJ": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_AF9YJJ"
+          ]
+        }
+      },
+      "block_order": [
+        "group_Wwd76R"
+      ],
+      "name": "iPad",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-ipad-10-2-2021-accessories",
+          "apple-ipad-air-10-9-2022-accessories",
+          "apple-ipad-mini-7-2024-accessories",
+          "apple-ipad-pro-11-2022-accessories",
+          "apple-ipad-pro-12-9-2022-accessories",
+          "apple-ipad-pro-9-7-accessories",
+          "apple-ipad-11-2025-accessories",
+          "apple-ipad-10-2-2019-accessories",
+          "apple-ipad-10-2-2020-accessories",
+          "apple-ipad-10-9-2022-accessories",
+          "apple-ipad-air-accessories",
+          "apple-ipad-air-11-2024-accessories",
+          "apple-ipad-air-11-2025-accessories",
+          "apple-ipad-air-11-2026-accessories",
+          "apple-ipad-air-13-2025-accessories",
+          "apple-ipad-air-13-2026-accessories",
+          "apple-ipad-mini-4-accessories",
+          "wholesale-apple-ipad-mini-7-2024-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_qezg79": {
+      "type": "collection-list",
+      "blocks": {
+        "group_RBYcRY": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_DTQAJV": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Airpods</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_DTQAJV"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_3RTKB9": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_3RTKB9"
+          ]
+        }
+      },
+      "block_order": [
+        "group_RBYcRY"
+      ],
+      "name": "Airpods",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-airpods-4-accessories",
+          "apple-airpods-pro-3-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_CnfqY8": {
+      "type": "collection-list",
+      "blocks": {
+        "group_xFwirk": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_m4MK4t": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Apple Watch</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_m4MK4t"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_HAwhPd": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_HAwhPd"
+          ]
+        }
+      },
+      "block_order": [
+        "group_xFwirk"
+      ],
+      "name": "Watch",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "apple-watch-series-accessories",
+          "apple-watch-se-3-40mm-accessories",
+          "apple-watch-se-3-44mm-accessories",
+          "apple-watch-series-11-42mm-accessories",
+          "apple-watch-series-11-46mm-accessories",
+          "apple-watch-ultra-3-49mm-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "shogun-optimizer": {
+      "type": "shogun-optimizer",
+      "settings": {}
+    }
+  },
+  "order": [
+    "shogun-helper",
+    "section_7MBJGX",
+    "main",
+    "collection_list_7ACLEg",
+    "collection_list_XfUCCV",
+    "collection_list_rGi8dz",
+    "collection_list_nEkEXw",
+    "collection_list_BLaFHL",
+    "collection_list_HftbDh",
+    "collection_list_JEBGXD",
+    "collection_list_9Q3PxP",
+    "collection_list_qezg79",
+    "collection_list_CnfqY8",
+    "shogun-optimizer"
+  ]
+}

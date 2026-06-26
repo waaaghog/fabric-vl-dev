@@ -1,0 +1,17 @@
+{%- doc -%}
+  Renders a menu item title, replacing an asterisk marker with a "New" badge.
+
+  @param {string} title - Menu item title from Shopify navigation.
+  @param {string} badge_class - CSS class to use for the badge.
+{%- enddoc -%}
+
+{%- liquid
+  assign menu_title = title
+  assign menu_is_new = false
+
+  if menu_title contains '*'
+    assign menu_is_new = true
+    assign menu_title = menu_title | remove: '*' | strip
+  endif
+-%}
+{{- menu_title | escape -}}{%- if menu_is_new -%}<span class="{{ badge_class | escape }}">New</span>{%- endif -%}

@@ -1,0 +1,556 @@
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <blog-posts-slider
+    id="blog-posts-slider-{{ section.id }}"
+    class="bps"
+    style="
+      --bps-columns: {{ section.settings.columns }};
+      --bps-columns-mobile: {{ section.settings.columns_mobile }};
+      --bps-gap: {{ section.settings.gap }}px;
+      --bps-radius: {{ section.settings.card_radius }}px;
+      --bps-ratio: {{ section.settings.aspect_ratio }};
+      --bps-title-size: {{ section.settings.title_size }}px;
+      --bps-title-color: {{ section.settings.title_color }};
+      --bps-excerpt-size: {{ section.settings.excerpt_size }}px;
+      --bps-heading-size: {{ section.settings.heading_size }};
+      --bps-heading-color: {{ section.settings.heading_color }};
+    "
+    data-columns="{{ section.settings.columns }}"
+    data-columns-mobile="{{ section.settings.columns_mobile }}"
+    data-gap="{{ section.settings.gap }}"
+  >
+    <div class="bps__header">
+      {%- if section.settings.title != blank -%}
+        <h2 class="bps__heading">{{ section.settings.title }}</h2>
+      {%- endif -%}
+      <div class="bps__header-nav">
+        <button class="bps__nav bps__nav--prev" aria-label="Previous" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <button class="bps__nav bps__nav--next" aria-label="Next">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    </div>
+
+    {%- if section.settings.blog != blank -%}
+      {%- assign articles = section.settings.blog.articles -%}
+      {%- if articles.size > 0 -%}
+        <div class="bps__viewport">
+          <div class="bps__track">
+            {%- for article in articles -%}
+              <article class="bps__card">
+                <a href="{{ article.url }}" class="bps__link">
+                  <div class="bps__media">
+                    {%- if article.image -%}
+                      <img
+                        src="{{ article.image | image_url: width: 800 }}"
+                        alt="{{ article.image.alt | escape }}"
+                        loading="lazy"
+                        width="800"
+                        height="{{ 800 | divided_by: article.image.aspect_ratio | round }}"
+                      >
+                    {%- else -%}
+                      {{ 'collection-1' | placeholder_svg_tag: 'bps__placeholder' }}
+                    {%- endif -%}
+                    <div class="bps__caption">
+                      <h3 class="bps__card-title">{{ article.title }}</h3>
+                      {%- if section.settings.show_excerpt and article.excerpt != blank -%}
+                        <p class="bps__card-excerpt">{{ article.excerpt | strip_html | truncate: section.settings.excerpt_length }}</p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </a>
+              </article>
+            {%- endfor -%}
+          </div>
+        </div>
+        <div class="bps__dots-wrapper">
+          <div class="bps__dots"></div>
+        </div>
+      {%- else -%}
+        <p class="bps__empty">No posts found in this blog.</p>
+      {%- endif -%}
+    {%- else -%}
+      <p class="bps__empty">Please select a blog to display posts.</p>
+    {%- endif -%}
+  </blog-posts-slider>
+</div>
+
+{% stylesheet %}
+  blog-posts-slider {
+    display: block;
+	overflow: hidden;
+  }
+
+  .bps__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .bps__heading {
+    margin: 0;
+    font-size: var(--bps-heading-size, clamp(1.4rem, 3vw, 2.2rem));
+    color: var(--bps-heading-color);
+  }
+
+  .bps__header-nav {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .bps__nav {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    background: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .bps__nav:hover:not(:disabled) {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  .bps__nav:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .bps__viewport {
+    overflow: hidden;
+  }
+
+  .bps__track {
+    display: flex;
+    gap: var(--bps-gap, 16px);
+    transition: transform 0.4s ease;
+    will-change: transform;
+  }
+
+  .bps__card {
+    flex: 0 0 calc((100% - var(--bps-gap, 16px) * (var(--bps-columns, 4) - 1)) / var(--bps-columns, 4));
+    min-width: 0;
+  }
+
+  .bps__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .bps__media {
+    position: relative;
+    border-radius: var(--bps-radius, 0px);
+    overflow: hidden;
+    aspect-ratio: var(--bps-ratio, 3 / 4);
+  }
+
+  .bps__media img,
+  .bps__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .bps__link:hover .bps__media img,
+  .bps__link:hover .bps__placeholder {
+    transform: scale(1.05);
+  }
+
+  .bps__caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 48px 20px 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 100%);
+    color: var(--bps-title-color);
+  }
+
+  .bps__card-title {
+    margin: 0 0 6px;
+    font-size: var(--bps-title-size, 18px);
+    font-weight: 700;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+	color: inherit;
+  }
+
+  .bps__card-excerpt {
+    margin: 0;
+    font-size: var(--bps-excerpt-size, 14px);
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+
+  .bps__dots-wrapper {
+    overflow: hidden;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .bps__dots {
+    display: flex;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 4px 0;
+    transition: transform 0.3s ease;
+  }
+
+  .bps__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .bps__dot--active {
+    background: currentColor;
+  }
+
+  .bps__empty {
+    text-align: center;
+    padding: 48px 20px;
+    opacity: 0.5;
+  }
+
+  @media screen and (max-width: 749px) {
+    .bps__card {
+      flex: 0 0 calc((100% - var(--bps-gap, 16px) * (var(--bps-columns-mobile, 1) - 1)) / var(--bps-columns-mobile, 1));
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (function () {
+    class BlogPostsSlider extends HTMLElement {
+      connectedCallback() {
+        this.viewport = this.querySelector('.bps__viewport');
+        this.track = this.querySelector('.bps__track');
+        this.dotsWrapper = this.querySelector('.bps__dots-wrapper');
+        this.dotsContainer = this.querySelector('.bps__dots');
+        this.prevBtn = this.querySelector('.bps__nav--prev');
+        this.nextBtn = this.querySelector('.bps__nav--next');
+        this.cards = Array.from(this.querySelectorAll('.bps__card'));
+
+        if (this.prevBtn) this.prevBtn.addEventListener('click', () => this._goToPage(this.currentPage - 1));
+        if (this.nextBtn) this.nextBtn.addEventListener('click', () => this._goToPage(this.currentPage + 1));
+
+        if (!this.track || !this.cards.length) return;
+
+        this.currentPage = 0;
+        this._refresh();
+        this._initSwipe();
+        this._onResize = () => this._refresh();
+        window.addEventListener('resize', this._onResize);
+      }
+
+      _getColumns() {
+        return window.innerWidth <= 749
+          ? parseInt(this.dataset.columnsMobile) || 1
+          : parseInt(this.dataset.columns) || 4;
+      }
+
+      _refresh() {
+        this.columns = this._getColumns();
+        this.totalPages = Math.ceil(this.cards.length / this.columns);
+        this.currentPage = Math.min(this.currentPage, this.totalPages - 1);
+        this._buildDots();
+        this._updateSlider();
+        this._updateNavButtons();
+      }
+
+      _buildDots() {
+        this.dotsContainer.innerHTML = '';
+        for (let i = 0; i < this.totalPages; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'bps__dot' + (i === this.currentPage ? ' bps__dot--active' : '');
+          btn.setAttribute('aria-label', 'Go to page ' + (i + 1));
+          btn.addEventListener('click', () => this._goToPage(i));
+          this.dotsContainer.appendChild(btn);
+        }
+        requestAnimationFrame(() => this._centerActiveDot());
+      }
+
+      _updateDots() {
+        this.dotsContainer.querySelectorAll('.bps__dot').forEach((dot, i) => {
+          dot.classList.toggle('bps__dot--active', i === this.currentPage);
+        });
+        this._centerActiveDot();
+      }
+
+      _centerActiveDot() {
+        if (!this.dotsWrapper || !this.dotsContainer) return;
+        const dots = this.dotsContainer.querySelectorAll('.bps__dot');
+        if (!dots.length) return;
+        const dotSize = dots[0].offsetWidth || 10;
+        const dotGap = parseInt(getComputedStyle(this.dotsContainer).columnGap) || 8;
+        const dotsWidth = dots.length * dotSize + (dots.length - 1) * dotGap;
+        const wrapperWidth = this.dotsWrapper.offsetWidth;
+        if (dotsWidth <= wrapperWidth) {
+          // Few dots: center the whole group
+          this.dotsContainer.style.transform = `translateX(${(wrapperWidth - dotsWidth) / 2}px)`;
+        } else {
+          // Many dots: keep active dot centered, clamped to edges
+          const activeDotCenter = this.currentPage * (dotSize + dotGap) + dotSize / 2;
+          const offset = activeDotCenter - wrapperWidth / 2;
+          const clamped = Math.max(0, Math.min(offset, dotsWidth - wrapperWidth));
+          this.dotsContainer.style.transform = `translateX(${-clamped}px)`;
+        }
+      }
+
+      _updateNavButtons() {
+        if (this.prevBtn) this.prevBtn.disabled = this.currentPage <= 0;
+        if (this.nextBtn) this.nextBtn.disabled = this.currentPage >= this.totalPages - 1;
+      }
+
+      _goToPage(page) {
+        this.currentPage = Math.max(0, Math.min(page, this.totalPages - 1));
+        this._updateSlider();
+        this._updateDots();
+        this._updateNavButtons();
+      }
+
+      _updateSlider() {
+        if (!this.cards.length) return;
+        const cardWidth = this.cards[0].getBoundingClientRect().width;
+        const gap = parseInt(this.dataset.gap) || 0;
+        const offset = this.currentPage * this.columns * (cardWidth + gap);
+        const maxOffset = Math.max(0, this.track.scrollWidth - this.viewport.offsetWidth);
+        this.track.style.transform = `translateX(-${Math.min(offset, maxOffset)}px)`;
+      }
+
+      _initSwipe() {
+        let startX = 0;
+        this.viewport.addEventListener('touchstart', e => {
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+        this.viewport.addEventListener('touchend', e => {
+          const diff = startX - e.changedTouches[0].clientX;
+          if (Math.abs(diff) > 50) {
+            this._goToPage(diff > 0 ? this.currentPage + 1 : this.currentPage - 1);
+          }
+        });
+      }
+
+      disconnectedCallback() {
+        if (this._onResize) window.removeEventListener('resize', this._onResize);
+      }
+    }
+
+    if (!customElements.get('blog-posts-slider')) {
+      customElements.define('blog-posts-slider', BlogPostsSlider);
+    }
+  })();
+</script>
+
+
+{% schema %}
+{
+  "name": "New: Blog posts 2",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Latest posts"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show excerpt",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "excerpt_length",
+      "label": "Excerpt length",
+      "min": 0,
+      "max": 240,
+      "step": 10,
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between cards",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Card"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "2 / 3", "label": "Portrait (2:3)" },
+        { "value": "3 / 4", "label": "Tall portrait (3:4)" },
+        { "value": "1 / 1", "label": "Square" },
+        { "value": "4 / 3", "label": "Landscape (4:3)" },
+        { "value": "16 / 9", "label": "Wide (16:9)" }
+      ],
+      "default": "3 / 4"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "excerpt_size",
+      "label": "Excerpt size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading_size",
+      "label": "Heading size",
+      "placeholder": "e.g. 28px, 2rem"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Blog posts 2"
+    }
+  ]
+}
+{% endschema %}

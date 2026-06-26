@@ -1,0 +1,359 @@
+{%- doc -%}
+  Giftbox picker block — lets customers select N products from a collection.
+  N is derived from the first word of the active variant title (e.g. "3 designs" → 3).
+  Selected products are added to the cart as numbered line item properties:
+  properties[1], properties[2], ... properties[N].
+
+  When a product is selected its image is injected as a new slide into the existing
+  product media slideshow and the slideshow navigates to it. Injected slides are cached
+  so re-selecting the same product reuses the existing slide.
+
+  @param {collection} collection - The collection whose products appear as selectable swatches.
+{%- enddoc -%}
+
+{%- liquid
+  assign picker_collection = collections[block.settings.collection]
+  assign initial_limit = product.selected_or_first_available_variant.title | split: ' ' | first | plus: 0
+-%}
+
+<giftbox-picker
+  class="giftbox-picker"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  data-limit="{{ initial_limit }}"
+  {{ block.shopify_attributes }}
+>
+  <fieldset class="giftbox-picker__fieldset">
+    {%- if picker_collection.title != blank -%}
+      <legend class="giftbox-picker__legend">{{ picker_collection.title | upcase }}</legend>
+    {%- endif -%}
+
+    <div class="giftbox-picker__grid">
+      {%- for item in picker_collection.products -%}
+        {%- liquid
+          assign item_available = true
+          if item.options.size == 1
+            unless item.selected_or_first_available_variant.available
+              assign item_available = false
+            endunless
+          endif
+        -%}
+        {%- if item_available -%}
+          <div class="giftbox-picker__item">
+            <input
+              type="checkbox"
+              class="giftbox-picker__input"
+              id="giftbox-{{ section.id }}-{{ block.id }}-{{ item.id }}"
+              value="{{ item.title | escape }} ({{ item.selected_or_first_available_variant.sku }})"
+              data-product-id="{{ item.id }}"
+              data-image-url="{{ item.featured_image | image_url: width: 1200 }}"
+              data-image-alt="{{ item.title | escape }}"
+            >
+            <label
+              for="giftbox-{{ section.id }}-{{ block.id }}-{{ item.id }}"
+              class="giftbox-picker__label"
+              title="{{ item.title | escape }}"
+            >
+              {%- if item.featured_image -%}
+                {{
+                  item.featured_image
+                  | image_url: width: 80
+                  | image_tag: alt: item.title, loading: 'lazy', class: 'giftbox-picker__image'
+                }}
+              {%- endif -%}
+            </label>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </fieldset>
+</giftbox-picker>
+
+{% stylesheet %}
+  .giftbox-picker__fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .giftbox-picker__legend {
+    display: block;
+    margin-block-end: var(--gap-sm);
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.1em;
+    color: var(--color-foreground);
+  }
+
+  .giftbox-picker__input {
+    display: none;
+  }
+
+  .giftbox-picker__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-md);
+    /*justify-content: space-around;*/
+  }
+
+  .giftbox-picker__label {
+    display: block;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.15s ease, opacity 0.15s ease;
+    overflow: hidden;
+    width: 52px;
+    height: 52px;
+  }
+
+  .giftbox-picker__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  /* Selected */
+  .giftbox-picker__input:checked + .giftbox-picker__label {
+    border-color: var(--color-foreground);
+  }
+
+  /* At limit: unchecked items are greyed out but still clickable to preview images */
+  .giftbox-picker__item--disabled .giftbox-picker__label {
+    opacity: 0.8;
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    class GiftboxPicker extends HTMLElement {
+      #limit = 0;
+      #previewTarget = null;
+      #boundVariantUpdate;
+
+      connectedCallback() {
+        this.#limit = parseInt(this.dataset.limit || '0', 10);
+        this.#boundVariantUpdate = this.#handleVariantUpdate.bind(this);
+        document.addEventListener('variant:update', this.#boundVariantUpdate);
+        this.addEventListener('change', this.#handleChange.bind(this));
+        this.#updateState();
+      }
+
+      disconnectedCallback() {
+        document.removeEventListener('variant:update', this.#boundVariantUpdate);
+      }
+
+      #handleVariantUpdate(event) {
+        const productId = event.detail?.data?.productId;
+        if (productId && productId !== this.dataset.productId) return;
+
+        const title = event.detail?.resource?.title;
+        if (!title) return;
+
+        const newLimit = parseInt(title, 10);
+        if (isNaN(newLimit) || newLimit <= 0 || newLimit === this.#limit) return;
+
+        this.#limit = newLimit;
+        this.dataset.limit = newLimit;
+
+        const checked = Array.from(this.querySelectorAll('.giftbox-picker__input:checked'));
+        if (checked.length > newLimit) {
+          checked.slice(newLimit).forEach((cb) => { cb.checked = false; });
+        }
+        this.#updateState();
+      }
+
+      #handleChange(event) {
+        if (!event.target.classList.contains('giftbox-picker__input')) return;
+
+        // Always capture the clicked item for image preview
+        this.#previewTarget = event.target;
+
+        const count = this.querySelectorAll('.giftbox-picker__input:checked').length;
+        if (event.target.checked && count > this.#limit) {
+          event.target.checked = false;
+        }
+
+        this.#updateState();
+      }
+
+      #updateState() {
+        const checked = Array.from(this.querySelectorAll('.giftbox-picker__input:checked'));
+        const count = checked.length;
+        const atLimit = count >= this.#limit;
+
+        this.querySelectorAll('.giftbox-picker__item').forEach((item) => {
+          const cb = item.querySelector('.giftbox-picker__input');
+          item.classList.toggle('giftbox-picker__item--disabled', atLimit && !cb.checked);
+        });
+
+        this.#syncFormProperties(checked);
+
+        const button = this.#findAddToCartButton();
+        if (button) button.disabled = count !== this.#limit;
+
+        // If user clicked an item (even one blocked by limit), preview its image
+        const previewList = this.#previewTarget
+          ? [...checked.filter(cb => cb !== this.#previewTarget), this.#previewTarget]
+          : checked;
+        this.#previewTarget = null;
+        this.#syncMediaPreview(previewList);
+      }
+
+      #syncMediaPreview(checked) {
+        const section = document.getElementById(`shopify-section-${this.dataset.sectionId}`);
+        const slideshow = section?.querySelector('slideshow-component');
+        if (!slideshow) return;
+
+        const lastChecked = checked[checked.length - 1];
+        const presentation = section?.querySelector('[data-presentation]')?.dataset.presentation ?? 'carousel';
+        const isSingleMedia = slideshow.classList.contains('slideshow--single-media');
+
+        // ── GRID MODE ──────────────────────────────────────────────────────────
+        if (presentation === 'grid') {
+          const grid = section.querySelector('ul.media-gallery__grid');
+
+          if (!lastChecked) {
+            this.#restoreSlideImg(slideshow);
+            return;
+          }
+
+          const { productId, imageUrl, imageAlt } = lastChecked.dataset;
+
+          // Desktop grid
+          if (grid) {
+            let gridItem = grid.querySelector(`li[data-giftbox-product-id="${productId}"]`);
+            if (!gridItem) {
+              gridItem = document.createElement('li');
+              gridItem.setAttribute('ref', 'media[]');
+              gridItem.setAttribute('data-giftbox-product-id', productId);
+              gridItem.className = 'product-media-container product-media-container--image';
+              gridItem.innerHTML = `<img src="${imageUrl}" alt="${imageAlt}" class="product-media__image" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
+              grid.appendChild(gridItem);
+            }
+            gridItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+
+          // Mobile slideshow (grid uses carousel on mobile)
+          this.#swapSlideImg(slideshow, imageUrl, imageAlt);
+          return;
+        }
+
+        // ── CAROUSEL MODE ──────────────────────────────────────────────────────
+        if (!lastChecked) {
+          this.#restoreSlideImg(slideshow);
+          if (!isSingleMedia && typeof slideshow.select === 'function') slideshow.select(0);
+          return;
+        }
+
+        const { productId, imageUrl, imageAlt } = lastChecked.dataset;
+
+        if (isSingleMedia) {
+          // Single product image — swap src in-place
+          this.#swapSlideImg(slideshow, imageUrl, imageAlt);
+          return;
+        }
+
+        // Multi-image carousel — inject slide and navigate
+        if (typeof slideshow.select !== 'function') return;
+
+        const existingSlide = slideshow.querySelector(`slideshow-slide[data-giftbox-product-id="${productId}"]`);
+        if (existingSlide) {
+          const index = Array.from(slideshow.querySelectorAll('slideshow-slide')).indexOf(existingSlide);
+          slideshow.select(index);
+        } else {
+          const allSlides = Array.from(slideshow.querySelectorAll('slideshow-slide'));
+          const newIndex = allSlides.length;
+          const slide = document.createElement('slideshow-slide');
+          slide.setAttribute('ref', 'slides[]');
+          slide.setAttribute('aria-hidden', 'true');
+          slide.setAttribute('data-giftbox-product-id', productId);
+          slide.className = 'product-media-container product-media-container--image';
+          slide.style.setProperty('--slideshow-timeline', `--slide-${newIndex}`);
+          slide.innerHTML = `<img src="${imageUrl}" alt="${imageAlt}" class="product-media__image" loading="lazy" style="width:100%;height:100%;object-fit:cover;">`;
+          const lastSlide = allSlides[allSlides.length - 1];
+          lastSlide ? lastSlide.insertAdjacentElement('afterend', slide) : slideshow.prepend(slide);
+          setTimeout(() => slideshow.select(newIndex), 0);
+        }
+      }
+
+      #swapSlideImg(slideshow, imageUrl, imageAlt) {
+        const firstSlide = slideshow.querySelector('slideshow-slide');
+        const img = firstSlide?.querySelector('img');
+        if (!img) return;
+        if (!firstSlide.dataset.originalSrc) {
+          firstSlide.dataset.originalSrc = img.src;
+          firstSlide.dataset.originalSrcset = img.srcset;
+          firstSlide.dataset.originalAlt = img.alt;
+        }
+        img.src = imageUrl;
+        img.srcset = '';
+        img.alt = imageAlt;
+      }
+
+      #restoreSlideImg(slideshow) {
+        const firstSlide = slideshow.querySelector('slideshow-slide');
+        const img = firstSlide?.querySelector('img');
+        if (!img || !firstSlide?.dataset.originalSrc) return;
+        img.src = firstSlide.dataset.originalSrc;
+        img.srcset = firstSlide.dataset.originalSrcset ?? '';
+        img.alt = firstSlide.dataset.originalAlt ?? '';
+        delete firstSlide.dataset.originalSrc;
+        delete firstSlide.dataset.originalSrcset;
+        delete firstSlide.dataset.originalAlt;
+      }
+
+      #findForm() {
+        const section = document.getElementById(`shopify-section-${this.dataset.sectionId}`);
+        return section?.querySelector('[data-type="add-to-cart-form"]')
+          ?? document.querySelector('[data-type="add-to-cart-form"]');
+      }
+
+      #findAddToCartButton() {
+        const section = document.getElementById(`shopify-section-${this.dataset.sectionId}`);
+        return section?.querySelector('add-to-cart-component [ref="addToCartButton"]')
+          ?? document.querySelector('add-to-cart-component [ref="addToCartButton"]');
+      }
+
+      #syncFormProperties(checked) {
+        const form = this.#findForm();
+        if (!form) return;
+
+        form.querySelectorAll('[data-giftbox-prop]').forEach((el) => el.remove());
+
+        checked.forEach((cb, i) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = `properties[${i + 1}]`;
+          input.value = cb.value;
+          input.dataset.giftboxProp = '';
+          form.appendChild(input);
+        });
+      }
+    }
+
+    if (!customElements.get('giftbox-picker')) {
+      customElements.define('giftbox-picker', GiftboxPicker);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Giftbox Picker",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Product collection",
+      "info": "Products in this collection appear as selectable swatches. Only available products are shown."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Giftbox Picker"
+    }
+  ]
+}
+{% endschema %}

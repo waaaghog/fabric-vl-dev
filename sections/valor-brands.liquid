@@ -1,0 +1,304 @@
+{%- liquid
+  assign s = section.settings
+-%}
+
+<div class="section section--page-width" style="{% if s.bg_color != blank %}background-color: {{ s.bg_color }};{% endif %}padding-top: {{ s.padding_top }}px; padding-bottom: {{ s.padding_bottom }}px;">
+<section class="vr-brands">
+  <div class="vr-brands-inner">
+
+    <div class="vr-brands-head">
+      {%- if s.eyebrow != blank -%}
+        <div class="vr-brands-eyebrow">{{ s.eyebrow }}</div>
+      {%- endif -%}
+      <div class="vr-brands-title">
+        {{- s.title -}}
+        {%- if s.title_em != blank -%} <em>{{ s.title_em }}</em>{%- endif -%}
+      </div>
+      {%- if s.intro != blank -%}
+        <p class="vr-brands-intro">{{ s.intro }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="vr-brands-grid">
+        {%- for block in section.blocks -%}
+          <a
+            href="{{ block.settings.url | default: '#' }}"
+            class="vr-brand-tile"
+            {{ block.shopify_attributes }}
+          >
+            <span
+              class="vr-brand-wordmark"
+              style="font-family: {% if block.settings.font == 'sans' %}var(--vr-sans){% else %}var(--vr-serif){% endif %}; font-weight: {{ block.settings.weight | default: '500' }};{% if block.settings.italic %} font-style: italic;{% endif %}"
+            >
+              {{- block.settings.name -}}
+              {%- if block.settings.suffix != blank -%}
+                <span class="vr-brand-suffix">{{ block.settings.suffix }}</span>
+              {%- endif -%}
+            </span>
+          </a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+</div>
+
+{% stylesheet %}
+
+/* ── Color tokens ───────────────────────────────────────────────── */
+:root {
+  --vr-navy:        #2B3A55;
+  --vr-navy-deep:   #1D2636;
+  --vr-sky:         #63B9DE;
+  --vr-sky-pale:    #D9EEF6;
+  --vr-crimson:     #C54448;
+  --vr-chalk:       #F4F5F2;
+  --vr-parchment:   #EEEDE7;
+  --vr-steel:       #66717E;
+  --vr-steel-lt:    #A8B0B8;
+  --vr-ink:         #121820;
+  --vr-white:       #FFFFFF;
+  --vr-border:      #0002;
+  --vr-serif:       var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:        var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Section head ───────────────────────────────────────────────── */
+.vr-brands-head {
+  max-width: 760px;
+  margin-bottom: 32px;
+}
+.vr-brands-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vr-crimson);
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vr-brands-eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--vr-crimson);
+}
+.vr-brands-title {
+  font-family: var(--vr-serif);
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--vr-navy-deep);
+  font-weight: 400;
+}
+.vr-brands-title em { font-style: italic; color: var(--vr-steel); }
+.vr-brands-intro {
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: var(--vr-steel);
+  margin-top: 16px;
+  line-height: 1.65;
+  max-width: 640px;
+}
+
+/* ── Brand grid ─────────────────────────────────────────────────── */
+.vr-brands-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border);
+  border-radius: 18px;
+  padding: 12px;
+}
+.vr-brand-tile {
+  aspect-ratio: 3 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--vr-chalk);
+  transition: background 0.15s, transform 0.15s;
+  text-decoration: none;
+  padding: 8px 16px;
+}
+.vr-brand-tile:hover {
+  background: var(--vr-parchment);
+  transform: translateY(-2px);
+}
+.vr-brand-wordmark {
+  font-size: 20px;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.01em;
+  text-align: center;
+  line-height: 1;
+  user-select: none;
+}
+.vr-brand-suffix {
+  font-style: italic;
+  color: var(--vr-crimson);
+  margin-left: 3px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .vr-brands-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 749px) {
+  .vr-brands-grid { grid-template-columns: repeat(3, 1fr); }
+  .vr-brands-title { font-size: 36px; }
+  .vr-brand-wordmark { font-size: 16px; }
+}
+
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Valor brands",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "info": "Leave blank for no background",
+      "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Brand portfolio"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Everything in one place."
+    },
+    {
+      "type": "text",
+      "id": "title_em",
+      "label": "Title italic suffix",
+      "default": "One stop for your favorites."
+    },
+    {
+      "type": "textarea",
+      "id": "intro",
+      "label": "Intro paragraph",
+      "default": "From our own designed-and-engineered houses to authorized distribution of select consumer electronics, audio, and lifestyle brands — Valor's portfolio gives partners a true one-stop catalog without sourcing through multiple vendors."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Brand",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Brand name",
+          "default": "MyBat"
+        },
+        {
+          "type": "text",
+          "id": "suffix",
+          "label": "Italic suffix",
+          "info": "Displayed after the name in italic accent color (e.g. \"Pro\")"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        },
+        {
+          "type": "select",
+          "id": "font",
+          "label": "Font style",
+          "options": [
+            { "value": "serif", "label": "Serif" },
+            { "value": "sans", "label": "Sans-serif" }
+          ],
+          "default": "serif"
+        },
+        {
+          "type": "select",
+          "id": "weight",
+          "label": "Font weight",
+          "options": [
+            { "value": "400", "label": "400 — Regular" },
+            { "value": "500", "label": "500 — Medium" },
+            { "value": "600", "label": "600 — Semi-bold" },
+            { "value": "700", "label": "700 — Bold" },
+            { "value": "800", "label": "800 — Extra-bold" },
+            { "value": "900", "label": "900 — Black" }
+          ],
+          "default": "500"
+        },
+        {
+          "type": "checkbox",
+          "id": "italic",
+          "label": "Italic",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor brands",
+      "blocks": [
+        { "type": "brand", "settings": { "name": "MyBat", "suffix": "Pro", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "MyBat", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "Echelon", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "AmpNergy", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "Baseline", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "EcoBlvd", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "ADATA", "font": "sans", "weight": "700" } },
+        { "type": "brand", "settings": { "name": "Beats", "font": "sans", "weight": "900" } },
+        { "type": "brand", "settings": { "name": "Borne", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "Coca-Cola", "font": "serif", "weight": "700", "italic": true } },
+        { "type": "brand", "settings": { "name": "Deejays", "font": "sans", "weight": "700" } },
+        { "type": "brand", "settings": { "name": "Edge", "font": "sans", "weight": "600" } },
+        { "type": "brand", "settings": { "name": "Luxmo", "font": "serif", "weight": "500" } },
+        { "type": "brand", "settings": { "name": "MaxPower", "font": "sans", "weight": "800" } },
+        { "type": "brand", "settings": { "name": "MLB", "font": "serif", "weight": "700" } },
+        { "type": "brand", "settings": { "name": "Scosche", "font": "sans", "weight": "600" } },
+        { "type": "brand", "settings": { "name": "Sentry", "font": "sans", "weight": "500" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,566 @@
+{%- liquid
+  assign s = section.settings
+  assign stat_blocks = section.blocks | where: 'type', 'stat'
+  assign cta_blocks  = section.blocks | where: 'type', 'cta'
+  assign arrow_svg   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
+-%}
+
+<div class="section section--page-width" style="{% if s.bg_color != blank %}background-color: {{ s.bg_color }};{% endif %}padding-top: {{ s.padding_top }}px; padding-bottom: {{ s.padding_bottom }}px;">
+<section class="vti" style="--vti-grad-start: {{ s.visual_grad_start | default: '#1D2636' }}; --vti-grad-mid: {{ s.visual_grad_mid | default: '#2B3A55' }}; --vti-grad-accent: {{ s.visual_grad_accent | default: '#C54448' }};{% if s.content_bg != blank %} --vti-content-bg: {{ s.content_bg }};{% endif %}{% if s.accent_color != blank %} --vti-accent: {{ s.accent_color }};{% endif %}{% if s.title_color != blank %} --vti-title-color: {{ s.title_color }};{% endif %}">
+  <div class="vti-inner vti-inner--{{ s.image_position | default: 'left' }}">
+
+    {%- comment -%} ── Visual panel ─────────────────────────── {%- endcomment -%}
+    <div class="vti-visual">
+
+      {%- if s.image != blank -%}
+        <img
+          class="vti-visual-img"
+          src="{{ s.image | image_url: width: 1000 }}"
+          alt="{{ s.image.alt | escape }}"
+          width="{{ s.image.width }}"
+          height="{{ s.image.height }}"
+          loading="lazy"
+        >
+      {%- else -%}
+        <div class="vti-overlay" aria-hidden="true"></div>
+      {%- endif -%}
+
+      {%- if s.tag != blank -%}
+        <div class="vti-tag-row">
+          <div class="vti-tag">{{ s.tag }}</div>
+        </div>
+      {%- endif -%}
+
+      {%- if s.visual_eyebrow != blank or s.visual_title != blank -%}
+        <div class="vti-visual-text">
+          {%- if s.visual_eyebrow != blank -%}
+            <div class="vti-visual-eyebrow">{{ s.visual_eyebrow }}</div>
+          {%- endif -%}
+          {%- if s.visual_title != blank -%}
+            <div class="vti-visual-title">{{ s.visual_title | newline_to_br }}</div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if s.types != blank -%}
+        <div class="vti-types">
+          {%- assign types_arr = s.types | split: ',' -%}
+          {%- for t in types_arr -%}
+            {%- unless forloop.first -%}<span class="vti-dim">·</span>{%- endunless -%}
+            <span>{{ t | strip }}</span>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+
+    {%- comment -%} ── Content panel ────────────────────────── {%- endcomment -%}
+    <div class="vti-content">
+
+      {%- if s.eyebrow != blank -%}
+        <div class="vti-eyebrow">{{ s.eyebrow }}</div>
+      {%- endif -%}
+
+      {%- if s.title != blank -%}
+        <div class="vti-title">
+          {{ s.title -}}
+          {%- if s.title_em != blank %} <em>{{ s.title_em }}</em>{%- endif %}
+        </div>
+      {%- endif -%}
+
+      {%- if s.body != blank -%}
+        <p class="vti-body">{{ s.body }}</p>
+      {%- endif -%}
+
+      {%- if stat_blocks.size > 0 -%}
+        <div class="vti-stats">
+          {%- for block in stat_blocks -%}
+            {%- unless forloop.first -%}<span class="vti-sep">·</span>{%- endunless -%}
+            <span {{ block.shopify_attributes }}>
+              {%- if block.settings.label != blank -%}<strong>{{ block.settings.label }}</strong> {%- endif -%}
+              {{ block.settings.description }}
+            </span>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if cta_blocks.size > 0 -%}
+        <div class="vti-actions">
+          {%- for block in cta_blocks -%}
+            <a
+              href="{{ block.settings.url | default: '#' }}"
+              class="vti-btn vti-btn--{{ block.settings.style | default: 'primary' }}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.text }}
+              {{ arrow_svg }}
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+
+  </div>
+</section>
+</div>
+
+{% stylesheet %}
+
+/* ── Color tokens (self-contained, same as --vr-* design system) ─── */
+:root {
+  --vr-navy:        #2B3A55;
+  --vr-navy-deep:   #1D2636;
+  --vr-sky:         #63B9DE;
+  --vr-sky-pale:    #D9EEF6;
+  --vr-crimson:     #C54448;
+  --vr-chalk:       #F4F5F2;
+  --vr-parchment:   #EEEDE7;
+  --vr-steel:       #66717E;
+  --vr-steel-lt:    #A8B0B8;
+  --vr-ink:         #121820;
+  --vr-white:       #FFFFFF;
+  --vr-border:      #0002;
+  --vr-border-str:  #0003;
+  --vr-serif:       var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:        var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.vti-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border);
+  min-height: 400px;
+}
+.vti-inner--right .vti-visual { order: 2; }
+.vti-inner--right .vti-content { order: 1; }
+
+/* ── Visual panel ───────────────────────────────────────────────── */
+.vti-visual {
+  background: linear-gradient(135deg, var(--vti-grad-start, #1D2636) 0%, var(--vti-grad-mid, #2B3A55) 60%, var(--vti-grad-accent, #C54448) 130%);
+  color: var(--vr-chalk);
+  padding: 48px 44px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.vti-visual-img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.vti-overlay {
+  position: absolute;
+  top: -10%; right: -20%;
+  width: 70%; height: 80%;
+  background: radial-gradient(circle, rgba(99,185,222,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.vti-tag-row {
+  display: flex;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+.vti-tag {
+  font-family: var(--vr-sans);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vr-sky);
+  background: rgba(99,185,222,0.12);
+  border: 1px solid rgba(99,185,222,0.4);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.vti-visual-text {
+  position: relative;
+  z-index: 1;
+  margin: auto 0;
+}
+.vti-visual-eyebrow {
+  font-family: var(--vr-serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--vr-sky);
+  margin-bottom: 8px;
+}
+.vti-visual-title {
+  font-family: var(--vr-serif);
+  font-size: 76px;
+  line-height: 0.95;
+  color: var(--vr-chalk);
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+.vti-types {
+  font-family: var(--vr-sans);
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(244,245,242,0.12);
+  padding-top: 16px;
+  margin-top: 24px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(244,245,242,0.85);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-weight: 500;
+}
+.vti-dim { color: rgba(244,245,242,0.3); }
+
+/* ── Content panel ──────────────────────────────────────────────── */
+.vti-content {
+  padding: 48px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--vti-content-bg, transparent);
+}
+.vti-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vti-accent, var(--vr-crimson));
+  font-weight: 500;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vti-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--vti-accent, var(--vr-crimson)); }
+.vti-title {
+  font-family: var(--vr-serif);
+  font-size: 44px;
+  line-height: 1.05;
+  color: var(--vti-title-color, var(--vr-navy-deep));
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  margin-bottom: 18px;
+}
+.vti-title em { color: var(--vr-steel) !important; font-style: italic; }
+.vti-body {
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: var(--vr-steel);
+  line-height: 1.65;
+  margin-bottom: 18px;
+  max-width: 480px;
+}
+.vti-stats {
+  font-family: var(--vr-sans);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+  padding: 14px 0;
+  margin: 0 0 22px;
+  border-top: 1px solid var(--vr-border);
+  border-bottom: 1px solid var(--vr-border);
+  font-size: 12px;
+  color: var(--vr-steel);
+}
+.vti-stats strong { color: var(--vr-navy-deep); font-weight: 600; }
+.vti-sep { color: var(--vr-steel-lt); }
+.vti-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Buttons ────────────────────────────────────────────────────── */
+.vti-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 22px;
+  border-radius: 999px;
+  transition: all 0.15s;
+  text-decoration: none;
+  line-height: 1;
+}
+.vti-btn--primary {
+  background: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+}
+.vti-btn--primary:hover { background: var(--vti-accent, var(--vr-crimson)); }
+.vti-btn--ghost {
+  background: var(--vr-chalk);
+  color: var(--vr-navy-deep);
+  border: 1px solid var(--vr-border-str);
+}
+.vti-btn--ghost:hover { background: var(--vr-parchment); }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .vti-inner { grid-template-columns: 1fr; }
+  .vti-inner--right .vti-visual { order: 0; }
+  .vti-inner--right .vti-content { order: 0; }
+  .vti-visual { padding: 36px 32px; min-height: 360px; }
+  .vti-visual-title { font-size: 56px; }
+  .vti-content { padding: 36px 32px; }
+  .vti-title { font-size: 34px; }
+}
+@media (max-width: 749px) {
+  .vti-visual-title { font-size: 44px; }
+  .vti-title { font-size: 28px; }
+}
+
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Valor text image",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "info": "Leave blank for no background",
+      "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Visual panel position",
+      "options": [
+        { "value": "left",  "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Visual panel"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "When set, replaces the gradient background. The tag, eyebrow, title, and types are shown on top."
+    },
+    {
+      "type": "text",
+      "id": "tag",
+      "label": "Tag badge",
+      "default": "Print on demand"
+    },
+    {
+      "type": "text",
+      "id": "visual_eyebrow",
+      "label": "Visual eyebrow",
+      "default": "Design Lab"
+    },
+    {
+      "type": "textarea",
+      "id": "visual_title",
+      "label": "Visual title (line breaks supported)",
+      "default": "Design\nyour vibe."
+    },
+    {
+      "type": "text",
+      "id": "types",
+      "label": "Types list (comma-separated)",
+      "default": "Cases, Power, Audio, MagSafe",
+      "info": "Displayed at the bottom of the visual panel separated by ·"
+    },
+    {
+      "type": "header",
+      "content": "Visual panel colors"
+    },
+    {
+      "type": "color",
+      "id": "visual_grad_start",
+      "label": "Gradient start",
+      "default": "#1D2636"
+    },
+    {
+      "type": "color",
+      "id": "visual_grad_mid",
+      "label": "Gradient mid",
+      "default": "#2B3A55"
+    },
+    {
+      "type": "color",
+      "id": "visual_grad_accent",
+      "label": "Gradient accent",
+      "default": "#C54448"
+    },
+    {
+      "type": "header",
+      "content": "Content panel"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "500+ designs · Customization available"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "A design for every"
+    },
+    {
+      "type": "text",
+      "id": "title_em",
+      "label": "Title italic suffix",
+      "default": "style."
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body text",
+      "default": "Browse 500+ ready-to-order designs across 12 style pillars — applied to cases, power banks, earbuds, wireless chargers, and more. Every design is made to order in 1–2 days."
+    },
+    {
+      "type": "header",
+      "content": "Content panel colors"
+    },
+    {
+      "type": "color",
+      "id": "content_bg",
+      "label": "Content panel background",
+      "info": "Leave blank for white"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "info": "Eyebrow text, eyebrow line, and primary button hover"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title color",
+      "info": "Leave blank for default dark navy"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label (bold)",
+          "default": "Zero MOQ"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "on catalog"
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Button text",
+          "default": "Browse the catalog"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "options": [
+            { "value": "primary", "label": "Primary (dark)" },
+            { "value": "ghost",   "label": "Ghost (light)" }
+          ],
+          "default": "primary"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor text image",
+      "blocks": [
+        {
+          "type": "stat",
+          "settings": {
+            "label": "Zero MOQ",
+            "description": "on catalog"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "label": "Low MOQ",
+            "description": "on customs (from 4)"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "label": "1–2 day",
+            "description": "lead time"
+          }
+        },
+        {
+          "type": "cta",
+          "settings": {
+            "text": "Browse the catalog",
+            "style": "primary"
+          }
+        },
+        {
+          "type": "cta",
+          "settings": {
+            "text": "Start a custom design",
+            "style": "ghost"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

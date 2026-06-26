@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "valor_product_main": {
+      "type": "valor-product",
+      "settings": {}
+    }
+  },
+  "order": ["valor_product_main"]
+}

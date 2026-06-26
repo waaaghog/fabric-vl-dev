@@ -1,0 +1,235 @@
+{%- doc -%}
+  Renders the Design Lab card for collection filter sidebars.
+
+  @param {object} filters - Shopify filter objects.
+  @param {string} section_id - Section ID used to keep form control IDs unique.
+  @param {boolean} [in_drawer] - Whether this card is rendered in the mobile drawer.
+{%- enddoc -%}
+
+{%- liquid
+  assign design_lab_filter = blank
+  assign design_lab_show_value = blank
+  assign design_lab_hide_value = blank
+  assign design_lab_param_name = ''
+  assign is_design_lab_collection = false
+  if collection != blank
+    assign collection_title_prefix = collection.title | downcase | slice: 0, 13
+    if collection_title_prefix == 'design lab > '
+      assign is_design_lab_collection = true
+    endif
+  endif
+
+  for filter in filters
+    assign filter_label_key = filter.label | downcase | replace: '_', '' | replace: '-', '' | replace: ' ', ''
+    assign filter_param_key = filter.param_name | downcase | replace: '_', '' | replace: '-', '' | replace: '.', ''
+    if filter_label_key contains 'productdesignlab' or filter_label_key contains 'designlab' or filter_param_key contains 'productdesignlab' or filter_param_key contains 'designlab'
+      assign design_lab_filter = filter
+      assign design_lab_param_name = filter.param_name
+      break
+    endif
+  endfor
+
+  if design_lab_filter != blank and design_lab_filter.type == 'boolean'
+    if design_lab_filter.true_value != blank
+      assign design_lab_show_value = design_lab_filter.true_value
+    endif
+    if design_lab_filter.false_value != blank
+      assign design_lab_hide_value = design_lab_filter.false_value
+    endif
+  elsif design_lab_filter != blank
+    for value in design_lab_filter.values
+      assign value_label_key = value.label | downcase | strip | replace: '_', '' | replace: '-', '' | replace: ' ', ''
+      assign value_key = value.value | downcase | strip | replace: '_', '' | replace: '-', '' | replace: ' ', ''
+      if value_key == 'true' or value_key == '1' or value_label_key == 'true' or value_label_key == 'yes' or value_label_key contains 'designlab'
+        assign design_lab_show_value = value
+      elsif value_key == 'false' or value_key == '0' or value_label_key == 'false' or value_label_key == 'no'
+        assign design_lab_hide_value = value
+      endif
+    endfor
+
+    if design_lab_show_value == blank
+      for value in design_lab_filter.values
+        if design_lab_hide_value == blank or value.value != design_lab_hide_value.value
+          assign design_lab_show_value = value
+          break
+        endif
+      endfor
+    endif
+
+    if design_lab_hide_value == blank
+      for value in design_lab_filter.values
+        if design_lab_show_value == blank or value.value != design_lab_show_value.value
+          assign design_lab_hide_value = value
+          break
+        endif
+      endfor
+    endif
+  endif
+
+  assign design_lab_tag = ''
+  if collection != blank
+    for tag in collection.all_tags
+      assign tag_downcase = tag | downcase
+      if tag_downcase contains 'filter_design lab:' or tag_downcase == 'design lab' or tag_downcase contains 'design-lab'
+        assign design_lab_tag = tag
+        break
+      endif
+    endfor
+  endif
+
+  assign should_render_design_lab_card = false
+  if design_lab_show_value != blank
+    assign design_lab_show_count = design_lab_show_value.count | default: 0
+    if design_lab_show_count > 0 or design_lab_show_value.active or design_lab_hide_value.active or design_lab_tag != blank or is_design_lab_collection
+      assign should_render_design_lab_card = true
+    endif
+  elsif design_lab_tag != blank or is_design_lab_collection
+    assign should_render_design_lab_card = true
+  endif
+
+  assign design_lab_show_raw_value = '1'
+  assign design_lab_hide_raw_value = '0'
+  assign is_design_lab_show_active = false
+  assign is_design_lab_hide_active = false
+  if design_lab_show_value != blank
+    assign design_lab_param_name = design_lab_show_value.param_name
+    capture design_lab_show_raw_value
+      echo design_lab_show_value.value
+    endcapture
+    if design_lab_show_raw_value == blank
+      assign design_lab_show_raw_value = '1'
+    endif
+    if design_lab_show_value.active
+      assign is_design_lab_show_active = true
+    endif
+  endif
+  if design_lab_hide_value != blank
+    assign design_lab_param_name = design_lab_hide_value.param_name | default: design_lab_param_name
+    capture design_lab_hide_raw_value
+      echo design_lab_hide_value.value
+    endcapture
+    if design_lab_hide_raw_value == blank
+      assign design_lab_hide_raw_value = '0'
+    endif
+    if design_lab_hide_value.active
+      assign is_design_lab_hide_active = true
+    endif
+  endif
+
+  assign has_design_lab_explicit_selection = false
+  if is_design_lab_show_active or is_design_lab_hide_active
+    assign has_design_lab_explicit_selection = true
+  endif
+
+  if design_lab_param_name == blank
+    assign design_lab_param_name = 'filter.p.m.custom.product_designlab'
+  endif
+
+  assign is_design_lab_active = false
+  if is_design_lab_show_active
+    assign is_design_lab_active = true
+  elsif design_lab_tag != blank and current_tags contains design_lab_tag
+    assign is_design_lab_active = true
+  elsif is_design_lab_collection and has_design_lab_explicit_selection == false
+    assign is_design_lab_active = true
+  endif
+
+  if is_design_lab_hide_active == false and is_design_lab_active == false
+    assign is_design_lab_hide_active = true
+  endif
+
+  assign design_lab_default_raw_value = design_lab_hide_raw_value
+  if is_design_lab_collection
+    assign design_lab_default_raw_value = design_lab_show_raw_value
+  endif
+
+  assign card_id = 'design-lab-filter-' | append: section_id
+  if in_drawer
+    assign card_id = card_id | append: '-drawer'
+  else
+    assign card_id = card_id | append: '-sidebar'
+  endif
+
+  assign design_lab_base_url = ''
+  if design_lab_filter != blank
+    assign design_lab_base_url = design_lab_filter.url_to_remove
+  endif
+  if design_lab_base_url == blank and collection != blank
+    assign design_lab_base_url = collection.url
+  endif
+  if design_lab_base_url == blank
+    assign design_lab_base_url = request.path
+  endif
+
+  assign encoded_design_lab_param_name = design_lab_param_name | url_encode
+  assign design_lab_param_token = design_lab_param_name | append: '='
+  assign encoded_design_lab_param_token = encoded_design_lab_param_name | append: '='
+  if design_lab_base_url contains design_lab_param_token or design_lab_base_url contains encoded_design_lab_param_token
+    if collection != blank
+      assign design_lab_base_url = collection.url
+    else
+      assign design_lab_base_url = request.path
+    endif
+  endif
+
+  assign design_lab_url_separator = '?'
+  if design_lab_base_url contains '?'
+    assign design_lab_url_separator = '&'
+  endif
+
+  assign encoded_design_lab_hide_raw_value = design_lab_hide_raw_value | url_encode
+  assign design_lab_show_url = design_lab_base_url
+  assign design_lab_hide_url = design_lab_base_url | append: design_lab_url_separator | append: encoded_design_lab_param_name | append: '=' | append: encoded_design_lab_hide_raw_value
+-%}
+
+{% if should_render_design_lab_card %}
+<div
+  class="dl-sidebar-toggle"
+  data-design-lab-filter-card="{{ card_id }}"
+  data-design-lab-filter-param="{{ design_lab_param_name | escape }}"
+  data-design-lab-default-value="{{ design_lab_default_raw_value | escape }}"
+>
+  <div class="dl-sidebar-head">
+    <div class="dl-sidebar-icon">
+      <svg
+        aria-hidden="true"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="dl-sidebar-title">Design Lab</div>
+      <div class="dl-sidebar-sub">
+        500+ designs available
+      </div>
+    </div>
+  </div>
+
+  <div class="dl-sidebar-pills">
+    <a
+      class="dlm-btn{% if is_design_lab_hide_active %} active{% endif %}"
+      href="{{ design_lab_hide_url }}"
+      data-design-lab-filter-value="{{ design_lab_hide_raw_value }}"
+      {% if is_design_lab_hide_active %}aria-current="true"{% endif %}
+    >
+      Hide
+    </a>
+    <a
+      class="dlm-btn{% if is_design_lab_active %} active{% endif %}"
+      href="{{ design_lab_show_url }}"
+      data-design-lab-filter-value="{{ design_lab_show_raw_value }}"
+      data-design-lab-filter-clears
+      {% if is_design_lab_active %}aria-current="true"{% endif %}
+    >
+      Show
+    </a>
+  </div>
+</div>
+{% endif %}

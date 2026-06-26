@@ -1,0 +1,341 @@
+{% include 'shogun-content-handler' %}
+<!doctype html>
+<html
+  {% if request.design_mode %}
+    class="shopify-design-mode"
+  {% endif %}
+  lang="{{ request.locale.iso_code }}"
+>
+  <head>
+    {%- comment -%} Redirect the default /collections/all page to the wholesale catalog search. {%- endcomment -%}
+    {%- unless request.design_mode -%}
+      {%- if request.path == '/collections/all' -%}
+        {%- assign all_redirect_url = '/search?sort_by=relevance&q=*&filter.p.m.custom.product_designlab=0' -%}
+        <meta http-equiv="refresh" content="0; url={{ all_redirect_url | escape }}">
+        <script>window.location.replace({{ all_redirect_url | json }});</script>
+      {%- endif -%}
+    {%- endunless -%}
+	<meta name="theme-color" content="#259">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    {%- if settings.favicon != blank -%}
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
+    {%- endif -%}
+
+    {% comment %} This a way to wait for main content to load when navigating to a new page so that the view transitions can work consistently {% endcomment %}
+    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
+      <link
+        rel="expect"
+        href="#MainContent"
+        blocking="render"
+        id="view-transition-render-blocker"
+      >
+    {% endif %}
+
+    {%- render 'meta-tags' -%}
+    {%- render 'stylesheets' -%}
+    {%- render 'fonts' -%}
+    {%- render 'scripts' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'valor-styles-variables' -%}
+    {%- render 'color-schemes' -%}
+
+    {% if request.design_mode %}
+      {%- render 'theme-editor' -%}
+    {% endif %}
+
+    <script src="//code.tidio.co/nl2jytcmcaoomrihisgeixytdueorlig.js" async></script>
+
+    {{ content_for_header }}
+    <link rel="modulepreload" href="{{ 'header-menu.js' | asset_url }}" media="(min-width: 750px)">
+    {% render 'rapid-search-settings' %}
+
+    {%- if settings.b2b_register_redirect != blank
+        and customer
+        and customer.b2b? == false
+        and request.design_mode == false
+        and request.path != settings.b2b_register_redirect -%}
+      <script>window.location.replace({{ settings.b2b_register_redirect | json }});</script>
+    {%- endif -%}
+
+    <script>window.__vaProxy = 'https://app.rnrn.us/valor/proxy';</script>
+
+    {%- if customer and customer['b2b?'] -%}
+      {%- liquid
+        assign _va_ts     = 'now' | date: '%s'
+        assign _va_secret = shop.metafields.valor.connect.value[0]
+        assign _va_token  = customer.id | append: '|' | append: _va_ts | hmac_sha256: _va_secret
+      -%}
+      <script>
+        (function() {
+          var isAccountPage = {{ request.page_type | json }} === 'customers/account' || {{ template.suffix | json }} === 'account';
+          var INFO_KEY = 'va_info_cache-{{ customer.id }}';
+
+          function fetchAndCache(key, body, extract) {
+            return fetch(window.__vaProxy, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            }).then(function(r) { return r.json(); }).then(function(d) {
+              var val = extract(d);
+              if (val != null) { try { sessionStorage.setItem(key, JSON.stringify(val)); } catch(_) {} }
+              return val;
+            }).catch(function() { return null; });
+          }
+
+          function fromCache(key) {
+            try { var v = sessionStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(_) { return null; }
+          }
+
+          function dispatchWhenReady(data) {
+            function dispatch() { document.dispatchEvent(new CustomEvent('va:customer-info', { detail: data })); }
+            document.readyState === 'loading'
+              ? document.addEventListener('DOMContentLoaded', dispatch)
+              : dispatch();
+          }
+
+          var baseBody = { customer_id: {{ customer.id | json }}, ts: {{ _va_ts | json }}, token: {{ _va_token | json }}, shop: Shopify.shop };
+
+          // customer-info: force-refresh on account page; cached elsewhere (includes multiAddress flag)
+          var cachedInfo = isAccountPage ? null : fromCache(INFO_KEY);
+          window.__vaCustomerInfo = cachedInfo
+            ? Promise.resolve(cachedInfo)
+            : fetchAndCache(INFO_KEY, Object.assign({}, baseBody, { action: 'customer-info' }), function(d) { return d.ok ? d.data : null; });
+          window.__vaCustomerInfo.then(function(data) {
+            if (data) dispatchWhenReady(data);
+          });
+
+        })();
+      </script>
+    {%- endif -%}
+</head>
+
+  <body class="card-hover-effect-{{ settings.card_hover_effect }}">
+    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+    <div id="header-group">
+      {% sections 'header-group' %}
+    </div>
+
+    <script>
+      // Inline header height and menu style calculations to prevent layout shift
+      // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
+      (function setHeaderHeighCustomProperties() {
+        /*
+         * Header calculation functions for maintaining CSS variables
+         * Mimic calculateHeaderGroupHeight() in utilities.js
+         */
+        const header = document.querySelector('header-component');
+        const headerGroup = document.querySelector('#header-group');
+        const hasHeaderSection = headerGroup?.querySelector('.header-section');
+
+        if (!header || !headerGroup) return;
+
+        const headerTopRow = header.querySelector('.header__row--top');
+        const headerHeight = header.offsetHeight;
+
+        // Calculate the total height of the header group
+        let headerGroupHeight = 0;
+        const children = headerGroup.children;
+        for (let i = 0; i < children.length; i++) {
+          const element = children[i];
+          if (element === header || !(element instanceof HTMLElement)) continue;
+          headerGroupHeight += element.offsetHeight;
+        }
+
+        // Check for transparent header special case
+        if (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling) {
+          headerGroupHeight += headerHeight;
+        }
+
+        // Set CSS variables
+        document.body.style.setProperty('--header-height', `${headerHeight}px`);
+        document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
+
+        if (headerTopRow) {
+          window.requestAnimationFrame(function () {
+            document.body.style.setProperty('--top-row-height', `${headerTopRow.offsetHeight}px`);
+          });
+        }
+
+        /**
+         * Updates CSS custom properties for transparent header offset calculation
+         * Mimic updateTransparentHeaderOffset() in utilities.js
+         */
+
+        if (!hasHeaderSection || !header?.hasAttribute('transparent')) {
+          document.body.style.setProperty('--transparent-header-offset-boolean', '0');
+          return;
+        }
+
+        const hasImmediateSection = hasHeaderSection.nextElementSibling?.classList.contains('shopify-section');
+
+        const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
+        document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
+      })();
+
+      (function setHeaderMenuStyle() {
+        const headerComponent = document.querySelector('#header-component');
+        if (headerComponent) {
+          const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
+          const overflowList = headerComponent?.querySelector('overflow-list');
+          const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
+          headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
+        }
+      })();
+    </script>
+
+    <main
+      id="MainContent"
+      class="content-for-layout"
+      role="main"
+      data-page-transition-enabled="{{ settings.page_transition_enabled }}"
+      data-product-transition="{{ settings.transition_to_main_product }}"
+      data-template="{{ template }}"
+    >
+      {{ content_for_layout }}
+    </main>
+
+    <footer>
+      {%- sections 'footer-group' -%}
+    </footer>
+
+    {%- render 'search-modal' -%}
+
+    {%- if settings.quick_add == 'quick_view' or settings.mobile_quick_add -%}
+      {%- render 'quick-add-modal' -%}
+    {%- endif -%}
+	<style>
+		wishlist-link {
+			display: flex;
+			margin-left: 6px;
+			margin-right: 10px;
+		}
+		wishlist-link wk-button {
+			margin: auto;
+		}
+	</style>
+  <script src="{{ 'valor-quick-add.js' | asset_url }}" defer></script>
+  <script src="{{ 'valor-product-card.js' | asset_url }}" defer></script>
+
+  {%- if settings.cart_type == 'drawer' -%}
+    {%- render 'valor-cart-drawer' -%}
+  {%- endif -%}
+
+  {%- comment -%}── shopify-account shadow DOM patches ─────────────────────────────{%- endcomment -%}
+  {%- if customer %}<script>window.__vrIsCustomer=true;</script>{%- endif %}
+
+  {%- comment -%} Per-dealer "last ordered" notes on product cards (logged-in only) {%- endcomment -%}
+  {%- render 'valor-purchase-history' -%}
+  <script>
+  (function () {
+    var observed = new WeakSet();
+    var isCustomer = !!window.__vrIsCustomer;
+
+    // Guest dialog: push "OR" divider below the email input inside shopify-login-form
+    function patchLoginForm(root) {
+      var slf = root.querySelector('shopify-login-form');
+      if (!slf || !slf.shadowRoot || slf.shadowRoot.querySelector('#va-slf-style')) return;
+      var s = document.createElement('style');
+      s.id = 'va-slf-style';
+      s.textContent = '.account__divider { order: 10; }';
+      slf.shadowRoot.appendChild(s);
+    }
+
+    // Logged-in dialog: inject a sign-out link
+    function patchLogout(root) {
+      if (root.querySelector('#vr-sa-logout-btn')) return;
+      var content = root.querySelector('.account__content, .account__menu-region, .account');
+      if (!content) return;
+      var a = document.createElement('a');
+      a.id = 'vr-sa-logout-btn';
+      a.href = '/account/logout';
+      a.textContent = 'Sign out';
+      a.style.cssText = 'display:block;width:100%;margin-top:12px;padding:10px 16px;background:transparent;border-top:1px solid rgba(0,0,0,0.15);color:inherit;font-size:14px;text-align:center;text-decoration:none;cursor:pointer;box-sizing:border-box;';
+      content.appendChild(a);
+    }
+
+    function onDialogOpen(root) {
+      patchLoginForm(root);
+      if (isCustomer) patchLogout(root);
+    }
+
+    function observe(sa) {
+      if (observed.has(sa)) return;
+      var root = sa.shadowRoot;
+      if (!root) return;
+      observed.add(sa);
+      new MutationObserver(function () {
+        if (root.querySelector('dialog[open]')) onDialogOpen(root);
+      }).observe(root, { attributes: true, subtree: true, attributeFilter: ['open'] });
+      if (root.querySelector('dialog[open]')) onDialogOpen(root);
+    }
+
+    function observeAll() {
+      document.querySelectorAll('shopify-account').forEach(function (sa) {
+        if (sa.shadowRoot) observe(sa);
+      });
+    }
+
+    function init() {
+      observeAll();
+      new MutationObserver(observeAll).observe(document.body, { childList: true, subtree: true });
+    }
+
+    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
+  })();
+  </script>
+
+  <script>
+  // Intercept register links inside shopify-account shadow DOM.
+  // Uses composedPath() + capture phase to see through shadow boundary retargeting.
+  document.addEventListener('click', function(e) {
+    var path = e.composedPath();
+    var link = null;
+    for (var i = 0; i < path.length; i++) {
+      if (path[i].matches && path[i].matches('a[href*="/pages/register"]')) {
+        link = path[i]; break;
+      }
+    }
+    if (!link) return;
+    var inSa = path.some(function(el) { return el.localName === 'shopify-account'; });
+    if (!inSa) return;
+    e.preventDefault();
+    document.querySelectorAll('shopify-account').forEach(function(sa) {
+      var dialog = sa.shadowRoot && sa.shadowRoot.querySelector('dialog[open]');
+      if (dialog) dialog.close();
+    });
+    setTimeout(function() {
+      document.dispatchEvent(new CustomEvent('vr:open-register'));
+    }, 0);
+  }, true); // capture phase
+  </script>
+
+  <script>
+  document.addEventListener('click', function (e) {
+    var trigger = e.target.closest('.js-shopify-login-trigger');
+    if (!trigger) return;
+    e.preventDefault();
+    var sa = document.querySelector('shopify-account.va-nav-account--sa');
+    if (!sa || sa.offsetParent === null) {
+      sa = document.querySelector('shopify-account.vmd-account-sa');
+    }
+    if (!sa) {
+      sa = document.querySelector('shopify-account');
+    }
+    if (!sa) return;
+    var btn = sa.shadowRoot && sa.shadowRoot.querySelector('button[aria-haspopup="dialog"]');
+    if (!btn) return;
+    var openDrawer = document.querySelector('valor-cart-drawer.vcd-open, valor-menu-drawer.vmd-open');
+    if (openDrawer && typeof openDrawer.close === 'function') openDrawer.close();
+    btn.click();
+  });
+  </script>
+
+  {%- if customer == nil or (customer.b2b? == false and template.suffix != 'register') -%}
+    {%- render 'valor-register-popup' -%}
+  {%- endif -%}
+  </body>
+</html>

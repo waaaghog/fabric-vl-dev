@@ -1,0 +1,225 @@
+{%- comment -%}
+  Valor — B2B Free Shipping Threshold callout.
+
+  Shows the logged-in B2B customer's free-shipping threshold based on their
+  Shopify market. Mirrors the pricing pattern used elsewhere in the theme:
+    • Logged-out / non-B2B  → "Login to view Free Shipping offer"
+    • Logged-in B2B         → "Your exclusive Free Shipping offer is $X order value"
+
+  Login gate is server-side (customer.b2b?). The market handle is resolved
+  client-side from window.__vaCustomerInfo.shopifyMarketHandle — the same
+  source of truth used by the cart, account, header and menu drawer.
+{%- endcomment -%}
+
+{%- liquid
+  assign is_b2b = false
+  if customer and customer['b2b?']
+    assign is_b2b = true
+  endif
+-%}
+
+{% style %}
+  .vst-{{ section.id }} {
+    --vst-navy: #2b3a55;
+    --vst-navy-deep: #1d2636;
+    --vst-crimson: {{ section.settings.accent_color | default: '#c54448' }};
+    max-width: {{ section.settings.max_width | default: 760 }}px;
+    margin: 40px auto 0;
+  }
+  .vst-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 26px;
+    border: 1px solid #e3e6ec;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f8fb 100%);
+    box-shadow: 0 1px 2px rgba(29, 38, 54, .06);
+  }
+  .vst-icon {
+    flex: 0 0 auto;
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--vst-navy);
+    color: #fff;
+  }
+  .vst-body { min-width: 0; }
+  .vst-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--vst-crimson);
+    margin: 0 0 2px;
+  }
+  .vst-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vst-navy-deep);
+    margin: 0;
+    line-height: 1.4;
+  }
+  .vst-amount { color: var(--vst-crimson); }
+  .vst-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vst-navy-deep);
+  }
+  .vst-login svg { color: var(--vst-crimson); }
+  .vst-login:hover { text-decoration: underline; }
+  /* Hide the resolved amount until JS fills it to avoid a flash */
+  .vst-card[data-vst-state="loading"] .vst-text { opacity: .55; }
+{% endstyle %}
+
+<div class="vst-{{ section.id }} shipping-threshold" {{ section.shopify_attributes }}>
+  {%- if is_b2b -%}
+    <div
+      class="vst-card"
+      data-vst-state="loading"
+      data-vst-default="{{ section.settings.threshold_default | default: 250 }}"
+      data-vst-boost="{{ section.settings.threshold_boost | default: 100 }}"
+      data-vst-cricket="{{ section.settings.threshold_cricket | default: 250 }}"
+      data-vst-valor="{{ section.settings.threshold_valor | default: 250 }}"
+      data-vst-total="{{ section.settings.threshold_total | default: 250 }}"
+    >
+      <span class="vst-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </span>
+      <div class="vst-body">
+        <p class="vst-label">Free Shipping</p>
+        <p class="vst-text" data-vst-msg>
+          Your exclusive Free Shipping offer is <span class="vst-amount" data-vst-amount>&hellip;</span> order value
+        </p>
+      </div>
+    </div>
+  {%- else -%}
+    <div class="vst-card">
+      <span class="vst-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
+      <div class="vst-body">
+        <p class="vst-label">Free Shipping</p>
+        <p class="vst-text">
+          <a class="vst-login js-shopify-login-trigger" href="{{ settings.b2b_login_url | default: '/account/login' }}">
+            Login to view Free Shipping offer
+          </a>
+        </p>
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{%- if is_b2b -%}
+  <script>
+    (function () {
+      var root = document.currentScript.previousElementSibling;
+      var card = root && root.querySelector('[data-vst-state]');
+      if (!card || !window.__vaCustomerInfo) return;
+
+      var amountEl = card.querySelector('[data-vst-amount]');
+
+      function fmt(n) { return '$' + Number(n).toLocaleString('en-US'); }
+
+      function thresholdFor(handle) {
+        switch ((handle || '').toUpperCase()) {
+          case 'BOOST-MOBILE':    return card.dataset.vstBoost;
+          case 'CRICKET-WIRELESS':return card.dataset.vstCricket;
+          case 'VALOR-WHOLESALE': return card.dataset.vstValor;
+          case 'TOTAL-WIRELESS':  return card.dataset.vstTotal;
+          default:                return card.dataset.vstDefault;
+        }
+      }
+
+      window.__vaCustomerInfo.then(function (data) {
+        var handle = data && (data.shopifyMarketHandle || data.ShopifyMarketHandle);
+        if (amountEl) amountEl.textContent = fmt(thresholdFor(handle));
+        card.dataset.vstState = 'ready';
+      }).catch(function () {
+        if (amountEl) amountEl.textContent = fmt(card.dataset.vstDefault);
+        card.dataset.vstState = 'ready';
+      });
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "B2B Shipping Threshold",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Shows the logged-in B2B customer's free-shipping threshold based on their market. Logged-out visitors see a 'Login to view' prompt."
+    },
+    {
+      "type": "header",
+      "content": "Free shipping thresholds ($)"
+    },
+    {
+      "type": "number",
+      "id": "threshold_boost",
+      "label": "Boost Mobile",
+      "default": 100
+    },
+    {
+      "type": "number",
+      "id": "threshold_cricket",
+      "label": "Cricket Wireless",
+      "default": 250
+    },
+    {
+      "type": "number",
+      "id": "threshold_valor",
+      "label": "Valor Wholesale",
+      "default": 250
+    },
+    {
+      "type": "number",
+      "id": "threshold_total",
+      "label": "Total Wireless",
+      "default": 250
+    },
+    {
+      "type": "number",
+      "id": "threshold_default",
+      "label": "Default (other markets)",
+      "default": 250
+    },
+    {
+      "type": "header",
+      "content": "Appearance"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#c54448"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 400,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 760
+    }
+  ],
+  "presets": [
+    {
+      "name": "B2B Shipping Threshold"
+    }
+  ]
+}
+{% endschema %}

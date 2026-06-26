@@ -1,0 +1,498 @@
+<script src="{{ 'dialog.js' | asset_url }}" type="module"></script>
+
+<dialog-component id="login-modal" class="login-modal">
+  <dialog
+    ref="dialog"
+    on:click="/closeDialogOnClickOutside"
+    on:keydown="/closeDialogOnEscapePress"
+    class="login-modal__dialog drawer-modal drawer-bottom"
+    scroll-lock
+    aria-labelledby="login-modal-heading"
+  >
+    <div class="login-modal__inner color-{{ settings.popover_color_scheme }}">
+
+      {%- capture visually_hidden_title -%}
+        <h2 id="login-modal-heading" class="visually-hidden">{{ 'customer.login_page.title' | t }}</h2>
+      {%- endcapture -%}
+      {% render 'universal-modal-header', custom_content: visually_hidden_title %}
+
+      <div class="login-modal__body">
+
+        {%- comment -%} -- LOGIN PANEL ---------------------------------- {%- endcomment -%}
+        <div
+          class="login-modal__panel"
+          id="lm-login"
+          data-active
+          data-title="{{ 'customer.login_page.title' | t }}"
+        >
+          <div class="login-modal__header-content">
+            <h2 class="login-modal__panel-title">Log In</h2>
+            <p class="login-modal__subtext login-modal__subtext--centered">Welcome to our store! Please enter<br>your e-mail and password:</p>
+          </div>
+
+          {%- if shop.features.login_with_shop_classic_customer_accounts? -%}
+            <div class="login-modal__shop-login">
+              {{ shop | login_button }}
+            </div>
+            <div class="login-modal__or">
+              <span>{{ 'customer.login_page.alternate_provider_separator' | t }}</span>
+            </div>
+          {%- endif -%}
+
+          {%- form 'customer_login', novalidate: 'novalidate' -%}
+            {%- if form.errors -%}
+              <p class="login-modal__alert login-modal__alert--error">
+                <span class="svg-wrapper">{{- 'icon-error.svg' | inline_asset_content -}}</span>
+                {{ form.errors.messages.form | default: 'customer.login_page.error' | t }}
+              </p>
+            {%- endif -%}
+
+            <div class="lm-field">
+              <input class="lm-field__input" type="email" name="customer[email]" id="LoginModalEmail" autocomplete="email" autocorrect="off" autocapitalize="off" {% if form.errors contains 'form' %}aria-invalid="true"{% endif %} placeholder="Email">
+              <label class="lm-field__label" for="LoginModalEmail">Email</label>
+            </div>
+
+            {%- if form.password_needed -%}
+              <div class="lm-field lm-field--with-action">
+                <input class="lm-field__input lm-field__input--has-action" type="password" name="customer[password]" id="LoginModalPassword" autocomplete="current-password" {% if form.errors contains 'form' %}aria-invalid="true"{% endif %} placeholder="Password">
+                <label class="lm-field__label" for="LoginModalPassword">Password</label>
+                <button type="button" class="lm-field__action" data-login-switch="lm-recover">
+                  Forgot password?
+                </button>
+              </div>
+            {%- endif -%}
+
+            <button type="submit" class="button button--primary login-modal__btn-full">
+              Log In
+            </button>
+          {%- endform -%}
+
+          <div class="login-modal__footer-links">
+            <p class="login-modal__footer-copy">
+              Don't have an account? <button type="button" class="login-modal__inline-link login-modal__inline-link--bold" data-login-switch="lm-register">Register Now!</button>
+            </p>
+            <div class="login-modal__fineprint">
+              <p>*By providing your email address, you agree to our <a href="/policies/privacy-policy">Privacy Policy</a> and <a href="/policies/terms-of-service">Terms & Conditions</a>.</p>
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} -- RECOVER PANEL -------------------------------- {%- endcomment -%}
+        <div
+          class="login-modal__panel"
+          id="lm-recover"
+          data-title="{{ 'customer.recover_password.title' | t }}"
+        >
+          <div class="login-modal__header-content">
+            <h2 class="login-modal__panel-title">Recover password</h2>
+            <p class="login-modal__subtext login-modal__subtext--centered">Please enter your email:</p>
+          </div>
+
+          {%- form 'recover_customer_password' -%}
+            {%- if form.posted_successfully? -%}
+              <p class="login-modal__alert login-modal__alert--success">
+                <span class="svg-wrapper">{{- 'icon-success.svg' | inline_asset_content -}}</span>
+                {{ 'customer.recover_password.success' | t }}
+              </p>
+            {%- endif -%}
+
+            {%- if form.errors -%}
+              <p class="login-modal__alert login-modal__alert--error">
+                <span class="svg-wrapper">{{- 'icon-error.svg' | inline_asset_content -}}</span>
+                {{ form.errors.messages.form }}
+              </p>
+            {%- endif -%}
+
+            <div class="lm-field">
+              <input class="lm-field__input" type="email" name="email" id="LoginModalRecoverEmail" autocomplete="email" autocorrect="off" autocapitalize="off" placeholder="Email">
+              <label class="lm-field__label" for="LoginModalRecoverEmail">Email</label>
+            </div>
+
+            <button type="submit" class="button button--primary login-modal__btn-full">
+              Recover
+            </button>
+          {%- endform -%}
+
+          <div class="login-modal__footer-links">
+            <p class="login-modal__footer-copy">
+              Remember your password? <button type="button" class="login-modal__inline-link login-modal__inline-link--bold" data-login-switch="lm-login">Back to Log In</button>
+            </p>
+          </div>
+        </div>
+
+        {%- comment -%} -- REGISTER PANEL ------------------------------- {%- endcomment -%}
+        <div
+          class="login-modal__panel"
+          id="lm-register"
+          data-title="{{ 'customer.register.title' | t }}"
+        >
+          <div class="login-modal__header-content">
+            <h2 class="login-modal__panel-title">Register New Account</h2>
+            <p class="login-modal__subtext login-modal__subtext--centered">Welcome to our store! Please enter<br>your name and your contact information:</p>
+          </div>
+
+          {%- form 'create_customer', novalidate: 'novalidate' -%}
+            {%- if form.errors -%}
+              <p class="login-modal__alert login-modal__alert--error">
+                <span class="svg-wrapper">{{- 'icon-error.svg' | inline_asset_content -}}</span>
+                {{ form.errors.messages.form | default: 'templates.contact.form.error_heading' | t }}
+              </p>
+            {%- endif -%}
+
+            <div class="lm-field">
+              <input class="lm-field__input" type="text" name="customer[first_name]" id="LMFirstName" autocomplete="given-name" placeholder="First name">
+              <label class="lm-field__label" for="LMFirstName">First name</label>
+            </div>
+
+            <div class="lm-field">
+              <input class="lm-field__input" type="text" name="customer[last_name]" id="LMLastName" autocomplete="family-name" placeholder="Last name">
+              <label class="lm-field__label" for="LMLastName">Last name</label>
+            </div>
+
+            <div class="lm-field">
+              <input class="lm-field__input" type="email" name="customer[email]" id="LMRegisterEmail" autocomplete="email" autocorrect="off" autocapitalize="off" placeholder="Email">
+              <label class="lm-field__label" for="LMRegisterEmail">Email</label>
+            </div>
+
+            <div class="lm-field">
+              <input class="lm-field__input" type="password" name="customer[password]" id="LMRegisterPassword" autocomplete="new-password" placeholder="Password">
+              <label class="lm-field__label" for="LMRegisterPassword">Password</label>
+            </div>
+
+            <div class="lm-marketing-checkbox wrapper">
+              <input type="hidden" name="customer[accepts_marketing]" value="" />
+              <input type="checkbox" name="customer[accepts_marketing]" id="LMRegisterMarketing" value="true" checked="checked">
+              <label for="LMRegisterMarketing">Sign up and be the first to hear about sales, new arrivals, and more.</label>
+            </div>
+
+            <button type="submit" class="button button--primary login-modal__btn-full">
+              Create my account
+            </button>
+          {%- endform -%}
+
+          <div class="login-modal__footer-links">
+            <p class="login-modal__footer-copy">
+              Remember your account? <button type="button" class="login-modal__inline-link login-modal__inline-link--bold" data-login-switch="lm-login">Back to Log In</button>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </dialog>
+</dialog-component>
+
+<script>
+  (function () {
+    var modal = document.getElementById('login-modal');
+    if (!modal) return;
+
+    modal.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-login-switch]');
+      if (!btn) return;
+      switchLoginPanel(btn.dataset.loginSwitch);
+    });
+
+    function switchLoginPanel(targetId) {
+      var current = modal.querySelector('.login-modal__panel[data-active]');
+      var next = modal.querySelector('#' + targetId);
+      if (!next || current === next) return;
+
+      var heading = document.getElementById('login-modal-heading');
+      if (heading && next.dataset.title) heading.textContent = next.dataset.title;
+
+      // Animate out (300 ms)
+      current.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      current.style.opacity = '0';
+      current.style.transform = 'translateY(12px)';
+
+      setTimeout(function () {
+        current.removeAttribute('data-active');
+        current.style.cssText = '';
+
+        next.style.opacity = '0';
+        next.style.transform = 'translateY(12px)';
+        next.setAttribute('data-active', '');
+
+        void next.offsetHeight; // force reflow
+
+        // Animate in (400 ms)
+        next.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        next.style.opacity = '1';
+        next.style.transform = 'translateY(0)';
+
+        setTimeout(function () { next.style.cssText = ''; }, 420);
+      }, 300);
+    }
+  })();
+</script>
+
+{% stylesheet %}
+  /* -- Dialog shell ------------------------------------------- */
+  .login-modal__dialog {
+    @media screen and (min-width: 750px) {
+      /* Desktop: 4 rounded corners this modal floats in the center */
+      border-radius: var(--style-border-radius-popover);
+      width: 420px;
+      height: 580px;
+      margin-block: auto;
+      max-height: calc(100dvh - var(--header-height, 60px) - var(--padding-xl) * 2);
+    }
+  }
+
+  .login-modal__dialog[open] {
+    display: flex;
+  }
+
+  /* -- Inner container fills fixed dialog height ----------- */
+  .login-modal__inner {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-background);
+    overflow: hidden;
+  }
+
+  /* -- Header (using universal-modal-header) ---------------- */
+
+  /* -- Body scrollable, fills remaining height -------------- */
+  .login-modal__body {
+    flex: 1;
+    overflow: hidden;
+    /* Firefox */
+    scrollbar-width: thin;
+	display: flex;
+  }
+
+  /* -- Panels ------------------------------------------------- */
+  .login-modal__panel {
+    display: none;
+    flex-direction: column;
+    gap: var(--gap-md);
+    padding: var(--padding-2xl);
+	width: 100%;
+  }
+
+  .login-modal__panel[data-active] {
+    display: flex;
+  }
+
+  /* Panel title large, prominent */
+  .login-modal__panel-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 var(--margin-sm);
+    letter-spacing: 0.15em;
+    font-family: var(--font-heading--family, inherit);
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--color-foreground);
+    line-height: 1.2;
+  }
+
+  .login-modal__subtext--centered {
+    text-align: center;
+    margin-bottom: var(--margin-lg);
+    font-size: var(--font-size--md);
+    line-height: 1.5;
+    color: var(--color-foreground);
+  }
+
+  
+  .lm-field {
+    position: relative;
+    width: 100%;
+	margin-top: 5px;
+  }
+  .login-modal__btn-full,
+  .lm-field__input {
+	line-height: 42px;
+	height: 42px;
+  }
+  .lm-field__input {
+    display: block;
+    width: 100%;
+    background-color: #ffffff;
+    color: var(--color-foreground);
+    border: 1px solid #dcdcdc;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: var(--font-size--md);
+	padding: 0 0.8rem;
+    transition: border-color var(--animation-speed) ease;
+
+    &:is(:focus, :hover) {
+      box-shadow: none;
+      background-color: #ffffff;
+      border-color: var(--color-primary);
+      outline: none;
+    }
+  }
+
+  /* Screen-reader-only label */
+  .lm-field__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Inline "Forgot your password?" inside the password field */
+  .lm-field--with-action .lm-field__input--has-action {
+    padding-inline-end: 140px;
+  }
+
+  .lm-field__action {
+    position: absolute;
+    right: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-size: var(--font-size--md);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    white-space: nowrap;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--color-foreground);
+      text-decoration: underline;
+    }
+  }
+
+  /* -- OR separator with ruled lines ------------------------- */
+  .login-modal__or {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    font-size: var(--font-size--sm);
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    margin-block: calc(var(--gap-xs) * -0.5);
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--color-border);
+    }
+  }
+
+  /* -- Shop login --------------------------------------------- */
+  .login-modal__shop-login {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* -- Checkbox ----------------------------------------------- */
+  .lm-marketing-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--gap-xs);
+    /*margin-block: var(--margin-sm) var(--margin-lg);*/
+	margin-top: var(--margin-sm);
+    font-size: var(--font-size--sm);
+    line-height: 1.4;
+    color: var(--color-foreground);
+  }
+  
+  .lm-marketing-checkbox input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: #db8b22;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* -- Full-width button -------------------------------------- */
+  .login-modal__btn-full {
+    width: 100%;
+    border-radius: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+	margin-top: 1.2rem;
+  }
+
+  /* -- Footer copy -------------------------------------- */
+  .login-modal__footer-links {
+    margin-top: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-lg);
+    align-items: center;
+  }
+
+  .login-modal__footer-copy {
+    font-size: var(--font-size--md);
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    text-align: center;
+    margin: 0;
+  }
+
+  .login-modal__inline-link {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font-size: inherit;
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+
+  .login-modal__inline-link--bold {
+    font-weight: 700;
+    color: #1a1a1a;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+
+  .login-modal__fineprint {
+    margin-top: 0.8rem;
+    font-size: var(--font-size--xs);
+    color: rgb(var(--color-foreground-rgb) / 0.7);
+    line-height: 1.5;
+    text-align: left;
+    width: 100%;
+  }
+  
+  .login-modal__fineprint a {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* -- Alert messages ----------------------------------------- */
+  .login-modal__alert {
+    font-size: var(--font-size--sm);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2xs);
+    margin: 0;
+
+    .svg-wrapper,
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+    }
+  }
+
+  .login-modal__alert--error  { color: rgb(var(--color-error-rgb, 179 0 0)); }
+  .login-modal__alert--success { color: rgb(var(--color-success-rgb, 0 128 0)); }
+{% endstylesheet %}

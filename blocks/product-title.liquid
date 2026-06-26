@@ -1,0 +1,145 @@
+{%- liquid
+  assign title_style = ''
+  if block.settings.font_size != ''
+    assign title_style = title_style | append: 'font-size:' | append: block.settings.font_size | append: ';'
+  endif
+  if block.settings.margin_top != 0
+    assign title_style = title_style | append: 'margin-top:' | append: block.settings.margin_top | append: 'px;'
+  endif
+  if block.settings.margin_bottom != 0
+    assign title_style = title_style | append: 'margin-bottom:' | append: block.settings.margin_bottom | append: 'px;'
+  endif
+  if block.settings.line_clamp > 0
+    assign title_style = title_style | append: 'display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;-webkit-line-clamp:' | append: block.settings.line_clamp | append: ';min-height:calc(' | append: block.settings.line_clamp | append: ' * 1lh);'
+  endif
+
+  assign display_title = closest.product.title
+  if block.settings.strip_metafield != blank
+    assign mf_parts = block.settings.strip_metafield | split: '.'
+    assign mf_namespace = mf_parts[0]
+    assign mf_key = mf_parts[1]
+    assign strip_value = closest.product.metafields[mf_namespace][mf_key].value | strip
+    if strip_value != blank
+      assign display_title = display_title | remove: strip_value | lstrip | rstrip
+    endif
+  endif
+
+  # Compatible device name(s) from a metafield (e.g. custom.phone_devices)
+  assign device_names = ''
+  if block.settings.show_devices and block.settings.devices_metafield != blank
+    assign dev_parts = block.settings.devices_metafield | split: '.'
+    assign devices_mf = closest.product.metafields[dev_parts[0]][dev_parts[1]]
+    if devices_mf != blank
+      case devices_mf.type
+        when 'list.product_reference', 'list.variant_reference', 'list.collection_reference', 'list.page_reference', 'list.metaobject_reference'
+          assign device_names = devices_mf.value | map: 'title' | compact | join: ', '
+        when 'product_reference', 'variant_reference', 'collection_reference', 'page_reference', 'metaobject_reference'
+          assign device_names = devices_mf.value.title
+        when 'list.single_line_text_field', 'list.url'
+          assign device_names = devices_mf.value | join: ', '
+        else
+          assign device_names = devices_mf.value
+      endcase
+    endif
+  endif
+-%}
+
+{% if closest.product == blank %}
+  <div class="product-title" style="{{ title_style }}" {{ block.shopify_attributes }}>
+    {{- 'placeholders.product_title' | t -}}
+  </div>
+{% else %}
+  <a
+    class="contents user-select-text"
+    ref="productTitleLink"
+    href="{{ closest.product.selected_or_first_available_variant.url }}"
+    {{ block.shopify_attributes }}
+  >
+    <div class="product-title" style="{{ title_style }}">{{ display_title }}</div>
+  </a>
+  {%- if device_names != blank -%}
+    <div class="product-title__devices">{{ device_names }}</div>
+  {%- endif -%}
+{% endif %}
+
+{% stylesheet %}
+  .product-title__devices {
+    margin-top: var(--margin-2xs, 0.25rem);
+    font-size: var(--font-size--sm, 0.85em);
+    line-height: var(--line-height--tight, 1.2);
+    color: rgb(var(--color-foreground-rgb, 0 0 0) / 0.7);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product Title",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "font_size",
+      "label": "Font size",
+      "placeholder": "clamp(0.8rem, 3.2vw, 1.25rem)"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Margin top",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Margin bottom",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "line_clamp",
+      "label": "Max lines (0 = no limit)",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "strip_metafield",
+      "label": "Strip from title — metafield path",
+      "info": "Remove this metafield's value from the title. E.g. custom.brand"
+    },
+    {
+      "type": "header",
+      "content": "Compatible devices"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_devices",
+      "label": "Show compatible device name below title",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "devices_metafield",
+      "label": "Devices — metafield path",
+      "info": "Metafield holding the compatible device name(s). E.g. custom.phone_devices",
+      "default": "custom.phone_devices"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Title",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,167 @@
+{%- doc -%}
+  Mode "quick_view": clicking triggers the quick-add drawer.
+  Mode "add_to_cart": clicking adds to cart, then reveals a +/- quantity stepper.
+{%- enddoc -%}
+
+{%- assign product = closest.product -%}
+{%- if product != blank -%}
+  {%- assign variant = product.selected_or_first_available_variant -%}
+  {%- assign show_login = false -%}
+  {%- if settings.b2b_mode -%}
+    {%- if customer == nil or customer['b2b?'] == false -%}
+      {%- assign show_login = true -%}
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if show_login -%}
+    <button
+      type="button"
+      class="pcqv__btn js-shopify-login-trigger"
+      {{ block.shopify_attributes }}
+      style="
+        --pcqv-bg: #FFF;
+        --pcqv-bg-hover: #F5F5F5;
+        --pcqv-text: #000;
+        --pcqv-border: #AAA;
+        --pcqv-radius: 999px;
+        --pcqv-height: {{ block.settings.btn_height }}px;
+        gap: 7px; font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+      "
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Login to see pricing
+    </button>
+  {%- else -%}
+  <div
+    class="pcqv"
+    {{ block.shopify_attributes }}
+    data-mode="{{ block.settings.mode }}"
+    data-variant-id="{{ variant.id }}"
+    style="
+      --pcqv-bg: {{ block.settings.btn_bg }};
+      --pcqv-bg-hover: {{ block.settings.btn_bg_hover }};
+      --pcqv-text: {{ block.settings.btn_text }};
+      --pcqv-border: {{ block.settings.btn_border }};
+      --pcqv-radius: {{ block.settings.border_radius }}px;
+      --pcqv-height: {{ block.settings.btn_height }}px;
+    "
+  >
+    <button
+      type="button"
+      class="pcqv__btn"
+      aria-label="{{ block.settings.label | escape }}: {{ product.title | escape }}"
+      {% if block.settings.mode == 'quick_view' %}data-quick-view-url="{{ product.url }}?view=valor-quick-add"{% endif %}
+      {% if block.settings.mode == 'add_to_cart' and variant.available == false %}disabled{% endif %}
+    >
+      <span class="pcqv__btn-label">{{- block.settings.label -}}</span>
+      <span class="pcqv__check" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </button>
+
+    {%- if block.settings.mode == 'add_to_cart' -%}
+      <div class="pcqv__qty" hidden>
+        <button type="button" class="pcqv__qty-btn" data-action="decrease" aria-label="Decrease quantity">
+          <svg width="12" height="2" viewBox="0 0 12 2" fill="none" aria-hidden="true">
+            <path d="M1 1h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input
+          type="number"
+          class="pcqv__qty-input"
+          value="0"
+          min="0"
+          aria-label="Quantity"
+        >
+        <button type="button" class="pcqv__qty-btn" data-action="increase" aria-label="Increase quantity">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+  {%- endif -%}
+{%- endif -%}
+
+
+{% schema %}
+{
+  "name": "Quick view button",
+  "tag": null,
+  "presets": [
+    {
+      "name": "Quick view button",
+      "category": "Product"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "mode",
+      "label": "Button mode",
+      "options": [
+        { "value": "quick_view", "label": "Quick View" },
+        { "value": "add_to_cart", "label": "Add to Cart" }
+      ],
+      "default": "quick_view"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Button label",
+      "default": "Quick View"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "btn_height",
+      "label": "Button height",
+      "min": 32,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg",
+      "label": "Background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_hover",
+      "label": "Background (hover)",
+      "default": "#F0F0F0"
+    },
+    {
+      "type": "color",
+      "id": "btn_text",
+      "label": "Text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "btn_border",
+      "label": "Border",
+      "default": "#000000"
+    }
+  ]
+}
+{% endschema %}

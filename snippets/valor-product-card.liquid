@@ -1,0 +1,769 @@
+{%- doc -%}
+  Valor B2B product card for collection + search grids.
+  Faithful port of the valor PLP mockups (valor-plp-logged-in / valor-plp-logged-out).
+  Reuses existing data wiring (brand/model metafields, badge conditions, b2b login gate,
+  inventory display, quick-add modal + qty add-to-cart controller).
+
+  @param {object} product - The product object
+{%- enddoc -%}
+
+{%- liquid
+  if product == blank or product.id == blank
+    assign onboarding = true
+  endif
+
+  assign variant = product.selected_or_first_available_variant
+
+  # Resolve the primary (featured) image: featured image, then featured media preview, then first media.
+  assign featured_image = product.featured_image | default: product.featured_media.preview_image
+  if featured_image == blank
+    assign featured_image = product.images.first
+  endif
+  assign second_image = product.images[1]
+
+  # Swap the slots: show the second image as the main, the featured image on hover.
+  # If there is no second image, fall back to showing the featured image with no hover.
+  if second_image != blank
+    assign card_image = second_image
+    assign hover_image = featured_image
+  else
+    assign card_image = featured_image
+    assign hover_image = blank
+  endif
+
+  # B2B login gate — same logic as blocks/valor-qty-add.liquid
+  assign show_login = false
+  if settings.b2b_mode
+    if customer == nil or customer['b2b?'] == false
+      assign show_login = true
+    endif
+  endif
+
+  # Brand / model from metafields (same as sections/valor-collection.liquid)
+  assign product_brand = product.vendor
+  assign product_model = product.metafields.custom.phone_devices | metafield_text
+
+  # Color option detection
+  assign color_option = nil
+  for opt in product.options_with_values
+    if opt.name == 'Color' or opt.name == 'color'
+      assign color_option = opt
+      break
+    endif
+  endfor
+  assign color_count = 0
+  if color_option
+    assign color_count = color_option.values.size
+  endif
+  assign needs_selection = false
+  if product.variants.size > 1
+    assign needs_selection = true
+  endif
+
+  # Whether the color-swatch row will render (mirrors card-color-swatches.liquid).
+  # When true, stock is shown inline on the colors line, so the qty-add block omits
+  # its own standalone stock line to avoid duplication.
+  assign related_colors = product.metafields.custom.related_colors.value
+  assign has_colors = false
+  if related_colors and related_colors.size > 0
+    assign has_colors = true
+  elsif color_count > 1
+    assign has_colors = true
+  endif
+
+  # Stock display — same buckets as blocks/valor-qty-add.liquid
+  if variant.available == false
+    assign stock_display = 'Out of stock'
+    assign stock_cls = 'back'
+  elsif variant.inventory_management == blank
+    assign stock_display = '500+ in stock'
+    assign stock_cls = 'ok'
+  elsif variant.inventory_quantity >= 500
+    assign stock_display = '500+ in stock'
+    assign stock_cls = 'ok'
+  elsif variant.inventory_quantity > 0
+    assign stock_display = variant.inventory_quantity | append: ' in stock'
+    assign stock_cls = 'ok'
+    if variant.inventory_quantity < 50
+      assign stock_display = stock_display | append: ' · Low'
+      assign stock_cls = 'low'
+    endif
+  elsif variant.inventory_policy == 'continue'
+    assign stock_display = '500+ in stock'
+    assign stock_cls = 'ok'
+  else
+    assign stock_display = 'Out of stock'
+    assign stock_cls = 'back'
+  endif
+
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+
+  assign msrp_price = product.metafields.custom.product_msrp.value
+-%}
+
+<div
+  class="vpc-card{% if hover_image != blank %} vpc-card--has-hover-image{% endif %}{% if show_login %} vpc-card--locked{% endif %}{% unless product.available %} vpc-card--oos{% endunless %}"
+  {% if onboarding %}data-placeholder="true"{% endif %}
+>
+  {%- unless onboarding -%}
+    <a class="vpc-card__link" href="{{ product.url }}">
+      <span class="visually-hidden">{{ product.title }}</span>
+    </a>
+  {%- endunless -%}
+
+  {%- comment -%}
+    Favorite heart — disabled for now, will be wired to a real wishlist later.
+    <button class="vpc-fav" type="button" aria-label="Add to favorites"
+      onclick="event.stopPropagation(); event.preventDefault(); this.closest('.vpc-card').classList.toggle('is-fav');">
+      <svg class="vpc-fav__empty" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <svg class="vpc-fav__full" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+  {%- endcomment -%}
+
+  <div class="vpc-img">
+    {%- unless onboarding -%}<a class="vpc-img__link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">{%- endunless -%}
+    {%- if card_image -%}
+      <img
+        class="vpc-img__main"
+        src="{{ card_image | image_url: width: 600 }}"
+        alt="{{ card_image.alt | escape }}"
+        width="600" height="600" loading="lazy"
+      >
+      {%- if hover_image -%}
+        <img
+          class="vpc-img__hover"
+          src="{{ hover_image | image_url: width: 600 }}"
+          alt="{{ hover_image.alt | escape }}"
+          width="600" height="600" loading="lazy"
+        >
+      {%- endif -%}
+    {%- else -%}
+      {%- render 'valor-no-image', class: 'vpc-img__placeholder' -%}
+    {%- endif -%}
+    {%- unless onboarding -%}</a>{%- endunless -%}
+
+    {%- unless show_login -%}
+      {%- liquid
+        assign _mf1 = settings.badge_mf1_metafield | split: "."
+        assign _mf1_value = product.metafields[_mf1[0]][_mf1[1]]
+        assign _mf2 = settings.badge_mf2_metafield | split: "."
+        assign _mf2_value = product.metafields[_mf2[0]][_mf2[1]]
+        assign _mf3 = settings.badge_mf3_metafield | split: "."
+        assign _mf3_value = product.metafields[_mf3[0]][_mf3[1]]
+      -%}
+      <div class="vpc-badges">
+        {%- if product.available == false -%}
+          <span class="vpc-badge vpc-badge--oos">{{ 'content.product_badge_sold_out' | t }}</span>
+        {%- elsif on_sale -%}
+          <span class="vpc-badge vpc-badge--sale">{{ 'content.product_badge_sale' | t }}</span>
+        {%- elsif settings.badge_new_tag != blank and product.tags contains settings.badge_new_tag -%}
+          <span class="vpc-badge vpc-badge--new">{{ 'content.product_badge_new' | t }}</span>
+        {%- elsif settings.badge_mf1_metafield != blank and _mf1_value != blank -%}
+          <span class="vpc-badge vpc-badge--mf" style="background: {{ settings.badge_mf1_bg_color }}; color: {{ settings.badge_mf1_text_color }};">{%- if _mf1_value == true -%}{{ settings.badge_mf1_label }}{%- else -%}{{ _mf1_value }}{%- endif -%}</span>
+        {%- elsif settings.badge_mf2_metafield != blank and _mf2_value != blank -%}
+          <span class="vpc-badge vpc-badge--mf" style="background: {{ settings.badge_mf2_bg_color }}; color: {{ settings.badge_mf2_text_color }};">{%- if _mf2_value == true -%}{{ settings.badge_mf2_label }}{%- else -%}{{ _mf2_value }}{%- endif -%}</span>
+        {%- elsif settings.badge_mf3_metafield != blank and _mf3_value != blank -%}
+          <span class="vpc-badge vpc-badge--mf" style="background: {{ settings.badge_mf3_bg_color }}; color: {{ settings.badge_mf3_text_color }};">{%- if _mf3_value == true -%}{{ settings.badge_mf3_label }}{%- else -%}{{ _mf3_value }}{%- endif -%}</span>
+        {%- endif -%}
+      </div>
+    {%- endunless -%}
+  </div>
+
+  <div class="vpc-info">
+    {%- if product_brand != blank -%}
+      <div class="vpc-brand">{{ product_brand }}</div>
+    {%- endif -%}
+    <div class="vpc-name">{{ product.title | default: 'Product title' }}</div>
+    {%- if product_model != blank -%}
+      <div class="vpc-model">{{ product_model }}</div>
+    {%- endif -%}
+
+    <div class="vpc-ids">
+      {%- if variant.sku != blank -%}
+        <span class="vpc-id"><span class="vpc-id__k">SKU</span><span class="vpc-id__v" role="button" tabindex="0" title="Click to copy SKU" data-copy="{{ variant.sku | escape }}">{{ variant.sku }}</span></span>
+      {%- endif -%}
+      {%- if variant.barcode != blank -%}
+        <span class="vpc-id"><span class="vpc-id__k">UPC</span><span class="vpc-id__v" role="button" tabindex="0" title="Click to copy UPC" data-copy="{{ variant.barcode | escape }}">{{ variant.barcode }}</span></span>
+      {%- endif -%}
+    </div>
+
+    {%- unless show_login -%}
+      <div class="vpc-price{% unless product.available %} vpc-price--oos{% endunless %}">
+        <div class="vpc-price__left">
+          <div class="vpc-price__lbl">Your price</div>
+          <div class="vpc-price__now">{{ product.price | money }}</div>
+        </div>
+        {%- if msrp_price and msrp_price != blank -%}
+          <div class="vpc-price__msrp">
+            <span class="vpc-price__msrp-lbl">MSRP</span>
+            <span class="vpc-price__msrp-val">${{ msrp_price }}</span>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endunless -%}
+
+    {%- comment -%} Colors hidden for now
+    <div class="vpc-variants">
+      {%- if show_login -%}
+        {%- render 'card-color-swatches', product: product -%}
+      {%- else -%}
+        {%- render 'card-color-swatches', product: product, stock_label: stock_display -%}
+      {%- endif -%}
+    </div>
+    {%- endcomment -%}
+
+    {%- comment -%} ----- CTA area ----- {%- endcomment -%}
+    {%- if show_login -%}
+      <button type="button" class="vpc-login js-shopify-login-trigger">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Login to view prices
+      </button>
+    {%- elsif needs_selection -%}
+      <button type="button" class="vpc-pick" data-quick-view-url="{{ product.url }}?view=valor-quick-add">
+        {%- if color_option and color_count > 1 -%}Select colors &amp; quantities{%- else -%}Select options{%- endif -%}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    {%- else -%}
+      <div class="vpc-action vqa-wrap" data-variant-id="{{ variant.id }}">
+        <div class="vpc-stock" data-vpc-sku="{{ variant.sku | escape }}">
+          {%- comment -%} Colors are hidden, so always show stock here (no inline-on-swatches duplication to avoid). {%- endcomment -%}
+          <span class="vpc-stock__dot vpc-stock__dot--{{ stock_cls }}"></span>
+          <span class="vpc-stock__txt">{{ stock_display }}</span>
+          <span class="vqa-info__cart vpc-stock__cart" hidden></span>
+        </div>
+        <div class="vpc-cta-row vqa" data-variant-id="{{ variant.id }}">
+          <div class="vpc-qty vqa__qty">
+            <button type="button" class="vqa__qty-btn" data-action="decrease" aria-label="Decrease quantity">−</button>
+            <input type="number" class="vqa__qty-input" value="0" min="0" aria-label="Quantity">
+            <button type="button" class="vqa__qty-btn" data-action="increase" aria-label="Increase quantity">+</button>
+          </div>
+          <button type="button" class="vpc-add vqa__btn"{% unless product.available %} disabled{% endunless %} aria-label="Add to cart: {{ product.title | escape }}">
+            <span class="vpc-add__label">Add to cart</span>
+            <span class="vpc-add__check" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+<script>
+  // Click-to-copy for SKU / UPC values. Bound once per page (snippet renders per card).
+  (function () {
+    if (window.__vpcIdCopyBound) return;
+    window.__vpcIdCopyBound = true;
+
+    function flash(el, state) {
+      el.setAttribute('data-copy-state', state); // "copied" or "manual"
+      el.classList.add('is-copied');
+      window.setTimeout(function () {
+        el.classList.remove('is-copied');
+        el.removeAttribute('data-copy-state');
+      }, 1400);
+    }
+
+    // Synchronous copy via a temp textarea + execCommand. Returns true on success.
+    // Works in more contexts than the async Clipboard API (e.g. the theme-editor iframe).
+    function execCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.width = '1px';
+      ta.style.height = '1px';
+      ta.style.padding = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      var ok = false;
+      try {
+        ta.focus();
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        ok = document.execCommand('copy');
+      } catch (e) {
+        ok = false;
+      }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    // Leave the value highlighted so the user can finish with Ctrl+C if both copy paths fail.
+    function selectText(el) {
+      try {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (e) {}
+    }
+
+    function copy(el) {
+      var text = el.getAttribute('data-copy');
+      if (!text) return;
+
+      // Prefer the async Clipboard API — it integrates with the OS clipboard,
+      // including Windows clipboard history / multi-clipboard managers (Win+V).
+      // execCommand('copy') often does not register with those managers.
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { flash(el, 'copied'); },
+          function () {
+            // Blocked (e.g. theme-editor iframe / non-secure context) — fall back.
+            if (execCopy(text)) { flash(el, 'copied'); }
+            else { selectText(el); flash(el, 'manual'); }
+          }
+        );
+        return;
+      }
+
+      // No async API available — synchronous fallback.
+      if (execCopy(text)) { flash(el, 'copied'); }
+      else { selectText(el); flash(el, 'manual'); }
+    }
+
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest('.vpc-id__v[data-copy]');
+      if (!el) return;
+      e.preventDefault();
+      e.stopPropagation();
+      copy(el);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var el = e.target.closest('.vpc-id__v[data-copy]');
+      if (!el) return;
+      e.preventDefault();
+      copy(el);
+    });
+  })();
+</script>
+
+{% stylesheet %}
+  .vpc-card {
+    --navy: #2B3A55;
+    --navy-deep: #1D2636;
+    --sky-pale: #D9EEF6;
+    --crimson: #C54448;
+    --crimson-soft: #F5DADB;
+    --chalk: #F4F5F2;
+    --parchment: #EEEDE7;
+    --steel: #66717E;
+    --steel-light: #A8B0B8;
+    --white: #FFFFFF;
+    --green: #2d7a3f;
+    --amber: #B07E1A;
+    --vpc-border: rgba(29, 38, 54, 0.08);
+    --vpc-border-strong: rgba(29, 38, 54, 0.14);
+    --accent: var(--crimson);
+
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--vpc-border);
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s ease;
+    height: 100%;
+    container-type: inline-size;
+    container-name: vpc-card;
+  }
+  .vpc-card:hover { transform: translateY(-3px); border-color: var(--vpc-border-strong); }
+  .vpc-card.vpc-card--just-added,
+  .vpc-card.just-added {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green), 0 6px 22px -8px rgba(45, 122, 63, 0.25);
+  }
+  .vpc-card.vpc-card--just-added:hover,
+  .vpc-card.just-added:hover {
+    border-color: var(--green);
+  }
+
+  /* Full-card click target sits behind the interactive controls */
+  .vpc-card__link { position: absolute; inset: 0; z-index: 1; }
+
+  /* Interactive controls must sit above the link overlay */
+  .vpc-login,
+  .vpc-pick,
+  .vpc-action { position: relative; z-index: 2; }
+
+  /* ---- image ---- */
+  .vpc-img {
+    aspect-ratio: 1 / 1;
+    background: var(--white);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  /* Image is its own click target, above the full-card link overlay */
+  .vpc-img__link { position: absolute; inset: 0; z-index: 2; display: block; }
+  .vpc-img__main,
+  .vpc-img__hover,
+  .vpc-img__placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .vpc-img__hover { opacity: 0; transform: scale(0.96); z-index: 1; }
+  .vpc-card--has-hover-image:hover .vpc-img__main { opacity: 0; transform: scale(0.97); }
+  .vpc-card--has-hover-image:hover .vpc-img__hover { opacity: 1; transform: scale(1); }
+  .vpc-card--oos .vpc-img {
+    background: repeating-linear-gradient(45deg, var(--white) 0 10px, var(--parchment) 10px 20px);
+  }
+  .vpc-card--oos .vpc-img__main { filter: grayscale(1); opacity: 0.7; }
+
+  /* ---- badges ---- */
+  .vpc-badges {
+    position: absolute;
+    top: 14px; right: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+    z-index: 3;
+  }
+  .vpc-badge {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .vpc-badge--new { background: var(--navy-deep); color: var(--chalk); }
+  .vpc-badge--sale { background: var(--crimson); color: var(--chalk); }
+  .vpc-badge--oos { background: var(--navy-deep); color: var(--chalk); letter-spacing: 0.08em; }
+
+  /* ---- info ---- */
+  .vpc-info {
+    padding: 16px 18px 18px;
+    background: var(--parchment);
+    border-top: 1px solid var(--vpc-border);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .vpc-brand {
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .vpc-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--navy-deep);
+    line-height: 1.3;
+    margin-bottom: 2px;
+    /* Reserve two lines so 1- and 2-line titles keep everything below aligned;
+       clamp longer titles to two lines. */
+    min-height: 2.6em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .vpc-model {
+    font-size: 12px;
+    color: var(--steel);
+    font-weight: 400;
+    line-height: 1.3;
+    /* Reserve two lines so 1- and 2-line device lists keep the price below aligned;
+       clamp longer lists to two lines. */
+    min-height: 2.6em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ---- SKU / UPC ---- */
+  .vpc-ids {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 16px;
+    margin: 7px 0 9px;
+    padding-top: 8px;
+    border-top: 1px solid var(--vpc-border);
+    /* Reserve two rows of IDs (11px text, 1.3 line-height + 3px row gap) so cards
+       whose SKU+UPC wrap keep the price below aligned with single-line cards. */
+    min-height: 32px;
+    align-content: flex-start;
+  }
+  .vpc-id { display: inline-flex; align-items: baseline; gap: 6px; line-height: 1.3; }
+  .vpc-id__k {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--navy-deep);
+  }
+  .vpc-id__v {
+    font-family: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 11px; color: var(--navy-deep); letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    /* Sit above the full-card link overlay so the value is clickable to copy. */
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+    user-select: all;
+    -webkit-user-select: all;
+  }
+  .vpc-id__v:hover { color: var(--accent); }
+  .vpc-id__v:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+  /* Confirmation bubble shown briefly after a copy attempt */
+  .vpc-id__v.is-copied::after {
+    content: "Copied";
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy-deep);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 3px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 4;
+  }
+  .vpc-id__v.is-copied[data-copy-state="manual"]::after { content: "Press Ctrl+C"; }
+
+  /* ---- price ---- */
+  .vpc-price {
+    margin: 6px 0 0;
+    padding: 12px 14px;
+    background: var(--chalk);
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .vpc-price__left { display: flex; flex-direction: column; min-width: 0; }
+  .vpc-price__lbl {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--steel);
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+  }
+  .vpc-price__now {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--navy-deep);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .vpc-price__row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .vpc-price__was {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--steel);
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    line-height: 1;
+  }
+  .vpc-price__sale {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--crimson);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .vpc-price__msrp { font-size: 11px; color: var(--steel); white-space: nowrap; text-align: right; line-height: 1.4; flex-shrink: 0; }
+  .vpc-price__msrp-lbl {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--steel); font-weight: 600; display: block; margin-bottom: 3px;
+  }
+  .vpc-price__msrp-val { font-size: 14px; color: var(--navy); font-weight: 500; }
+  .vpc-price--oos .vpc-price__now {
+    color: var(--steel);
+    text-decoration: line-through;
+    text-decoration-color: var(--steel-light);
+    text-decoration-thickness: 1px;
+  }
+
+  /* ---- swatches (rendered via card-color-swatches snippet) ---- */
+  .vpc-variants { margin: 14px 0 0; }
+  .vpc-variants:empty { display: none; margin: 0; }
+
+  /* ---- login CTA ---- */
+  .vpc-login {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px 18px;
+    background: var(--navy-deep); color: var(--white);
+    border: none; border-radius: 999px;
+    font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer;
+    white-space: nowrap; transition: background 0.15s ease;
+  }
+  .vpc-login:hover { background: var(--navy); }
+  .vpc-login svg { flex: none; }
+
+  /* ---- select colors / options CTA ---- */
+  .vpc-pick {
+    width: 100%;
+    margin-top: auto;
+    background: var(--navy-deep);
+    border: 1px solid var(--navy-deep);
+    color: var(--chalk);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .vpc-pick:hover { background: var(--accent); border-color: var(--accent); }
+
+  /* ---- single-variant qty + add ---- */
+  .vpc-action { margin-top: auto; }
+  .vpc-stock {
+    font-size: 12px;
+    color: var(--navy-deep);
+    font-weight: 500;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* When colors carry the stock inline, this row only holds the (hidden) cart count */
+  .vpc-stock:not(:has(.vpc-stock__txt)) { margin-top: 0; }
+  .vpc-stock__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .vpc-stock__dot--low { background: var(--amber); }
+  .vpc-stock__dot--back { background: var(--steel-light); }
+  .vpc-stock__cart {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--steel);
+    font-weight: 500;
+  }
+
+  .vpc-cta-row {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vpc-qty {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--vpc-border-strong);
+    border-radius: 999px;
+    background: var(--white);
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+  .vpc-qty:focus-within { border-color: var(--navy-deep); }
+  .vpc-qty .vqa__qty-btn {
+    width: 32px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--navy-deep);
+    font-size: 16px;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .vpc-qty .vqa__qty-btn:hover { background: var(--chalk); }
+  .vpc-qty .vqa__qty-input {
+    width: 52px;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy-deep);
+    background: transparent;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    padding: 0;
+  }
+  .vpc-qty .vqa__qty-input.vqa__qty-input--added {
+    color: var(--steel);
+    background: rgba(45, 122, 63, 0.05);
+  }
+  .vpc-qty .vqa__qty-input::-webkit-outer-spin-button,
+  .vpc-qty .vqa__qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .vpc-add {
+    flex: 1;
+    background: var(--navy-deep);
+    color: var(--chalk);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .vpc-add:hover { background: var(--accent); }
+  .vpc-add:disabled { background: var(--steel-light); cursor: not-allowed; }
+  .vpc-add__check { display: none; }
+  .vpc-add[data-loading] { opacity: 0.7; pointer-events: none; }
+  .vpc-add[data-added] {
+    background: var(--green);
+    color: var(--white);
+    cursor: default;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .vpc-add[data-added] .vpc-add__label { display: inline; }
+  .vpc-add[data-added] .vpc-add__check { display: inline-flex; }
+
+  @container vpc-card (max-width: 280px) {
+    .vpc-cta-row { flex-direction: column; align-items: stretch; gap: 8px; }
+    .vpc-qty { width: 100%; justify-content: space-between; }
+    .vpc-qty .vqa__qty-input { flex: 1; width: auto; min-width: 0; }
+    .vpc-add { width: 100%; }
+  }
+
+  @media screen and (max-width: 749px) {
+    .vpc-info { padding: 12px 12px 14px; }
+    .vpc-price { padding: 10px 12px; }
+    .vpc-price__now, .vpc-price__sale { font-size: 19px; }
+
+    /* Narrow cards: stack the qty stepper and Add to cart full-width */
+    .vpc-cta-row { flex-direction: column; align-items: stretch; gap: 8px; }
+    .vpc-qty { width: 100%; justify-content: space-between; }
+    .vpc-qty .vqa__qty-input { flex: 1; width: auto; min-width: 0; }
+    .vpc-add { width: 100%; }
+  }
+{% endstylesheet %}

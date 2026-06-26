@@ -1,0 +1,81 @@
+{% comment %}
+  vp-variant-row.liquid
+  A single row in the valor-product variant table.
+  Parameters:
+    variant        — the variant object
+    source_product — the product that owns this variant (used for image fallback)
+{% endcomment %}
+{%- liquid
+  if variant.available == false or variant.inventory_quantity <= 0
+    assign inv_cls = 'oos'
+  elsif variant.inventory_quantity <= 20
+    assign inv_cls = 'low'
+  else
+    assign inv_cls = 'ok'
+  endif
+-%}
+<div class="vp-variant-row{% if inv_cls == 'oos' %} oos{% endif %}"
+     data-variant-id="{{ variant.id }}"
+     data-price="{{ variant.price }}">
+  <div class="vp-variant-thumb"
+    {%- if variant.featured_image -%}
+      data-full-src="{{ variant.featured_image | image_url: width: 1200 }}"
+    {%- elsif source_product.featured_image -%}
+      data-full-src="{{ source_product.featured_image | image_url: width: 1200 }}"
+    {%- endif -%}
+  >
+    {%- if variant.featured_image -%}
+      {{- variant.featured_image | image_url: width: 88 | image_tag: loading: 'lazy', alt: variant.title -}}
+    {%- elsif source_product.featured_image -%}
+      {{- source_product.featured_image | image_url: width: 88 | image_tag: loading: 'lazy', alt: variant.title -}}
+    {%- else -%}
+      {% render 'valor-no-image', class: 'valor-no-image--tiny vp-variant-thumb-placeholder' %}
+    {%- endif -%}
+  </div>
+  <div class="vp-variant-info">
+    <div class="vp-variant-name">{{ variant.title }}</div>
+    {%- if variant.sku != blank or variant.barcode != blank -%}
+      <div class="vp-variant-sku">
+        {%- if variant.sku != blank -%}{{ variant.sku }}{%- endif -%}
+        {%- if variant.sku != blank and variant.barcode != blank -%}&ensp;&middot;&ensp;{%- endif -%}
+        {%- if variant.barcode != blank -%}{{ variant.barcode }}{%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+  <div class="vp-variant-stock {{ inv_cls }}">
+    <span class="vp-stock-dot"></span>
+    {%- if inv_cls == 'oos' -%}
+      Sold out
+    {%- elsif inv_cls == 'low' -%}
+      {{ variant.inventory_quantity }}&thinsp;&middot;&thinsp;low
+    {%- elsif variant.inventory_quantity > 100 -%}
+      100+
+    {%- else -%}
+      {{ variant.inventory_quantity }}
+    {%- endif -%}
+  </div>
+  <div class="vp-variant-quantity">
+    {%- if inv_cls != 'oos' -%}
+      <div class="pcqv" data-mode="add_to_cart" data-variant-id="{{ variant.id }}">
+        <button class="pcqv__btn vp-add-to-cart-button" type="button" aria-label="Add {{ variant.title | escape }} to cart">
+          <span class="pcqv__btn-label">Add to cart</span>
+          <span class="pcqv__check">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+        <div class="pcqv__qty vp-quantity-stepper" hidden>
+          <button class="pcqv__qty-btn vp-stepper-button" data-action="decrease" type="button" aria-label="Decrease">−</button>
+          <input class="pcqv__qty-input vp-quantity-input" type="number" value="0" min="0"
+                 max="{{ variant.inventory_quantity }}"
+                 aria-label="{{ variant.title | escape }} quantity">
+          <button class="pcqv__qty-btn vp-stepper-button" data-action="increase" type="button" aria-label="Increase">+</button>
+        </div>
+      </div>
+    {%- else -%}
+      <button class="vp-notify" type="button">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notify me
+      </button>
+    {%- endif -%}
+  </div>
+</div>

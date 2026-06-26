@@ -1,0 +1,687 @@
+{% render 'product-badges-styles' %}
+
+{% stylesheet %}
+  nfc-section {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* ── Header ─────────────────────────────── */
+  .nfc__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .nfc__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .nfc__eyebrow {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .nfc__heading {
+    margin: 0;
+    font-size: var(--nfc-heading-size, clamp(1.4rem, 3vw, 2.2rem));
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+
+  /* ── Nav arrows ─────────────────────────── */
+  .nfc__header-nav {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .nfc__nav {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    background: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nfc__nav:hover:not(:disabled) {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  .nfc__nav:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  /* ── Carousel ───────────────────────────── */
+  .nfc__carousel-wrapper {
+    overflow: hidden;
+  }
+
+  .nfc__carousel {
+    display: flex;
+    gap: var(--nfc-gap, 16px);
+    transition: transform 0.3s ease;
+  }
+
+  .nfc__item {
+    flex: 0 0 calc((100% - (var(--nfc-per-row, 4) - 1) * var(--nfc-gap, 16px)) / var(--nfc-per-row, 4));
+    min-width: 0;
+  }
+
+  /* ── Recently viewed cards ─────────────── */
+  .nfc__rv-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .nfc__rv-img {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    background: #f0f0f0;
+  }
+
+  .nfc__rv-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .nfc__rv-card:hover .nfc__rv-img img {
+    transform: scale(1.04);
+  }
+
+  .nfc__rv-title {
+    margin: 0 0 4px;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  .nfc__rv-price {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.65;
+  }
+
+  /* ── Skeleton loading ───────────────────── */
+  @keyframes nfc-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+
+  .nfc__skeleton {
+    border-radius: 4px;
+    background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: nfc-shimmer 1.4s infinite;
+  }
+
+  .nfc__skeleton--image {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .nfc__skeleton--text {
+    height: 14px;
+    margin-bottom: 6px;
+  }
+
+  .nfc__skeleton--text-short {
+    width: 50%;
+  }
+
+  /* ── Footer ─────────────────────────────── */
+  .nfc__footer {
+    display: flex;
+    justify-content: center;
+  }
+  .nfc__footer .button {
+    height: 32px;
+    padding: 0 50px;
+    border-radius: 100px;
+	margin-top: 30px;
+  }
+
+  /* ── Mobile ─────────────────────────────── */
+  @media screen and (max-width: 749px) {
+    .nfc__header {
+      align-items: flex-start;
+    }
+
+    .nfc__item {
+      flex: 0 0 calc((100% - (var(--nfc-per-row-mobile, 2) - 1) * var(--nfc-gap, 16px)) / var(--nfc-per-row-mobile, 2));
+    }
+  }
+{% endstylesheet %}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  {{ section.shopify_attributes }}
+>
+  {%- liquid
+    assign source     = section.settings.source | default: 'collection'
+    assign collection = section.settings.collection
+    assign eyebrow    = section.settings.eyebrow
+    assign heading    = section.settings.heading
+    assign cta_label  = section.settings.button_label
+    assign cta_url    = section.settings.button_url | default: collection.url
+  -%}
+  <nfc-section
+    style="
+      --nfc-per-row: {{ section.settings.columns }};
+      --nfc-per-row-mobile: {{ section.settings.columns_mobile }};
+      --nfc-gap: {{ section.settings.columns_gap }}px;
+      --nfc-heading-size: {{ section.settings.heading_size }};
+    "
+    {%- if source == 'recommendations' and recommendations.performed == false -%}
+      data-mode="recommendations"
+      data-section-id="{{ section.id }}"
+      data-limit="{{ section.settings.products_limit }}"
+      {%- if product != blank -%}data-product-id="{{ product.id }}"{%- endif -%}
+    {%- elsif source == 'recently_viewed' -%}
+      data-mode="recently_viewed"
+      data-limit="{{ section.settings.products_limit }}"
+    {%- endif -%}
+  >
+
+    {%- comment -%}── Header ─────────────────────────────────────{%- endcomment -%}
+    {%- if eyebrow != blank or heading != blank -%}
+      <div class="nfc__header">
+        <div class="nfc__header-text">
+          {%- if eyebrow != blank -%}
+            <p class="nfc__eyebrow">{{ eyebrow }}</p>
+          {%- endif -%}
+          {%- if heading != blank -%}
+            <h2 class="nfc__heading">{{ heading }}</h2>
+          {%- endif -%}
+        </div>
+        <div class="nfc__header-nav">
+          <button class="nfc__nav nfc__nav--prev" aria-label="Previous" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button class="nfc__nav nfc__nav--next" aria-label="Next">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}── Carousel ───────────────────────────────────{%- endcomment -%}
+    <div class="nfc__carousel-wrapper">
+      <div class="nfc__carousel">
+        {%- if source == 'recently_viewed' -%}
+
+          {%- comment -%}Skeletons replaced by JS with localStorage data{%- endcomment -%}
+          {%- for i in (1..section.settings.columns) -%}
+            <div class="nfc__item">
+              <div class="nfc__skeleton nfc__skeleton--image"></div>
+              <div class="nfc__skeleton nfc__skeleton--text"></div>
+              <div class="nfc__skeleton nfc__skeleton--text nfc__skeleton--text-short"></div>
+            </div>
+          {%- endfor -%}
+
+        {%- elsif source == 'recommendations' -%}
+
+          {%- if recommendations.performed and recommendations.products_count > 0 -%}
+            {%- for product in recommendations.products -%}
+              <div class="nfc__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+            {%- endfor -%}
+          {%- elsif recommendations.performed == false -%}
+            {%- comment -%}Skeleton placeholders — replaced by JS once recommendations load{%- endcomment -%}
+            {%- for i in (1..section.settings.columns) -%}
+              <div class="nfc__item">
+                <div class="nfc__skeleton nfc__skeleton--image"></div>
+                <div class="nfc__skeleton nfc__skeleton--text"></div>
+                <div class="nfc__skeleton nfc__skeleton--text nfc__skeleton--text-short"></div>
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+
+        {%- else -%}
+
+          {%- if collection != blank and collection.products.size > 0 -%}
+            {%- for product in collection.products limit: section.settings.products_limit -%}
+              <div class="nfc__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for i in (1..4) -%}
+              <div class="nfc__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%}── Footer / CTA ────────────────────────────────{%- endcomment -%}
+    {%- if cta_label != blank and cta_url != blank -%}
+      <div class="nfc__footer">
+        <a href="{{ cta_url }}" class="button button--secondary">{{ cta_label }}</a>
+      </div>
+    {%- endif -%}
+
+  </nfc-section>
+</div>
+
+<script>
+  if (!customElements.get('nfc-section')) {
+    class NfcSection extends HTMLElement {
+      connectedCallback() {
+        if (this.dataset.mode === 'recommendations') {
+          this._fetchRecommendations();
+        } else if (this.dataset.mode === 'recently_viewed') {
+          this._fetchRecentlyViewed();
+        } else {
+          this._initCarousel();
+        }
+      }
+
+      _initCarousel() {
+        const carousel = this.querySelector('.nfc__carousel');
+        if (!carousel) return;
+
+        const prevBtn = this.querySelector('.nfc__nav--prev');
+        const nextBtn = this.querySelector('.nfc__nav--next');
+
+        carousel._offset = 0;
+
+        const getMaxOffset = () =>
+          Math.max(0, carousel.scrollWidth - carousel.parentElement.clientWidth);
+
+        const updateButtons = () => {
+          if (prevBtn) prevBtn.disabled = carousel._offset <= 0;
+          if (nextBtn) nextBtn.disabled = carousel._offset >= getMaxOffset();
+        };
+
+        const scrollTo = (offset) => {
+          carousel._offset = Math.max(0, Math.min(offset, getMaxOffset()));
+          carousel.style.transform = `translateX(-${carousel._offset}px)`;
+          updateButtons();
+        };
+
+        const getScrollAmount = () => {
+          const gap = parseFloat(getComputedStyle(carousel).columnGap) || 0;
+          return carousel.parentElement.clientWidth + gap;
+        };
+
+        if (prevBtn) prevBtn.addEventListener('click', () => scrollTo(carousel._offset - getScrollAmount()));
+        if (nextBtn) nextBtn.addEventListener('click', () => scrollTo(carousel._offset + getScrollAmount()));
+
+        requestAnimationFrame(updateButtons);
+
+        const onResize = () => scrollTo(carousel._offset);
+        window.addEventListener('resize', onResize);
+        this._cleanupCarousel = () => window.removeEventListener('resize', onResize);
+      }
+
+      disconnectedCallback() {
+        if (this._cleanupCarousel) this._cleanupCarousel();
+      }
+
+      /* ── Shared helpers ──────────────────── */
+
+      _esc(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      _hideSection() {
+        const wrap = this.closest('[id^="shopify-section-"]');
+        if (wrap) wrap.hidden = true;
+      }
+
+      /* Renders simple product cards from a products array.
+         Used as fallback when section-rendering is not available. */
+      _renderCards(products) {
+        const carousel = this.querySelector('.nfc__carousel');
+        if (!carousel) return;
+        carousel.innerHTML = products.map(p => {
+          /* Support both /recommendations/products.json and /collections/all/products.json shapes */
+          const title = p.title;
+          const url = p.url ?? `/products/${p.handle}`;
+          const rawImg = p.featured_image?.url ?? (typeof p.featured_image === 'string' ? p.featured_image : null) ?? p.images?.[0]?.src ?? '';
+          const imgSrc = rawImg ? rawImg.replace(/\?.*$/, '') + '?width=600' : '';
+          /* price: suggest API returns formatted string; products.json returns cents integer */
+          const price = typeof p.price === 'number'
+            ? new Intl.NumberFormat(document.documentElement.lang || 'en', { style: 'currency', currency: Shopify?.currency?.active || 'USD', minimumFractionDigits: 2 }).format(p.price / 100)
+            : (p.price ?? '');
+          return `<div class="nfc__item">
+            <a href="${this._esc(url)}" class="nfc__rv-card">
+              <div class="nfc__rv-img">${imgSrc ? `<img src="${this._esc(imgSrc)}" alt="${this._esc(title)}" loading="lazy">` : ''}</div>
+              <p class="nfc__rv-title">${this._esc(title)}</p>
+              <p class="nfc__rv-price">${this._esc(price)}</p>
+            </a>
+          </div>`;
+        }).join('');
+        this.removeAttribute('data-mode');
+        this._initCarousel();
+      }
+
+      /* ── Recently viewed ─────────────────── */
+
+      async _fetchRecentlyViewed() {
+        const limit = parseInt(this.dataset.limit || '4', 10);
+        let ids = [];
+        try { ids = JSON.parse(localStorage.getItem('viewedProducts') || '[]'); } catch (_) {}
+
+        const visible = ids.slice(0, limit);
+        if (!visible.length) { this._hideSection(); return; }
+
+        try {
+          const q = visible.map(id => `id:${id}`).join(' OR ');
+          const res = await fetch(`/search/suggest.json?q=${encodeURIComponent(q)}&resources[type]=product&resources[limit]=${visible.length}`);
+          if (!res.ok) { this._hideSection(); return; }
+
+          const data = await res.json();
+          const products = data?.resources?.results?.products ?? [];
+          if (!products.length) { this._hideSection(); return; }
+
+          /* Re-sort by stored order (most-recent first) */
+          const ordered = visible.map(id => products.find(p => String(p.id) === String(id))).filter(Boolean);
+          this._renderCards(ordered);
+        } catch (_) { this._hideSection(); }
+      }
+
+      /* ── Recommendations ─────────────────── */
+
+      /* Fetches the section via Shopify's recommendations renderer and swaps the DOM.
+         Returns true on success, false on any failure. */
+      async _swapSection(productId) {
+        const { sectionId, limit } = this.dataset;
+        if (!productId || !sectionId) return false;
+        try {
+          const res = await fetch(`/recommendations/products?section_id=${sectionId}&product_id=${productId}&limit=${limit || 4}`);
+          if (!res.ok) return false;
+          const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+          const newSection = doc.getElementById(`shopify-section-${sectionId}`);
+          if (!newSection) return false;
+          const currentSection = document.getElementById(`shopify-section-${sectionId}`);
+          if (currentSection) currentSection.innerHTML = newSection.innerHTML;
+          /* New nfc-section has no data-mode, so connectedCallback calls _initCarousel() */
+          return true;
+        } catch (_) { return false; }
+      }
+
+      async _fetchRecommendations() {
+        const { limit } = this.dataset;
+        const n = parseInt(limit || 4);
+
+        /* 1. Product page: use current product */
+        if (await this._swapSection(this.dataset.productId)) return;
+
+        /* 2. Any other page: use last visited product from localStorage */
+        try {
+          const lastId = JSON.parse(localStorage.getItem('viewedProducts') || '[]')[0];
+          if (await this._swapSection(lastId)) return;
+        } catch (_) {}
+
+        /* 3. Last resort: show generic products from the default collection */
+        try {
+          const res = await fetch(`/collections/all/products.json?limit=${n}`);
+          if (!res.ok) { this._hideSection(); return; }
+          const { products } = await res.json();
+          if (!products?.length) { this._hideSection(); return; }
+          this._renderCards(products.slice(0, n));
+        } catch (_) { this._hideSection(); }
+      }
+    }
+    customElements.define('nfc-section', NfcSection);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "New: Featured collections",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "select",
+      "id": "source",
+      "label": "Product source",
+      "options": [
+        { "value": "collection", "label": "Collection" },
+        { "value": "recommendations", "label": "Recommendations" },
+        { "value": "recently_viewed", "label": "Recently viewed" }
+      ],
+      "default": "collection",
+      "info": "Recommendations: shows related products on product pages, or store bestsellers on other pages. Recently viewed: shows the customer's last visited products (stored in their browser)."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Complete the Look"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You May Also Like"
+    },
+    {
+      "type": "text",
+      "id": "heading_size",
+      "label": "Heading size",
+      "placeholder": "e.g. 28px, 2rem"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Only used when source is set to 'Collection'"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop All Sets"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL",
+      "info": "Leave blank to auto-link to the selected collection"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Products to show",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Products per row (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Gap between products",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Featured collections",
+      "blocks": {
+        "static-product-card": {
+          "type": "_product-card",
+          "name": "Product card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 4
+          },
+          "blocks": {
+            "product-card-gallery": {
+              "type": "_product-card-gallery",
+              "name": "Product media",
+              "settings": {
+                "image_ratio": "adapt",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              }
+            },
+            "product_title": {
+              "type": "product-title",
+              "name": "Product title",
+              "settings": {}
+            },
+            "price": {
+              "type": "price",
+              "name": "Price",
+              "settings": {
+                "show_sale_price_first": false,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "h6",
+                "width": "100%",
+                "alignment": "left",
+                "font": "",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "color": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              }
+            },
+            "quick_view": {
+              "type": "valor-quick-add",
+              "name": "Quick view button"
+            }
+          },
+          "block_order": ["product-card-gallery", "product_title", "price", "quick_view"]
+        }
+      },
+      "block_order": []
+    }
+  ]
+}
+{% endschema %}

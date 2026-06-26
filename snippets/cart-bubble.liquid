@@ -1,0 +1,88 @@
+{%- doc -%}
+  @param [limit] - {number}
+
+  The maximum number of items in the cart to display. If the number of items in the cart reaches this limit, the
+  count will be displayed as "99+".
+{%- enddoc -%}
+
+{% liquid
+  assign item_count = cart.item_count
+  assign display_count = item_count
+  if limit != blank and item_count >= limit
+    assign display_count = limit | minus: 1 | append: '+'
+  endif
+%}
+
+<div
+  ref="cartBubble"
+  class="cart-bubble{% if cart == empty %} visually-hidden{% endif %}"
+  data-maintain-ratio
+>
+  <span class="cart-bubble__background"></span>
+  <span
+    ref="cartBubbleText"
+    id="cart-bubble-text"
+    class="cart-bubble__text"
+  >
+    <span
+      class="cart-bubble__text-count{% if cart == empty %} hidden{% endif %}"
+      ref="cartBubbleCount"
+      aria-hidden="true"
+      data-testid="cart-bubble"
+      data-cart-count-value="{{ item_count }}"
+    >
+      {{- display_count -}}
+    </span>
+  </span>
+</div>
+
+{% stylesheet %}
+  .cart-bubble {
+    --cart-padding: 0.2em;
+
+    position: relative;
+    min-width: 20px;
+    width: fit-content;
+    height: 20px;
+    border-radius: 50%;
+    border-width: 0;
+    display: flex;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-button-text);
+    padding-inline: var(--cart-padding);
+  }
+
+  .cart-bubble[data-maintain-ratio] .cart-bubble__background {
+    border-radius: var(--style-border-radius-50);
+  }
+
+  .cart-bubble__background {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-primary-button-background);
+    border-radius: var(--style-border-radius-lg);
+  }
+
+  .cart-bubble__text {
+    font-size: var(--font-size--3xs);
+    z-index: 1;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cart-bubble--animating .cart-bubble__background {
+    animation: grow var(--animation-speed) var(--animation-easing);
+  }
+
+  .cart-bubble--animating .cart-bubble__text {
+    --start-y: -1em;
+    --start-opacity: 1;
+    transform: translate(0, var(--start-y, -1em));
+    opacity: var(--start-opacity, 1);
+    animation: move-and-fade var(--animation-speed) var(--animation-easing);
+  }
+{% endstylesheet %}

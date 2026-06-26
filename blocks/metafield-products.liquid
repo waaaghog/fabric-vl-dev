@@ -1,0 +1,373 @@
+
+{% liquid
+  assign mf_parts = block.settings.metafield_path | split: '.'
+  assign related_products = closest.product.metafields[mf_parts[0]][mf_parts[1]].value
+  assign products_limit = block.settings.products_limit
+  assign show_current = block.settings.show_current_product
+  assign current_product = closest.product
+  assign accordion = block.settings.accordion
+  assign sticky = block.settings.sticky_header
+%}
+
+{% if related_products.size > 0 or show_current %}
+  <div
+    class="nfc-block"
+    style="
+      --nfc-min-card-width: {{ block.settings.min_card_width }}px;
+      --nfc-gap: {{ block.settings.columns_gap }}px;
+      --nfc-columns: {% if block.settings.layout == 'list' %}1fr{% else %}repeat(auto-fill, minmax(var(--nfc-min-card-width, 200px), 1fr)){% endif %};
+      {% if block.settings.heading_size != blank %}--nfc-heading-size: {{ block.settings.heading_size }};{% endif %}
+    "
+    {{ block.shopify_attributes }}
+  >
+
+    {%- liquid
+      assign nfc_rendered = 0
+      if show_current
+        assign nfc_limit = products_limit | minus: 1
+      else
+        assign nfc_limit = products_limit
+      endif
+    -%}
+
+    {%- if accordion -%}
+
+      {%- capture accordion_children -%}
+        <details class="details" {% if block.settings.accordion_open %}open{% endif %}>
+          <summary class="details__header{% if sticky %} nfc__header--sticky{% endif %}">
+            <div class="nfc__header-text">
+              {%- if block.settings.eyebrow != blank -%}
+                <p class="nfc__eyebrow">{{ block.settings.eyebrow }}</p>
+              {%- endif -%}
+              {%- if block.settings.heading != blank -%}
+                <h2 class="nfc__heading">{{ block.settings.heading }}</h2>
+              {%- endif -%}
+            </div>
+            <span class="svg-wrapper icon-plus">
+              {{- 'icon-plus.svg' | inline_asset_content -}}
+            </span>
+          </summary>
+          <div class="details-content nfc-block__details-content">
+            <div class="nfc-block__grid">
+              {%- if show_current -%}
+                <div class="nfc-block__item">
+                  {%- # theme-check-disable UniqueStaticBlockId -%}
+                  {%- content_for 'block', type: '_product-card', id: 'nfc-block-card', closest.product: current_product -%}
+                  {%- # theme-check-enable UniqueStaticBlockId -%}
+                </div>
+              {%- endif -%}
+              {%- for product in related_products -%}
+                {%- if nfc_rendered >= nfc_limit -%}{%- break -%}{%- endif -%}
+                {%- unless product.id == current_product.id -%}
+                  <div class="nfc-block__item">
+                    {%- # theme-check-disable UniqueStaticBlockId -%}
+                    {%- content_for 'block', type: '_product-card', id: 'nfc-block-card', closest.product: product -%}
+                    {%- # theme-check-enable UniqueStaticBlockId -%}
+                  </div>
+                  {%- assign nfc_rendered = nfc_rendered | plus: 1 -%}
+                {%- endunless -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        </details>
+      {%- endcapture -%}
+      {%- render 'accordion-custom-component',
+        children: accordion_children,
+        open_by_default_on_desktop: block.settings.accordion_open,
+        open_by_default_on_mobile: block.settings.accordion_open
+      -%}
+
+    {%- else -%}
+
+      {%- if block.settings.eyebrow != blank or block.settings.heading != blank -%}
+        <div class="nfc__header{% if sticky %} nfc__header--sticky{% endif %}">
+          <div class="nfc__header-text">
+            {%- if block.settings.eyebrow != blank -%}
+              <p class="nfc__eyebrow">{{ block.settings.eyebrow }}</p>
+            {%- endif -%}
+            {%- if block.settings.heading != blank -%}
+              <h2 class="nfc__heading">{{ block.settings.heading }}</h2>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="nfc-block__grid">
+        {%- if show_current -%}
+          <div class="nfc-block__item">
+            {%- # theme-check-disable UniqueStaticBlockId -%}
+            {%- content_for 'block', type: '_product-card', id: 'nfc-block-card', closest.product: current_product -%}
+            {%- # theme-check-enable UniqueStaticBlockId -%}
+          </div>
+        {%- endif -%}
+        {%- for product in related_products -%}
+          {%- if nfc_rendered >= nfc_limit -%}{%- break -%}{%- endif -%}
+          {%- unless product.id == current_product.id -%}
+            <div class="nfc-block__item">
+              {%- # theme-check-disable UniqueStaticBlockId -%}
+              {%- content_for 'block', type: '_product-card', id: 'nfc-block-card', closest.product: product -%}
+              {%- # theme-check-enable UniqueStaticBlockId -%}
+            </div>
+            {%- assign nfc_rendered = nfc_rendered | plus: 1 -%}
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+
+    {%- endif -%}
+
+  </div>
+{% endif %}
+
+{% javascript %}
+  document.addEventListener('click', (e) => {
+    const summary = e.target.closest('.nfc-block summary');
+    if (!summary) return;
+    const details = summary.closest('details');
+    if (!details.open) return; // only handle collapse
+
+    const stickyOffset = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--sticky-header-offset')
+    ) || 0;
+
+    // offsetTop chain gives natural page position, unaffected by sticky
+    let naturalTop = 0;
+    let el = summary;
+    while (el) {
+      naturalTop += el.offsetTop;
+      el = el.offsetParent;
+    }
+
+	const targetScrollY = Math.min(naturalTop - stickyOffset, summary.getBoundingClientRect().top);
+    //console.log('[nfc] scrollY:', window.scrollY.toFixed(1), '| target:', targetScrollY.toFixed(1));
+
+    if (window.scrollY > summary.getBoundingClientRect().top)
+      setTimeout(() => window.scrollTo({ top: targetScrollY, behavior: 'instant' }), 0);
+  });
+{% endjavascript %}
+
+{% stylesheet %}
+  /* Header — shared classes with nfc section, safe to duplicate (deduplicated by Shopify) */
+  .nfc__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .nfc__header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .nfc__eyebrow {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .nfc__heading {
+    margin: 0;
+    font-size: var(--nfc-heading-size, clamp(1.4rem, 3vw, 2.2rem));
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+
+  /* Block-specific grid */
+  .nfc-block {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .nfc-block__grid {
+    display: grid;
+    grid-template-columns: var(--nfc-columns, repeat(auto-fill, minmax(var(--nfc-min-card-width, 200px), 1fr)));
+    gap: var(--nfc-gap, 16px);
+  }
+
+  .nfc-block__item {
+    min-width: 0;
+  }
+
+  /* Sticky heading */
+  .nfc__header--sticky {
+    position: sticky;
+    top: var(--sticky-header-offset, 0);
+    z-index: 3;
+    background-color: var(--color-background);
+    margin-block: calc(-1 * var(--padding-sm));
+    padding-block: var(--padding-sm);
+  }
+
+  .nfc-block .details__header {
+    min-height: var(--minimum-touch-target);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  /* Only stick when expanded — natural position when collapsed */
+  .nfc-block details:not([open]) .nfc__header--sticky {
+    position: static;
+  }
+
+  /* Accordion content top gap */
+  .nfc-block__details-content {
+    padding-block-start: 24px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Metafield Product List",
+  "tag": null,
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield_path",
+      "label": "Metafield path",
+      "default": "custom.related_products",
+      "info": "Format: namespace.key"
+    },
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading_size",
+      "label": "Heading size",
+      "placeholder": "e.g. 28px, 2rem",
+      "info": "Leave blank for default"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Max products to show",
+      "min": 1,
+      "max": 24,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "show_current_product",
+      "label": "Include current product",
+      "info": "Shows the current product at the top of the list",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "list", "label": "List (vertical)" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "min_card_width",
+      "label": "Min card width",
+      "min": 100,
+      "max": 300,
+      "step": 5,
+      "unit": "px",
+      "default": 120,
+      "visible_if": "{{ block.settings.layout == 'grid' }}"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Gap between products",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Accordion"
+    },
+    {
+      "type": "checkbox",
+      "id": "accordion",
+      "label": "Enable accordion",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "accordion_open",
+      "label": "Start expanded",
+      "default": true,
+      "visible_if": "{{ block.settings.accordion }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_header",
+      "label": "Sticky heading",
+      "info": "Heading sticks to the top of the page while scrolling",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Metafield Product List",
+      "category": "Product",
+      "blocks": {
+        "nfc-block-card": {
+          "type": "_product-card",
+          "name": "Product card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 4
+          },
+          "blocks": {
+            "product-card-gallery": {
+              "type": "_product-card-gallery",
+              "settings": {
+                "image_ratio": "adapt"
+              }
+            },
+            "product_title": {
+              "type": "product-title"
+            },
+            "price": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": false
+              }
+            }
+          },
+          "block_order": ["product-card-gallery", "product_title", "price"]
+        }
+      },
+      "block_order": []
+    }
+  ]
+}
+{% endschema %}

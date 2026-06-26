@@ -1,0 +1,427 @@
+{%- liquid
+  assign s = section.settings
+  assign arrow_svg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
+-%}
+
+<div class="section section--page-width" style="{% if s.bg_color != blank %}background-color: {{ s.bg_color }};{% endif %}padding-top: {{ s.padding_top }}px; padding-bottom: {{ s.padding_bottom }}px;">
+<section class="vr-category">
+  <div class="vr-category-inner">
+
+    <div class="vr-section-head">
+      <div>
+        {%- if s.eyebrow != blank -%}
+          <div class="vr-section-eyebrow">{{ s.eyebrow }}</div>
+        {%- endif -%}
+        <div class="vr-section-title">
+          {{- s.title -}}
+          {%- if s.title_em != blank -%} <em>{{ s.title_em }}</em>{%- endif -%}
+        </div>
+      </div>
+      {%- if s.view_all_text != blank -%}
+        <a href="{{ s.view_all_url | default: routes.collections_url }}" class="vr-view-all">
+          {{ s.view_all_text }}
+          {{ arrow_svg }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="vr-cat-scroll-wrap">
+        <button class="vr-cat-nav vr-cat-nav--prev" aria-label="Scroll left" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="vr-cat-grid">
+          {%- for block in section.blocks -%}
+            <a
+              href="{{ block.settings.url | default: routes.collections_url }}"
+              class="vr-cat-card{% if block.settings.featured %} vr-cat-card--feat{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.icon_svg != blank -%}
+                <div class="vr-cat-icon">{{ block.settings.icon_svg }}</div>
+              {%- endif -%}
+              <div class="vr-cat-body">
+                <div class="vr-cat-name">{{ block.settings.name }}</div>
+                {%- if block.settings.sub != blank -%}
+                  <div class="vr-cat-subs">{{ block.settings.sub }}</div>
+                {%- endif -%}
+              </div>
+              <div class="vr-cat-arrow">{{ arrow_svg }}</div>
+            </a>
+          {%- endfor -%}
+        </div>
+        <button class="vr-cat-nav vr-cat-nav--next" aria-label="Scroll right">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+</div>
+
+{% stylesheet %}
+
+/* ── Color tokens (self-contained, same as --vr-* design system) ─── */
+:root {
+  --vr-navy:        #2B3A55;
+  --vr-navy-deep:   #1D2636;
+  --vr-sky:         #63B9DE;
+  --vr-sky-pale:    #D9EEF6;
+  --vr-crimson:     #C54448;
+  --vr-chalk:       #F4F5F2;
+  --vr-parchment:   #EEEDE7;
+  --vr-steel:       #66717E;
+  --vr-steel-lt:    #A8B0B8;
+  --vr-ink:         #121820;
+  --vr-white:       #FFFFFF;
+  --vr-border:      #0002;
+  --vr-border-str:  #0003;
+  --vr-serif:       var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:        var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Section head ───────────────────────────────────────────────── */
+.vr-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  gap: 40px;
+}
+.vr-section-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vr-crimson);
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.vr-section-title {
+  font-family: var(--vr-serif);
+  font-size: 56px;
+  line-height: 1;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+.vr-section-title em { font-style: italic; color: var(--vr-steel) !important; }
+.vr-view-all {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-navy);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: background 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.vr-view-all:hover { background: var(--vr-chalk); }
+
+/* ── Category grid ──────────────────────────────────────────────── */
+.vr-category {}
+.vr-category-inner {}
+.vr-cat-scroll-wrap {
+  position: relative;
+}
+.vr-cat-grid {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.vr-cat-grid::-webkit-scrollbar { display: none; }
+.vr-cat-nav {
+  display: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border-str);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  color: var(--vr-navy);
+}
+/*
+.vr-cat-nav:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
+.vr-cat-nav--prev { left: -20px; }
+.vr-cat-nav--next { right: -20px; }
+@media (min-width: 750px) {
+  .vr-cat-nav { display: flex; }
+  .vr-cat-nav[hidden] { display: none; }
+}
+*/
+.vr-cat-card {
+  flex: 0 0 calc((100% - 5 * 8px) / 6);
+  scroll-snap-align: start;
+  aspect-ratio: 1 / 1.15;
+  background: var(--vr-white);
+  border-radius: 16px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+  border: 1px solid var(--vr-border);
+  text-decoration: none;
+  color: inherit;
+}
+.vr-cat-card:hover { transform: translateY(-3px); border-color: var(--vr-border-str); }
+.vr-cat-card--feat { background: var(--vr-navy-deep); color: var(--vr-chalk); border-color: transparent; }
+.vr-cat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--vr-chalk);
+  color: var(--vr-navy);
+  display: flex; align-items: center; justify-content: center;
+}
+.vr-cat-card--feat .vr-cat-icon { background: rgba(244,245,242,0.1); color: var(--vr-sky); }
+.vr-cat-body { display: flex; flex-direction: column; gap: 4px; }
+.vr-cat-name {
+  font-family: var(--vr-serif);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.vr-cat-card--feat .vr-cat-name { color: var(--vr-chalk); }
+.vr-cat-subs {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  color: var(--vr-steel);
+  line-height: 1.4;
+  max-width: 90%;
+}
+.vr-cat-card--feat .vr-cat-subs { color: rgba(244,245,242,0.6); }
+.vr-cat-arrow {
+  position: absolute;
+  right: 16px; bottom: 16px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--vr-chalk);
+  color: var(--vr-navy-deep);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.vr-cat-card--feat .vr-cat-arrow { background: rgba(244,245,242,0.15); color: var(--vr-chalk); }
+.vr-cat-card:hover .vr-cat-arrow { opacity: 1; transform: translateX(0); }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .vr-cat-card { flex: 0 0 calc((100% - 2 * 8px) / 3); }
+  .vr-section-title { font-size: 36px; }
+}
+@media (max-width: 749px) {
+  .vr-section-head { flex-direction: column; align-items: flex-start; }
+  .vr-cat-card { flex: 0 0 calc((100% - 1 * 8px) / 2); }
+}
+
+{% endstylesheet %}
+
+{% javascript %}
+document.querySelectorAll('.vr-cat-scroll-wrap').forEach(wrap => {
+  const grid = wrap.querySelector('.vr-cat-grid');
+  const prev = wrap.querySelector('.vr-cat-nav--prev');
+  const next = wrap.querySelector('.vr-cat-nav--next');
+  if (!grid || !prev || !next) return;
+
+  function update() {
+    prev.hidden = grid.scrollLeft <= 1;
+    next.hidden = grid.scrollLeft >= grid.scrollWidth - grid.clientWidth - 1;
+  }
+
+  prev.addEventListener('click', () => grid.scrollBy({ left: -grid.clientWidth * 0.8, behavior: 'smooth' }));
+  next.addEventListener('click', () => grid.scrollBy({ left: grid.clientWidth * 0.8, behavior: 'smooth' }));
+  grid.addEventListener('scroll', update, { passive: true });
+  update();
+});
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Valor category",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "info": "Leave blank for no background",
+      "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Shop by category"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Find what"
+    },
+    {
+      "type": "text",
+      "id": "title_em",
+      "label": "Title italic suffix",
+      "default": "you need."
+    },
+    {
+      "type": "header",
+      "content": "View all link"
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "Link text",
+      "default": "Browse full catalog"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "Link URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Category card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Category name",
+          "default": "Protection"
+        },
+        {
+          "type": "text",
+          "id": "sub",
+          "label": "Subtitle",
+          "default": "Phone cases, tempered glass, lens & screen protectors"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "featured",
+          "label": "Featured (dark background)",
+          "default": false
+        },
+        {
+          "type": "textarea",
+          "id": "icon_svg",
+          "label": "Icon SVG",
+          "info": "Paste an inline SVG element. Recommended: 22×22px, stroke-based."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor category",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "name": "Protection",
+            "sub": "Phone cases, tempered glass, lens & screen protectors",
+            "featured": true,
+            "icon_svg": "<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z\"/></svg>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "name": "Power",
+            "sub": "Wall & car chargers, cables, power banks, wireless",
+            "featured": false,
+            "icon_svg": "<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M13 2L4 13h7l-2 9 9-11h-7l2-9z\"/></svg>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "name": "Audio",
+            "sub": "Earbuds, headphones, speakers, smart glasses",
+            "featured": false,
+            "icon_svg": "<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M3 18v-6a9 9 0 0 1 18 0v6\"/><path d=\"M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z\"/></svg>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "name": "Attachables",
+            "sub": "Mounts, stands, grips, MagSafe, wallets",
+            "featured": false,
+            "icon_svg": "<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v4M12 18v4M2 12h4M18 12h4M5.5 5.5l2.8 2.8M15.7 15.7l2.8 2.8M5.5 18.5l2.8-2.8M15.7 8.3l2.8-2.8\"/></svg>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "name": "Wearables",
+            "sub": "Smart watches, AirTag accessories, bags, trackers",
+            "featured": false,
+            "icon_svg": "<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><rect x=\"6\" y=\"6\" width=\"12\" height=\"12\" rx=\"3\"/><path d=\"M9 6V3h6v3M9 18v3h6v-3\"/></svg>"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "name": "Everything Else",
+            "sub": "Gaming, stylus, tablet, cleaning, packaging",
+            "featured": false,
+            "icon_svg": "<svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><circle cx=\"5\" cy=\"5\" r=\"2\"/><circle cx=\"12\" cy=\"5\" r=\"2\"/><circle cx=\"19\" cy=\"5\" r=\"2\"/><circle cx=\"5\" cy=\"12\" r=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/><circle cx=\"19\" cy=\"12\" r=\"2\"/><circle cx=\"5\" cy=\"19\" r=\"2\"/><circle cx=\"12\" cy=\"19\" r=\"2\"/><circle cx=\"19\" cy=\"19\" r=\"2\"/></svg>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

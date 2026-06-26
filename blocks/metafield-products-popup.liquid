@@ -1,0 +1,220 @@
+
+{% liquid
+  assign mf_parts = block.settings.metafield_path | split: '.'
+  assign related_products = closest.product.metafields[mf_parts[0]][mf_parts[1]].value
+  assign products_limit = block.settings.products_limit
+  assign show_current = block.settings.show_current_product
+  assign current_product = closest.product
+%}
+
+{% if related_products.size > 0 or show_current %}
+  <script src="{{ 'dialog.js' | asset_url }}" type="module"></script>
+
+  <dialog-component
+    class="mpp-popup"
+    {{ block.shopify_attributes }}
+  >
+    <button
+      on:click="/showDialog"
+      class="button {% if block.settings.button_style == 'primary' %}button--primary{% else %}button--secondary{% endif %} mpp-popup__trigger"
+    >
+      {{ block.settings.button_label | default: 'View all' }}
+    </button>
+
+    <dialog
+      ref="dialog"
+      class="mpp-popup__dialog drawer-bottom drawer-right color-{{ settings.popover_color_scheme }}"
+      scroll-lock
+      style="--mpp-drawer-width: {{ block.settings.drawer_width }}px;"
+      aria-labelledby="mpp-popup-heading-{{ block.id }}"
+    >
+      {%- render 'universal-modal-header',
+        title: block.settings.dialog_heading,
+        title_id: 'mpp-popup-heading-' | append: block.id
+      -%}
+
+      <div
+        class="mpp-popup__list"
+        style="--mpp-gap: {{ block.settings.gap }}px;"
+      >
+        {%- if show_current -%}
+          <div class="mpp-popup__item">
+            {%- # theme-check-disable UniqueStaticBlockId -%}
+            {%- content_for 'block', type: '_product-card', id: 'mpp-popup-card', closest.product: current_product -%}
+            {%- # theme-check-enable UniqueStaticBlockId -%}
+          </div>
+        {%- endif -%}
+        {%- liquid
+          assign mpp_rendered = 0
+          if show_current
+            assign mpp_limit = products_limit | minus: 1
+          else
+            assign mpp_limit = products_limit
+          endif
+        -%}
+        {%- for product in related_products -%}
+          {%- if mpp_rendered >= mpp_limit -%}{%- break -%}{%- endif -%}
+          {%- unless product.id == current_product.id -%}
+            <div class="mpp-popup__item">
+              {%- # theme-check-disable UniqueStaticBlockId -%}
+              {%- content_for 'block', type: '_product-card', id: 'mpp-popup-card', closest.product: product -%}
+              {%- # theme-check-enable UniqueStaticBlockId -%}
+            </div>
+            {%- assign mpp_rendered = mpp_rendered | plus: 1 -%}
+          {%- endunless -%}
+        {%- endfor -%}
+      </div>
+    </dialog>
+  </dialog-component>
+{% endif %}
+
+{% stylesheet %}
+  .mpp-popup__dialog {
+    padding: 0;
+    width: min(var(--mpp-drawer-width, 480px), 100vw);
+  }
+
+  .mpp-popup__dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mpp-popup__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mpp-gap, 16px);
+    padding: var(--padding-xl);
+    overflow-y: auto;
+  }
+
+  @media screen and (max-width: 749px) {
+    .mpp-popup__list {
+      padding: var(--padding-md);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Metafield Products Popup",
+  "tag": null,
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield_path",
+      "label": "Metafield path",
+      "default": "custom.related_products",
+      "info": "Format: namespace.key"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "View all"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" }
+      ],
+      "default": "secondary"
+    },
+    {
+      "type": "header",
+      "content": "Popup"
+    },
+    {
+      "type": "text",
+      "id": "dialog_heading",
+      "label": "Popup heading",
+      "default": "Related Products"
+    },
+    {
+      "type": "range",
+      "id": "drawer_width",
+      "label": "Drawer width",
+      "min": 300,
+      "max": 700,
+      "step": 10,
+      "unit": "px",
+      "default": 480
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Max products to show",
+      "min": 1,
+      "max": 24,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "show_current_product",
+      "label": "Include current product",
+      "info": "Shows the current product at the top of the list",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between cards",
+      "min": 0,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    }
+  ],
+  "presets": [
+    {
+      "name": "Metafield Products Popup",
+      "category": "Product",
+      "blocks": {
+        "mpp-popup-card": {
+          "type": "_product-card",
+          "name": "Product card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 4
+          },
+          "blocks": {
+            "product-card-gallery": {
+              "type": "_product-card-gallery",
+              "settings": {
+                "image_ratio": "adapt"
+              }
+            },
+            "product_title": {
+              "type": "product-title"
+            },
+            "price": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": false
+              }
+            }
+          },
+          "block_order": ["product-card-gallery", "product_title", "price"]
+        }
+      },
+      "block_order": []
+    }
+  ]
+}
+{% endschema %}

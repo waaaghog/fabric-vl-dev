@@ -1,0 +1,262 @@
+{%- doc -%}
+  Renders a numeric list filter as a price-style range control.
+
+  This is used for logged-in "Your Price" filters when Shopify exposes the
+  source as a custom/list filter instead of the native price range filter.
+
+  @param {object} filter - The filter to render.
+  @param {string} filter_style - The filter style ('horizontal' | 'vertical').
+  @param {number} active_value_count - The number of active values.
+  @param {number} sectionId - The section ID.
+  @param {boolean} [should_render_clear] - Whether to render the clear button.
+  @param {boolean} [show_swatch_label] - Whether to show labels beside color swatches.
+  @param {boolean} [in_drawer] - Whether the filter is in a drawer.
+  @param {string} [label_override] - Optional visible label to use for this filter group.
+{%- enddoc -%}
+
+{%- liquid
+  assign label_text = label_override | default: filter.label
+  assign is_horizontal = false
+  assign is_vertical = false
+  if filter_style == 'horizontal'
+    assign is_horizontal = true
+  elsif filter_style == 'vertical'
+    assign is_vertical = true
+  endif
+
+  assign numeric_value_count = 0
+  assign range_min = ''
+  assign range_max = ''
+  assign active_min = ''
+  assign active_max = ''
+-%}
+
+{%- capture hidden_value_inputs -%}
+  {%- for value in filter.values -%}
+    {%- liquid
+      assign numeric_source = value.value | remove: cart.currency.symbol | remove: '$' | remove: ',' | strip
+      assign numeric_test = numeric_source | remove: '.' | remove: '-' | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4' | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9' | strip
+
+      if numeric_test != ''
+        assign numeric_source = value.label | remove: cart.currency.symbol | remove: '$' | remove: ',' | strip
+        assign numeric_test = numeric_source | remove: '.' | remove: '-' | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4' | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9' | strip
+      endif
+
+      if numeric_test != ''
+        continue
+      endif
+
+      assign numeric_value = numeric_source | plus: 0
+      assign numeric_value_count = numeric_value_count | plus: 1
+
+      if range_min == ''
+        assign range_min = numeric_value
+      elsif numeric_value < range_min
+        assign range_min = numeric_value
+      endif
+
+      if range_max == ''
+        assign range_max = numeric_value
+      elsif numeric_value > range_max
+        assign range_max = numeric_value
+      endif
+
+      if value.active
+        if active_min == ''
+          assign active_min = numeric_value
+        elsif numeric_value < active_min
+          assign active_min = numeric_value
+        endif
+
+        if active_max == ''
+          assign active_max = numeric_value
+        elsif numeric_value > active_max
+          assign active_max = numeric_value
+        endif
+      endif
+
+      assign input_id = 'Valor-Price-List-' | append: sectionId | append: '-' | append: filter.param_name | append: '-' | append: forloop.index | replace: '.', '-' | append: '-' | append: filter_style | append: '-' | append: in_drawer
+      assign is_disabled = false
+      if value.count == 0 and value.active == false
+        assign is_disabled = true
+      endif
+    -%}
+    <input
+      type="checkbox"
+      name="{{ value.param_name }}"
+      value="{{ value.value }}"
+      id="{{ input_id }}"
+      class="valor-price-list-filter__checkbox"
+      data-valor-price-list-checkbox
+      data-valor-price-list-value="{{ numeric_value }}"
+      data-label="{{ value.label | escape }}"
+      {% if value.active %}
+        checked
+      {% endif %}
+      {% if is_disabled %}
+        disabled
+      {% endif %}
+    >
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if numeric_value_count < 2 -%}
+  {%- render 'list-filter',
+    filter: filter,
+    filter_style: filter_style,
+    active_value_count: active_value_count,
+    should_render_clear: should_render_clear,
+    show_swatch_label: show_swatch_label,
+    in_drawer: in_drawer,
+    sectionId: sectionId,
+    label_override: label_text
+  -%}
+{%- else -%}
+  {%- liquid
+    assign current_min_value = active_min | default: range_min
+    assign current_max_value = active_max | default: range_max
+    assign min_percent = 0
+    assign max_percent = 100
+    if range_max > range_min
+      assign range_size = range_max | minus: range_min
+      assign min_offset = current_min_value | minus: range_min
+      assign max_offset = current_max_value | minus: range_min
+      assign min_percent = min_offset | times: 100 | divided_by: range_size
+      assign max_percent = max_offset | times: 100 | divided_by: range_size
+    endif
+    assign fill_right_percent = 100 | minus: max_percent
+  -%}
+
+  {% capture accordion_children %}
+    <details
+      class="facets__panel"
+      {% if filter_style == 'horizontal' %}
+        data-auto-close-details="desktop"
+      {% endif %}
+      {% if filter_style == 'vertical' and in_drawer != true %}
+        open
+      {% endif %}
+    >
+      <summary
+        class="facets__summary"
+        data-testid="price-filter"
+      >
+        <span class="facets__label">{{ label_text }}</span>
+        <facet-status-component class="facets__status">
+          <span
+            class="hide-when-empty{% if active_value_count > 0 %} bubble facets__bubble{% endif %}"
+            ref="facetStatus"
+            data-valor-price-list-status
+          >
+            {%- if active_value_count > 0 -%}
+              {{- cart.currency.symbol -}}{{- current_min_value -}}
+              –
+              {{- cart.currency.symbol -}}{{- current_max_value -}}
+            {%- endif -%}
+          </span>
+        </facet-status-component>
+        <span class="svg-wrapper icon-caret icon-animated">
+          {{- 'icon-caret.svg' | inline_asset_content -}}
+        </span>
+      </summary>
+      <floating-panel-component
+        {% unless filter_style == 'vertical' %}
+          data-close-on-resize
+        {% endunless %}
+        class="facets__panel-content details-content{% if filter_style == 'horizontal' %} color-{{ settings.popover_color_scheme }}{% endif %}"
+      >
+        <valor-price-list-filter-component
+          class="price-facet{% if filter_style == 'horizontal' %} price-facet--horizontal{% endif %}"
+          data-money-symbol="{{ cart.currency.symbol | escape }}"
+          data-range-min="{{ range_min }}"
+          data-range-max="{{ range_max }}"
+        >
+          <div
+            class="price-facet__range-track"
+            style="--price-min-percent: {{ min_percent }}%; --price-max-percent: {{ max_percent }}%; --price-fill-right-percent: {{ fill_right_percent }}%;"
+          >
+            <span class="price-facet__range-fill"></span>
+            <span class="price-facet__range-handle price-facet__range-handle--min"></span>
+            <span class="price-facet__range-handle price-facet__range-handle--max"></span>
+            <input
+              class="price-facet__range-input price-facet__range-input--min"
+              type="range"
+              min="{{ range_min }}"
+              max="{{ range_max }}"
+              step="0.01"
+              value="{{ current_min_value }}"
+              aria-label="{{ 'accessibility.price_filter_low' | t }}"
+              data-valor-price-list-min-range
+            >
+            <input
+              class="price-facet__range-input price-facet__range-input--max"
+              type="range"
+              min="{{ range_min }}"
+              max="{{ range_max }}"
+              step="0.01"
+              value="{{ current_max_value }}"
+              aria-label="{{ 'accessibility.price_filter_high' | t }}"
+              data-valor-price-list-max-range
+            >
+          </div>
+
+          <div class="facets__inputs-wrapper facets__inputs-wrapper--row">
+            <div class="price-facet__inputs-wrapper">
+              <div class="field price-facet__field">
+                <span class="price-facet__currency" aria-hidden="true">{{ cart.currency.symbol }}</span>
+                <input
+                  class="field__input price-facet__input"
+                  type="text"
+                  inputmode="decimal"
+                  value="{% unless current_min_value == range_min %}{{ current_min_value }}{% endunless %}"
+                  placeholder="{{ range_min }}"
+                  data-valor-price-list-min-input
+                  autocomplete="off"
+                  aria-label="{{ 'accessibility.price_filter_low' | t }}"
+                >
+                <label class="field__label price-facet__label">Min</label>
+              </div>
+
+              <div class="price-facet__separator">{{ 'fields.separator' | t }}</div>
+
+              <div class="field price-facet__field">
+                <span class="price-facet__currency" aria-hidden="true">{{ cart.currency.symbol }}</span>
+                <input
+                  class="field__input price-facet__input"
+                  type="text"
+                  inputmode="decimal"
+                  value="{% unless current_max_value == range_max %}{{ current_max_value }}{% endunless %}"
+                  placeholder="{{ range_max }}"
+                  data-valor-price-list-max-input
+                  autocomplete="off"
+                  aria-label="{{ 'accessibility.price_filter_high' | t }}"
+                >
+                <label class="field__label price-facet__label">Max</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="valor-price-list-filter__values" aria-hidden="true">
+            {{ hidden_value_inputs }}
+          </div>
+        </valor-price-list-filter-component>
+      </floating-panel-component>
+    </details>
+  {% endcapture %}
+  {% render 'accordion-custom-component',
+    children: accordion_children,
+    class: 'facets__item',
+    open: is_vertical,
+    open_by_default_on_desktop: is_vertical,
+    open_by_default_on_mobile: is_vertical,
+    disable_animation_on_desktop: is_horizontal,
+    close_with_escape: is_horizontal,
+    data_filter_param_name: filter.param_name
+  %}
+{%- endif -%}
+
+{% stylesheet %}
+  .valor-price-list-filter__values {
+    display: none;
+  }
+{% endstylesheet %}

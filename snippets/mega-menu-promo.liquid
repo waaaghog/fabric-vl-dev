@@ -1,0 +1,38 @@
+{%- doc -%}
+  Renders the promo image panel for a matched mega_menu_promo section block.
+  Placed inside .mega-menu__grid — spans 2 columns on the right.
+
+  @param {object} block - The matched mega_menu_promo section block.
+  @param {number} [image_border_radius] - Border radius in px inherited from menu settings.
+{%- enddoc -%}
+
+
+{%- if block.settings.image != blank -%}
+  <span
+    class="mega-menu__content mega-menu__promo-panel"
+    style="--menu-image-border-radius: {{ image_border_radius }}px;"
+  >
+    <a
+      class="mega-menu__promo-panel-link"
+      {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}
+    >
+      {{- block.settings.image | image_url: width: 600
+        | image_tag:
+          class: 'mega-menu__promo-panel-image',
+          loading: 'lazy',
+          widths: '300, 400, 600',
+          sizes: '(min-width: 990px) 20vw, 25vw'
+      -}}
+      {%- if block.settings.promo_heading != blank or block.settings.subheading != blank -%}
+        <div class="mega-menu__promo-panel-overlay">
+          {%- if block.settings.promo_heading != blank -%}
+            <p class="mega-menu__promo-panel-heading">{{ block.settings.promo_heading }}</p>
+          {%- endif -%}
+          {%- if block.settings.subheading != blank -%}
+            <p class="mega-menu__promo-panel-subheading">{{ block.settings.subheading }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </a>
+  </span>
+{%- endif -%}

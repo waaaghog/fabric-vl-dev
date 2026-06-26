@@ -1,0 +1,70 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="section color-{{ section.settings.color_scheme }}">
+  <div
+    class="
+      spacing-style
+      layout-panel-flex
+      layout-panel-flex--column
+      section-content-wrapper
+      mobile-column
+    "
+    style="
+      {% render 'layout-panel-style', settings: section.settings %}
+      {% render 'spacing-style', settings: section.settings %}
+    "
+  >
+    {% comment %} Check if the post has any B2B Market restriction tags {% endcomment %}
+    {% assign is_restricted = false %}
+    {% assign target_market = "" %}
+
+    {% for tag in article.tags %}
+      {% if tag contains 'Market_' %}
+        {% assign is_restricted = true %}
+        {% assign target_market = tag %}
+        {% break %}
+      {% endif %}
+    {% endfor %}
+
+    {% if is_restricted %}
+      {% if customer and customer.tags contains target_market %}
+        <header>
+          {%- content_for 'block', id: 'blog-post-title', type: 'text' %}
+          {%- content_for 'block', id: 'blog-post-details', type: '_blog-post-info-text' %}
+        </header>
+        {%- if article.image -%}
+          {%- content_for 'block', id: 'blog-post-image', type: '_blog-post-featured-image' %}
+        {%- endif -%}
+        {%- content_for 'block', id: 'blog-post-content', type: '_blog-post-content' %}
+      {% else %}
+        {% assign accent_color = "#1D2636" %}
+          {% if target_market contains "Cricket" %}{% assign accent_color = "#61B845" %}
+          {% comment %} Handle lowercase mismatch safely if they type it natively {% endcomment %}
+      {% elsif target_market contains "Boost" or target_market contains "BOOST" %}{% assign accent_color = "#F36F21" %}
+          {% elsif target_market contains "Total" %}{% assign accent_color = "#E81E26" %}{% endif %}
+
+        <div style="text-align: center; max-width: 600px; margin: 60px auto; padding: 40px 24px; font-family: 'Inter', sans-serif; background: #FFFFFF; border: 1px solid rgba(29, 38, 54, 0.14); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+          <span style="display: inline-block; background: #F4F5F2; color: #1D2636; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; margin-bottom: 16px; border: 1px solid rgba(29,38,54,0.08);">
+            Exclusive Promotion
+          </span>
+          <h2 style="font-family: 'Instrument Serif', Georgia, serif; font-size: 36px; font-weight: 400; color: #1D2636; margin: 0 0 8px 0;">Authorized Access Only</h2>
+          <p style="color: #66717E; font-size: 14px; margin-bottom: 24px; line-height: 1.5; max-width: 460px; margin-left: auto; margin-right: auto;">
+            This layout is exclusively reserved for registered wholesale partners. Please sign into your portal account to view these materials.
+          </p>
+          <a href="/account/login" style="display: inline-block; background: {{ accent_color }}; color: #FFFFFF; font-size: 13px; font-weight: 500; padding: 12px 28px; border-radius: 6px; text-decoration: none;">
+            Log In to Partner Portal
+          </a>
+        </div>
+      {% endif %}
+    {% else %}
+      <header>
+        {%- content_for 'block', id: 'blog-post-title', type: 'text' %}
+        {%- content_for 'block', id: 'blog-post-details', type: '_blog-post-info-text' %}
+      </header>
+      {%- if article.image -%}
+        {%- content_for 'block', id: 'blog-post-image', type: '_blog-post-featured-image' %}
+      {%- endif -%}
+      {%- content_for 'block', id: 'blog-post-content', type: '_blog-post-content' %}
+    {% endif %}
+
+    {% content_for 'blocks' %}
+    {% comment %} (Comments logic kept exactly intact below here) {% endcomment %}

@@ -1,0 +1,1872 @@
+
+{% stylesheet %}
+.acct {
+  --acct-sidebar: 320px;
+  --acct-gap: 20px;
+  --acct-radius: 8px;
+  --acct-border: #e5e7eb;
+  --acct-bg: #f9fafb;
+  --acct-muted: #6b7280;
+  --acct-primary: var(--color-button, #111);
+  --acct-primary-fg: var(--color-button-text, #fff);
+}
+
+/* ── Page title ──────────────────────────────────────── */
+.acct__page-title {
+  margin: 0 0 28px;
+  text-align: center;
+}
+
+/* ── Header ──────────────────────────────────────────── */
+.acct__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--acct-border);
+  margin-bottom: var(--acct-gap);
+}
+
+.acct__header-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.acct__avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--acct-primary);
+  color: var(--acct-primary-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.acct__header-name {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 2px;
+  line-height: 1.3;
+}
+
+.acct__header-company,
+.acct__header-email {
+  font-size: 0.8rem;
+  color: var(--acct-muted);
+  margin: 0;
+}
+
+.acct__header-company {
+  font-weight: 500;
+}
+
+.acct__signout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--acct-muted);
+  text-decoration: none;
+  padding: 7px 14px;
+  border: 1px solid var(--acct-border);
+  border-radius: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.acct__signout:hover {
+  color: var(--acct-primary);
+  border-color: var(--acct-primary);
+}
+
+/* ── Layout ──────────────────────────────────────────── */
+.acct__layout {
+  display: grid;
+  grid-template-columns: var(--acct-sidebar) 1fr;
+  gap: var(--acct-gap);
+  align-items: start;
+}
+
+/* ── Sidebar nav ─────────────────────────────────────── */
+.acct__nav {
+  position: sticky;
+  top: 80px;
+  background: #fff;
+  border: 1px solid var(--acct-border);
+  border-radius: var(--acct-radius);
+  overflow: hidden;
+  padding: 4px 0 30px 0;
+}
+
+.acct__nav-group {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--acct-border);
+}
+
+.acct__nav-group:last-child {
+  border-bottom: none;
+}
+
+.acct__nav-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--acct-muted);
+  padding: 14px 26px 3px;
+  display: block;
+}
+
+.acct__nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 12px 22px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+  font-family: inherit;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.acct__nav-btn:hover {
+  background: var(--acct-bg);
+}
+
+.acct__nav-btn--active {
+  border-left-color: var(--acct-primary);
+  background: var(--acct-bg);
+  font-weight: 600;
+  color: var(--acct-primary);
+}
+
+.acct__nav-btn svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.acct__nav-btn--active svg {
+  opacity: 1;
+}
+
+/* ── Mobile chip tabs ────────────────────────────────── */
+.acct__chips {
+  display: none;
+  overflow-x: auto;
+  gap: 8px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+
+.acct__chips::-webkit-scrollbar {
+  display: none;
+}
+
+.acct__chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border: 1px solid var(--acct-border);
+  border-radius: 20px;
+  background: none;
+  font-family: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #374151;
+}
+
+.acct__chip--active {
+  background: var(--acct-primary);
+  color: var(--acct-primary-fg);
+  border-color: var(--acct-primary);
+}
+
+/* ── Panels ──────────────────────────────────────────── */
+.acct__panel {
+  display: none;
+}
+
+.acct__panel--active {
+  display: block;
+}
+
+/* ── Cards ───────────────────────────────────────────── */
+.acct__card {
+  background: #fff;
+  border: 1px solid var(--acct-border);
+  border-radius: var(--acct-radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+}
+
+.acct__card:last-child {
+  margin-bottom: 0;
+}
+
+.acct__card-title {
+  font-weight: 600;
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+  border-bottom: 1px solid var(--acct-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* count/subtitle spans inside .acct__card-title */
+.acct__card-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--acct-muted);
+}
+
+/* ── Stats row ───────────────────────────────────────── */
+.acct__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.acct__stat {
+  background: #fff;
+  border: 1px solid var(--acct-border);
+  border-radius: var(--acct-radius);
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.acct__stat-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.acct__stat-label {
+  color: var(--acct-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Table ───────────────────────────────────────────── */
+.acct__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.acct__table th {
+  text-align: left;
+  padding: 9px 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--acct-muted);
+  border-bottom: 2px solid var(--acct-border);
+  white-space: nowrap;
+}
+
+.acct__table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--acct-border);
+  vertical-align: middle;
+}
+
+.acct__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.acct__table tbody tr:hover {
+  background: var(--acct-bg);
+}
+
+.acct__table a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.acct__table a:hover {
+  text-decoration: underline;
+}
+
+/* ── Status badges ───────────────────────────────────── */
+.acct__badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.acct__badge--green  { background: #d1fae5; color: #065f46; }
+.acct__badge--yellow { background: #fef9c3; color: #854d0e; }
+.acct__badge--blue   { background: #dbeafe; color: #1e40af; }
+.acct__badge--red    { background: #fee2e2; color: #991b1b; }
+.acct__badge--gray   { background: #f3f4f6; color: #374151; }
+
+/* ── Salesperson card ────────────────────────────────── */
+.acct__rep {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.acct__rep-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--acct-bg);
+  border: 1px solid var(--acct-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.acct__rep-name  { font-weight: 600; margin: 0 0 2px; }
+.acct__rep-title { font-size: 0.75rem; color: var(--acct-muted); margin: 0 0 10px; }
+
+.acct__rep-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.acct__rep-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--acct-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.acct__rep-link:hover {
+  color: var(--acct-primary);
+}
+
+/* ── Address grid ────────────────────────────────────── */
+.acct__addr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.acct__addr-card {
+  border: 1px solid var(--acct-border);
+  border-radius: var(--acct-radius);
+  padding: 14px 16px;
+  font-size: 0.8rem;
+}
+
+.acct__addr-card--default {
+  border-color: var(--acct-primary);
+}
+
+.acct__addr-default-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--acct-primary);
+  margin-bottom: 8px;
+}
+
+.acct__addr-card address {
+  font-style: normal;
+  line-height: 1.65;
+  color: #374151;
+}
+
+.acct__addr-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.acct__addr-action {
+  font-size: 0.75rem;
+  color: var(--acct-muted);
+  text-decoration: none;
+  padding: 4px 9px;
+  border: 1px solid var(--acct-border);
+  border-radius: 4px;
+  transition: all 0.12s;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.acct__addr-action:hover {
+  border-color: var(--acct-primary);
+  color: var(--acct-primary);
+}
+
+.acct__addr-add {
+  border: 1.5px dashed var(--acct-border);
+  border-radius: var(--acct-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  color: var(--acct-muted);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.acct__addr-add:hover {
+  border-color: var(--acct-primary);
+  color: var(--acct-primary);
+}
+
+/* ── Forms ───────────────────────────────────────────── */
+.acct__form {
+  max-width: 580px;
+}
+
+.acct__form-row {
+  margin-bottom: 18px;
+}
+
+.acct__form-row label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.acct__form-row input,
+.acct__form-row select,
+.acct__form-row textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--acct-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: inherit;
+  background: #fff;
+  color: inherit;
+  transition: border-color 0.15s;
+}
+
+.acct__form-row input:focus,
+.acct__form-row select:focus,
+.acct__form-row textarea:focus {
+  outline: none;
+  border-color: var(--acct-primary);
+}
+
+.acct__form-row input[readonly],
+.acct__form-row input[disabled] {
+  background: var(--acct-bg);
+  color: var(--acct-muted);
+  cursor: not-allowed;
+}
+
+.acct__form-row .acct__hint {
+  font-size: 0.75rem;
+  color: var(--acct-muted);
+  margin: 4px 0 0;
+}
+
+.acct__form-row .acct__check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acct__form-row .acct__check-row input {
+  width: auto;
+  margin: 0;
+}
+
+.acct__form-row .acct__check-row label {
+  margin: 0;
+}
+
+.acct__form-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.acct__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  line-height: 1.4;
+}
+
+.acct__btn:hover { opacity: 0.8; }
+
+.acct__btn--primary {
+  background: var(--acct-primary);
+  color: var(--acct-primary-fg);
+}
+
+.acct__btn--outline {
+  background: transparent;
+  color: inherit;
+  border-color: var(--acct-border);
+}
+
+.acct__btn--outline:hover {
+  border-color: var(--acct-primary);
+  color: var(--acct-primary);
+  opacity: 1;
+}
+
+.acct__btn--sm {
+  padding: 5px 12px;
+  font-size: 0.75rem;
+}
+
+/* ── Pagination ──────────────────────────────────────── */
+.acct__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 20px;
+  margin-top: 4px;
+  border-top: 1px solid var(--acct-border);
+}
+
+.acct__pagination a,
+.acct__pagination span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--acct-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  color: #374151;
+}
+
+.acct__pagination a:hover {
+  border-color: var(--acct-primary);
+  color: var(--acct-primary);
+}
+
+.acct__pagination [aria-current] {
+  background: var(--acct-primary);
+  color: var(--acct-primary-fg);
+  border-color: var(--acct-primary);
+}
+
+/* ── Placeholder ─────────────────────────────────────── */
+.acct__empty {
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--acct-muted);
+}
+
+.acct__empty-icon {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.acct__empty h3 {
+  color: #374151;
+  margin: 0 0 6px;
+}
+
+.acct__empty p {
+  font-size: 0.8rem;
+  margin: 0 0 18px;
+}
+
+/* ── Drop zone ───────────────────────────────────────── */
+.acct__dropzone {
+  border: 2px dashed var(--acct-border);
+  border-radius: var(--acct-radius);
+  padding: 32px;
+  text-align: center;
+  transition: border-color 0.15s;
+}
+
+.acct__dropzone:hover,
+.acct__dropzone--over {
+  border-color: var(--acct-primary);
+}
+
+.acct__dropzone p {
+  font-size: 0.8rem;
+  color: var(--acct-muted);
+  margin: 8px 0 12px;
+}
+
+/* ── Divider note ────────────────────────────────────── */
+.acct__note {
+  font-size: 0.75rem;
+  color: var(--acct-muted);
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--acct-border);
+}
+
+/* ── Mobile ──────────────────────────────────────────── */
+@media screen and (max-width: 989px) {
+  .acct__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .acct__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .acct__nav { display: none; }
+  .acct__chips { display: flex; }
+
+  .acct__stats { grid-template-columns: repeat(2, 1fr); }
+
+  .acct__form-2col { grid-template-columns: 1fr; }
+
+  .acct__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+{% endstylesheet %}
+
+{% comment %}
+	For checking if a customer is a company admin, you'd use the role on the company contact:
+	{% if customer.company_contact.is_main_contact %}
+		{# customer is the main contact/admin #}
+	{% endif %}
+	{{ customer.company_contact.title }}
+	However, the more reliable check for admin permissions is through the company contact roles, which define what the contact can do (like placing orders, viewing all orders, etc.):
+{% endcomment %}
+
+{%- liquid
+	assign is_admin = false
+	for role_assignment in customer.company_contact.role_assignments
+		if role_assignment.role.name == 'Location admin'
+			assign is_admin = true
+		endif
+	endfor
+	assign company    = customer.company_contact.company | default: ''
+	assign sp_name    = customer.metafields.dealerinfo.salesperson_name.value    | default: ''
+	assign sp_email   = customer.metafields.dealerinfo.salesperson_email.value   | default: ''
+	assign sp_phone   = customer.metafields.dealerinfo.salesperson_phone.value   | default: ''
+	assign tax_id     = customer.metafields.dealerinfo.tax_id.value              | default: ''
+	assign notif_email = customer.metafields.dealerinfo.notification_email.value | default: ''
+	assign sms_number = customer.metafields.dealerinfo.sms_number.value          | default: ''
+	assign sms_opt_in = customer.metafields.dealerinfo.sms_opt_in.value          | default: 'false'
+-%}
+
+
+{%- liquid
+  assign total_orders = customer.orders_count
+  assign total_spend  = 0
+  assign month_spend  = 0
+  assign month_orders = 0
+  assign now_ym = 'now' | date: '%Y-%m'
+  for order in customer.orders
+    assign total_spend = total_spend | plus: order.total_net_amount
+    assign order_ym = order.created_at | date: '%Y-%m'
+    if order_ym == now_ym
+      assign month_spend  = month_spend  | plus: order.total_net_amount
+      assign month_orders = month_orders | plus: 1
+    endif
+  endfor
+-%}
+
+{%- liquid
+  assign acct_ts    = 'now' | date: '%s'
+  assign secret     = shop.metafields.valor.connect.value[0]
+  assign proxy     	= shop.metafields.valor.connect.value[1]
+  assign acct_token = customer.id | append: '|' | append: acct_ts | hmac_sha256: secret
+  assign erp_no     = customer.company_contact.company.id | default: ''
+-%}
+<div class="section section--{{ section.settings.section_width }}">
+<div class="acct section-{{ section.id }}-padding" id="acct-root">
+
+  {%- unless customer -%}
+    {%- comment -%} New accounts login redirect {%- endcomment -%}
+    <script>window.location.href = '/account/login?return_to=%2Fpages%2Fmy-account';</script>
+    <div class="acct__card" style="max-width:480px; margin:60px auto;">
+      <div class="acct__empty">
+        <div class="acct__empty-icon">&#128274;</div>
+        <h3>Sign in required</h3>
+        <p>Please sign in to access your account dashboard.</p>
+        <a href="/account/login" class="acct__btn acct__btn--primary">Sign in</a>
+      </div>
+    </div>
+  {%- else -%}
+
+  <script>
+  window.__acctAuth = {
+    customer_id: {{ customer.id | json }},
+    ts:          {{ acct_ts | json }},
+    token:       {{ acct_token | json }},
+    erp_no:      {{ erp_no | json }},
+	is_admin:    {{ is_admin }}
+  };
+  window.__erpProxy = {{ proxy | default: '' | json }};
+  window.__acctOrders = [
+    {%- for order in customer.orders -%}
+    {"id":{{ order.id }},"name":{{ order.name | json }},"date":{{ order.created_at | date: '%B %d, %Y' | json }},"financial_status":{{ order.financial_status | json }},"financial_status_label":{{ order.financial_status_label | json }},"fulfillment_status":{{ order.fulfillment_status | json }},"fulfillment_status_label":{{ order.fulfillment_status_label | json }},"total_cents":{{ order.total_net_amount }},"subtotal_cents":{{ order.subtotal_price }},"shipping_cents":{{ order.shipping_price }},"tax_cents":{{ order.tax_price }},"discounts_cents":{{ order.total_discounts }},"note":{{ order.note | json }},"customer_url":{{ order.customer_url | json }},"line_items":[{%- for item in order.line_items -%}{"title":{{ item.title | json }},"variant_title":{{ item.variant_title | json }},"sku":{{ item.sku | json }},"quantity":{{ item.quantity }},"price_cents":{{ item.price }},"line_price_cents":{{ item.line_price }},"image_url":{%- if item.image -%}{{ item.image | image_url: width: 60 | json }}{%- else -%}null{%- endif -%}}{% unless forloop.last %},{% endunless %}{%- endfor -%}],"shipping_address":{%- if order.shipping_address -%}{"name":{{ order.shipping_address.name | json }},"address1":{{ order.shipping_address.address1 | json }},"address2":{{ order.shipping_address.address2 | json }},"city":{{ order.shipping_address.city | json }},"province":{{ order.shipping_address.province | json }},"zip":{{ order.shipping_address.zip | json }},"country":{{ order.shipping_address.country | json }},"phone":{{ order.shipping_address.phone | json }}}{%- else -%}null{%- endif -%},"tracking":[{%- for f in order.fulfillments -%}{"company":{{ f.tracking_company | json }},"number":{{ f.tracking_number | json }},"url":{{ f.tracking_url | json }}}{% unless forloop.last %},{% endunless %}{%- endfor -%}]}{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ];
+  </script>
+
+  <h1 class="acct__page-title">Welcome back, {{ customer.first_name }}!</h1>
+
+  <!-- ━━ Header ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <header class="acct__header">
+    <div class="acct__header-info">
+      <div class="acct__avatar" aria-hidden="true">
+        {{- customer.first_name | slice: 0, 1 | upcase -}}{{- customer.last_name | slice: 0, 1 | upcase -}}
+      </div>
+      <div>
+        <p class="acct__header-name">{{ customer.first_name }} {{ customer.last_name }}</p>
+        {%- if company != blank -%}
+          <p class="acct__header-company">{{ company.name }}</p>
+        {%- endif -%}
+        <p class="acct__header-email">{{ customer.email }}</p>
+      </div>
+    </div>
+    <a href="{{ routes.account_logout_url }}" class="acct__signout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16,17 21,12 16,7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Sign out
+    </a>
+  </header>
+
+  <!-- ━━ Mobile chips ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div class="acct__chips" id="acct-chips" role="tablist">
+    <button class="acct__chip acct__chip--active" data-tab="overview"      role="tab">Overview</button>
+    <button class="acct__chip" data-tab="orders"       role="tab">Orders</button>
+    <button class="acct__chip" data-tab="preorders"    role="tab">Preorders &amp; RMA</button>
+    <button class="acct__chip" data-tab="account-info" role="tab">Account Info</button>
+    <button class="acct__chip" data-tab="addresses"    role="tab">Addresses</button>
+    <button class="acct__chip" data-tab="notifications" role="tab">Notifications</button>
+    {%- if is_admin -%}
+    <button class="acct__chip" data-tab="staff"        role="tab">Staff</button>
+    {%- endif -%}
+    <button class="acct__chip" data-tab="payment"      role="tab">Payment</button>
+    <button class="acct__chip" data-tab="bulk-addr"    role="tab">Bulk Addresses</button>
+    <button class="acct__chip" data-tab="statistics"   role="tab">Statistics</button>
+    <button class="acct__chip" data-tab="statements"   role="tab">Statements</button>
+    <button class="acct__chip" data-tab="help"         role="tab">Help</button>
+  </div>
+
+  <div class="acct__layout">
+
+    <!-- ━━ Sidebar nav ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <nav class="acct__nav" aria-label="Account navigation">
+
+      <div class="acct__nav-group">
+        <span class="acct__nav-label">Dashboard</span>
+        <button class="acct__nav-btn acct__nav-btn--active" data-tab="overview">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Overview
+        </button>
+      </div>
+
+      <div class="acct__nav-group">
+        <span class="acct__nav-label">Orders</span>
+        <button class="acct__nav-btn" data-tab="orders">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          My Orders
+        </button>
+        <button class="acct__nav-btn" data-tab="preorders">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          Preorders &amp; RMA
+        </button>
+      </div>
+
+      <div class="acct__nav-group">
+        <span class="acct__nav-label">Account</span>
+        <button class="acct__nav-btn" data-tab="account-info">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Account Info
+        </button>
+        <button class="acct__nav-btn" data-tab="addresses">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Shipping Addresses
+        </button>
+        <button class="acct__nav-btn" data-tab="notifications">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notifications
+        </button>
+        {%- if is_admin -%}
+        <button class="acct__nav-btn" data-tab="staff">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Manage Staff
+        </button>
+        {%- endif -%}
+      </div>
+
+      <div class="acct__nav-group">
+        <span class="acct__nav-label">Financials</span>
+        <button class="acct__nav-btn" data-tab="payment">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Payment Methods
+        </button>
+        <button class="acct__nav-btn" data-tab="statistics">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Purchase Statistics
+        </button>
+        <button class="acct__nav-btn" data-tab="statements">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+          Statements &amp; Invoices
+        </button>
+      </div>
+
+      <div class="acct__nav-group">
+        <span class="acct__nav-label">Tools</span>
+        <button class="acct__nav-btn" data-tab="bulk-addr">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Bulk Addresses
+        </button>
+        <button class="acct__nav-btn" data-tab="help">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Help &amp; Support
+        </button>
+      </div>
+
+    </nav>
+
+    <!-- ━━ Content ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="acct__content">
+
+      <!-- ════ OVERVIEW ════════════════════════════════ -->
+      <section id="tab-overview" class="acct__panel acct__panel--active" role="tabpanel">
+
+        <div class="acct__stats">
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ total_orders }}</span>
+            <span class="acct__stat-label">Total Orders</span>
+          </div>
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ total_spend | money_without_trailing_zeros }}</span>
+            <span class="acct__stat-label">Lifetime Spend*</span>
+          </div>
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ month_orders }}</span>
+            <span class="acct__stat-label">Orders This Month</span>
+          </div>
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ month_spend | money_without_trailing_zeros }}</span>
+            <span class="acct__stat-label">Spend This Month*</span>
+          </div>
+        </div>
+
+        {%- if sp_name != blank or sp_email != blank -%}
+        <div class="acct__card">
+          <h4 class="acct__card-title">Your Sales Representative</h4>
+          <div class="acct__rep">
+            <div class="acct__rep-avatar" aria-hidden="true">&#128100;</div>
+            <div>
+              <p class="acct__rep-name">{{ sp_name | default: 'Sales Representative' }}</p>
+              <p class="acct__rep-title">Sales Representative &middot; Valor</p>
+              <div class="acct__rep-contacts">
+                {%- if sp_email != blank -%}
+                  <a class="acct__rep-link" href="mailto:{{ sp_email }}">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    {{ sp_email }}
+                  </a>
+                {%- endif -%}
+                {%- if sp_phone != blank -%}
+                  <a class="acct__rep-link" href="tel:{{ sp_phone }}">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.4 2 2 0 0 1 3.59 2.2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17"/></svg>
+                    {{ sp_phone }}
+                  </a>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+
+        <div class="acct__card">
+          <h4 class="acct__card-title">Recent Orders
+            <button class="acct__btn acct__btn--sm acct__btn--outline" data-tab="orders">View all</button>
+          </h4>
+          {%- if customer.orders.size > 0 -%}
+            <div class="acct__table-wrap">
+              <table class="acct__table">
+                <thead>
+                  <tr>
+                    <th>Order</th><th>Date</th><th>Total</th><th>Payment</th><th>Fulfillment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%- for order in customer.orders limit: 5 -%}
+                    {%- assign ps = order.financial_status -%}
+                    {%- assign fs = order.fulfillment_status -%}
+                    <tr>
+                      <td><a href="{{ order.customer_url }}" class="acct__order-link" data-order-id="{{ order.id }}">{{ order.name }}</a></td>
+                      <td>{{ order.created_at | time_tag: format: 'date' }}</td>
+                      <td>{{ order.total_net_amount | money }}</td>
+                      <td>
+                        <span class="acct__badge {% if ps == 'paid' %}acct__badge--green{% elsif ps == 'pending' or ps == 'partially_paid' %}acct__badge--yellow{% elsif ps == 'refunded' or ps == 'voided' %}acct__badge--red{% else %}acct__badge--gray{% endif %}">
+                          {{ order.financial_status_label }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="acct__badge {% if fs == 'fulfilled' %}acct__badge--green{% elsif fs == 'partial' %}acct__badge--yellow{% elsif fs == 'in_transit' %}acct__badge--blue{% else %}acct__badge--gray{% endif %}">
+                          {{ order.fulfillment_status_label | default: 'Unfulfilled' }}
+                        </span>
+                      </td>
+                    </tr>
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+          {%- else -%}
+            <div class="acct__empty">
+              <div class="acct__empty-icon">&#128230;</div>
+              <h3>No orders yet</h3>
+              <p>Your order history will appear here.</p>
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- if customer.default_address -%}
+          <div class="acct__card">
+            <h4 class="acct__card-title">Default Address
+              <button class="acct__btn acct__btn--sm acct__btn--outline" data-tab="account-info">Edit</button>
+            </h4>
+            <address style="font-style:normal; font-size:0.85rem; line-height:1.7;">
+              {{ customer.default_address | format_address }}
+            </address>
+          </div>
+        {%- endif -%}
+
+        <p style="font-size:0.72rem; color:var(--acct-muted);">
+          * Spend figures are calculated from your most recent orders. For complete historical data, see Statements &amp; Invoices.
+        </p>
+
+      </section>
+
+      <!-- ════ ORDERS ══════════════════════════════════ -->
+      <section id="tab-orders" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">My Orders <span class="acct__card-count">({{ total_orders }} total)</span></h4>
+          {%- if customer.orders.size > 0 -%}
+            <div class="acct__table-wrap">
+              <table class="acct__table">
+                <thead>
+                  <tr>
+                    <th>Order #</th><th>Date</th><th>Total</th><th>Payment</th><th>Fulfillment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%- for order in customer.orders -%}
+                    {%- assign ps = order.financial_status -%}
+                    {%- assign fs = order.fulfillment_status -%}
+                    <tr>
+                      <td><a href="{{ order.customer_url }}" class="acct__order-link" data-order-id="{{ order.id }}">{{ order.name }}</a></td>
+                      <td>{{ order.created_at | time_tag: format: 'date' }}</td>
+                      <td>{{ order.total_net_amount | money }}</td>
+                      <td>
+                        <span class="acct__badge {% if ps == 'paid' %}acct__badge--green{% elsif ps == 'pending' or ps == 'partially_paid' %}acct__badge--yellow{% elsif ps == 'refunded' or ps == 'voided' %}acct__badge--red{% else %}acct__badge--gray{% endif %}">
+                          {{ order.financial_status_label }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="acct__badge {% if fs == 'fulfilled' %}acct__badge--green{% elsif fs == 'partial' %}acct__badge--yellow{% elsif fs == 'in_transit' %}acct__badge--blue{% else %}acct__badge--gray{% endif %}">
+                          {{ order.fulfillment_status_label | default: 'Unfulfilled' }}
+                        </span>
+                      </td>
+                    </tr>
+                  {%- endfor -%}
+                </tbody>
+              </table>
+            </div>
+          {%- else -%}
+            <div class="acct__empty">
+              <div class="acct__empty-icon">&#128230;</div>
+              <h3>No orders yet</h3>
+              <p>Orders you place will appear here.</p>
+            </div>
+          {%- endif -%}
+        </div>
+      </section>
+
+      <!-- ════ ORDER DETAIL ══════════════════════════════ -->
+      <section id="tab-order-detail" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
+            <div>
+              <h4 id="od-name" style="margin:0 0 6px; font-size:1.1rem;"></h4>
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <span id="od-date" style="font-size:0.8rem; color:var(--acct-muted);"></span>
+                <span id="od-ps-badge" class="acct__badge"></span>
+                <span id="od-fs-badge" class="acct__badge"></span>
+              </div>
+            </div>
+            <button class="acct__btn acct__btn--outline acct__btn--sm" id="od-back">&#8592; Back to Orders</button>
+          </div>
+          <div id="od-items" class="acct__table-wrap"></div>
+          <div class="acct__form-2col" style="margin-top:20px; align-items:start;">
+            <div id="od-addr"></div>
+            <div id="od-summary"></div>
+          </div>
+          <div id="od-tracking"></div>
+          <div id="od-note"></div>
+        </div>
+      </section>
+
+      <!-- ════ PREORDERS & RMA ══════════════════════════ -->
+      <section id="tab-preorders" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Active Preorders</h4>
+          <div class="acct__empty">
+            <div class="acct__empty-icon">&#9203;</div>
+            <h3>Preorder Management</h3>
+            <p>Preorder tracking is managed through our order management system.<br>Contact your sales representative for preorder status.</p>
+            {%- if sp_email != blank -%}
+              <a href="mailto:{{ sp_email }}?subject=Preorder%20Inquiry" class="acct__btn acct__btn--primary">Contact Rep</a>
+            {%- endif -%}
+          </div>
+        </div>
+        <div class="acct__card">
+          <h4 class="acct__card-title">Returns &amp; RMA</h4>
+          <div class="acct__empty">
+            <div class="acct__empty-icon">&#8617;</div>
+            <h3>Return Merchandise Authorization</h3>
+            <p>To initiate a return, please open a support ticket or contact your sales representative.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+              <button class="acct__btn acct__btn--primary" data-tab="help">Open Support Ticket</button>
+              {%- if sp_email != blank -%}
+                <a href="mailto:{{ sp_email }}?subject=RMA%20Request" class="acct__btn acct__btn--outline">Email Your Rep</a>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════ ACCOUNT INFO ════════════════════════════ -->
+      <section id="tab-account-info" class="acct__panel" role="tabpanel">
+
+        <div class="acct__card">
+          <h4 class="acct__card-title">Contact Information</h4>
+          {%- form 'customer' -%}
+            {{ form.errors | default_errors }}
+            <div class="acct__form">
+              <div class="acct__form-2col">
+                <div class="acct__form-row">
+                  <label for="ai-fname">First Name</label>
+                  <input type="text" id="ai-fname" name="customer[first_name]" value="{{ customer.first_name }}" autocomplete="given-name">
+                </div>
+                <div class="acct__form-row">
+                  <label for="ai-lname">Last Name</label>
+                  <input type="text" id="ai-lname" name="customer[last_name]" value="{{ customer.last_name }}" autocomplete="family-name">
+                </div>
+              </div>
+              <div class="acct__form-row">
+                <label for="ai-email">Email Address</label>
+                <input type="email" id="ai-email" name="customer[email]" value="{{ customer.email }}" autocomplete="email">
+              </div>
+              <div class="acct__form-row">
+                <label for="ai-phone">Phone Number</label>
+                <input type="tel" id="ai-phone" name="customer[phone]" value="{{ customer.phone }}" autocomplete="tel">
+              </div>
+              <div class="acct__form-row">
+                <button type="submit" class="acct__btn acct__btn--primary">Save Changes</button>
+              </div>
+            </div>
+          {%- endform -%}
+        </div>
+
+        <div class="acct__card">
+          <h4 class="acct__card-title">Company &amp; Registration</h4>
+          <div class="acct__form">
+            <div class="acct__form-row">
+              <label>Company Name</label>
+              <input type="text" value="{{ company.name }}" disabled>
+              <p class="acct__hint">To update company name, Tax ID, or billing address, contact your sales representative.</p>
+            </div>
+            <div class="acct__form-2col">
+              <div class="acct__form-row">
+                <label>Tax ID / EIN</label>
+                <input type="text" value="{{ tax_id | default: '—' }}" disabled>
+              </div>
+              <div class="acct__form-row">
+                <label>Account Type</label>
+                <input type="text" value="{%- if is_admin -%}Company Admin{%- else -%}Dealer{%- endif -%}" disabled>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {%- if customer.default_address -%}
+          {%- assign addr = customer.default_address -%}
+          <div class="acct__card">
+            <h4 class="acct__card-title">Billing Address</h4>
+            {%- form 'customer_address', addr -%}
+              {{ form.errors | default_errors }}
+              <div class="acct__form">
+                <div class="acct__form-row">
+                  <label for="ba-company">Company</label>
+                  <input type="text" id="ba-company" name="address[company]" value="{{ addr.company }}" autocomplete="organization">
+                </div>
+                <div class="acct__form-row">
+                  <label for="ba-addr1">Address Line 1</label>
+                  <input type="text" id="ba-addr1" name="address[address1]" value="{{ addr.address1 }}" autocomplete="address-line1">
+                </div>
+                <div class="acct__form-row">
+                  <label for="ba-addr2">Address Line 2</label>
+                  <input type="text" id="ba-addr2" name="address[address2]" value="{{ addr.address2 }}" autocomplete="address-line2">
+                </div>
+                <div class="acct__form-2col">
+                  <div class="acct__form-row">
+                    <label for="ba-city">City</label>
+                    <input type="text" id="ba-city" name="address[city]" value="{{ addr.city }}" autocomplete="address-level2">
+                  </div>
+                  <div class="acct__form-row">
+                    <label for="ba-zip">ZIP / Postal Code</label>
+                    <input type="text" id="ba-zip" name="address[zip]" value="{{ addr.zip }}" autocomplete="postal-code">
+                  </div>
+                </div>
+                <div class="acct__form-2col">
+                  <div class="acct__form-row">
+                    <label for="ba-province">State / Province</label>
+                    <input type="text" id="ba-province" name="address[province]" value="{{ addr.province }}">
+                  </div>
+                  <div class="acct__form-row">
+                    <label for="ba-country">Country</label>
+                    <input type="text" id="ba-country" name="address[country]" value="{{ addr.country }}" autocomplete="country-name">
+                  </div>
+                </div>
+                <div class="acct__form-row">
+                  <label for="ba-phone">Phone</label>
+                  <input type="tel" id="ba-phone" name="address[phone]" value="{{ addr.phone }}" autocomplete="tel">
+                </div>
+                <input type="hidden" name="address[default]" value="true">
+                <div class="acct__form-row">
+                  <button type="submit" class="acct__btn acct__btn--primary">Update Billing Address</button>
+                </div>
+              </div>
+            {%- endform -%}
+          </div>
+        {%- endif -%}
+
+        <!-- ERP account details (loaded via JS) -->
+        <div class="acct__card" id="erp-info-card">
+          <h4 class="acct__card-title">ERP Account Details
+            <button class="acct__btn acct__btn--sm acct__btn--outline" id="erp-info-refresh" style="display:none;">Refresh</button>
+          </h4>
+          <div id="erp-info-loading" class="acct__empty">
+            <div class="acct__empty-icon">&#128260;</div>
+            <h3>Loading&hellip;</h3>
+            <p>Connecting to ERP system&hellip;</p>
+          </div>
+          <div id="erp-info-data" style="display:none;">
+            <div class="acct__form">
+              <div class="acct__form-2col">
+                <div class="acct__form-row">
+                  <label>ERP Customer #</label>
+                  <input type="text" id="erp-field-no" disabled>
+                </div>
+              </div>
+              <div class="acct__form-row">
+                <label>Registered Name</label>
+                <input type="text" id="erp-field-name" disabled>
+              </div>
+              <div class="acct__form-2col">
+				<div class="acct__form-row">
+					<label>Address</label>
+					<input type="text" id="erp-field-addr1" disabled>
+				</div>
+                <div class="acct__form-row">
+                  <label>City</label>
+                  <input type="text" id="erp-field-city" disabled>
+                </div>
+              </div>
+              <div class="acct__form-2col">
+                <div class="acct__form-row">
+                  <label>State / ZIP</label>
+                  <input type="text" id="erp-field-state" disabled>
+                </div>
+                <div class="acct__form-row">
+                  <label>Country</label>
+                  <input type="text" id="erp-field-country" disabled>
+                </div>
+              </div>
+              <div class="acct__form-2col">
+                <div class="acct__form-row">
+                  <label>Credit Limit</label>
+                  <input type="text" id="erp-field-credit" disabled>
+                </div>
+                <div class="acct__form-row">
+                  <label>Outstanding Balance</label>
+                  <input type="text" id="erp-field-balance" disabled>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="erp-info-error" style="display:none;">
+            <div class="acct__empty">
+              <div class="acct__empty-icon">&#9888;&#65039;</div>
+              <h3>Could not load ERP data</h3>
+              <p id="erp-info-error-msg" style="color:#991b1b;"></p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ════ SHIPPING ADDRESSES ═══════════════════════ -->
+      <section id="tab-addresses" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Shipping Addresses
+            <span class="acct__card-count">{{ customer.addresses_count }} saved</span>
+          </h4>
+          <div class="acct__addr-grid">
+            {%- for address in customer.addresses -%}
+              <div class="acct__addr-card {% if address == customer.default_address %}acct__addr-card--default{% endif %}">
+                {%- if address == customer.default_address -%}
+                  <p class="acct__addr-default-label">Default</p>
+                {%- endif -%}
+                <address>
+                  {%- if address.company != blank -%}{{ address.company }}<br>{%- endif -%}
+                  {{ address.first_name }} {{ address.last_name }}<br>
+                  {{ address.address1 }}<br>
+                  {%- if address.address2 != blank -%}{{ address.address2 }}<br>{%- endif -%}
+                  {{ address.city }}, {{ address.province_code }} {{ address.zip }}<br>
+                  {{ address.country }}
+                  {%- if address.phone != blank -%}<br>{{ address.phone }}{%- endif -%}
+                </address>
+                <div class="acct__addr-actions">
+                  <a class="acct__addr-action" href="{{ routes.account_addresses_url }}">Edit</a>
+                  {%- unless address == customer.default_address -%}
+                    <button class="acct__addr-action acct__delete-addr" data-url="{{ routes.account_addresses_url }}/{{ address.id }}">Remove</button>
+                  {%- endunless -%}
+                </div>
+              </div>
+            {%- endfor -%}
+            <a class="acct__addr-add" href="{{ routes.account_addresses_url }}">
+              + Add New Address
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ════ NOTIFICATIONS ════════════════════════════ -->
+      <section id="tab-notifications" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Notification Preferences</h4>
+          <form class="acct__form" id="acct-notif-form">
+            <div class="acct__form-row">
+              <label for="notif-email">Order Notification Email</label>
+              <input type="email" id="notif-email" name="notification_email"
+                value="{{ notif_email | default: customer.email }}"
+                placeholder="{{ customer.email }}">
+              <p class="acct__hint">Leave blank to use your account email ({{ customer.email }}).</p>
+            </div>
+            <div class="acct__form-row">
+              <label for="notif-sms">SMS Number for Notifications</label>
+              <input type="tel" id="notif-sms" name="sms_number"
+                value="{{ sms_number }}"
+                placeholder="+1 (555) 000-0000">
+            </div>
+            <div class="acct__form-row">
+              <div class="acct__check-row">
+                <input type="checkbox" id="notif-sms-opt" name="sms_opt_in" value="true"
+                  {% if sms_opt_in == 'true' %}checked{% endif %}>
+                <label for="notif-sms-opt">Receive SMS order &amp; shipping updates</label>
+              </div>
+            </div>
+            <div class="acct__form-row">
+              <button type="button" class="acct__btn acct__btn--primary" id="save-notif">Save Preferences</button>
+            </div>
+          </form>
+          <p class="acct__note">SMS and alternate email notifications require backend integration with your notification provider (e.g. Klaviyo, Postscript, or custom endpoint).</p>
+        </div>
+      </section>
+
+      <!-- ════ STAFF (admin only) ═══════════════════════ -->
+      {%- if is_admin -%}
+      <section id="tab-staff" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Staff Accounts
+            <button class="acct__btn acct__btn--sm acct__btn--primary" id="invite-staff-btn">+ Invite Staff</button>
+          </h4>
+          <div class="acct__empty">
+            <div class="acct__empty-icon">&#128101;</div>
+            <h3>Staff Account Management</h3>
+            <p>Staff account management requires integration with your customer management system.<br>Staff members can be identified by adding the <code>dealer-staff</code> tag to their customer account.</p>
+            {%- if sp_email != blank -%}
+              <a href="mailto:{{ sp_email }}?subject=Staff%20Account%20Request%20-%20{{ company.email | url_encode }}" class="acct__btn acct__btn--primary">Request via Sales Rep</a>
+            {%- endif -%}
+          </div>
+        </div>
+      </section>
+      {%- endif -%}
+
+      <!-- ════ PAYMENT METHODS ══════════════════════════ -->
+      <section id="tab-payment" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Payment Methods</h4>
+          <div id="payment-loading" class="acct__empty">
+            <div class="acct__empty-icon">&#128260;</div>
+            <h3>Loading&hellip;</h3>
+            <p>Fetching payment methods from ERP.</p>
+          </div>
+          <div id="payment-content" style="display:none;"></div>
+          <p class="acct__note">Payment methods and credit card information are managed by your ERP system. Valor does not store full card details.</p>
+        </div>
+      </section>
+
+      <!-- ════ BULK ADDRESSES ═══════════════════════════ -->
+      <section id="tab-bulk-addr" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Bulk Address Management</h4>
+          <p style="font-size:0.85rem; color:var(--acct-muted); margin-bottom:20px;">
+            Import multiple shipping addresses via CSV, or download your existing addresses.
+          </p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px;">
+            <button class="acct__btn acct__btn--outline" id="download-addr-csv">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Existing (.csv)
+            </button>
+            <button class="acct__btn acct__btn--outline" id="download-addr-template">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Template
+            </button>
+          </div>
+          <div class="acct__dropzone" id="addr-dropzone">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 8px; display:block; color:var(--acct-muted);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>Drag &amp; drop a CSV file, or</p>
+            <label for="addr-csv-input" class="acct__btn acct__btn--outline" style="cursor:pointer; display:inline-flex;">Browse File</label>
+            <input type="file" id="addr-csv-input" accept=".csv" style="display:none;">
+          </div>
+          <p class="acct__note">Required columns: Company, First Name, Last Name, Address 1, Address 2, City, State, ZIP, Country, Phone</p>
+        </div>
+      </section>
+
+      <!-- ════ STATISTICS ══════════════════════════════ -->
+      <section id="tab-statistics" class="acct__panel" role="tabpanel">
+        <div class="acct__stats">
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ total_orders }}</span>
+            <span class="acct__stat-label">Total Orders</span>
+          </div>
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ total_spend | money_without_trailing_zeros }}</span>
+            <span class="acct__stat-label">Lifetime Spend*</span>
+          </div>
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ month_orders }}</span>
+            <span class="acct__stat-label">Orders This Month</span>
+          </div>
+          <div class="acct__stat">
+            <span class="acct__stat-value">{{ month_spend | money_without_trailing_zeros }}</span>
+            <span class="acct__stat-label">Spend This Month*</span>
+          </div>
+        </div>
+        <div class="acct__card">
+          <h4 class="acct__card-title">Purchase History Chart</h4>
+          <div id="stats-chart" style="min-height:180px; display:flex; align-items:center; justify-content:center; border:1px dashed var(--acct-border); border-radius:var(--acct-radius); color:var(--acct-muted); font-size:0.82rem;">
+            Connect a charting library (e.g. Chart.js) and ERP data source to render purchase trends.
+          </div>
+          <p class="acct__note">* Figures calculated from the current page of orders. Full historical statistics require ERP integration.</p>
+        </div>
+      </section>
+
+      <!-- ════ STATEMENTS & INVOICES ════════════════════ -->
+      <section id="tab-statements" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Statements &amp; Invoices</h4>
+          <div id="statements-loading" class="acct__empty">
+            <div class="acct__empty-icon">&#128260;</div>
+            <h3>Loading&hellip;</h3>
+            <p>Fetching documents from ERP.</p>
+          </div>
+          <div id="statements-content" style="display:none;"></div>
+          <p class="acct__note">Statements and invoices are fetched from your ERP system. Contact your sales representative if documents are missing.</p>
+        </div>
+      </section>
+
+      <!-- ════ HELP & SUPPORT ════════════════════════════ -->
+      <section id="tab-help" class="acct__panel" role="tabpanel">
+        <div class="acct__card">
+          <h4 class="acct__card-title">Submit a Support Ticket</h4>
+          <form class="acct__form" id="acct-help-form">
+            <div class="acct__form-row">
+              <label for="help-type">Topic</label>
+              <select id="help-type" name="type">
+                <option value="">Select a topic&hellip;</option>
+                <option>Order Inquiry</option>
+                <option>Return / RMA Request</option>
+                <option>Preorder Question</option>
+                <option>Account or Billing Issue</option>
+                <option>Product Question</option>
+                <option>Shipping Issue</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="acct__form-row">
+              <label for="help-order">Related Order # (optional)</label>
+              <input type="text" id="help-order" name="order_number" placeholder="e.g. #1001">
+            </div>
+            <div class="acct__form-row">
+              <label for="help-msg">Message</label>
+              <textarea id="help-msg" name="message" rows="5" style="resize:vertical;" placeholder="Describe your issue or question&hellip;"></textarea>
+            </div>
+            <div class="acct__form-row" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <button type="submit" class="acct__btn acct__btn--primary">Submit Ticket</button>
+              {%- if sp_email != blank -%}
+                <a href="mailto:{{ sp_email }}" class="acct__btn acct__btn--outline">Email Your Rep Directly</a>
+              {%- endif -%}
+            </div>
+          </form>
+          <p class="acct__note">Ticket submission requires integration with a help desk system (e.g. Zendesk, Gorgias, or custom endpoint). Currently opens email as fallback.</p>
+        </div>
+      </section>
+
+    </div><!-- /acct__content -->
+  </div><!-- /acct__layout -->
+
+  {%- endunless -%}
+</div><!-- /acct -->
+</div><!-- /section -->
+
+
+<script>
+(function () {
+  var root = document.getElementById('acct-root');
+  if (!root) return;
+
+  // ── Tab switching ─────────────────────────────────────
+  function activateTab(id) {
+    root.querySelectorAll('.acct__panel').forEach(function (p) {
+      p.classList.remove('acct__panel--active');
+    });
+    var panel = document.getElementById('tab-' + id);
+    if (!panel) return;
+    panel.classList.add('acct__panel--active');
+
+    root.querySelectorAll('[data-tab]').forEach(function (btn) {
+      var active = btn.dataset.tab === id;
+      btn.classList.toggle('acct__nav-btn--active', active && btn.classList.contains('acct__nav-btn'));
+      btn.classList.toggle('acct__chip--active',    active && btn.classList.contains('acct__chip'));
+    });
+
+    history.replaceState(null, '', '#acct-' + id);
+
+    if (id === 'payment')      loadERP('payment');
+    if (id === 'statements')   loadERP('statements');
+    if (id === 'account-info') loadErpCustomerInfo();
+  }
+
+  root.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-tab]');
+    if (btn) { e.preventDefault(); activateTab(btn.dataset.tab); }
+  });
+
+  // Restore from URL hash
+  var hash = location.hash.replace('#acct-', '');
+  if (hash && document.getElementById('tab-' + hash)) activateTab(hash);
+
+  // ── Address delete ────────────────────────────────────
+  root.addEventListener('click', function (e) {
+    var btn = e.target.closest('.acct__delete-addr');
+    if (!btn) return;
+    if (!confirm('Remove this address?')) return;
+    var form = document.createElement('form');
+    form.method = 'post';
+    form.action = btn.dataset.url;
+    var m = document.createElement('input');
+    m.type = 'hidden'; m.name = '_method'; m.value = 'delete';
+    form.appendChild(m);
+    document.body.appendChild(form);
+    form.submit();
+  });
+
+  // ── ERP stubs (replace with real fetch calls) ─────────
+  function loadERP(type) {
+    var loading = document.getElementById(type + '-loading');
+    var content = document.getElementById(type + '-content');
+    if (!loading || loading.style.display === 'none') return;
+
+    // TODO: Replace with actual ERP endpoint fetch:
+    //   fetch('/apps/your-erp/' + type, { headers: { 'X-Customer': '{{ customer.id }}' } })
+    //     .then(r => r.json()).then(data => renderERP(type, data, content));
+    setTimeout(function () {
+      loading.style.display = 'none';
+      content.style.display = '';
+      content.innerHTML =
+        '<div class="acct__empty"><div class="acct__empty-icon">&#128274;</div>' +
+        '<h3>ERP integration</h3>' +
+        '<p>ERP endpoint ' + type + '.</p></div>';
+    }, 600);
+  }
+
+  // ── Notification save stub ────────────────────────────
+  var notifSave = document.getElementById('save-notif');
+  if (notifSave) {
+    notifSave.addEventListener('click', function () {
+      // TODO: POST to /apps/your-app/notifications with form data
+      // and save as customer metafields via Admin API or Shopify Functions.
+      alert('Notification preferences saved.\n(Requires backend metafield write implementation.)');
+    });
+  }
+
+  // ── Help form submit stub ─────────────────────────────
+  var helpForm = document.getElementById('acct-help-form');
+  if (helpForm) {
+    helpForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      // TODO: POST to help desk API (Zendesk, Gorgias, etc.)
+      var data = new FormData(helpForm);
+      alert('Ticket submitted!\n(Requires help desk API integration.)\n\nTopic: ' + (data.get('type') || 'N/A'));
+    });
+  }
+
+  // ── Bulk address CSV ──────────────────────────────────
+  var csvInput = document.getElementById('addr-csv-input');
+  var dropzone = document.getElementById('addr-dropzone');
+
+  if (dropzone) {
+    dropzone.addEventListener('dragover',  function (e) { e.preventDefault(); dropzone.classList.add('acct__dropzone--over'); });
+    dropzone.addEventListener('dragleave', function ()  { dropzone.classList.remove('acct__dropzone--over'); });
+    dropzone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropzone.classList.remove('acct__dropzone--over');
+      var file = e.dataTransfer.files[0];
+      if (file) handleCSV(file);
+    });
+  }
+
+  if (csvInput) {
+    csvInput.addEventListener('change', function () {
+      if (csvInput.files[0]) handleCSV(csvInput.files[0]);
+    });
+  }
+
+  function handleCSV(file) {
+    // TODO: Parse CSV and POST addresses to Shopify Customer API
+    alert('File selected: ' + file.name + '\n\nCSV parsing and address import requires backend implementation using the Shopify Admin API.');
+  }
+
+  var dlExisting = document.getElementById('download-addr-csv');
+  if (dlExisting) {
+    dlExisting.addEventListener('click', function () {
+      // TODO: Fetch customer addresses and generate CSV download
+      alert('Address export requires a backend endpoint that reads customer addresses via the Shopify Admin API and returns a CSV file.');
+    });
+  }
+
+  var dlTemplate = document.getElementById('download-addr-template');
+  if (dlTemplate) {
+    dlTemplate.addEventListener('click', function () {
+      var csv = 'Company,First Name,Last Name,Address 1,Address 2,City,State,ZIP,Country,Phone\n';
+      var blob = new Blob([csv], { type: 'text/csv' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'address-import-template.csv';
+      a.click();
+    });
+  }
+
+  // ── ERP customer info ──────────────────────────────────────────────────────
+  var erpInfoLoaded = false;
+
+  function loadErpCustomerInfo(force) {
+    if (erpInfoLoaded && !force) return;
+
+    var auth    = window.__acctAuth  || {};
+    var proxy   = window.__erpProxy  || '';
+    var loading = document.getElementById('erp-info-loading');
+    var dataDiv = document.getElementById('erp-info-data');
+    var errDiv  = document.getElementById('erp-info-error');
+    var errMsg  = document.getElementById('erp-info-error-msg');
+    var refresh = document.getElementById('erp-info-refresh');
+
+    if (!loading) return;
+
+    function showError(msg) {
+      loading.style.display = 'none';
+      dataDiv.style.display = 'none';
+      errDiv.style.display  = '';
+      if (errMsg) errMsg.textContent = msg;
+      if (refresh) refresh.style.display = '';
+    }
+
+    if (!proxy) { showError('ERP proxy URL not configured (shop metafield).'); return; }
+    //if (!auth.erp_no) { showError('No ERP customer number linked to this account. Contact your administrator.'); return; }
+
+    loading.style.display = '';
+    dataDiv.style.display = 'none';
+    errDiv.style.display  = 'none';
+    if (refresh) refresh.style.display = 'none';
+
+    fetch(proxy, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        customer_id: auth.customer_id,
+        ts:          auth.ts,
+        token:       auth.token,
+        erp_no:      auth.erp_no,
+        action:      'customer-info'
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res.ok) { showError(res.error || 'Unknown error from ERP.'); return; }
+      var d = res.data;
+
+      function setField(id, val) {
+        var el = document.getElementById(id);
+        if (el)
+			el.value = (val !== null && val !== undefined && val !== '') ? String(val) : '—';
+      }
+
+      var addr = d.Address || '';
+      if (d.Address2)
+	  	addr += ', ' + d.Address2;
+
+      var state = [d.County, d.PostCode].filter(Boolean).join(' ');
+
+      function fmtMoney(n) {
+        if (n == null) return '—';
+        return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      setField('erp-field-no',      d.No);
+      setField('erp-field-name',    d.Name);
+      setField('erp-field-addr1',   addr);
+      setField('erp-field-city',    d.City);
+      setField('erp-field-state',  	state);
+      setField('erp-field-country', d.CountryRegionCode);
+      setField('erp-field-credit',  fmtMoney(d.CreditLimitLCY));
+      setField('erp-field-balance', fmtMoney(d.BalanceLCY));
+
+      loading.style.display = 'none';
+      dataDiv.style.display = '';
+      if (refresh) refresh.style.display = '';
+      erpInfoLoaded = true;
+    })
+    .catch(function (err) { showError('Network error: ' + err.message); });
+  }
+
+  var erpRefresh = document.getElementById('erp-info-refresh');
+  if (erpRefresh) {
+    erpRefresh.addEventListener('click', function () { loadErpCustomerInfo(true); });
+  }
+
+  // ── Order detail ──────────────────────────────────────
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function fmtCents(c) {
+    return '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function psClass(s) {
+    if (s === 'paid') return 'acct__badge--green';
+    if (s === 'pending' || s === 'partially_paid') return 'acct__badge--yellow';
+    if (s === 'refunded' || s === 'voided') return 'acct__badge--red';
+    return 'acct__badge--gray';
+  }
+  function fulfClass(s) {
+    if (s === 'fulfilled') return 'acct__badge--green';
+    if (s === 'partial') return 'acct__badge--yellow';
+    if (s === 'in_transit') return 'acct__badge--blue';
+    return 'acct__badge--gray';
+  }
+
+  function renderOrderDetail(order) {
+    document.getElementById('od-name').textContent = order.name;
+    document.getElementById('od-date').textContent = order.date;
+
+    var ps = document.getElementById('od-ps-badge');
+    ps.textContent = order.financial_status_label;
+    ps.className = 'acct__badge ' + psClass(order.financial_status);
+
+    var fs = document.getElementById('od-fs-badge');
+    fs.textContent = order.fulfillment_status_label || 'Unfulfilled';
+    fs.className = 'acct__badge ' + fulfClass(order.fulfillment_status);
+
+    // Line items table
+    var rows = order.line_items.map(function(item) {
+      var img = item.image_url
+        ? '<img src="' + esc(item.image_url) + '" width="40" height="40" style="object-fit:cover;border-radius:4px;flex-shrink:0;" loading="lazy" alt="">'
+        : '<div style="width:40px;height:40px;background:var(--acct-bg);border-radius:4px;flex-shrink:0;"></div>';
+      var info = '<div style="font-weight:500;">' + esc(item.title) + '</div>'
+        + (item.variant_title ? '<div style="font-size:0.75rem;color:var(--acct-muted);">' + esc(item.variant_title) + '</div>' : '');
+      return '<tr>'
+        + '<td><div style="display:flex;align-items:center;gap:10px;">' + img + info + '</div></td>'
+        + '<td style="font-size:0.75rem;color:var(--acct-muted);">' + esc(item.sku || '—') + '</td>'
+        + '<td>' + item.quantity + '</td>'
+        + '<td style="text-align:right">' + fmtCents(item.price_cents) + '</td>'
+        + '<td style="text-align:right">' + fmtCents(item.line_price_cents) + '</td>'
+        + '</tr>';
+    }).join('');
+    document.getElementById('od-items').innerHTML =
+      '<table class="acct__table"><thead><tr>'
+      + '<th>Product</th><th>SKU</th><th>Qty</th>'
+      + '<th style="text-align:right">Unit Price</th><th style="text-align:right">Subtotal</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+    // Shipping address
+    var sa = order.shipping_address;
+    var labelStyle = 'margin:0 0 10px;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--acct-muted);';
+    var addrHtml = '<h5 style="' + labelStyle + '">Ship To</h5>';
+    if (sa) {
+      var lines = [sa.name, sa.address1, sa.address2,
+        [sa.city, sa.province, sa.zip].filter(Boolean).join(', '),
+        sa.country, sa.phone].filter(Boolean);
+      addrHtml += '<address style="font-style:normal;font-size:0.82rem;line-height:1.7;">' + lines.map(esc).join('<br>') + '</address>';
+    } else {
+      addrHtml += '<p style="font-size:0.82rem;color:var(--acct-muted);">—</p>';
+    }
+    document.getElementById('od-addr').innerHTML = addrHtml;
+
+    // Order summary
+    var sumRows = [
+      ['Subtotal', fmtCents(order.subtotal_cents)],
+      order.discounts_cents > 0 ? ['Discounts', '− ' + fmtCents(order.discounts_cents)] : null,
+      ['Shipping', fmtCents(order.shipping_cents)],
+      ['Tax', fmtCents(order.tax_cents)]
+    ].filter(Boolean).map(function(r) {
+      return '<tr><td>' + esc(r[0]) + '</td><td style="text-align:right">' + esc(r[1]) + '</td></tr>';
+    }).join('');
+    document.getElementById('od-summary').innerHTML =
+      '<h5 style="' + labelStyle + '">Order Summary</h5>'
+      + '<table style="width:100%;font-size:0.82rem;border-collapse:collapse;">'
+      + sumRows
+      + '<tr style="font-weight:700;border-top:2px solid var(--acct-border);">'
+      + '<td style="padding-top:8px">Total</td>'
+      + '<td style="text-align:right;padding-top:8px">' + fmtCents(order.total_cents) + '</td>'
+      + '</tr></table>';
+
+    // Tracking
+    var trackHtml = '';
+    if (order.tracking && order.tracking.some(function(t) { return t.number; })) {
+      trackHtml = '<h5 style="margin:16px 0 8px;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--acct-muted);">Tracking</h5>';
+      order.tracking.forEach(function(t) {
+        if (!t.number) return;
+        trackHtml += '<div style="font-size:0.82rem;margin-bottom:4px;">';
+        if (t.company) trackHtml += esc(t.company) + ': ';
+        trackHtml += t.url
+          ? '<a href="' + esc(t.url) + '" target="_blank" rel="noopener">' + esc(t.number) + '</a>'
+          : esc(t.number);
+        trackHtml += '</div>';
+      });
+    }
+    document.getElementById('od-tracking').innerHTML = trackHtml;
+
+    document.getElementById('od-note').innerHTML = order.note
+      ? '<p class="acct__note"><strong>Note:</strong> ' + esc(order.note) + '</p>'
+      : '';
+
+    activateTab('order-detail');
+  }
+
+  root.addEventListener('click', function(e) {
+    var link = e.target.closest('.acct__order-link');
+    if (!link) return;
+    var id = parseInt(link.dataset.orderId, 10);
+    var order = (window.__acctOrders || []).find(function(o) { return o.id === id; });
+    if (!order) return;
+    e.preventDefault();
+    renderOrderDetail(order);
+  });
+
+  var odBack = document.getElementById('od-back');
+  if (odBack) odBack.addEventListener('click', function() { activateTab('orders'); });
+
+})();
+</script>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{% schema %}
+{
+  "name": "Account Dashboard",
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,424 @@
+{%- doc -%}
+  Renders the Design Lab navigation content for desktop mega menus and the
+  Valor menu drawer.
+
+  Items are driven by a Shopify navigation menu (admin-editable) when one is
+  assigned via `designlab_menu` (or the simple block's `menu`) setting. The
+  expected menu shape is up to three levels:
+
+    Top-level link   → a tab / category   (e.g. "Non-MagSafe Cases")
+      2nd-level link → a brand group      (e.g. "iPhone")        — optional
+        3rd-level    → a model/product link (e.g. "iPhone 15 Pro")
+
+  A tab whose children have their own children renders as a brand grid; a tab
+  whose children are plain links renders as a flat list. Add a trailing "*" to
+  any item title to show a red "New" badge.
+
+  When no menu is assigned the snippet falls back to the original hardcoded
+  content, so the dropdown is never empty before the menu is built in admin.
+
+  @param {string} variant - desktop or drawer.
+  @param {object} block_settings - Section block settings.
+  @param {string} block_id - Unique block id for ARIA attributes.
+{%- enddoc -%}
+
+{%- liquid
+  assign variant = variant | default: 'desktop'
+  assign s = block_settings
+  assign id_prefix = block_id | default: 'design-lab'
+  assign all_url = s.all_url | default: '/search?sort_by=relevance&q=*&filter.p.m.custom.product_designlab=1'
+  assign cta_label = s.cta_label | default: 'Start Customizing'
+  assign cta_url = s.cta_url | default: '/collections/design-lab-customization?filter.v.availability=1'
+  assign footer_eyebrow = s.footer_eyebrow | default: 'Customization'
+  assign footer_heading = s.footer_heading | default: 'Design your own.'
+  assign footer_text = s.footer_text | default: 'Put your logo, colors, or local artwork on any product and build it to order - low minimums with rapid small-batch turnaround.'
+  assign banner_enabled = s.designlab_banner_enabled
+  assign banner_url = s.designlab_banner_url | default: all_url
+  assign banner_title_prefix = s.designlab_banner_title_prefix | default: 'New'
+  assign banner_title_accent = s.designlab_banner_title_accent | default: 'Summer'
+  assign banner_title_suffix = s.designlab_banner_title_suffix | default: 'Designs'
+  assign banner_title_prefix_text = banner_title_prefix | strip
+  assign banner_title_accent_text = banner_title_accent | strip
+  assign banner_title_suffix_text = banner_title_suffix | strip
+  assign banner_text = s.designlab_banner_text | default: 'Explore the latest drop with 10 new designs.'
+  assign banner_cta_label = s.designlab_banner_cta_label | default: 'Shop the Drop'
+  assign banner_image_1 = s.designlab_banner_image_1
+  assign banner_image_2 = s.designlab_banner_image_2
+  assign banner_image_3 = s.designlab_banner_image_3
+  assign banner_svg_id = id_prefix | handleize | default: 'design-lab'
+
+  assign dl_menu = linklists[s.designlab_menu]
+  if dl_menu == blank or dl_menu.links.size == 0
+    assign dl_menu = linklists[s.menu]
+  endif
+-%}
+
+{%- capture design_lab_banner -%}
+  {%- if variant == 'desktop' and banner_enabled -%}
+    <a href="{{ banner_url | escape }}" class="vdn__dl-newdrop" data-design-lab-dropdown-banner>
+      <span class="vdn__dl-newdrop-gallery" aria-hidden="true">
+        <span class="vdn__dl-newdrop-case">
+          {%- if banner_image_1 != blank -%}
+            {{ banner_image_1 | image_url: width: 180 | image_tag: loading: 'lazy', class: 'vdn__dl-newdrop-img', alt: '' }}
+          {%- else -%}
+            <svg viewBox="0 0 78 150" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="vdnDlNewdropA-{{ banner_svg_id }}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0E6D2"/><stop offset="1" stop-color="#D8C3A0"/></linearGradient></defs><rect width="78" height="150" fill="url(#vdnDlNewdropA-{{ banner_svg_id }})"/><g fill="#C54448" opacity="0.8"><circle cx="20" cy="34" r="6"/><circle cx="52" cy="58" r="6"/><circle cx="30" cy="86" r="6"/><circle cx="58" cy="112" r="6"/><circle cx="22" cy="128" r="6"/></g><g fill="#2B3A55" opacity="0.55"><circle cx="50" cy="30" r="3"/><circle cx="28" cy="60" r="3"/><circle cx="56" cy="86" r="3"/><circle cx="32" cy="112" r="3"/></g><rect x="9" y="9" width="26" height="20" rx="6" fill="#1D2636" opacity="0.85"/></svg>
+          {%- endif -%}
+        </span>
+        <span class="vdn__dl-newdrop-case">
+          {%- if banner_image_2 != blank -%}
+            {{ banner_image_2 | image_url: width: 180 | image_tag: loading: 'lazy', class: 'vdn__dl-newdrop-img', alt: '' }}
+          {%- else -%}
+            <svg viewBox="0 0 78 150" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="vdnDlNewdropB-{{ banner_svg_id }}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2B3A55"/><stop offset="1" stop-color="#7A2629"/></linearGradient></defs><rect width="78" height="150" fill="url(#vdnDlNewdropB-{{ banner_svg_id }})"/><g stroke="#F4F5F2" stroke-width="2" fill="none" opacity="0.8"><circle cx="39" cy="48" r="16"/><circle cx="39" cy="48" r="9"/><circle cx="39" cy="104" r="16"/><circle cx="39" cy="104" r="9"/></g><g fill="#C54448" opacity="0.9"><circle cx="39" cy="48" r="4"/><circle cx="39" cy="104" r="4"/></g><rect x="9" y="9" width="26" height="20" rx="6" fill="#1D2636" opacity="0.85"/></svg>
+          {%- endif -%}
+        </span>
+        <span class="vdn__dl-newdrop-case">
+          {%- if banner_image_3 != blank -%}
+            {{ banner_image_3 | image_url: width: 180 | image_tag: loading: 'lazy', class: 'vdn__dl-newdrop-img', alt: '' }}
+          {%- else -%}
+            <svg viewBox="0 0 78 150" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="vdnDlNewdropC-{{ banner_svg_id }}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1F4E8C"/><stop offset="1" stop-color="#163C6E"/></linearGradient></defs><rect width="78" height="150" fill="url(#vdnDlNewdropC-{{ banner_svg_id }})"/><g fill="#F4F5F2" opacity="0.92"><path d="M20 28l2 5 5 .4-4 3.3 1.3 5-4.3-2.8-4.3 2.8 1.3-5-4-3.3 5-.4z"/><path d="M54 52l2 5 5 .4-4 3.3 1.3 5-4.3-2.8-4.3 2.8 1.3-5-4-3.3 5-.4z"/><path d="M28 84l2 5 5 .4-4 3.3 1.3 5-4.3-2.8-4.3 2.8 1.3-5-4-3.3 5-.4z"/><path d="M56 112l2 5 5 .4-4 3.3 1.3 5-4.3-2.8-4.3 2.8 1.3-5-4-3.3 5-.4z"/></g><g fill="#C54448" opacity="0.9"><rect x="14" y="118" width="50" height="5" rx="2"/><rect x="14" y="64" width="50" height="5" rx="2"/></g><rect x="9" y="9" width="26" height="20" rx="6" fill="#0F2B52" opacity="0.85"/></svg>
+          {%- endif -%}
+        </span>
+      </span>
+      <span class="vdn__dl-newdrop-copy">
+        <span class="vdn__dl-newdrop-title">
+          {%- if banner_title_prefix_text != blank -%}{{ banner_title_prefix_text | escape }}{%- endif -%}
+          {%- if banner_title_accent_text != blank -%}{%- if banner_title_prefix_text != blank -%}{{ ' ' }}{%- endif -%}<em>{{ banner_title_accent_text | escape }}</em>{%- endif -%}
+          {%- if banner_title_suffix_text != blank -%}{%- if banner_title_prefix_text != blank or banner_title_accent_text != blank -%}{{ ' ' }}{%- endif -%}{{ banner_title_suffix_text | escape }}{%- endif -%}
+        </span>
+        {%- if banner_text != blank -%}
+          <span class="vdn__dl-newdrop-sub">{{ banner_text | escape }}</span>
+        {%- endif -%}
+      </span>
+      {%- if banner_cta_label != blank -%}
+        <span class="vdn__dl-newdrop-cta">
+          {{ banner_cta_label | escape }}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if dl_menu != blank and dl_menu.links.size > 0 -%}
+  {%- comment -%} ===== Menu-driven (admin-editable) ===== {%- endcomment -%}
+  {%- if variant == 'drawer' -%}
+    <div class="vmd-dl-menu">
+      <a class="vmd-dl-all" href="{{ all_url | escape }}">
+        Shop all Design Lab
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+
+      {%- for tab in dl_menu.links -%}
+        {%- liquid
+          assign has_groups = false
+          for child in tab.links
+            if child.links.size > 0
+              assign has_groups = true
+              break
+            endif
+          endfor
+        -%}
+        <details class="vmd-dl-group"{% if forloop.first %} open{% endif %}>
+          <summary>{{ tab.title | escape }}</summary>
+          {%- if has_groups -%}
+            <div class="vmd-dl-brandgrid">
+              {%- for brand in tab.links -%}
+                <div class="vmd-dl-brand">
+                  <div class="vmd-dl-brand-name">{{ brand.title | escape }}</div>
+                  {%- if brand.links.size > 0 -%}
+                    <ul>
+                      {%- for model in brand.links -%}
+                        {% render 'valor-dl-link', link: model, variant: 'drawer' %}
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </div>
+          {%- else -%}
+            {%- assign flat_class = 'vmd-dl-typelist' -%}
+            {%- if tab.links.size > 6 -%}{%- assign flat_class = 'vmd-dl-modellist' -%}{%- endif -%}
+            <ul class="{{ flat_class }}">
+              {%- for model in tab.links -%}
+                {% render 'valor-dl-link', link: model, variant: 'drawer' %}
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </details>
+      {%- endfor -%}
+
+      <a class="vmd-dl-cta" href="{{ cta_url | escape }}">
+        {{ cta_label | escape }}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  {%- else -%}
+    {{ design_lab_banner }}
+
+    <div class="vdn__dl-shop">
+      <ul class="vdn__dl-rail" role="tablist" aria-label="Design Lab categories">
+        {%- for tab in dl_menu.links -%}
+          {%- assign tab_key = 'dlcat-' | append: forloop.index0 -%}
+          <li><button type="button" class="vdn__dl-rail-item{% if forloop.first %} is-active{% endif %}" data-vdn-dlcat="{{ tab_key }}" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="vdn-dl-{{ id_prefix }}-{{ tab_key }}">{{ tab.title | escape }}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+        {%- endfor -%}
+      </ul>
+
+      <div class="vdn__dl-detail">
+        {%- for tab in dl_menu.links -%}
+          {%- assign tab_key = 'dlcat-' | append: forloop.index0 -%}
+          {%- liquid
+            assign has_groups = false
+            for child in tab.links
+              if child.links.size > 0
+                assign has_groups = true
+                break
+              endif
+            endfor
+          -%}
+          <div class="vdn__dl-panel{% if forloop.first %} is-active{% endif %}" data-vdn-dlpanel="{{ tab_key }}" id="vdn-dl-{{ id_prefix }}-{{ tab_key }}" role="tabpanel"{% unless forloop.first %} hidden{% endunless %}>
+            <div class="vdn__dl-section-head">{{ tab.title | escape }}</div>
+            {%- if has_groups -%}
+              <div class="vdn__dl-brandgrid">
+                {%- for brand in tab.links -%}
+                  <div class="vdn__dl-brand">
+                    <div class="vdn__dl-brand-name">{{ brand.title | escape }}</div>
+                    {%- if brand.links.size > 0 -%}
+                      <ul>
+                        {%- for model in brand.links -%}
+                          {% render 'valor-dl-link', link: model, variant: 'desktop' %}
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+              </div>
+            {%- else -%}
+              {%- assign flat_class = 'vdn__dl-typelist' -%}
+              {%- if tab.links.size > 6 -%}{%- assign flat_class = 'vdn__dl-modellist' -%}{%- endif -%}
+              <ul class="{{ flat_class }}">
+                {%- for model in tab.links -%}
+                  {% render 'valor-dl-link', link: model, variant: 'desktop' %}
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="vdn__dl-foot">
+      <div class="vdn__dl-foot-copy">
+        <span class="vdn__dl-foot-eyebrow">{{ footer_eyebrow | escape }}</span>
+        <strong>{{ footer_heading | escape }}</strong> {{ footer_text | escape }}
+      </div>
+      <a href="{{ cta_url | escape }}" class="vdn__dl-experiment">
+        {{ cta_label | escape }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  {%- endif -%}
+
+{%- else -%}
+  {%- comment -%} ===== Hardcoded fallback (used until a menu is assigned) ===== {%- endcomment -%}
+
+  {%- capture cases_standard -%}
+    <div class="{% if variant == 'drawer' %}vmd-dl-brandgrid{% else %}vdn__dl-brandgrid{% endif %}">
+      <div class="{% if variant == 'drawer' %}vmd-dl-brand{% else %}vdn__dl-brand{% endif %}">
+        <div class="{% if variant == 'drawer' %}vmd-dl-brand-name{% else %}vdn__dl-brand-name{% endif %}">iPhone</div>
+        <ul>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+13+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 13 Pro Max</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+17e+16e+14+13&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 17e / 16e / 14 / 13</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+14+Pro&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 14 Pro</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+14+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 14 Pro Max</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+15&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 15</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+15+Pro&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 15 Pro</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+15+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 15 Pro Max</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+17e+16e&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 17e / 16e<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+16&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 16</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+16+Plus&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 16 Plus</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+16+Pro&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 16 Pro</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=iPhone+16+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">iPhone 16 Pro Max</a></li>
+        </ul>
+      </div>
+      <div class="{% if variant == 'drawer' %}vmd-dl-brand{% else %}vdn__dl-brand{% endif %}">
+        <div class="{% if variant == 'drawer' %}vmd-dl-brand-name{% else %}vdn__dl-brand-name{% endif %}">Galaxy A</div>
+        <ul>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A15+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A15 5G</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A16+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A16 5G</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A17+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A17 5G<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A25+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A25 5G</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A26+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A26 5G</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A35+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A35 5G</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A36+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A36 5G</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+A37+5G&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy A37 5G<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+        </ul>
+      </div>
+      <div class="{% if variant == 'drawer' %}vmd-dl-brand{% else %}vdn__dl-brand{% endif %}">
+        <div class="{% if variant == 'drawer' %}vmd-dl-brand-name{% else %}vdn__dl-brand-name{% endif %}">Galaxy S</div>
+        <ul>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S24&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S24</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S24+Ultra&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S24 Ultra</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S25&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S25</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S25+Plus&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S25 Plus</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S25+Ultra&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S25 Ultra</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S25+Fan+Edition&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S25 Fan Edition</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S26&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S26<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S26+Plus&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S26 Plus<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Galaxy+S26+Ultra&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Galaxy S26 Ultra<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+        </ul>
+      </div>
+      <div class="{% if variant == 'drawer' %}vmd-dl-brand{% else %}vdn__dl-brand{% endif %}">
+        <div class="{% if variant == 'drawer' %}vmd-dl-brand-name{% else %}vdn__dl-brand-name{% endif %}">Motorola</div>
+        <ul>
+          <li><a href="/search?sort_by=relevance&amp;q=Moto+G+5G+2024&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Moto G 5G (2024)</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Moto+G+5G+2026+G+5G+2025+G+Play+2026&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Moto G 5G (2026) / G 5G (2025) / G Play (2026)<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Moto+G+Power+5G+2026&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Moto G Power 5G (2026)<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Moto+G+Stylus+5G+2024&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Moto G Stylus 5G (2024)</a></li>
+          <li><a href="/search?sort_by=relevance&amp;q=Moto+G+Stylus+5G+2025&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Moto G Stylus 5G (2025)</a></li>
+        </ul>
+      </div>
+      <div class="{% if variant == 'drawer' %}vmd-dl-brand{% else %}vdn__dl-brand{% endif %}">
+        <div class="{% if variant == 'drawer' %}vmd-dl-brand-name{% else %}vdn__dl-brand-name{% endif %}">Icon</div>
+        <ul>
+          <li><a href="/search?sort_by=relevance&amp;q=Icon+Plus+2026&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=0">Icon Plus 2026<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+        </ul>
+      </div>
+    </div>
+  {%- endcapture -%}
+
+  {%- capture cases_magsafe -%}
+    <ul class="{% if variant == 'drawer' %}vmd-dl-modellist{% else %}vdn__dl-modellist{% endif %}">
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+12+12+Pro&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 12 / 12 Pro</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+17e+16e+14+13&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 17e / 16e / 14 / 13</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+14+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 14 Pro Max</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+15&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 15</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+15+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 15 Pro Max</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+16&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 16</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+16+Plus&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 16 Plus</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+16+Pro&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 16 Pro</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+16+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 16 Pro Max</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+17&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 17</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+17+Air&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 17 Air<span class="{% if variant == 'drawer' %}vmd-dl-new{% else %}vdn__dl-new{% endif %}">New</span></a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+17+Pro&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 17 Pro</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=iPhone+17+Pro+Max&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=PHONE+CASES&amp;filter.p.m.custom.product_magsafe=1">iPhone 17 Pro Max</a></li>
+    </ul>
+  {%- endcapture -%}
+
+  {%- capture power_banks -%}
+    <ul class="{% if variant == 'drawer' %}vmd-dl-typelist{% else %}vdn__dl-typelist{% endif %}">
+      <li><a href="/search?sort_by=relevance&amp;q=5000+mAh+power+bank&amp;filter.p.m.custom.product_designlab=1">5,000 mAh</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=10000+mAh+power+bank&amp;filter.p.m.custom.product_designlab=1">10,000 mAh</a></li>
+    </ul>
+  {%- endcapture -%}
+
+  {%- capture earbuds -%}
+    <ul class="{% if variant == 'drawer' %}vmd-dl-typelist{% else %}vdn__dl-typelist{% endif %}">
+      <li><a href="/search?sort_by=relevance&amp;q=regular+earbuds&amp;filter.p.m.custom.product_designlab=1">Regular</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=x-large+earbuds&amp;filter.p.m.custom.product_designlab=1">X-Large</a></li>
+    </ul>
+  {%- endcapture -%}
+
+  {%- capture wireless_chargers -%}
+    <ul class="{% if variant == 'drawer' %}vmd-dl-typelist{% else %}vdn__dl-typelist{% endif %}">
+      <li><a href="/search?sort_by=relevance&amp;q=magnetic+wireless+charger&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=WIRELESS+CHARGERS">Magnetic Wireless Charger</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=wireless+charging+pad&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=WIRELESS+CHARGERS">Wireless Charging Pad</a></li>
+      <li><a href="/search?sort_by=relevance&amp;q=car+vent+mount&amp;filter.p.m.custom.product_designlab=1&amp;filter.p.m.custom.product_subcategories=CAR+MOUNTS">Car Vent Mount</a></li>
+    </ul>
+  {%- endcapture -%}
+
+  {%- capture kickstand -%}
+    <ul class="{% if variant == 'drawer' %}vmd-dl-typelist{% else %}vdn__dl-typelist{% endif %}">
+      <li><a href="/search?sort_by=relevance&amp;q=selfie+mirror+kickstand&amp;filter.p.m.custom.product_designlab=1">Shop all designs</a></li>
+    </ul>
+  {%- endcapture -%}
+
+  {%- if variant == 'drawer' -%}
+    <div class="vmd-dl-menu">
+      <a class="vmd-dl-all" href="{{ all_url | escape }}">
+        Shop all Design Lab
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+
+      <details class="vmd-dl-group" open>
+        <summary>Non-MagSafe Cases</summary>
+        {{ cases_standard }}
+      </details>
+      <details class="vmd-dl-group">
+        <summary>MagSafe Cases</summary>
+        {{ cases_magsafe }}
+      </details>
+      <details class="vmd-dl-group">
+        <summary>Power Banks</summary>
+        {{ power_banks }}
+      </details>
+      <details class="vmd-dl-group">
+        <summary>Earbuds</summary>
+        {{ earbuds }}
+      </details>
+      <details class="vmd-dl-group">
+        <summary>Wireless Chargers</summary>
+        {{ wireless_chargers }}
+      </details>
+      <details class="vmd-dl-group">
+        <summary>Selfie Mirror Kickstand</summary>
+        {{ kickstand }}
+      </details>
+
+      <a class="vmd-dl-cta" href="{{ cta_url | escape }}">
+        {{ cta_label | escape }}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  {%- else -%}
+    {{ design_lab_banner }}
+
+    <div class="vdn__dl-shop">
+      <ul class="vdn__dl-rail" role="tablist" aria-label="Design Lab categories">
+        <li><button type="button" class="vdn__dl-rail-item is-active" data-vdn-dlcat="cases-std" role="tab" aria-selected="true" aria-controls="vdn-dl-{{ id_prefix }}-cases-std">Non-MagSafe Cases<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+        <li><button type="button" class="vdn__dl-rail-item" data-vdn-dlcat="cases-mag" role="tab" aria-selected="false" aria-controls="vdn-dl-{{ id_prefix }}-cases-mag">MagSafe Cases<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+        <li><button type="button" class="vdn__dl-rail-item" data-vdn-dlcat="power" role="tab" aria-selected="false" aria-controls="vdn-dl-{{ id_prefix }}-power">Power Banks<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+        <li><button type="button" class="vdn__dl-rail-item" data-vdn-dlcat="earbuds" role="tab" aria-selected="false" aria-controls="vdn-dl-{{ id_prefix }}-earbuds">Earbuds<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+        <li><button type="button" class="vdn__dl-rail-item" data-vdn-dlcat="chargers" role="tab" aria-selected="false" aria-controls="vdn-dl-{{ id_prefix }}-chargers">Wireless Chargers<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+        <li><button type="button" class="vdn__dl-rail-item" data-vdn-dlcat="kickstand" role="tab" aria-selected="false" aria-controls="vdn-dl-{{ id_prefix }}-kickstand">Selfie Mirror Kickstand<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>
+      </ul>
+
+      <div class="vdn__dl-detail">
+        <div class="vdn__dl-panel is-active" data-vdn-dlpanel="cases-std" id="vdn-dl-{{ id_prefix }}-cases-std" role="tabpanel">
+          <div class="vdn__dl-section-head">Non-MagSafe Cases</div>
+          {{ cases_standard }}
+        </div>
+        <div class="vdn__dl-panel" data-vdn-dlpanel="cases-mag" id="vdn-dl-{{ id_prefix }}-cases-mag" role="tabpanel" hidden>
+          <div class="vdn__dl-section-head">MagSafe Cases</div>
+          {{ cases_magsafe }}
+        </div>
+        <div class="vdn__dl-panel" data-vdn-dlpanel="power" id="vdn-dl-{{ id_prefix }}-power" role="tabpanel" hidden>
+          <div class="vdn__dl-section-head">Power Banks</div>
+          {{ power_banks }}
+        </div>
+        <div class="vdn__dl-panel" data-vdn-dlpanel="earbuds" id="vdn-dl-{{ id_prefix }}-earbuds" role="tabpanel" hidden>
+          <div class="vdn__dl-section-head">Earbuds</div>
+          {{ earbuds }}
+        </div>
+        <div class="vdn__dl-panel" data-vdn-dlpanel="chargers" id="vdn-dl-{{ id_prefix }}-chargers" role="tabpanel" hidden>
+          <div class="vdn__dl-section-head">Wireless Chargers</div>
+          {{ wireless_chargers }}
+        </div>
+        <div class="vdn__dl-panel" data-vdn-dlpanel="kickstand" id="vdn-dl-{{ id_prefix }}-kickstand" role="tabpanel" hidden>
+          <div class="vdn__dl-section-head">Selfie Mirror Kickstand</div>
+          {{ kickstand }}
+        </div>
+      </div>
+    </div>
+
+    <div class="vdn__dl-foot">
+      <div class="vdn__dl-foot-copy">
+        <span class="vdn__dl-foot-eyebrow">{{ footer_eyebrow | escape }}</span>
+        <strong>{{ footer_heading | escape }}</strong> {{ footer_text | escape }}
+      </div>
+      <a href="{{ cta_url | escape }}" class="vdn__dl-experiment">
+        {{ cta_label | escape }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  {%- endif -%}
+{%- endif -%}

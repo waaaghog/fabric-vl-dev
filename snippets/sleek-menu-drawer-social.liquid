@@ -1,0 +1,45 @@
+{%- doc -%}
+  Renders social media icons in the sleek-menu-drawer footer.
+  Reads URLs from global theme settings (social_*_link).
+  Renders nothing if no social links are configured.
+{%- enddoc -%}
+
+{%- liquid
+  assign social_platforms = 'facebook,instagram,youtube,tiktok,twitter,pinterest,snapchat,tumblr,vimeo,linkedin,threads,bluesky' | split: ','
+  assign has_social = false
+  for platform in social_platforms
+    assign key = 'social_' | append: platform | append: '_link'
+    if settings[key] != blank
+      assign has_social = true
+      break
+    endif
+  endfor
+-%}
+
+{%- if has_social -%}
+  <ul
+    class="sleek-menu-drawer__social-list"
+    role="list"
+    aria-label="{{ 'accessibility.social_links' | t }}"
+  >
+    {%- for platform in social_platforms -%}
+      {%- assign key = 'social_' | append: platform | append: '_link' -%}
+      {%- if settings[key] != blank -%}
+        <li>
+          <a
+            href="{{ settings[key] }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="{{ platform | capitalize }}"
+            class="sleek-menu-drawer__social-link"
+          >
+            {%- assign icon_name = 'icon-' | append: platform | append: '.svg' -%}
+            <span class="svg-wrapper sleek-menu-drawer__social-icon">
+              {{- icon_name | inline_asset_content -}}
+            </span>
+          </a>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

@@ -1,0 +1,125 @@
+{%- doc -%}
+  Renders a brand menu item from a dynamic brand block, with menu-link fallback.
+
+  @param {object} brand_block - Optional Brand item block.
+  @param {object} link - Optional Shopify navigation link fallback.
+  @param {string} variant - desktop or drawer.
+{%- enddoc -%}
+
+{%- liquid
+  assign variant = variant | default: 'desktop'
+  assign item_class = 'vdn__brand-pill'
+  assign name_class = 'vdn__brand-pill__name'
+  assign image_class = 'vdn__brand-pill__image'
+
+  if variant == 'drawer'
+    assign item_class = 'vmd-brand-pill'
+    assign name_class = 'vmd-brand-pill__name'
+    assign image_class = 'vmd-brand-pill__image'
+  endif
+
+  assign label = ''
+  assign accent_text = ''
+  assign brand_url = '#'
+  assign brand_image = blank
+  assign display_mode = 'auto'
+  assign text_font = ''
+  assign font_weight = ''
+  assign text_color = ''
+  assign text_italic = false
+  assign letter_spacing = 0
+  assign accent_color = ''
+  assign accent_italic = true
+  assign brand_key = ''
+
+  if brand_block != blank
+    assign bs = brand_block.settings
+    assign label = bs.label
+    assign accent_text = bs.accent_text
+    if label == blank and bs.collection != blank
+      assign label = bs.collection.title
+    endif
+    if bs.url != blank
+      assign brand_url = bs.url
+    elsif bs.collection != blank
+      assign brand_url = bs.collection.url
+    endif
+    assign brand_image = bs.image
+    assign display_mode = bs.display_mode | default: 'auto'
+    assign text_font = bs.text_font
+    assign font_weight = bs.font_weight
+    assign text_color = bs.text_color
+    assign text_italic = bs.italic
+    assign letter_spacing = bs.letter_spacing | default: 0 | plus: 0
+    assign accent_color = bs.accent_color
+    assign accent_italic = bs.accent_italic
+  elsif link != blank
+    assign label = link.title
+    assign brand_url = link.url
+    assign brand_key = link.title | handleize
+  endif
+
+  if brand_url == blank
+    assign brand_url = '#'
+  endif
+
+  assign show_image = false
+  if brand_image != blank and display_mode != 'text'
+    assign show_image = true
+  endif
+-%}
+
+{%- capture text_style -%}
+  {%- case text_font -%}
+    {%- when 'serif' -%}font-family:"Instrument Serif",Georgia,serif;
+    {%- when 'sans' -%}font-family:"Inter",sans-serif;
+  {%- endcase -%}
+  {%- if font_weight != blank -%}font-weight:{{ font_weight }};{%- endif -%}
+  {%- if text_color != blank -%}color:{{ text_color }};{%- endif -%}
+  {%- if text_italic -%}font-style:italic;{%- endif -%}
+  {%- if letter_spacing > 0 -%}letter-spacing:{{ letter_spacing | times: 0.01 }}em;{%- endif -%}
+{%- endcapture -%}
+
+<a href="{{ brand_url }}" class="{{ item_class }}{% if show_image %} {{ item_class }}--image{% endif %}" role="menuitem"{% if brand_block != blank %} {{ brand_block.shopify_attributes }}{% endif %}>
+  {%- if show_image -%}
+    {{ brand_image | image_url: width: 360 | image_tag: loading: 'lazy', class: image_class, alt: label }}
+  {%- elsif brand_block != blank -%}
+    <span class="{{ name_class }}" style="{{ text_style | strip }}">
+      {{- label | escape -}}
+      {%- if accent_text != blank -%}
+        <span style="{% if accent_color != blank %}color:{{ accent_color }};{% endif %}{% if accent_italic %}font-style:italic;{% endif %}">{{ accent_text | escape }}</span>
+      {%- endif -%}
+    </span>
+  {%- elsif variant == 'desktop' -%}
+    {%- case brand_key -%}
+      {%- when 'mybat-pro' -%}
+        <span class="{{ name_class }}" style='font-family:"Instrument Serif",Georgia,serif;font-weight:500;'>MyBat<span style="font-style:italic;color:#C54448;"> Pro</span></span>
+      {%- when 'mybat', 'echelon', 'baseline', 'ondigo', 'borne', 'luxmo' -%}
+        <span class="{{ name_class }}" style='font-family:"Instrument Serif",Georgia,serif;font-weight:500;'>{{ label | escape }}</span>
+      {%- when 'ampnergy' -%}
+        <span class="{{ name_class }}" style='font-family:"Instrument Serif",Georgia,serif;font-weight:500;color:#B07E1A;'>{{ label | escape }}</span>
+      {%- when 'ecoblvd', 'eco-blvd' -%}
+        <span class="{{ name_class }}" style='font-family:"Instrument Serif",Georgia,serif;font-weight:500;color:#2d7a3f;'>{{ label | escape }}</span>
+      {%- when 'adata' -%}
+        <span class="{{ name_class }}" style='font-family:"Inter",sans-serif;font-weight:700;letter-spacing:0.05em;'>{{ label | escape }}</span>
+      {%- when 'beats' -%}
+        <span class="{{ name_class }}" style='font-family:"Inter",sans-serif;font-weight:900;'>{{ label | escape }}</span>
+      {%- when 'coca-cola', 'cocacola' -%}
+        <span class="{{ name_class }}" style='font-family:"Instrument Serif",Georgia,serif;font-weight:700;font-style:italic;color:#C54448;'>{{ label | escape }}</span>
+      {%- when 'deejays', 'dee-jays' -%}
+        <span class="{{ name_class }}" style='font-family:"Inter",sans-serif;font-weight:700;'>{{ label | escape }}</span>
+      {%- when 'edge', 'scosche' -%}
+        <span class="{{ name_class }}" style='font-family:"Inter",sans-serif;font-weight:600;'>{{ label | escape }}</span>
+      {%- when 'maxpower', 'max-power' -%}
+        <span class="{{ name_class }}" style='font-family:"Inter",sans-serif;font-weight:800;'>{{ label | escape }}</span>
+      {%- when 'mlb' -%}
+        <span class="{{ name_class }}" style='font-family:"Instrument Serif",Georgia,serif;font-weight:700;color:#1D2636;'>{{ label | escape }}</span>
+      {%- when 'sentry' -%}
+        <span class="{{ name_class }}" style='font-family:"Inter",sans-serif;font-weight:500;'>{{ label | escape }}</span>
+      {%- else -%}
+        <span class="{{ name_class }}">{{ label | escape }}</span>
+    {%- endcase -%}
+  {%- else -%}
+    <span class="{{ name_class }}">{{ label | escape }}</span>
+  {%- endif -%}
+</a>

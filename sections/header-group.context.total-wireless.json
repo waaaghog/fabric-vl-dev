@@ -1,0 +1,43 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "context": {
+    "market": "total-wireless"
+  },
+  "parent": "header-group.json",
+  "sections": {
+    "header_announcements_VeCBNM": {
+      "settings": {},
+      "blocks": {
+        "announcement_QTqCdU": {
+          "type": "_announcement",
+          "name": "t:names.announcement",
+          "disabled": false,
+          "settings": {
+            "text": "Message specific to total wireless dealers.",
+            "link": "",
+            "header-b5abf62d3b586b9d5edf0eef975ba1f3": null,
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none"
+          }
+        }
+      },
+      "block_order": [
+        "announcement_QTqCdU",
+        "announcement_ypGdeQ",
+        "announcement_dfUpKU",
+        "announcement_iY66gP"
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{%- doc -%}
+  Renders a single color swatch dot for a product card.
+
+  Prefers a solid color (mapped from the color name) so the circle shows the
+  actual color. Falls back to the product's image only for patterns/prints that
+  have no single solid color. Used by card-color-swatches.liquid.
+
+  @param {object} product - The product (color) to render a dot for
+  @param {object} [variant] - Optional variant whose featured image is used for the image fallback
+  @param {string} [label] - Optional color name (defaults to the product's color metafield)
+{%- enddoc -%}
+
+{%- liquid
+  # Resolve a color name: explicit label, else the product's color metafield.
+  assign color_name = label
+  if color_name == blank
+    assign color_name = product.metafields.custom.product_colors.value.first
+  endif
+
+  # Tooltip / hex name: color name when known, otherwise the trailing part of the
+  # title (e.g. "...- Lilac" → "Lilac") so title-only colors still resolve.
+  assign dot_label = color_name
+  if dot_label == blank
+    assign dot_label = product.title | split: ' - ' | last
+  endif
+
+  # Try to resolve a solid swatch color from the name.
+  assign swatch_hex = ''
+  if dot_label != blank
+    capture swatch_hex
+      render 'card-color-hex', name: dot_label
+    endcapture
+    assign swatch_hex = swatch_hex | strip
+  endif
+
+  assign dot_style = ''
+  assign dot_modifier = ''
+
+  if swatch_hex == 'clear'
+    assign dot_modifier = ' card-color-swatches__sw--clear'
+  elsif swatch_hex != blank
+    assign dot_style = 'background-color: ' | append: swatch_hex | append: ';'
+  else
+    # No mapped solid color (pattern / print / multi) → use the product image.
+    assign dot_image = variant.featured_image | default: product.featured_image
+    if dot_image
+      assign dot_image_url = dot_image | image_url: width: 44
+      assign dot_style = 'background-image: url(' | append: dot_image_url | append: ');'
+    else
+      assign dot_modifier = ' card-color-swatches__sw--unavailable'
+    endif
+  endif
+-%}
+
+<span
+  class="card-color-swatches__sw{{ dot_modifier }}"
+  style="{{ dot_style }}"
+  title="{{ dot_label | escape }}"
+></span>

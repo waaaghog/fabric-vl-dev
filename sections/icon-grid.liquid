@@ -1,0 +1,499 @@
+
+{%- liquid
+  assign columns = section.settings.columns
+  assign cols_minus1 = columns | minus: 1
+  assign columns_mobile = section.settings.columns_mobile
+  assign cols_minus1_mobile = columns_mobile | minus: 1
+  assign gap = section.settings.gap_percent
+  assign gap_mobile = section.settings.gap_percent_mobile
+  assign scroll_width = section.settings.scroll_width
+  assign alignment = section.settings.alignment
+  if section.settings.wrap
+    assign flex_wrap = 'wrap'
+  else
+    assign flex_wrap = 'nowrap'
+  endif
+  assign has_scroll = false
+  if scroll_width > 100
+    assign has_scroll = true
+  endif
+  assign sid = section.id
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style icon-grid-section"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="icon-grid-section"
+>
+  {%- if section.settings.heading != blank -%}
+    <div class="icon-grid-heading-row" style="margin-bottom: {{ section.settings.heading_gap }}px;">
+      <h2
+        class="icon-grid-heading"
+        style="font-size: {{ section.settings.heading_size }}px; text-align: {{ section.settings.heading_alignment }};"
+      >
+        {{- section.settings.heading -}}
+      </h2>
+    </div>
+  {%- endif -%}
+
+  <div class="icon-grid-wrapper">
+    {%- if has_scroll -%}
+      <button
+        class="icon-grid-arrow icon-grid-arrow--prev"
+        aria-label="Scroll left"
+        data-icon-grid-id="{{ sid }}"
+        data-icon-grid-dir="-1"
+      >
+        {{- 'icon-chevron-left.svg' | inline_asset_content -}}
+      </button>
+    {%- endif -%}
+
+    <div
+      class="icon-grid-scroll-outer"
+      id="icon-grid-{{ sid }}"
+      style="
+        --icon-grid-gap: {{ gap }};
+        --icon-grid-gap-mobile: {{ gap_mobile }};
+        --icon-grid-scroll-width: {{ scroll_width }};
+        --icon-grid-columns: {{ columns }};
+        --icon-grid-cols-minus1: {{ cols_minus1 }};
+        --icon-grid-columns-mobile: {{ columns_mobile }};
+        --icon-grid-cols-minus1-mobile: {{ cols_minus1_mobile }};
+        --icon-grid-alignment: {{ alignment }};
+        --icon-grid-wrap: {{ flex_wrap }};
+      "
+    >
+      <div class="icon-grid-inner">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+
+    {%- if has_scroll -%}
+      <button
+        class="icon-grid-arrow icon-grid-arrow--next"
+        aria-label="Scroll right"
+        data-icon-grid-id="{{ sid }}"
+        data-icon-grid-dir="1"
+      >
+        {{- 'icon-chevron-right.svg' | inline_asset_content -}}
+      </button>
+    {%- endif -%}
+  </div>
+</div>
+
+<script>
+  (function () {
+    var btns = document.querySelectorAll('[data-icon-grid-id="{{ sid }}"]');
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var el = document.getElementById('icon-grid-{{ sid }}');
+        var amount = el.offsetWidth * 0.8;
+        el.scrollBy({ left: parseInt(btn.dataset.iconGridDir) * amount, behavior: 'smooth' });
+      });
+    });
+  })();
+</script>
+
+{% stylesheet %}
+  .icon-grid-heading-row {
+    width: 100%;
+  }
+
+  .icon-grid-heading {
+    margin: 0;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .icon-grid-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .icon-grid-scroll-outer {
+    container-type: inline-size;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: thin;
+    scrollbar-color: currentColor transparent;
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+
+  .icon-grid-scroll-outer::-webkit-scrollbar {
+    height: 3px;
+  }
+
+  .icon-grid-scroll-outer::-webkit-scrollbar-thumb {
+    background-color: currentColor;
+    border-radius: 2px;
+  }
+
+  .icon-grid-scroll-outer::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .icon-grid-inner {
+    display: flex;
+    flex-wrap: var(--icon-grid-wrap, nowrap);
+    justify-content: var(--icon-grid-alignment, space-between);
+    align-items: flex-start;
+    gap: calc(var(--icon-grid-gap) * 1cqw);
+    min-width: calc(var(--icon-grid-scroll-width) * 1cqw);
+  }
+
+  @media (max-width: 749px) {
+    .icon-grid-inner {
+      gap: calc(var(--icon-grid-gap-mobile) * 1cqw);
+    }
+  }
+
+  .icon-grid-inner > * {
+    flex: 0 0 calc(
+      (var(--icon-grid-scroll-width) * 1cqw - var(--icon-grid-gap) * 1cqw * var(--icon-grid-cols-minus1))
+      / var(--icon-grid-columns)
+    );
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 749px) {
+    .icon-grid-inner > * {
+      flex: 0 0 calc(
+        (var(--icon-grid-scroll-width) * 1cqw - var(--icon-grid-gap-mobile) * 1cqw * var(--icon-grid-cols-minus1-mobile))
+        / var(--icon-grid-columns-mobile)
+      );
+    }
+  }
+
+  .icon-grid-section .icon-block__media {
+    transition: transform 0.2s ease;
+  }
+
+  .icon-grid-section .icon-block__media:hover {
+    transform: translateY(-1px);
+  }
+
+  .icon-grid-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: currentColor;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .icon-grid-arrow:hover {
+    opacity: 1;
+  }
+
+  .icon-grid-arrow svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  @media (max-width: 749px) {
+    .icon-grid-arrow {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Icon Grid",
+  "class": "section-wrapper",
+  "disabled_on": {
+    "groups": ["header"]
+  },
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 14,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Gap below heading",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Items per row",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "Items per row (mobile)",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "gap_percent",
+      "label": "Gap",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "unit": "%",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "gap_percent_mobile",
+      "label": "Mobile gap",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "unit": "%",
+      "default": 5
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        { "value": "space-between", "label": "Space between" },
+        { "value": "space-around", "label": "Space around" }
+      ],
+      "default": "space-between"
+    },
+    {
+      "type": "checkbox",
+      "id": "wrap",
+      "label": "Wrap items",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "scroll_width",
+      "label": "Scroll width",
+      "min": 100,
+      "max": 300,
+      "step": 10,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Icon Grid",
+      "category": "Text",
+      "settings": {
+        "columns": 4,
+        "gap_percent": 5,
+        "alignment": "space-between",
+        "scroll_width": 100,
+        "section_width": "page-width",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      },
+      "blocks": {
+        "group_1": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 8,
+            "height": "fit",
+            "inherit_color_scheme": true
+          },
+          "blocks": {
+            "icon_1": {
+              "type": "icon",
+              "settings": { "icon": "eye", "width": 40 }
+            },
+            "text_1": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Feature one</p>",
+                "type_preset": "rte",
+                "alignment": "center"
+              }
+            }
+          },
+          "block_order": ["icon_1", "text_1"]
+        },
+        "group_2": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 8,
+            "height": "fit",
+            "inherit_color_scheme": true
+          },
+          "blocks": {
+            "icon_2": {
+              "type": "icon",
+              "settings": { "icon": "heart", "width": 40 }
+            },
+            "text_2": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Feature two</p>",
+                "type_preset": "rte",
+                "alignment": "center"
+              }
+            }
+          },
+          "block_order": ["icon_2", "text_2"]
+        },
+        "group_3": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 8,
+            "height": "fit",
+            "inherit_color_scheme": true
+          },
+          "blocks": {
+            "icon_3": {
+              "type": "icon",
+              "settings": { "icon": "truck", "width": 40 }
+            },
+            "text_3": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Feature three</p>",
+                "type_preset": "rte",
+                "alignment": "center"
+              }
+            }
+          },
+          "block_order": ["icon_3", "text_3"]
+        },
+        "group_4": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 8,
+            "height": "fit",
+            "inherit_color_scheme": true
+          },
+          "blocks": {
+            "icon_4": {
+              "type": "icon",
+              "settings": { "icon": "star", "width": 40 }
+            },
+            "text_4": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Feature four</p>",
+                "type_preset": "rte",
+                "alignment": "center"
+              }
+            }
+          },
+          "block_order": ["icon_4", "text_4"]
+        }
+      },
+      "block_order": ["group_1", "group_2", "group_3", "group_4"]
+    }
+  ]
+}
+{% endschema %}

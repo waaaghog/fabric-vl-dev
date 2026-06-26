@@ -1,0 +1,91 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "context": {
+    "market": "boost-mobile"
+  },
+  "parent": "footer-group.json",
+  "sections": {
+    "divider_9PYyE8": {
+      "settings": {
+        "color_scheme": "scheme-1"
+      },
+      "blocks": {}
+    },
+    "footer": {
+      "settings": {
+        "color_scheme": "scheme-5e8fc485-0dde-4169-b320-ce685096a54d",
+        "padding-block-start": 48
+      },
+      "blocks": {
+        "group_nDHzex": {
+          "blocks": {
+            "image_RGrkt": {
+              "name": "Ondigo powered by image",
+              "disabled": false,
+              "settings": {
+                "image": "shopify://shop_images/Ondigo_Powered_by_Valor_Logo_-_White_0768.webp",
+                "image_mobile": null,
+                "link": "",
+                "image_ratio": "adapt",
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "height_value": "400px",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              }
+            },
+            "logo_rKGMrB": {
+              "disabled": true,
+              "settings": {}
+            },
+            "text_A8EbGm": {
+              "settings": {
+                "text": "<p>TOLL FREE: +1 (866) 375-4023<br/>EMAIL: <a href=\"mailto:SUPPORT@ONDIGO.COM\" title=\"mailto:SUPPORT@ONDIGO.COM\">SUPPORT@ONDIGO.COM</a></p>"
+              }
+            },
+            "text_HkABiV": {
+              "settings": {
+                "text": "<h5>Connect with Us</h5>"
+              }
+            }
+          },
+          "block_order": [
+            "image_RGrkt",
+            "logo_rKGMrB",
+            "text_A8EbGm",
+            "text_4rrxjx",
+            "text_kzDHBM",
+            "text_hCUHVF",
+            "text_beaRFF",
+            "text_HkABiV",
+            "social_links_nRzrkK"
+          ],
+          "settings": {}
+        }
+      }
+    },
+    "section_7a9mbw": {
+      "settings": {
+        "color_scheme": "scheme-5e8fc485-0dde-4169-b320-ce685096a54d"
+      },
+      "blocks": {}
+    }
+  }
+}

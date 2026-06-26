@@ -1,0 +1,2112 @@
+
+{%- doc -%}
+  Self-contained valor cart page section.
+  Independent --vc-* color tokens. AJAX qty/remove. Sticky order summary.
+{%- enddoc -%}
+
+{% liquid
+  assign freight_threshold = section.settings.freight_threshold | times: 100
+  assign low_stock_threshold = section.settings.low_stock_threshold
+  assign checkout_url = section.settings.checkout_url | default: '/checkout'
+  assign total_price = cart.total_price
+  assign item_count = cart.item_count
+  assign line_count = cart.items.size
+%}
+
+<div class="section section--{% if section.settings.layout == 'full_width' %}full-width{% else %}page-width{% endif %}">
+<valor-cart-page class="vc-root vc-layout--{{ section.settings.layout | default: 'page_width' }}" style="margin-top: {{ section.settings.margin_top | default: '20px' }}; margin-bottom: {{ section.settings.margin_bottom | default: '20px' }};">
+
+  {%- comment -%} Page head {%- endcomment -%}
+  <div class="vc-page-head">
+    <div class="vc-crumbs">
+      <a href="/">{{ section.settings.crumb_home | default: 'Shop' }}</a>
+      <span class="vc-crumb-sep">/</span>
+      <span class="vc-crumb-current">{{ section.settings.crumb_current | default: 'Your cart' }}</span>
+    </div>
+    <div class="vc-head-row">
+      <div class="vc-head-left">
+        <div class="vc-title-row">
+          <h1 class="vc-serif">
+            {{ section.settings.heading_before | default: 'Your' }}
+            <em>{{ section.settings.heading_em | default: 'cart.' }}</em>
+          </h1>
+        </div>
+        <div class="vc-head-meta">
+          <div class="vc-m">
+            <div class="vc-m-lbl">{{ section.settings.meta_items_label | default: 'Items' }}</div>
+            <div class="vc-m-val" data-vc-line-count>{{ line_count }} line item{% if line_count != 1 %}s{% endif %}</div>
+          </div>
+          <div class="vc-m">
+            <div class="vc-m-lbl">{{ section.settings.meta_units_label | default: 'Total units' }}</div>
+            <div class="vc-m-val" data-vc-total-units>{{ item_count }}</div>
+          </div>
+          {%- if section.settings.meta_tier_label != blank -%}
+            <div class="vc-m">
+              <div class="vc-m-lbl">{{ section.settings.meta_tier_label }}</div>
+              <div class="vc-m-val vc-pill">{{ section.settings.meta_tier_value }}</div>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="vc-head-right">
+        <a href="/collections/all" class="vc-btn-outline">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          {{ section.settings.cta_continue | default: 'Continue shopping' }}
+        </a>
+        <button class="vc-btn-outline" data-vc-clear-cart>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg>
+          {{ section.settings.cta_clear | default: 'Clear cart' }}
+        </button>
+        <button class="vc-btn-outline" data-vc-save-cart hidden style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save cart
+        </button>
+        <button class="vc-btn-outline" data-vc-load-saved hidden style="display:none">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          Load cart
+        </button>
+        <button class="vc-btn-outline" data-vc-dist-toggle hidden>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span data-vc-toggle-label>{{ section.settings.cta_multi_ship | default: 'Multi-location shipping' }}</span>
+        </button>
+      </div>
+    </div>
+    <div class="vc-dist-banner" hidden>
+      <svg class="vc-dist-banner__icon--simple" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 10V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/><rect x="1" y="10" width="22" height="11" rx="2"/><path d="M12 10v11"/></svg>
+      <svg class="vc-dist-banner__icon--dist" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="vc-dist-banner__text--simple">{{ section.settings.banner_multi_ship | default: 'You have multiple shipping addresses' }}</span>
+      <span class="vc-dist-banner__text--dist">{{ section.settings.banner_dist_active | default: 'Multi-location shipping active' }}</span>
+      <button class="vc-dist-banner__btn" data-vc-dist-toggle type="button">
+        <span class="vc-dist-banner__btn--simple">
+          {{ section.settings.banner_switch | default: 'Switch' }}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </span>
+        <span class="vc-dist-banner__btn--dist">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          {{ section.settings.banner_back | default: 'Simple cart' }}
+        </span>
+      </button>
+    </div>
+  </div>
+
+  {%- comment -%} Main two-column layout {%- endcomment -%}
+  <div class="vc-layout">
+
+    {%- comment -%} LEFT: cart lines {%- endcomment -%}
+    <div class="vc-cart-lines" data-vc-cart-lines>
+      {%- if cart.item_count == 0 -%}
+        <div class="vc-empty">
+          <p>{{ section.settings.empty_message | default: 'Your cart is empty.' }}</p>
+          <a href="/collections/all" class="vc-btn-outline" style="display:inline-flex;margin-top:16px;">Browse products</a>
+        </div>
+      {%- else -%}
+        {%- for item in cart.items -%}
+          {%- liquid
+            assign inventory = item.variant.inventory_quantity
+
+            if item.variant.available == false
+              assign stock_display = 'Out of stock'
+              assign stock_cls = 'out'
+            elsif item.variant.inventory_management == blank
+              assign stock_display = '500+ in stock'
+              assign stock_cls = 'ok'
+            elsif inventory >= 500
+              assign stock_display = '500+ in stock'
+              assign stock_cls = 'ok'
+            elsif inventory > 0
+              assign stock_display = inventory | append: ' in stock'
+              assign stock_cls = 'ok'
+              if low_stock_threshold > 0 and inventory <= low_stock_threshold
+                assign stock_display = stock_display | append: ' · Low'
+                assign stock_cls = 'low'
+              endif
+            elsif item.variant.inventory_policy == 'continue'
+              assign stock_display = '500+ in stock'
+              assign stock_cls = 'ok'
+            else
+              assign stock_display = 'Out of stock'
+              assign stock_cls = 'out'
+            endif
+          -%}
+          {%- comment -%} Resolve product title: fall back to item.title (stored in cart) minus variant suffix if product object is inaccessible {%- endcomment -%}
+          {%- assign _ptitle = item.product.title -%}
+          {%- if _ptitle == blank -%}
+            {%- if item.variant_title == blank or item.variant_title == 'Default Title' -%}
+              {%- assign _ptitle = item.title -%}
+            {%- else -%}
+              {%- assign _vsuffix = ' - ' | append: item.variant_title -%}
+              {%- assign _ptitle = item.title | remove: _vsuffix -%}
+            {%- endif -%}
+          {%- endif -%}
+          {%- assign _qv_url = item.url | split: '?' | first -%}
+          {%- assign _brand = item.vendor -%}
+          <div class="vc-line{% if stock_cls == 'low' %} vc-line--low-stock{% endif %}" data-vc-line data-key="{{ item.key }}" data-unit="{{ item.final_price }}" data-brand="{{ _brand | escape }}">
+            {%- comment -%} Thumbnail {%- endcomment -%}
+            <div class="vc-thumb" data-quick-view-url="{{ _qv_url }}?view=valor-quick-add">
+              {%- if item.image -%}
+                <img src="{{ item.image | image_url: width: 112 }}" alt="{{ item.title | escape }}" width="56" height="56" loading="lazy">
+              {%- else -%}
+                <span class="vc-thumb-placeholder">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                </span>
+              {%- endif -%}
+              <span class="vc-thumb-zoom" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+              </span>
+            </div>
+
+            {%- comment -%} Info {%- endcomment -%}
+            <div class="vc-line-info">
+              {%- if _brand != blank -%}
+                <div class="vc-brand">{{ _brand }}</div>
+              {%- endif -%}
+              <div class="vc-name">
+                <a href="{{ item.url }}">{{ _ptitle }}</a>
+                {%- unless item.variant_title == 'Default Title' or item.variant_title == blank -%}
+                  <span class="vc-variant"> &middot; {{ item.variant_title }}</span>
+                {%- endunless -%}
+              </div>
+              {%- if item.sku != blank -%}
+                <div class="vc-sku">{{ item.sku }}</div>
+              {%- endif -%}
+              <div class="vc-stock-meta">
+                <span class="vc-dot{% if stock_cls == 'low' %} vc-dot--low{% elsif stock_cls == 'out' %} vc-dot--out{% endif %}"></span>
+                {{- stock_display -}}
+              </div>
+            </div>
+
+            {%- comment -%} Qty stepper {%- endcomment -%}
+            <div class="vc-qty-block">
+              <div class="vc-qty">
+                <button class="vc-qty-btn" data-vc-step="-1" aria-label="Decrease quantity">&#x2212;</button>
+                <input type="number" class="vc-qty-input" value="{{ item.quantity }}" min="0" aria-label="Quantity" data-vc-qty>
+                <button class="vc-qty-btn" data-vc-step="1" aria-label="Increase quantity">+</button>
+              </div>
+              <div class="vc-unit-price">{{ item.final_price | money }} ea</div>
+            </div>
+
+            {%- comment -%} Line subtotal {%- endcomment -%}
+            <div class="vc-line-sub">
+              <div class="vc-line-amount" data-vc-subtotal>{{ item.final_line_price | money }}</div>
+              {%- if item.original_line_price != item.final_line_price -%}
+                <div class="vc-line-original">{{ item.original_line_price | money }}</div>
+              {%- endif -%}
+            </div>
+
+            {%- comment -%} Remove {%- endcomment -%}
+            <button class="vc-remove" aria-label="Remove {{ item.title | escape }}" data-vc-remove>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} RIGHT: order summary {%- endcomment -%}
+    <aside class="vc-summary">
+      <div class="vc-summary-head">
+        <h2 class="vc-serif">
+          {{ section.settings.summary_heading_before | default: 'Order' }}
+          <em>{{ section.settings.summary_heading_em | default: 'preview.' }}</em>
+        </h2>
+        <div class="vc-summary-sub">{{ section.settings.summary_sub | default: 'Shipping, payment & PO details selected at checkout.' }}</div>
+      </div>
+
+      {%- comment -%} Stats grid {%- endcomment -%}
+      <div class="vc-summary-section">
+        <div class="vc-section-title">{{ section.settings.stats_label | default: 'Items' }}</div>
+        <div class="vc-stat-grid">
+          <div class="vc-stat">
+            <div class="vc-stat-lbl">{{ section.settings.stat_lines_label | default: 'Line items' }}</div>
+            <div class="vc-stat-val" data-vc-stat-lines>{{ line_count }}</div>
+          </div>
+          <div class="vc-stat">
+            <div class="vc-stat-lbl">{{ section.settings.stat_units_label | default: 'Total units' }}</div>
+            <div class="vc-stat-val" data-vc-stat-units>{{ item_count }}</div>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Totals {%- endcomment -%}
+      <div class="vc-summary-section">
+        <div class="vc-section-title">{{ section.settings.totals_label | default: 'Estimated totals' }}</div>
+        <div class="vc-totals">
+          <div class="vc-total-row">
+            <span>{{ section.settings.subtotal_label | default: 'Subtotal' }}</span>
+            <span class="vc-total-val" data-vc-subtotal-display>{{ cart.total_price | money }}</span>
+          </div>
+          {%- if cart.total_discount > 0 -%}
+            <div class="vc-total-row vc-total-row--savings">
+              <span>{{ section.settings.savings_label | default: 'Savings' }}</span>
+              <span class="vc-total-val">&minus;{{ cart.total_discount | money }}</span>
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} Freight progress {%- endcomment -%}
+          {%- if section.settings.freight_threshold > 0 -%}
+            {%- assign fill_pct = cart.total_price | times: 100 | divided_by: freight_threshold -%}
+            {%- if fill_pct > 100 -%}{%- assign fill_pct = 100 -%}{%- endif -%}
+            <div class="vc-freight-box" data-vc-freight data-threshold="{{ freight_threshold }}">
+              <div class="vc-freight-labels">
+                {%- if cart.total_price >= freight_threshold -%}
+                  <span class="vc-freight-lbl">{{ section.settings.freight_met_label | default: 'Qualifies for free freight' }}</span>
+                  <span class="vc-freight-val">&#x2713; Met</span>
+                {%- else -%}
+                  {%- assign remaining = freight_threshold | minus: cart.total_price -%}
+                  <span class="vc-freight-lbl">{{ section.settings.freight_progress_label | default: 'Add' }} {{ remaining | money }} {{ section.settings.freight_suffix | default: 'for free freight' }}</span>
+                  <span class="vc-freight-val">{{ section.settings.freight_threshold | money_without_trailing_zeros }}</span>
+                {%- endif -%}
+              </div>
+              <div class="vc-freight-bar">
+                <div class="vc-freight-fill" style="width: {{ fill_pct }}%" data-vc-freight-fill></div>
+              </div>
+            </div>
+          {%- endif -%}
+
+          <div class="vc-total-row vc-total-row--grand">
+            <span>{{ section.settings.total_label | default: 'Subtotal' }}</span>
+            <span class="vc-total-val" data-vc-grand-total>{{ cart.total_price | money }}</span>
+          </div>
+
+          {%- comment -%} Cricket-Wireless: ship-to selector + shipping rate picker {%- endcomment -%}
+          <div id="vc-cricket-shipping" hidden>
+            <div class="vc-total-row vc-cricket-row" style="margin-top:14px">
+              <span>Ship to</span>
+              <select id="vc-cricket-addr-sel" class="vc-cricket-select"><option>Loading…</option></select>
+            </div>
+            <div class="vc-total-row vc-cricket-row" id="vc-cricket-rate-row" hidden>
+              <span>Shipping</span>
+              <span id="vc-cricket-rate-cell" class="vc-cricket-rate-cell"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Next steps {%- endcomment -%}
+      {%- if section.settings.next_steps_label != blank or section.blocks.size > 0 -%}
+        <div class="vc-summary-section vc-summary-section--chalk">
+          <div class="vc-next-steps">
+            {%- if section.settings.next_steps_label != blank -%}
+              <div class="vc-ns-label">{{ section.settings.next_steps_label }}</div>
+            {%- endif -%}
+            {%- assign ns_blocks = section.blocks | where: 'type', 'next_step' -%}
+            {%- if ns_blocks.size > 0 -%}
+              <ul class="vc-ns-list">
+                {%- for block in ns_blocks -%}
+                  <li {{ block.shopify_attributes }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6L9 17l-5-5"/></svg>
+                    {{ block.settings.text }}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Order note {%- endcomment -%}
+      <div class="vc-summary-section">
+        <div class="vc-note-wrap{% if cart.note != blank %} is-open{% endif %}">
+          <button type="button" class="vc-note-toggle" data-vc-note-toggle>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Add order note
+          </button>
+          <div class="vc-note-body">
+            <div>
+              <textarea class="vc-note-input" rows="3" placeholder="Add a note to your order…" data-vc-note>{{ cart.note }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} CTA {%- endcomment -%}
+      <div class="vc-cta-area">
+        <button type="button" class="vc-checkout-btn vc-export-btn" id="vc-cricket-export" hidden>
+          <span class="vc-export-label">Export XLS</span>
+          <svg class="vc-export-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <svg class="vc-export-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-dasharray="28 57" stroke-linecap="round"/></svg>
+        </button>
+        <a href="{{ checkout_url }}" class="vc-checkout-btn" id="vc-checkout-link">
+          <span class="vc-checkout-label">{{ section.settings.checkout_label | default: 'Proceed to checkout' }}</span>
+          <svg class="vc-checkout-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          <svg class="vc-checkout-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-dasharray="28 57" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+
+      {%- comment -%} Trust row {%- endcomment -%}
+      {%- assign trust_blocks = section.blocks | where: 'type', 'trust_item' -%}
+      {%- if trust_blocks.size > 0 -%}
+        <div class="vc-trust-row">
+          {%- for block in trust_blocks -%}
+            <div class="vc-trust-item" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon == 'shield' -%}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              {%- elsif block.settings.icon == 'truck' -%}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 5v3h-7V8zM5.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM18.5 21a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg>
+              {%- elsif block.settings.icon == 'home' -%}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10"/></svg>
+              {%- endif -%}
+              {{ block.settings.label }}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </aside>
+
+  </div>
+
+  {%- comment -%} Saved carts modals (shown by JS for B2B customers only) {%- endcomment -%}
+  <div id="vc-save-modal" class="vc-sc-overlay" hidden>
+    <div class="vc-sc-dialog">
+      <div class="vc-sc-head">Save cart</div>
+      <p class="vc-sc-sub">Give this cart a name. If a saved cart with that name already exists it will be overwritten.</p>
+      <input class="vc-sc-input" id="vc-save-name" type="text" placeholder="e.g. Q3 restock" maxlength="200">
+      <div class="vc-sc-err" id="vc-save-err" hidden></div>
+      <div class="vc-sc-actions">
+        <button class="vc-sc-btn-cancel" id="vc-save-cancel">Cancel</button>
+        <button class="vc-sc-btn-primary" id="vc-save-confirm">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vc-load-modal" class="vc-sc-overlay" hidden>
+    <div class="vc-sc-dialog">
+      <div class="vc-sc-head">Saved carts</div>
+      <div id="vc-load-list" class="vc-sc-list"></div>
+      <div class="vc-sc-actions" style="margin-top:16px;">
+        <button class="vc-sc-btn-cancel" id="vc-load-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+</valor-cart-page>
+</div>
+
+{% stylesheet %}
+.vc-layout--page_width {}
+valor-cart-page {
+  --vc-navy: #2B3A55;
+  --vc-navy-deep: #1D2636;
+  --vc-sky-pale: #D9EEF6;
+  --vc-crimson: #C54448;
+  --vc-crimson-soft: #F5DADB;
+  --vc-chalk: #F4F5F2;
+  --vc-parchment: #EEEDE7;
+  --vc-steel: #66717E;
+  --vc-steel-light: #A8B0B8;
+  --vc-ink: #121820;
+  --vc-white: #FFFFFF;
+  --vc-green: #2d7a3f;
+  --vc-green-soft: #E1F0E3;
+  --vc-amber: #B07E1A;
+  --vc-border: #0002;
+  --vc-border-strong: #0003;
+  --vc-accent: var(--vc-crimson);
+
+  display: block;
+  background: var(--vc-chalk);
+  color: var(--vc-ink);
+  font-family: var(--font-body--family, -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+valor-cart-page.vc-layout--page_width:not(.vc-dist-mode) {}
+valor-cart-page .vc-serif {
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+valor-cart-page .vc-dist-banner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border-radius: 10px;
+  padding: 12px 12px 12px 16px;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+
+	background: #FBF1DA;
+  	border: 1px solid rgba(176, 126, 26, 0.25);
+	color: #5C4416;
+}
+
+valor-cart-page .vc-dist-banner[hidden] { display: none; }
+
+valor-cart-page .vc-dist-banner--show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+valor-cart-page .vc-dist-banner svg { flex-shrink: 0; }
+
+valor-cart-page .vc-dist-banner__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--vc-navy-deep);
+  color: var(--vc-chalk);
+  border: none;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.15s;
+  width: 160px;
+}
+
+valor-cart-page .vc-dist-banner__btn span {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+valor-cart-page .vc-dist-banner__btn:hover { background: var(--vc-navy); }
+
+/*
+valor-cart-page.vc-dist-mode .vc-dist-banner {
+  background: var(--vc-white);
+  border-color: var(--vc-border-strong);
+  color: var(--vc-navy-deep);
+}
+*/
+/*
+valor-cart-page.vc-dist-mode .vc-dist-banner {
+  background: var(--vc-navy-deep);
+  border-color: transparent;
+  color: var(--vc-chalk);
+}
+valor-cart-page.vc-dist-mode .vc-dist-banner svg { color: var(--vc-chalk); }
+valor-cart-page.vc-dist-mode .vc-dist-banner__btn {
+  background: rgba(244, 245, 242, 0.15);
+  color: var(--vc-chalk);
+}
+valor-cart-page.vc-dist-mode .vc-dist-banner__btn:hover { background: rgba(244, 245, 242, 0.25); }
+*/
+
+/* Toggle simple/dist content — use valor-cart-page .vc-dist-banner prefix for specificity > linter rule */
+valor-cart-page .vc-dist-banner .vc-dist-banner__icon--dist,
+valor-cart-page .vc-dist-banner .vc-dist-banner__text--dist,
+valor-cart-page .vc-dist-banner .vc-dist-banner__btn--dist { display: none; }
+
+valor-cart-page.vc-dist-mode .vc-dist-banner .vc-dist-banner__icon--simple,
+valor-cart-page.vc-dist-mode .vc-dist-banner .vc-dist-banner__text--simple,
+valor-cart-page.vc-dist-mode .vc-dist-banner .vc-dist-banner__btn--simple { display: none; }
+
+valor-cart-page.vc-dist-mode .vc-dist-banner .vc-dist-banner__icon--dist,
+valor-cart-page.vc-dist-mode .vc-dist-banner .vc-dist-banner__text--dist,
+valor-cart-page.vc-dist-mode .vc-dist-banner .vc-dist-banner__btn--dist { display: inline-flex; align-items: center; gap: 5px; }
+valor-cart-page a { color: inherit; text-decoration: none; }
+valor-cart-page button { font-family: inherit; cursor: pointer; border: none; background: none; line-height: 1.5; }
+valor-cart-page img { max-width: 100%; display: block; }
+valor-cart-page input { font-family: inherit; }
+
+/* Page head */
+valor-cart-page .vc-page-head {
+  margin: auto;
+}
+valor-cart-page.vc-dist-mode .vc-page-head {
+  max-width: none;
+}
+
+valor-cart-page .vc-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--vc-steel);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+valor-cart-page .vc-crumbs a { color: var(--vc-steel); transition: color 0.15s; }
+valor-cart-page .vc-crumbs a:hover { color: var(--vc-navy); }
+valor-cart-page .vc-crumb-sep { color: var(--vc-steel-light); }
+valor-cart-page .vc-crumb-current { color: var(--vc-navy-deep); }
+
+valor-cart-page .vc-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+}
+valor-cart-page .vc-head-left h1 {
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: 56px;
+  line-height: 1;
+  color: var(--vc-navy-deep);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+valor-cart-page .vc-head-left h1 em { color: var(--vc-steel); font-style: italic; }
+valor-cart-page .vc-head-meta {
+  display: flex;
+  gap: 32px;
+  margin-top: 18px;
+}
+valor-cart-page .vc-m { line-height: 1.3; }
+valor-cart-page .vc-m-lbl {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vc-steel);
+  font-weight: 500;
+}
+valor-cart-page .vc-m-val {
+  font-size: 14px;
+  color: var(--vc-navy-deep);
+  font-weight: 500;
+  margin-top: 4px;
+}
+valor-cart-page .vc-m-val.vc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--vc-sky-pale);
+  color: var(--vc-navy);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+valor-cart-page .vc-head-right { display: flex; gap: 8px; }
+valor-cart-page .vc-btn-outline {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--vc-border-strong);
+  background: var(--vc-white);
+  color: var(--vc-navy);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+valor-cart-page .vc-btn-outline:hover { border-color: var(--vc-navy); }
+valor-cart-page .vc-btn-outline[hidden] { display: none; }
+
+/* Layout */
+valor-cart-page .vc-layout {
+  margin: 24px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: flex-start;
+}
+valor-cart-page.vc-layout--full_width .vc-layout {
+  max-width: none;
+}
+
+/* Cart lines */
+valor-cart-page .vc-cart-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+valor-cart-page .vc-empty {
+  background: var(--vc-white);
+  border: 1px solid var(--vc-border);
+  border-radius: 14px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--vc-steel);
+  font-size: 15px;
+}
+
+valor-cart-page .vc-line {
+  background: var(--vc-white);
+  border: 1px solid var(--vc-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 80px 1fr 160px 120px 36px;
+  gap: 18px;
+  align-items: center;
+  transition: border-color 0.15s, opacity 0.2s, transform 0.2s;
+}
+valor-cart-page .vc-line:hover { border-color: var(--vc-border-strong); }
+/*valor-cart-page .vc-line--low-stock { border-left: 3px solid var(--vc-amber); }*/
+
+valor-cart-page .vc-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  background: var(--vc-parchment);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+valor-cart-page .vc-thumb img { width: 80px; height: 80px; object-fit: cover; transition: opacity 0.2s; }
+valor-cart-page .vc-thumb-placeholder { display: flex; align-items: center; justify-content: center; }
+valor-cart-page .vc-thumb[data-quick-view-url] { cursor: pointer; position: relative; }
+valor-cart-page .vc-thumb-zoom {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.36); color: #fff;
+  border-radius: 12px;
+  opacity: 0; transition: opacity 0.2s;
+  pointer-events: none;
+}
+valor-cart-page .vc-thumb[data-quick-view-url]:hover .vc-thumb-zoom { opacity: 1; }
+valor-cart-page .vc-thumb[data-quick-view-url]:hover img { opacity: 0.75; }
+
+valor-cart-page .vc-line-info { min-width: 0; line-height: 1.3; }
+valor-cart-page .vc-brand {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vc-accent);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+valor-cart-page .vc-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vc-navy-deep);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+valor-cart-page .vc-name a { color: inherit; }
+valor-cart-page .vc-name a:hover { text-decoration: underline; }
+valor-cart-page .vc-variant { font-size: 13px; color: var(--vc-steel); font-weight: 400; }
+valor-cart-page .vc-sku {
+  font-family: ui-monospace, 'SF Mono', Monaco, monospace;
+  font-size: 11px;
+  color: var(--vc-navy);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+  display: inline-block;
+  background: var(--vc-sky-pale);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+valor-cart-page .vc-stock-meta {
+  font-size: 11px;
+  color: var(--vc-steel);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+valor-cart-page .vc-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vc-green);
+  flex-shrink: 0;
+}
+valor-cart-page .vc-dot--low { background: var(--vc-amber); }
+valor-cart-page .vc-dot--out { background: var(--vc-steel-light); }
+
+valor-cart-page .vc-qty-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+valor-cart-page .vc-qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--vc-border-strong);
+  border-radius: 999px;
+  background: var(--vc-white);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+valor-cart-page .vc-qty:focus-within { border-color: var(--vc-navy-deep); }
+valor-cart-page .vc-qty-btn {
+  width: 30px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vc-navy-deep);
+  font-size: 14px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+valor-cart-page .vc-qty-btn:hover { background: var(--vc-chalk); }
+valor-cart-page .vc-qty-input {
+  width: 48px;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vc-navy-deep);
+  background: transparent;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+valor-cart-page .vc-qty-input::-webkit-outer-spin-button,
+valor-cart-page .vc-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+valor-cart-page .vc-unit-price { font-size: 10px; color: var(--vc-steel); font-weight: 500; }
+
+valor-cart-page .vc-line-sub { text-align: right; line-height: 1.3; }
+valor-cart-page .vc-line-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--vc-navy-deep);
+  letter-spacing: -0.01em;
+}
+valor-cart-page .vc-line-original {
+  font-size: 11px;
+  color: var(--vc-steel);
+  margin-top: 2px;
+  text-decoration: line-through;
+}
+
+valor-cart-page .vc-remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--vc-steel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+valor-cart-page .vc-remove:hover { background: var(--vc-crimson-soft); color: var(--vc-crimson); }
+
+/* Summary sidebar */
+valor-cart-page .vc-summary {
+  background: var(--vc-white);
+  border: 1px solid var(--vc-border);
+  border-radius: 16px;
+  overflow: hidden;
+  position: sticky;
+  top: 96px;
+}
+valor-cart-page .vc-summary-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--vc-border);
+}
+valor-cart-page .vc-summary-head h2 {
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: 28px;
+  color: var(--vc-navy-deep);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  line-height: 1;
+}
+valor-cart-page .vc-summary-head h2 em { color: var(--vc-steel); font-style: italic; }
+valor-cart-page .vc-summary-sub { font-size: 12px; color: var(--vc-steel); margin-top: 6px; }
+
+valor-cart-page .vc-summary-section {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--vc-border);
+}
+valor-cart-page .vc-summary-section--chalk { background: var(--vc-chalk); }
+
+valor-cart-page .vc-note-toggle {
+  display: flex; align-items: center; gap: 6px; padding: 0;
+  font-size: 12px; font-family: inherit; color: var(--vc-steel-light);
+  transition: color 0.15s;
+}
+valor-cart-page .vc-note-toggle:hover { color: var(--vc-navy-deep); }
+valor-cart-page .vc-note-body {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+valor-cart-page .vc-note-body > div { overflow: hidden; }
+valor-cart-page .vc-note-wrap.is-open .vc-note-body { grid-template-rows: 1fr; }
+valor-cart-page .vc-note-input {
+  display: block; width: 100%; resize: vertical; box-sizing: border-box;
+  margin-top: 10px; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid var(--vc-border); background: var(--vc-white);
+  font-size: 13px; font-family: inherit; color: var(--vc-navy-deep);
+  outline: none; transition: border-color 0.15s;
+}
+valor-cart-page .vc-note-input:focus { border-color: var(--vc-navy); }
+valor-cart-page .vc-note-input::placeholder { color: var(--vc-steel-light); opacity: 0.6; }
+
+valor-cart-page .vc-section-title {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vc-steel);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+valor-cart-page .vc-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+valor-cart-page .vc-stat {
+  background: var(--vc-chalk);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+valor-cart-page .vc-stat-lbl {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vc-steel);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+valor-cart-page .vc-stat-val {
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: 22px;
+  color: var(--vc-navy-deep);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+valor-cart-page .vc-totals { }
+valor-cart-page .vc-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--vc-steel);
+}
+valor-cart-page .vc-total-val { color: var(--vc-navy-deep); font-weight: 500; }
+valor-cart-page .vc-total-row--savings { color: var(--vc-green); }
+valor-cart-page .vc-total-row--savings .vc-total-val { color: var(--vc-green); font-weight: 600; }
+valor-cart-page .vc-total-row--grand {
+  border-top: 1px solid var(--vc-border);
+  padding: 14px 0 4px;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--vc-navy-deep);
+  font-weight: 600;
+}
+valor-cart-page .vc-total-row[hidden] { display: none; }
+valor-cart-page .vc-total-row--grand .vc-total-val {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+valor-cart-page .vc-freight-box {
+  margin: 12px 0 8px;
+  padding: 12px 14px;
+  background: var(--vc-chalk);
+  border-radius: 10px;
+}
+valor-cart-page .vc-freight-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+valor-cart-page .vc-freight-lbl { color: var(--vc-steel); font-weight: 500; }
+valor-cart-page .vc-freight-val { color: var(--vc-green); font-weight: 600; }
+valor-cart-page .vc-freight-bar {
+  height: 4px;
+  background: var(--vc-parchment);
+  border-radius: 2px;
+  position: relative;
+}
+valor-cart-page .vc-freight-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--vc-green);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+valor-cart-page .vc-ns-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vc-steel);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+valor-cart-page .vc-ns-list { list-style: none; padding: 0; margin: 0; }
+valor-cart-page .vc-ns-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--vc-navy-deep);
+  font-weight: 500;
+}
+valor-cart-page .vc-ns-list li svg { color: var(--vc-accent); flex-shrink: 0; }
+
+valor-cart-page .vc-cta-area { padding: 18px 24px; display: flex; flex-direction: column; gap: 10px; }
+valor-cart-page .vc-checkout-btn {
+  background: var(--vc-navy-deep);
+  color: var(--vc-chalk);
+  border-radius: 999px;
+  padding: 16px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s;
+}
+valor-cart-page .vc-checkout-btn:hover { background: var(--vc-accent); }
+valor-cart-page .vc-checkout-btn[hidden] { display: none; }
+valor-cart-page .vc-checkout-spinner { display: none; animation: vc-spin 0.8s linear infinite; }
+valor-cart-page .vc-checkout-btn[data-loading] { pointer-events: none; opacity: 0.8; }
+valor-cart-page .vc-checkout-btn[data-loading] .vc-checkout-label,
+valor-cart-page .vc-checkout-btn[data-loading] .vc-checkout-arrow { display: none; }
+valor-cart-page .vc-checkout-btn[data-loading] .vc-checkout-spinner { display: block; }
+@keyframes vc-spin { to { transform: rotate(360deg); } }
+valor-cart-page .vc-export-btn { background: #154; color: #fff; border: none; cursor: pointer; }
+valor-cart-page .vc-export-btn:hover { background: #375; }
+valor-cart-page .vc-export-spinner { display: none; animation: vc-spin 0.8s linear infinite; }
+valor-cart-page .vc-export-btn[data-loading] { opacity: 0.7; cursor: not-allowed; pointer-events: none; }
+valor-cart-page .vc-export-btn[data-loading] .vc-export-icon { display: none; }
+valor-cart-page .vc-export-btn[data-loading] .vc-export-spinner { display: block; }
+valor-cart-page .vc-cricket-row { align-items: center; }
+valor-cart-page .vc-cricket-select { font-size: 12px; border: 1px solid var(--vc-border); border-radius: 6px; padding: 3px 6px; width: 250px; background: #fff; }
+valor-cart-page .vc-cricket-rate-cell select { font-size: 12px; border: 1px solid var(--vc-border); border-radius: 6px; padding: 3px 6px; width: 250px; background: #fff; }
+valor-cart-page .vc-cricket-rate-cell em { font-size: 12px; color: var(--vc-steel); font-style: normal; }
+valor-cart-page .vc-qty-error { font-size: 11px; color: #c0392b; margin-top: 4px; grid-column: 1 / -1; }
+
+valor-cart-page .vc-trust-row {
+  padding: 16px 24px;
+  border-top: 1px solid var(--vc-border);
+  display: flex;
+  gap: 18px;
+  font-size: 11px;
+  color: var(--vc-steel);
+  align-items: center;
+}
+valor-cart-page .vc-trust-item { display: flex; align-items: center; gap: 6px; }
+valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
+
+/* Responsive */
+@media screen and (max-width: 1100px) {
+  valor-cart-page .vc-layout { grid-template-columns: 1fr; }
+  valor-cart-page .vc-summary { position: static; }
+}
+@media screen and (max-width: 749px) {
+  valor-cart-page .vc-page-head { padding-top: 24px; padding-bottom: 16px; }
+  valor-cart-page .vc-head-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  valor-cart-page .vc-head-left h1 { font-size: 36px; }
+  valor-cart-page .vc-head-right { flex-direction: column; align-self: stretch; }
+  valor-cart-page .vc-head-right .vc-btn-outline { justify-content: center; }
+  valor-cart-page .vc-head-meta { gap: 16px; flex-wrap: wrap; }
+  valor-cart-page .vc-line {
+    grid-template-columns: 48px 1fr 110px;
+    gap: 12px;
+  }
+  valor-cart-page .vc-line-sub,
+  valor-cart-page .vc-remove { display: none; }
+}
+
+/* ── Saved carts modals ─────────────────────────────── */
+.vc-sc-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+}
+.vc-sc-overlay[hidden] { display: none; }
+.vc-sc-dialog {
+  background: #fff; border-radius: 16px; padding: 28px 32px;
+  width: 460px; max-width: calc(100vw - 32px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+.vc-sc-head { font-size: 20px; font-weight: 700; color: var(--vc-navy-deep, #0f172a); margin-bottom: 8px; }
+.vc-sc-sub { font-size: 13px; color: var(--vc-steel, #64748b); margin-bottom: 16px; line-height: 1.5; }
+.vc-sc-input {
+  width: 100%; box-sizing: border-box; border: 1px solid var(--vc-border, #e2e8f0);
+  border-radius: 8px; padding: 9px 12px; font-size: 14px; font-family: inherit;
+  margin-bottom: 8px; outline: none; display: block;
+}
+.vc-sc-input:focus { border-color: var(--vc-navy, #1e3a5f); }
+.vc-sc-err { color: #dc2626; font-size: 12px; margin-bottom: 12px; padding: 6px 10px; background: #fef2f2; border-radius: 6px; }
+.vc-sc-err[hidden] { display: none; }
+.vc-sc-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.vc-sc-btn-cancel { background: none; border: 1px solid var(--vc-border, #e2e8f0); border-radius: 8px; padding: 8px 18px; font-size: 13px; font-family: inherit; cursor: pointer; }
+.vc-sc-btn-primary { background: var(--vc-navy, #1e3a5f); color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.vc-sc-btn-primary:disabled { opacity: 0.6; cursor: default; }
+.vc-sc-list { max-height: 340px; overflow-y: auto; }
+.vc-sc-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--vc-border, #e2e8f0); }
+.vc-sc-row:last-child { border-bottom: none; }
+.vc-sc-row-info { flex: 1; min-width: 0; }
+.vc-sc-row-name { font-size: 14px; font-weight: 600; color: var(--vc-navy-deep, #0f172a); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vc-sc-row-meta { font-size: 11px; color: var(--vc-steel, #64748b); margin-top: 2px; }
+.vc-sc-btn-load { background: var(--vc-navy, #1e3a5f); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap; }
+.vc-sc-btn-del { background: none; border: 1px solid #fca5a5; color: #dc2626; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-family: inherit; cursor: pointer; white-space: nowrap; }
+.vc-sc-btn-del:disabled { opacity: 0.5; cursor: default; }
+.vc-sc-empty { text-align: center; color: var(--vc-steel, #64748b); font-size: 13px; padding: 28px 0; }
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  class ValorCartPage extends HTMLElement {
+    connectedCallback() {
+      // Hide the multi-ship section immediately so it doesn't flash on load
+      this._distSection = document.querySelector('multi-ship')?.closest('.shopify-section') || null;
+      if (this._distSection) this._distSection.style.display = 'none';
+
+      this._bindEvents();
+      this._initCricket();
+      this._initSavedCarts();
+    }
+
+    _bindEvents() {
+      // Qty steppers
+      this.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-vc-step]');
+        if (!btn) return;
+        const line = btn.closest('[data-vc-line]');
+        if (!line) return;
+        const input = line.querySelector('[data-vc-qty]');
+        if (!input) return;
+        const step = parseInt(btn.getAttribute('data-vc-step'), 10);
+        const cur = Math.max(0, parseInt(input.value || '0', 10));
+        const next = Math.max(0, cur + step);
+        input.value = next;
+        this._updateLineAjax(line, next);
+      });
+
+      // Note toggle
+      this.addEventListener('click', (e) => {
+        const toggle = e.target.closest('[data-vc-note-toggle]');
+        if (!toggle) return;
+        const wrap = toggle.closest('.vc-note-wrap');
+        wrap.classList.toggle('is-open');
+        if (wrap.classList.contains('is-open')) wrap.querySelector('[data-vc-note]')?.focus();
+      });
+
+      // Note save
+      this.addEventListener('change', (e) => {
+        const note = e.target.closest('[data-vc-note]');
+        if (!note) return;
+        fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note: note.value })
+        });
+      });
+
+      this.addEventListener('change', (e) => {
+        const input = e.target.closest('[data-vc-qty]');
+        if (!input) return;
+        const line = input.closest('[data-vc-line]');
+        if (!line) return;
+        const qty = Math.max(0, parseInt(input.value || '0', 10));
+        input.value = qty;
+        this._updateLineAjax(line, qty);
+      });
+
+      // Remove
+      this.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-vc-remove]');
+        if (!btn) return;
+        const line = btn.closest('[data-vc-line]');
+        if (!line) return;
+        this._updateLineAjax(line, 0, true);
+      });
+
+      // Clear cart
+      this.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-vc-clear-cart]')) return;
+        if (!confirm('Remove all items from your cart?')) return;
+        this._clearCart();
+      });
+
+      // Single-address checkout — write a single-entry _order so order processing
+      // has the BC customer info even without the distribution component.
+      const checkoutLinkEl = this.querySelector('#vc-checkout-link');
+      if (checkoutLinkEl) {
+        checkoutLinkEl.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const href = checkoutLinkEl.href;
+          checkoutLinkEl.dataset.loading = '';
+          try {
+            const [customerData, cartRes] = await Promise.all([
+              window.__vaCustomerInfo,
+              fetch('/cart.js'),
+            ]);
+            const shipTo = customerData?.defaultShipTo || null;
+            const cart  = cartRes.ok ? await cartRes.json() : null;
+            const erpNo = customerData?.No || customerData?.no || '';
+            if (!erpNo) { window.location.href = href; return; }
+
+            const items = {};
+            if (cart?.items?.length) {
+              for (const item of cart.items) {
+                const vid = String(item.variant_id);
+                items[vid] = (items[vid] || 0) + item.quantity;
+              }
+            }
+
+            const attrs = {
+              _order: JSON.stringify([{
+                id:          shipTo?.systemId   || '',
+                bc_customer: shipTo?.customerNo || '',
+                bc_ship_to:  shipTo?.code       || '',
+                addr:        shipTo?.addr       || '',
+                contact:     { name: shipTo?.contact || '', phone: shipTo?.phoneNo || '' },
+                items,
+              }]),
+              _address: JSON.stringify([{
+                id:           	shipTo?.systemId          || '',
+                bc_customer:   	shipTo?.customerNo        || '',
+                bc_ship_to:    	shipTo?.code              || '',
+                company:      	shipTo?.company           || '',
+                address:       	shipTo?.address           || '',
+                address2:      	shipTo?.address2          || '',
+                city:          	shipTo?.city              || '',
+                contact:       	shipTo?.contact           || '',
+                phone:       	shipTo?.phoneNo           || '',
+                country: 		shipTo?.countryRegionCode || '',
+                zip:          	shipTo?.postCode          || '',
+                state:         	shipTo?.state             || '',
+              }]),
+              _lineitems: '',
+            };
+
+            await fetch('/cart/update.js', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ attributes: attrs }),
+            });
+          } catch (_) {}
+          window.location.href = href;
+        });
+      }
+
+      // Multi-location toggle
+      this.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-vc-dist-toggle]')) return;
+        this._toggleDistView();
+      });
+
+      // Show banner as soon as customerInfo resolves with multiAddress true
+      window.__vaCustomerInfo?.then((data) => {
+        //if (!data?.multiAddress) return;
+        const banner = this.querySelector('.vc-dist-banner');
+        if (banner) {
+          banner.removeAttribute('hidden');
+          requestAnimationFrame(() => banner.classList.add('vc-dist-banner--show'));
+        }
+      });
+    }
+
+    _toggleDistView() {
+      const layout = this.querySelector('.vc-layout');
+      const btn    = this.querySelector('[data-vc-dist-toggle]');
+      const label  = btn?.querySelector('[data-vc-toggle-label]');
+      const isDistMode = this._distSection && this._distSection.style.display !== 'none';
+
+      if (isDistMode) {
+        if (this._distSection) this._distSection.style.display = 'none';
+        if (layout) layout.style.display = '';
+        if (label) label.textContent = btn.dataset.labelDist || 'Multi-location shipping';
+        this.classList.remove('vc-dist-mode');
+      } else {
+        if (this._distSection) this._distSection.style.display = '';
+        if (layout) layout.style.display = 'none';
+        if (label) label.textContent = btn.dataset.labelCart || 'Simple cart view';
+        this.classList.add('vc-dist-mode');
+        requestAnimationFrame(() => {
+          const multiShip = document.querySelector('multi-ship');
+          if (!multiShip) return;
+          if (multiShip._addressLoadFailed) {
+            // Previous address fetch failed — retry now that the user is switching to this view
+            multiShip.reloadTable();
+          } else {
+            multiShip.syncCartWidth();
+            multiShip.syncHeaderOffset();
+          }
+        });
+      }
+    }
+
+    _updateLineAjax(lineEl, qty, remove) {
+      const key = lineEl.getAttribute('data-key');
+      if (!key) return;
+
+      lineEl.style.opacity = '0.5';
+      lineEl.style.pointerEvents = 'none';
+
+      fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: key, quantity: remove ? 0 : qty }),
+      })
+        .then(async (r) => {
+          if (!r.ok) {
+            // 422 = quantity exceeds inventory — re-fetch real cart and snap input back
+            const errData = await r.json().catch(() => ({}));
+            const cart = await fetch('/cart.js').then((c) => c.json()).catch(() => null);
+            lineEl.style.opacity = '1';
+            lineEl.style.pointerEvents = '';
+            if (cart) {
+              const actual = cart.items.find((i) => i.key === key);
+              const actualQty = actual ? actual.quantity : 0;
+              const qtyInput = lineEl.querySelector('[data-vc-qty]');
+              if (qtyInput) qtyInput.value = actualQty;
+              const unitCents = parseInt(lineEl.getAttribute('data-unit'), 10) || 0;
+              const subEl = lineEl.querySelector('[data-vc-subtotal]');
+              if (subEl) subEl.textContent = this._money((unitCents * actualQty) / 100);
+              this._applyCartData(cart);
+            }
+            const msg = errData.description || errData.message || 'Quantity not available';
+            const errEl = lineEl.querySelector('.vc-qty-error') || Object.assign(document.createElement('div'), { className: 'vc-qty-error' });
+            errEl.textContent = msg;
+            if (!errEl.parentNode) lineEl.appendChild(errEl);
+            setTimeout(() => errEl.remove(), 4000);
+            return;
+          }
+          const cart = await r.json();
+          if (remove || qty === 0) {
+            lineEl.style.transform = 'translateX(12px)';
+            lineEl.style.opacity = '0';
+            setTimeout(() => {
+              lineEl.remove();
+              this._applyCartData(cart);
+            }, 200);
+          } else {
+            lineEl.style.opacity = '1';
+            lineEl.style.pointerEvents = '';
+            const unitCents = parseInt(lineEl.getAttribute('data-unit'), 10) || 0;
+            const subEl = lineEl.querySelector('[data-vc-subtotal]');
+            if (subEl) subEl.textContent = this._money((unitCents * qty) / 100);
+            this._applyCartData(cart);
+          }
+        })
+        .catch(() => {
+          lineEl.style.opacity = '1';
+          lineEl.style.pointerEvents = '';
+        });
+    }
+
+    _clearCart() {
+      const items = {};
+      this.querySelectorAll('[data-vc-line]').forEach((el) => {
+        const key = el.getAttribute('data-key');
+        if (key) items[key] = 0;
+      });
+      fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ updates: items }),
+      })
+        .then((r) => r.json())
+        .then(() => { location.reload(); });
+    }
+
+    _applyCartData(cart) {
+      const total = cart.total_price;
+      const itemCount = cart.item_count;
+      const lineCount = cart.items ? cart.items.length : 0;
+
+      // Head meta
+      const lineCountEl = this.querySelector('[data-vc-line-count]');
+      if (lineCountEl) lineCountEl.textContent = lineCount + (lineCount === 1 ? ' line item' : ' line items');
+      const totalUnitsEl = this.querySelector('[data-vc-total-units]');
+      if (totalUnitsEl) totalUnitsEl.textContent = itemCount.toLocaleString('en-US');
+
+      // Summary stats
+      const statLines = this.querySelector('[data-vc-stat-lines]');
+      if (statLines) statLines.textContent = lineCount;
+      const statUnits = this.querySelector('[data-vc-stat-units]');
+      if (statUnits) statUnits.textContent = itemCount.toLocaleString('en-US');
+
+      // Totals
+      const subDisplay = this.querySelector('[data-vc-subtotal-display]');
+      if (subDisplay) subDisplay.textContent = this._money(total / 100);
+      const grandTotal = this.querySelector('[data-vc-grand-total]');
+      if (grandTotal) grandTotal.textContent = this._money(total / 100);
+
+      // Freight bar
+      const freightBox = this.querySelector('[data-vc-freight]');
+      if (freightBox) {
+        const threshold = parseInt(freightBox.getAttribute('data-threshold'), 10) || 0;
+        if (threshold > 0) {
+          const fill = this.querySelector('[data-vc-freight-fill]');
+          const pct = Math.min(100, Math.round((total / threshold) * 100));
+          if (fill) fill.style.width = pct + '%';
+        }
+      }
+
+      // Cart count bubble (theme header)
+      const displayCount = itemCount > 99 ? '99+' : (itemCount || '');
+      const countEls = document.querySelectorAll('[data-cart-count], .cart-count, .cart-bubble__text-count');
+      countEls.forEach((el) => {
+        el.textContent = displayCount;
+        if (el.classList.contains('cart-bubble__text-count')) {
+          el.dataset.cartCountValue = String(itemCount || 0);
+          el.classList.toggle('hidden', itemCount === 0);
+        }
+      });
+      document.querySelectorAll('.cart-bubble').forEach((el) => {
+        el.classList.toggle('visually-hidden', itemCount === 0);
+      });
+      document.querySelectorAll('cart-icon').forEach((el) => {
+        el.classList.toggle('header-actions__cart-icon--has-cart', itemCount > 0);
+      });
+
+      // Empty state
+      if (lineCount === 0) {
+        const linesContainer = this.querySelector('[data-vc-cart-lines]');
+        if (linesContainer) {
+          linesContainer.innerHTML = '<div class="vc-empty"><p>Your cart is empty.</p><a href="/collections/all" class="vc-btn-outline" style="display:inline-flex;margin-top:16px;">Browse products</a></div>';
+        }
+      }
+    }
+
+    _money(amount) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    }
+
+    // ── Cricket-Wireless single-address mode ─────────────────
+    async _initCricket() {
+      const auth = window.__cartDistributionAuth;
+      if (!auth?.customer_id) return;
+
+      // Hide checkout immediately for B2B customers — restore below if not CRICKET
+      const checkoutLink = this.querySelector('#vc-checkout-link');
+      if (checkoutLink) checkoutLink.style.display = 'none';
+
+      const customerData = await window.__vaCustomerInfo;
+      if (!customerData) { if (checkoutLink) checkoutLink.style.display = ''; return; }
+
+      const market = (customerData.shopifyMarketHandle || customerData.ShopifyMarketHandle || '').toUpperCase();
+      if (market !== 'CRICKET-WIRELESS') { if (checkoutLink) checkoutLink.style.display = ''; return; }
+
+      // CRICKET-WIRELESS: keep checkout hidden, show export, hide note toggle
+      const exportBtn = this.querySelector('#vc-cricket-export');
+      if (exportBtn) exportBtn.hidden = false;
+      const noteWrap = this.querySelector('.vc-note-wrap').parentNode;
+      if (noteWrap) noteWrap.style.display = 'none';
+
+      // Show shipping section
+      const cricketSection = this.querySelector('#vc-cricket-shipping');
+      if (cricketSection) cricketSection.hidden = false;
+
+      // Fetch ship-to addresses from BC (same source as ERP address form, so newly added addresses appear immediately)
+      let addresses = [];
+      try {
+        const d = await fetch(auth.proxy, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer_id: auth.customer_id, ts: auth.ts, token: auth.token, shop: Shopify.shop, action: 'address-list', include_children: true })
+        }).then(r => r.json()).catch(() => null);
+        if (d?.ok && d.addresses) addresses = d.addresses;
+      } catch (_) {}
+
+      const addrSel = this.querySelector('#vc-cricket-addr-sel');
+      if (!addrSel) return;
+
+      if (!addresses.length) {
+        addrSel.innerHTML = '<option>No addresses found</option>';
+        return;
+      }
+
+      addrSel.innerHTML = '';
+      addresses.forEach((a, i) => {
+        const opt = document.createElement('option');
+        opt.value = String(i);
+        opt.textContent = (a.code ? '[' + a.code + '] ' : '') + (a.name || '') + (a.city ? ' \u2013 ' + a.city : '');
+        addrSel.appendChild(opt);
+      });
+
+      // Fetch rates for initial address
+      await this._fetchCricketRates(auth, addresses[0]);
+
+      addrSel.addEventListener('change', async () => {
+        const idx = parseInt(addrSel.value) || 0;
+        await this._fetchCricketRates(auth, addresses[idx]);
+      });
+
+      if (exportBtn) {
+        exportBtn.addEventListener('click', () => this._exportCricketXLS(addrSel, addresses, customerData));
+      }
+    }
+
+    async _fetchCricketRates(auth, address) {
+      const rateRow   = this.querySelector('#vc-cricket-rate-row');
+      const rateCell  = this.querySelector('#vc-cricket-rate-cell');
+      const exportBtn = this.querySelector('#vc-cricket-export');
+      if (!rateRow || !rateCell) return;
+      rateRow.hidden = false;
+      rateCell.innerHTML = '<em>Fetching rates\u2026</em>';
+      if (exportBtn) exportBtn.dataset.loading = '';
+
+      try {
+        if (!address.address || !address.city || !address.postCode) {
+          rateCell.innerHTML = '<em>Address incomplete</em>';
+          return;
+        }
+
+        // Get cart totals
+        let subtotal = 0, weight = 0;
+        try {
+          const r = await fetch('/cart.js');
+          const cart = await r.json();
+          subtotal = (cart.total_price || 0) / 100;
+          weight   = (cart.items || []).reduce((s, i) => s + (i.grams || 0) * (i.quantity || 0), 0) / 453.592;
+        } catch (_) {}
+
+        let data = null;
+        try {
+          const resp = await fetch(auth.proxy, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              customer_id: auth.customer_id, ts: auth.ts, token: auth.token, shop: Shopify.shop,
+              action: 'checkout-options',
+              subtotal, weight: weight || 0.01,
+              ship_to: {
+                name:     address.name     || '',
+                address1: address.address  || '',
+                address2: address.address2 || '',
+                city:     address.city     || '',
+                state:    address.county   || '',
+                zip:      address.postCode || '',
+                country:  address.countryRegionCode || 'US',
+                phone:    address.phoneNo  || '',
+              }
+            })
+          });
+          const result = await resp.json();
+          if (!result.ok) throw new Error(result.error || 'API error');
+          data = result.data || {};
+        } catch (err) {
+          let msg = err.message.replace(/^HTTP \d+ - /, '').replace(/^[^:]+:\s*/, '').replace(/\s*\([^)]+\)\s*$/, '').trim();
+          rateCell.innerHTML = '<em>' + msg + '</em>';
+          return;
+        }
+
+        const rates      = data.rateOptions || [];
+        const validRates = rates.filter(r => {
+          if (r.errorMessages && r.errorMessages.length > 0) return false;
+          const name = (r.serviceDisplayName || ((r.carrierFriendlyName || '') + ' ' + (r.serviceCode || ''))).toLowerCase();
+          return !name.includes('pickup');
+        });
+
+        if (!validRates.length) {
+          rateCell.innerHTML = '<em>No rates available</em>';
+          return;
+        }
+
+        const select = document.createElement('select');
+        select.id = 'vc-cricket-rate-select';
+        for (const rate of validRates) {
+          const price = rate.buyerFreightChargeLCY ?? rate.amount ?? 0;
+          const name  = rate.serviceDisplayName || ((rate.carrierFriendlyName || '') + ' ' + (rate.serviceCode || '')).trim();
+          const opt   = document.createElement('option');
+          opt.value        = price;
+          opt.dataset.erp  = JSON.stringify({ agent: rate.bcShippingAgentCode ?? null, service: rate.bcShippingAgentServiceCode ?? null });
+          opt.textContent  = price == 0 ? name + ' - Free Shipping' : name + ' - $' + Number(price).toFixed(2);
+          select.appendChild(opt);
+        }
+        rateCell.innerHTML = '';
+        rateCell.appendChild(select);
+      } finally {
+        if (exportBtn) delete exportBtn.dataset.loading;
+      }
+    }
+
+    async _exportCricketXLS(addrSel, addresses, customerData) {
+      const idx     = parseInt(addrSel.value) || 0;
+      const address = addresses[idx];
+      const erpNo   = customerData.parentCustomerNo || customerData.No || customerData.no || '';
+
+      const SHIP_VIA_MAP = [
+        ['Pick-Up',           'PICK-UP', 'PICK-UP'],
+        ['Ground Shipping',   'FEDEX',   'GND'],
+        ['Next-Day Shipping', 'FEDEX',   '1DP'],
+        ['2-Day Shipping',    'FEDEX',   '2DA'],
+        ['3-Day Shipping',    'FEDEX',   '3DS'],
+      ];
+      const resolveShipVia = (agent, service) => {
+        for (const [out, a, s] of SHIP_VIA_MAP)
+          if (agent === a && service === s) return out;
+        return agent && service ? agent + ' ' + service : agent || service || '';
+      };
+
+      let shipVia = '';
+      const rateSel = this.querySelector('#vc-cricket-rate-select');
+      if (rateSel) {
+        let erp = {};
+        try { erp = JSON.parse(rateSel.options[rateSel.selectedIndex]?.dataset.erp || '{}'); } catch (_) {}
+        shipVia = resolveShipVia(erp.agent || '', erp.service || '');
+      }
+
+      let items = [];
+      try {
+        const r = await fetch('/cart.js');
+        const cart = await r.json();
+        items = cart.items || [];
+      } catch (_) {}
+
+      const vendorId  = '2012';
+      const shipToCode = address.code || address.bcShipToCode || '';
+      const acctId    = erpNo;
+
+      const headers = ['SHIP_TO_LOCATION_ID', 'VENDOR_ID', 'SKU', 'ORDER_QUANTITY', 'SHIP_VIA', 'VENDOR_ACCOUNT_ID', 'VENDOR_ACCOUNT_EMAIL'];
+      const rows    = [headers];
+      for (const item of items) {
+        if (!item.quantity) continue;
+        rows.push([shipToCode, vendorId, item.sku || '', item.quantity, shipVia, acctId, '']);
+      }
+      if (rows.length <= 1) return;
+
+      // Load SheetJS on demand to generate real XLSX binary
+      if (!window.XLSX) {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      const wb = window.XLSX.utils.book_new();
+      const ws = window.XLSX.utils.aoa_to_sheet(rows);
+      window.XLSX.utils.book_append_sheet(wb, ws, 'Order');
+      window.XLSX.writeFile(wb, 'cart-export.xls');
+    }
+
+    // ── Saved carts ───────────────────────────────────────
+    _initSavedCarts() {
+      const auth = window.__cartDistributionAuth;
+      if (!auth?.customer_id) return;
+
+      const saveBtn  = this.querySelector('[data-vc-save-cart]');
+      const loadBtn  = this.querySelector('[data-vc-load-saved]');
+      if (saveBtn) saveBtn.hidden = false;
+      if (loadBtn) loadBtn.hidden = false;
+
+      // ── Save modal ──
+      const saveModal   = document.getElementById('vc-save-modal');
+      const saveInput   = document.getElementById('vc-save-name');
+      const saveConfirm = document.getElementById('vc-save-confirm');
+      const saveCancel  = document.getElementById('vc-save-cancel');
+      const saveErr     = document.getElementById('vc-save-err');
+
+      if (saveBtn && saveModal) {
+        saveBtn.addEventListener('click', () => {
+          saveInput.value = '';
+          saveErr.hidden = true;
+          saveModal.hidden = false;
+          saveInput.focus();
+        });
+        saveCancel.addEventListener('click', () => { saveModal.hidden = true; });
+        saveModal.addEventListener('click', (e) => { if (e.target === saveModal) saveModal.hidden = true; });
+        saveInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveConfirm.click(); });
+
+        saveConfirm.addEventListener('click', async () => {
+          const name = saveInput.value.trim();
+          if (!name) { saveErr.textContent = 'Please enter a name.'; saveErr.hidden = false; return; }
+          saveConfirm.disabled = true;
+          saveConfirm.textContent = 'Saving…';
+          saveErr.hidden = true;
+          try {
+            const cart = await fetch('/cart.js').then((r) => r.json());
+            const items = (cart.items || []).map((i) => ({
+              variant_id: i.variant_id,
+              handle:     i.handle || '',
+              qty:        i.quantity,
+              title:      i.product_title || i.title,
+              sku:        i.sku || '',
+              image:      i.image || '',
+              price:      i.final_price,
+            }));
+            const r = await fetch(auth.proxy, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ customer_id: auth.customer_id, ts: auth.ts, token: auth.token, shop: Shopify.shop, action: 'saved-carts-save', name, items }),
+            });
+            const d = await r.json();
+            if (!d.ok) throw new Error(d.error || 'Save failed');
+            saveModal.hidden = true;
+          } catch (err) {
+            saveErr.textContent = err.message || 'Save failed.';
+            saveErr.hidden = false;
+          } finally {
+            saveConfirm.disabled = false;
+            saveConfirm.textContent = 'Save';
+          }
+        });
+      }
+
+      // ── Load modal ──
+      const loadModal  = document.getElementById('vc-load-modal');
+      const loadList   = document.getElementById('vc-load-list');
+      const loadClose  = document.getElementById('vc-load-close');
+
+      if (loadBtn && loadModal) {
+        loadBtn.addEventListener('click', async () => {
+          loadList.innerHTML = '<div class="vc-sc-empty">Loading…</div>';
+          loadModal.hidden = false;
+          try {
+            const r = await fetch(auth.proxy, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ customer_id: auth.customer_id, ts: auth.ts, token: auth.token, shop: Shopify.shop, action: 'saved-carts-list' }),
+            });
+            const d = await r.json();
+            if (!d.ok) throw new Error(d.error || 'Failed to load');
+            const carts = d.carts || [];
+            if (!carts.length) {
+              loadList.innerHTML = '<div class="vc-sc-empty">No saved carts yet.</div>';
+              return;
+            }
+            loadList.innerHTML = carts.map((c) => {
+              const safeName = c.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+              const count    = c.item_count;
+              const date     = new Date(c.saved_at).toLocaleDateString();
+              return `<div class="vc-sc-row" data-sc-name="${safeName}">
+                <div class="vc-sc-row-info">
+                  <div class="vc-sc-row-name">${safeName}</div>
+                  <div class="vc-sc-row-meta">${count} line item${count != 1 ? 's' : ''} &middot; ${date}</div>
+                </div>
+                <button class="vc-sc-btn-load" data-sc-load>Load</button>
+                <button class="vc-sc-btn-del"  data-sc-del>Delete</button>
+              </div>`;
+            }).join('');
+          } catch (err) {
+            loadList.innerHTML = `<div class="vc-sc-empty">${err.message || 'Failed to load saved carts.'}</div>`;
+          }
+        });
+
+        // Delegated click handler registered once — not inside the loadBtn handler
+        // to avoid stacking a new listener every time the modal is opened.
+        loadList.addEventListener('click', async (e) => {
+          const row = e.target.closest('[data-sc-name]');
+          if (!row) return;
+          const name = row.getAttribute('data-sc-name');
+          if (e.target.closest('[data-sc-load]')) {
+            await this._doLoadCart(name, '', auth, loadModal);
+          } else if (e.target.closest('[data-sc-del]')) {
+            if (!confirm(`Delete "${name}"?`)) return;
+            const delBtn = e.target.closest('[data-sc-del]');
+            delBtn.disabled = true;
+            try {
+              const r = await fetch(auth.proxy, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer_id: auth.customer_id, ts: auth.ts, token: auth.token, shop: Shopify.shop, action: 'saved-carts-delete', name }),
+              });
+              const d = await r.json();
+              if (!d.ok) throw new Error(d.error || 'Delete failed');
+              row.remove();
+              if (!loadList.querySelector('[data-sc-name]')) {
+                loadList.innerHTML = '<div class="vc-sc-empty">No saved carts yet.</div>';
+              }
+            } catch (err) {
+              alert(err.message || 'Delete failed.');
+              delBtn.disabled = false;
+            }
+          }
+        });
+
+        loadClose.addEventListener('click', () => { loadModal.hidden = true; });
+        loadModal.addEventListener('click', (e) => { if (e.target === loadModal) loadModal.hidden = true; });
+      }
+
+      // Auto-load a cart if navigated here from the account page
+      const pending = (() => { try { return sessionStorage.getItem('vc_load_cart'); } catch (_) { return null; } })();
+      if (pending) {
+        try { sessionStorage.removeItem('vc_load_cart'); } catch (_) {}
+        let cartName = pending, ownerErp = '';
+        try { const p = JSON.parse(pending); cartName = p.name; ownerErp = p.ownerErp || ''; } catch (_) {}
+        this._doLoadCart(cartName, ownerErp, auth, null);
+      }
+    }
+
+    async _doLoadCart(name, ownerErp, auth, modal) {
+      if (!confirm(`Load "${name}"? This will replace your current cart.`)) return;
+      try {
+        const body = { customer_id: auth.customer_id, ts: auth.ts, token: auth.token, shop: Shopify.shop, action: 'saved-carts-load', name };
+        if (ownerErp) body.owner_erp_no = ownerErp;
+        const r = await fetch(auth.proxy, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.error || 'Load failed');
+        const items = d.items || [];
+
+        await fetch('/cart/clear.js', { method: 'POST' });
+
+        // Add items in chunks of 25 to avoid payload limits with large carts
+        for (let i = 0; i < items.length; i += 25) {
+          const chunk = items.slice(i, i + 25);
+          await fetch('/cart/add.js', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: chunk.map((it) => ({ id: it.variant_id, quantity: it.qty })) }),
+          });
+        }
+
+        if (modal) modal.hidden = true;
+        location.reload();
+      } catch (err) {
+        alert(err.message || 'Failed to load cart.');
+      }
+    }
+  }
+
+  customElements.define('valor-cart-page', ValorCartPage);
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Valor cart",
+  "tag": "section",
+  "class": "valor-cart-section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "full_width", "label": "Full width" },
+        { "value": "page_width", "label": "Page width" }
+      ],
+      "default": "page_width"
+    },
+    {
+      "type": "text",
+      "id": "margin_top",
+      "label": "Space to the previous section",
+      "default": "20px"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom",
+      "label": "Space to the next section",
+      "default": "20px"
+    },
+    {
+      "type": "header",
+      "content": "Page header"
+    },
+    {
+      "type": "text",
+      "id": "crumb_home",
+      "label": "Breadcrumb home",
+      "default": "Shop"
+    },
+    {
+      "type": "text",
+      "id": "crumb_current",
+      "label": "Breadcrumb current",
+      "default": "Your cart"
+    },
+    {
+      "type": "text",
+      "id": "heading_before",
+      "label": "Heading (before italic)",
+      "default": "Your"
+    },
+    {
+      "type": "text",
+      "id": "heading_em",
+      "label": "Heading (italic part)",
+      "default": "cart."
+    },
+    {
+      "type": "text",
+      "id": "meta_items_label",
+      "label": "Items meta label",
+      "default": "Items"
+    },
+    {
+      "type": "text",
+      "id": "meta_units_label",
+      "label": "Units meta label",
+      "default": "Total units"
+    },
+    {
+      "type": "text",
+      "id": "meta_tier_label",
+      "label": "Tier meta label (leave blank to hide)"
+    },
+    {
+      "type": "text",
+      "id": "meta_tier_value",
+      "label": "Tier meta value",
+      "default": "Tier 1 pricing applied"
+    },
+    {
+      "type": "text",
+      "id": "cta_continue",
+      "label": "Continue shopping button",
+      "default": "Continue shopping"
+    },
+    {
+      "type": "text",
+      "id": "cta_clear",
+      "label": "Clear cart button",
+      "default": "Clear cart"
+    },
+    {
+      "type": "text",
+      "id": "cta_multi_ship",
+      "label": "Multi-location shipping button",
+      "default": "Multi-location shipping"
+    },
+    {
+      "type": "text",
+      "id": "banner_multi_ship",
+      "label": "Multi-address banner text",
+      "default": "You have multiple shipping addresses"
+    },
+    {
+      "type": "text",
+      "id": "banner_switch",
+      "label": "Multi-address banner button",
+      "default": "Switch"
+    },
+    {
+      "type": "text",
+      "id": "banner_dist_active",
+      "label": "Banner text (multi-ship active)",
+      "default": "Multi-location shipping active"
+    },
+    {
+      "type": "text",
+      "id": "banner_back",
+      "label": "Banner back button (multi-ship active)",
+      "default": "Simple cart"
+    },
+    {
+      "type": "text",
+      "id": "empty_message",
+      "label": "Empty cart message",
+      "default": "Your cart is empty."
+    },
+    {
+      "type": "header",
+      "content": "Order summary"
+    },
+    {
+      "type": "text",
+      "id": "summary_heading_before",
+      "label": "Summary heading (before italic)",
+      "default": "Order"
+    },
+    {
+      "type": "text",
+      "id": "summary_heading_em",
+      "label": "Summary heading (italic part)",
+      "default": "preview."
+    },
+    {
+      "type": "text",
+      "id": "summary_sub",
+      "label": "Summary subheading",
+      "default": "Shipping, payment & PO details selected at checkout."
+    },
+    {
+      "type": "text",
+      "id": "stats_label",
+      "label": "Stats section label",
+      "default": "Items"
+    },
+    {
+      "type": "text",
+      "id": "stat_lines_label",
+      "label": "Line items stat label",
+      "default": "Line items"
+    },
+    {
+      "type": "text",
+      "id": "stat_units_label",
+      "label": "Total units stat label",
+      "default": "Total units"
+    },
+    {
+      "type": "text",
+      "id": "totals_label",
+      "label": "Totals section label",
+      "default": "Estimated totals"
+    },
+    {
+      "type": "text",
+      "id": "subtotal_label",
+      "label": "Subtotal row label",
+      "default": "Subtotal"
+    },
+    {
+      "type": "text",
+      "id": "savings_label",
+      "label": "Savings row label",
+      "default": "Savings"
+    },
+    {
+      "type": "text",
+      "id": "total_label",
+      "label": "Grand total row label",
+      "default": "Subtotal"
+    },
+    {
+      "type": "header",
+      "content": "Freight / Free shipping"
+    },
+    {
+      "type": "number",
+      "id": "freight_threshold",
+      "label": "Free freight threshold ($)",
+      "info": "Set to 0 to hide the freight progress bar",
+      "default": 2500
+    },
+    {
+      "type": "text",
+      "id": "freight_met_label",
+      "label": "Label when threshold met",
+      "default": "Qualifies for free freight"
+    },
+    {
+      "type": "text",
+      "id": "freight_progress_label",
+      "label": "Progress label prefix",
+      "default": "Add"
+    },
+    {
+      "type": "text",
+      "id": "freight_suffix",
+      "label": "Progress label suffix",
+      "default": "for free freight"
+    },
+    {
+      "type": "header",
+      "content": "Inventory"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_inventory_qty",
+      "label": "Show inventory quantity",
+      "default": true
+    },
+    {
+      "type": "number",
+      "id": "low_stock_threshold",
+      "label": "Low stock threshold (units)",
+      "info": "Items at or below this quantity show amber low-stock indicator. Set to 0 to disable.",
+      "default": 300
+    },
+    {
+      "type": "header",
+      "content": "Checkout"
+    },
+    {
+      "type": "url",
+      "id": "checkout_url",
+      "label": "Checkout URL",
+      "info": "Leave blank to use /checkout"
+    },
+    {
+      "type": "text",
+      "id": "checkout_label",
+      "label": "Checkout button label",
+      "default": "Proceed to checkout"
+    },
+    {
+      "type": "header",
+      "content": "Next steps"
+    },
+    {
+      "type": "text",
+      "id": "next_steps_label",
+      "label": "Next steps section label",
+      "default": "At checkout you'll choose:"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "next_step",
+      "name": "Next step item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Step text",
+          "default": "Ship-to location(s)"
+        }
+      ]
+    },
+    {
+      "type": "trust_item",
+      "name": "Trust item",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "shield", "label": "Shield" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "home", "label": "Home / warehouse" }
+          ],
+          "default": "shield"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Secure checkout"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor cart",
+      "blocks": [
+        {
+          "type": "next_step",
+          "settings": {
+            "text": "Ship-to location(s) · single or multi-location"
+          }
+        },
+        {
+          "type": "next_step",
+          "settings": {
+            "text": "Payment · credit card, Apple Pay, or PayPal"
+          }
+        },
+        {
+          "type": "next_step",
+          "settings": {
+            "text": "PO reference and/or PDF upload"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon": "shield",
+            "label": "Secure checkout"
+          }
+        },
+        {
+          "type": "trust_item",
+          "settings": {
+            "icon": "home",
+            "label": "Ships from LA"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

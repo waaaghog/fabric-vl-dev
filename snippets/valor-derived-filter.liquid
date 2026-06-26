@@ -1,0 +1,503 @@
+{%- doc -%}
+  Renders a fallback Valor filter group from collection data when Shopify does
+  not provide a native facet for the requested group.
+
+  @param {string} title - Visible filter group title.
+  @param {string} source - One of category, devices, brand, color, features.
+  @param {string} section_id - Current section ID.
+  @param {string} filter_style - Current filter style.
+  @param {boolean} [in_drawer] - Whether rendered inside the filters drawer.
+{%- enddoc -%}
+
+{%- liquid
+  assign source_handle = source | handle
+  assign param_name = ''
+
+  case source_handle
+    when 'category'
+      assign param_name = 'filter.p.product_type'
+    when 'brand'
+      assign param_name = 'filter.p.vendor'
+    when 'devices'
+      assign param_name = 'filter.p.m.custom.phone_devices'
+    when 'color'
+      assign param_name = 'filter.v.option.color'
+  endcase
+
+  assign seen_values = '|'
+  assign active_count = 0
+-%}
+
+{%- capture derived_items -%}
+  {%- if source_handle == 'category' or source_handle == 'brand' or source_handle == 'devices' -%}
+    {%- liquid
+      assign metafield_keys = 'product_brand' | split: '|'
+      if source_handle == 'category'
+        assign metafield_keys = 'product_subcategories|product_categories' | split: '|'
+      elsif source_handle == 'devices'
+        assign metafield_keys = 'phone_devices' | split: '|'
+      endif
+    -%}
+
+    {%- unless source_handle == 'devices' -%}
+      {%- for product in collection.products -%}
+        {%- for linked_collection in product.collections -%}
+        {%- liquid
+          if linked_collection.handle == blank or linked_collection.handle == collection.handle or linked_collection.handle == 'all' or linked_collection.handle == 'frontpage'
+            continue
+          endif
+
+          assign collection_title_parts = linked_collection.title | split: '>'
+          assign collection_prefix = collection_title_parts | first | strip | downcase
+          assign matches_collection_source = false
+          if source_handle == 'brand' and collection_prefix == 'brand'
+            assign matches_collection_source = true
+          elsif source_handle == 'category' and collection_prefix == 'category'
+            assign matches_collection_source = true
+          endif
+
+          unless matches_collection_source
+            continue
+          endunless
+
+          assign value_label = collection_title_parts | last | strip
+          assign value_handle = value_label | handle
+          if value_label == blank or value_handle == 'uncategorized'
+            continue
+          endif
+
+          assign input_name = 'filter.p.m.custom.product_brand'
+          if source_handle == 'category'
+            assign input_name = 'filter.p.m.custom.product_categories'
+            if collection_title_parts.size > 2
+              assign input_name = 'filter.p.m.custom.product_subcategories'
+            endif
+          endif
+
+          assign value_value = value_label
+          assign metafield_key = input_name | split: '.' | last
+          assign product_metafield_text = product.metafields.custom[metafield_key] | metafield_text | strip
+          if product_metafield_text != blank
+            assign product_metafield_values = product_metafield_text | split: ','
+            for product_metafield_value in product_metafield_values
+              assign raw_value = product_metafield_value | strip
+              assign raw_value_handle = raw_value | handle
+              if raw_value != blank and raw_value_handle == value_handle
+                assign value_value = raw_value
+                break
+              endif
+            endfor
+          endif
+          assign value_handle = value_value | handle
+
+          assign value_key = linked_collection.handle | default: value_label | handle
+          assign value_token = '|collection:' | append: value_key | append: '|'
+          if seen_values contains value_token
+            continue
+          endif
+          assign seen_values = seen_values | append: 'collection:' | append: value_key | append: '|'
+
+          assign value_count = 0
+          for count_product in collection.products
+            for count_collection in count_product.collections
+              if count_collection.handle == linked_collection.handle
+                assign value_count = value_count | plus: 1
+                break
+              endif
+            endfor
+          endfor
+
+          assign input_id = 'Valor-Derived-' | append: section_id | append: '-' | append: source_handle | append: '-' | append: value_key | append: '-' | append: in_drawer
+        -%}
+        <li class="facets__inputs-list-item">
+          {% render 'checkbox',
+            name: input_name,
+            value: value_value,
+            label: value_label,
+            id: input_id,
+            inputRef: 'facetInputs[]'
+          %}
+        </li>
+        {%- endfor -%}
+      {%- endfor -%}
+    {%- endunless -%}
+
+    {%- if seen_values == '|' -%}
+      {%- for metafield_key in metafield_keys -%}
+      {%- assign input_name = 'filter.p.m.custom.' | append: metafield_key -%}
+
+      {%- for product in collection.products -%}
+        {%- liquid
+          assign metafield_text = product.metafields.custom[metafield_key] | metafield_text | strip
+          if metafield_text == blank
+            continue
+          endif
+
+          assign metafield_values = metafield_text | split: ','
+        -%}
+
+        {%- for raw_value in metafield_values -%}
+          {%- liquid
+            assign value_label = raw_value | strip
+            assign value_handle = value_label | handle
+            assign value_value = value_label
+
+            if value_label == blank or value_handle == 'uncategorized'
+              continue
+            endif
+
+            assign value_key = input_name | append: '-' | append: value_value | handle
+            assign value_token = '|' | append: value_key | append: '|'
+            if seen_values contains value_token
+              continue
+            endif
+            assign seen_values = seen_values | append: value_key | append: '|'
+
+            assign value_count = 0
+            for count_product in collection.products
+              assign count_metafield_text = count_product.metafields.custom[metafield_key] | metafield_text | strip
+              if count_metafield_text == blank
+                continue
+              endif
+
+              assign count_values = count_metafield_text | split: ','
+              for count_raw_value in count_values
+                assign count_value_label = count_raw_value | strip
+                if count_value_label == value_label
+                  assign value_count = value_count | plus: 1
+                  break
+                endif
+              endfor
+            endfor
+
+            assign input_id = 'Valor-Derived-' | append: section_id | append: '-' | append: source_handle | append: '-' | append: value_key | append: '-' | append: in_drawer
+          -%}
+          <li class="facets__inputs-list-item">
+            {% render 'checkbox',
+              name: input_name,
+              value: value_value,
+              label: value_label,
+              id: input_id,
+              inputRef: 'facetInputs[]'
+            %}
+          </li>
+        {%- endfor -%}
+      {%- endfor -%}
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- if seen_values == '|' and source_handle == 'category' -%}
+      {%- for product in collection.products -%}
+        {%- liquid
+          assign value_label = product.type | strip
+          assign value_handle = value_label | handle
+          if value_label == blank or value_handle == 'uncategorized'
+            continue
+          endif
+
+          assign value_key = value_label | handle
+          assign value_token = '|product-type:' | append: value_key | append: '|'
+          if seen_values contains value_token
+            continue
+          endif
+          assign seen_values = seen_values | append: 'product-type:' | append: value_key | append: '|'
+
+          assign value_count = 0
+          for count_product in collection.products
+            if count_product.type == value_label
+              assign value_count = value_count | plus: 1
+            endif
+          endfor
+
+          assign input_id = 'Valor-Derived-' | append: section_id | append: '-' | append: source_handle | append: '-' | append: value_key | append: '-' | append: in_drawer
+        -%}
+        <li class="facets__inputs-list-item">
+          {% render 'checkbox',
+            name: param_name,
+            value: value_label,
+            label: value_label,
+            id: input_id,
+            inputRef: 'facetInputs[]'
+          %}
+        </li>
+      {%- endfor -%}
+    {%- endif -%}
+
+    {%- if seen_values == '|' and source_handle == 'brand' -%}
+      {%- for product in collection.products -%}
+        {%- liquid
+          assign value_label = product.vendor | strip
+          assign value_handle = value_label | handle
+          if value_label == blank or value_handle == 'dev-valorcomm' or value_handle == 'valorcomm'
+            continue
+          endif
+
+          assign value_key = value_label | handle
+          assign value_token = '|vendor:' | append: value_key | append: '|'
+          if seen_values contains value_token
+            continue
+          endif
+          assign seen_values = seen_values | append: 'vendor:' | append: value_key | append: '|'
+
+          assign value_count = 0
+          for count_product in collection.products
+            if count_product.vendor == value_label
+              assign value_count = value_count | plus: 1
+            endif
+          endfor
+
+          assign input_id = 'Valor-Derived-' | append: section_id | append: '-' | append: source_handle | append: '-' | append: value_key | append: '-' | append: in_drawer
+        -%}
+        <li class="facets__inputs-list-item">
+          {% render 'checkbox',
+            name: 'filter.p.vendor',
+            value: value_label,
+            label: value_label,
+            id: input_id,
+            inputRef: 'facetInputs[]'
+          %}
+        </li>
+      {%- endfor -%}
+    {%- endif -%}
+  {%- elsif source_handle == 'color' -%}
+    {%- for product in collection.products -%}
+      {%- for option in product.options_with_values -%}
+        {%- liquid
+          assign option_name_downcase = option.name | downcase
+          unless option_name_downcase contains 'color' or option_name_downcase contains 'colour'
+            continue
+          endunless
+        -%}
+        {%- for option_value in option.values -%}
+          {%- liquid
+            assign value_label = option_value
+            assign option_param_name = option.name | handle | prepend: 'filter.v.option.'
+            if value_label == blank
+              continue
+            endif
+
+            assign value_key = value_label | handle
+            assign value_token = '|' | append: value_key | append: '|'
+            if seen_values contains value_token
+              continue
+            endif
+            assign seen_values = seen_values | append: value_key | append: '|'
+
+            assign value_count = 0
+            for count_product in collection.products
+              for count_option in count_product.options_with_values
+                assign count_option_name = count_option.name | downcase
+                if count_option_name contains 'color' or count_option_name contains 'colour'
+                  for count_value in count_option.values
+                    if count_value == value_label
+                      assign value_count = value_count | plus: 1
+                      break
+                    endif
+                  endfor
+                endif
+              endfor
+            endfor
+
+            assign input_id = 'Valor-Derived-' | append: section_id | append: '-' | append: source_handle | append: '-' | append: value_key | append: '-' | append: in_drawer
+
+            assign swatch_token = value_label | downcase | strip | replace: ' ', '' | replace: '-', ''
+            assign swatch_background = swatch_token
+            assign swatch_modifier = ''
+            if swatch_token contains 'black'
+              assign swatch_background = '#1d2636'
+            elsif swatch_token contains 'navy'
+              assign swatch_background = '#2b3a55'
+            elsif swatch_token contains 'white' or swatch_token contains 'chalk'
+              assign swatch_background = '#f4f5f2'
+              assign swatch_modifier = ' valor-derived-swatch__dot--light'
+            elsif swatch_token contains 'clear' or swatch_token contains 'transparent'
+              assign swatch_background = 'transparent'
+              assign swatch_modifier = ' valor-derived-swatch__dot--clear'
+            elsif swatch_token contains 'red' or swatch_token contains 'crimson'
+              assign swatch_background = '#c54448'
+            elsif swatch_token contains 'sky'
+              assign swatch_background = '#63b9de'
+            elsif swatch_token contains 'steel' or swatch_token contains 'gray' or swatch_token contains 'grey'
+              assign swatch_background = '#66717e'
+            elsif swatch_token contains 'gold'
+              assign swatch_background = '#d4af37'
+            elsif swatch_token contains 'forest'
+              assign swatch_background = '#2d4a2b'
+            elsif swatch_token contains 'sand' or swatch_token contains 'tan'
+              assign swatch_background = '#e5c49e'
+            elsif swatch_token contains 'purple' or swatch_token contains 'violet'
+              assign swatch_background = '#7a5aa8'
+            elsif swatch_token contains 'multi' or swatch_token contains 'pattern'
+              assign swatch_background = 'linear-gradient(135deg, #c54448 0%, #f4f5f2 50%, #2b3a55 100%)'
+            endif
+          -%}
+          <li class="facets__inputs-list-item">
+            <div class="valor-derived-swatch">
+              <input
+                type="checkbox"
+                name="{{ option_param_name }}"
+                value="{{ value_label }}"
+                id="{{ input_id }}"
+                class="valor-derived-swatch__input visually-hidden"
+                data-label="{{ value_label }}"
+                ref="facetInputs[]"
+              >
+              <label
+                class="valor-derived-swatch__label"
+                for="{{ input_id }}"
+                title="{{ value_label | escape }}{% if value_count > 0 %} ({{ value_count }}){% endif %}"
+                aria-label="{{ value_label | escape }}"
+              >
+                <span
+                  class="valor-derived-swatch__dot{{ swatch_modifier }}"
+                  style="--valor-swatch-background: {{ swatch_background }};"
+                ></span>
+              </label>
+            </div>
+          </li>
+        {%- endfor -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  {%- endif -%}
+
+  {%- if source_handle == 'features' or seen_values == '|' -%}
+    {%- for tag in collection.all_tags -%}
+      {%- liquid
+        assign value_label = ''
+        assign tag_group = tag | split: ':' | first | downcase | remove_first: 'filter_' | remove_first: 'filter-' | handle
+        assign tag_value_parts = tag | split: ':'
+        assign matches_tag_group = false
+
+        if tag_value_parts.size < 2
+          continue
+        endif
+
+        case source_handle
+          when 'category'
+            if tag_group == 'category' or tag_group == 'categories' or tag_group == 'product-type' or tag_group == 'type'
+              assign matches_tag_group = true
+            endif
+          when 'brand'
+            if tag_group == 'brand' or tag_group == 'brands' or tag_group == 'vendor'
+              assign matches_tag_group = true
+            endif
+          when 'color'
+            if tag_group == 'color' or tag_group == 'colors' or tag_group == 'colour' or tag_group == 'colours'
+              assign matches_tag_group = true
+            endif
+          when 'features'
+            if tag_group == 'feature' or tag_group == 'features'
+              assign matches_tag_group = true
+            endif
+        endcase
+
+        unless matches_tag_group
+          continue
+        endunless
+
+        assign value_label = tag_value_parts | last
+        if value_label == blank
+          continue
+        endif
+
+        assign value_key = tag | handle
+        assign value_token = '|' | append: value_key | append: '|'
+        if seen_values contains value_token
+          continue
+        endif
+        assign seen_values = seen_values | append: value_key | append: '|'
+
+        if current_tags contains tag
+          assign active_count = active_count | plus: 1
+        endif
+
+        assign input_id = 'Valor-Derived-' | append: section_id | append: '-' | append: source_handle | append: '-' | append: value_key | append: '-' | append: in_drawer
+      -%}
+      <li class="facets__inputs-list-item">
+        <div class="checkbox">
+          <input
+            type="checkbox"
+            id="{{ input_id }}"
+            class="checkbox__input tag-filter__input"
+            data-tag-value="{{ tag | handle }}"
+            data-tag-label="{{ title }}: {{ value_label | escape }}"
+            {% if current_tags contains tag %}checked{% endif %}
+          >
+          <label class="checkbox__label" for="{{ input_id }}">
+            {{- 'icon-checkmark.svg' | inline_asset_content -}}
+            <span class="checkbox__label-text">{{ value_label }}</span>
+          </label>
+        </div>
+      </li>
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- assign derived_items = derived_items | strip -%}
+
+{%- if derived_items != blank -%}
+  {%- capture accordion_children -%}
+    <details
+      id="valor-derived-filter-{{ section_id }}-{{ source_handle }}-{% if in_drawer %}drawer{% else %}sidebar{% endif %}"
+      class="facets__panel"
+      {% if filter_style == 'horizontal' %}data-auto-close-details="desktop"{% endif %}
+      {% if filter_style != 'horizontal' and in_drawer != true %}open{% endif %}
+    >
+      <summary class="facets__summary">
+        <span class="facets__label">{{ title }}</span>
+        <div class="facets__status-wrapper">
+          <facet-status-component class="facets__status" facet-type="list" data-filter-style="{{ filter_style }}">
+            <span class="{% if active_count > 0 %}bubble facets__bubble{% endif %} hide-when-empty" ref="facetStatus">
+              {%- if active_count > 0 -%}{{ active_count }}{%- endif -%}
+            </span>
+          </facet-status-component>
+          <span class="svg-wrapper icon-caret icon-animated">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+        </div>
+      </summary>
+
+      <floating-panel-component
+        {% unless filter_style == 'vertical' %}data-close-on-resize{% endunless %}
+        class="facets__inputs facets__panel-content details-content{% if filter_style == 'horizontal' %} color-{{ settings.popover_color_scheme }}{% endif %}"
+      >
+        {%- if source_handle == 'features' -%}
+          <div class="facets__inputs-wrapper">
+            <ul class="list-unstyled facets__inputs-list" role="list">
+              {{ derived_items }}
+            </ul>
+          </div>
+        {%- else -%}
+          <facet-inputs-component
+            on:change="/updateFilters"
+            id="valor-derived-inputs-{{ section_id }}-{{ source_handle }}-{% if in_drawer %}drawer{% else %}sidebar{% endif %}"
+          >
+            <div class="facets__inputs-wrapper">
+              <ul class="list-unstyled facets__inputs-list{% if source_handle == 'color' %} facets__inputs-list--swatches valor-derived-swatches{% endif %}" role="list">
+                {{ derived_items }}
+              </ul>
+            </div>
+          </facet-inputs-component>
+        {%- endif -%}
+      </floating-panel-component>
+    </details>
+  {%- endcapture -%}
+
+  {%- liquid
+    assign is_vertical = false
+    assign is_horizontal = false
+    if filter_style == 'vertical'
+      assign is_vertical = true
+    elsif filter_style == 'horizontal'
+      assign is_horizontal = true
+    endif
+  -%}
+  {%- render 'accordion-custom-component',
+    children: accordion_children,
+    class: 'facets__item',
+    open: is_vertical,
+    open_by_default_on_desktop: true,
+    open_by_default_on_mobile: false,
+    disable_animation_on_desktop: is_horizontal,
+    close_with_escape: is_horizontal,
+    data_filter_param_name: source_handle
+  -%}
+{%- endif -%}

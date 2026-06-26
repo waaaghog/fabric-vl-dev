@@ -1,0 +1,1521 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "shogun-helper": {
+      "type": "shogun-helper",
+      "settings": {}
+    },
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "disabled": true,
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "100%",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "normal",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "heading_bold_highlight_color": "#c54448",
+            "heading_italic_highlight_color": "#63b9de",
+            "heading_bold_highlight_bold": true,
+            "heading_italic_highlight_italic": true,
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "text_padding": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "disabled": true,
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "section_xt6pGC": {
+      "type": "section",
+      "blocks": {
+        "group_7dBbax": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "center",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 8,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fill",
+            "custom_height": 100,
+            "inherit_color_scheme": false,
+            "color_scheme": "scheme-5",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "hero-apparel-2",
+            "padding-block-start": 30,
+            "padding-block-end": 30,
+            "padding-inline-start": 80,
+            "padding-inline-end": 80
+          },
+          "blocks": {
+            "text_7EAB7r": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h6><em>——— By DEVICE Compatibility ———</em></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "h6",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_My33RC": {
+              "type": "text",
+              "settings": {
+                "text": "<h1>Samsung</h1>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "center",
+                "padding_left": "0",
+                "type_preset": "h1",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_fHMdHk": {
+              "type": "text",
+              "settings": {
+                "text": "<p>Explore Samsung accessories curated to help wholesale buyers cover the latest Galaxy models, including S Series, A Series, Z Series, tablets, and legacy demand. Find cases, screen protectors, chargers, cables, audio products, and everyday add-ons organized to stock a stronger Samsung accessory mix.</p>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "center",
+                "padding_left": "0",
+                "type_preset": "custom",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "16px",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 60,
+                "padding-inline-end": 60
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_7EAB7r",
+            "text_My33RC",
+            "text_fHMdHk"
+          ]
+        }
+      },
+      "block_order": [
+        "group_7dBbax"
+      ],
+      "custom_css": [
+        "/* 1. Force the parent to clip the square child backgrounds */.custom-section-content {overflow: hidden !important; border-radius: 40px !important;}",
+        " /* 2. Fix internal seam (optional but recommended for a clean look) */[data-testid=\"group-block\"]:first-child {border-radius: 40px 0 0 40px !important;}",
+        "[data-testid=\"group-block\"]:last-child {border-radius: 0 40px 40px 0 !important;}",
+        "[data-testid=\"group-block\"]:only-child {border-radius: 40px !important;}"
+      ],
+      "name": "t:names.split_showcase",
+      "settings": {
+        "section_width": "page-width",
+        "content_direction": "row",
+        "vertical_on_mobile": true,
+        "scroll_on_mobile": false,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 0,
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 40,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 20,
+        "padding-block-end": 0
+      }
+    },
+    "collection_list_QGtPQk": {
+      "type": "collection-list",
+      "blocks": {
+        "group_BQmwJQ": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_FekzxW": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Samsung Galaxy A Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_FekzxW"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_hPYhWT": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_fHqX4j": {
+              "type": "group",
+              "name": "t:names.group",
+              "disabled": true,
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "custom_liquid_fTXcMg": {
+                  "type": "custom-liquid",
+                  "name": "t:names.custom_liquid",
+                  "settings": {
+                    "custom_liquid": "<div class=\"device-meta\" style=\"text-align: center; width: 100%;\">\n  <div class=\"m\" style=\"display: inline-block;\">\n    <span class=\"m-lbl\" style=\"display: inline;\">SKUs available: </span>\n    <span class=\"m-val\" style=\"display: inline; font-weight: bold;\">\n      {%- assign count = collection.all_products_count | default: collection.object.all_products_count -%}\n      \n      {%- if count > 0 -%}\n        {{ count | money_without_currency | remove: '.00' | remove: '.0' }}\n      {%- else -%}\n        0\n      {%- endif -%}\n    </span>\n  </div>\n</div>"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "custom_liquid_fTXcMg"
+              ]
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_hPYhWT",
+            "group_fHqX4j"
+          ]
+        }
+      },
+      "block_order": [
+        "group_BQmwJQ"
+      ],
+      "name": "Galaxy A",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "samsung-galaxy-a01-accessories",
+          "samsung-galaxy-a02s",
+          "samsung-galaxy-a037s-accessories",
+          "samsung-galaxy-a10e-accessories",
+          "samsung-galaxy-a12-5g-accessories",
+          "samsung-galaxy-a13-5g-accessories",
+          "samsung-galaxy-a14-5g-accessories",
+          "samsung-galaxy-a15-5g-accessories",
+          "samsung-galaxy-a16-5g-accessories",
+          "samsung-galaxy-a17-5g-accessories",
+          "samsung-galaxy-a20-accessories",
+          "samsung-galaxy-a21-accessories",
+          "samsung-galaxy-a23-5g-accessories",
+          "samsung-galaxy-a25-5g-accessories",
+          "samsung-galaxy-a26-5g-accessories",
+          "samsung-galaxy-a32-5g-accessories",
+          "samsung-galaxy-a35-5g-accessories",
+          "samsung-galaxy-a36-5g-accessories",
+          "samsung-galaxy-a37-5g-accessories",
+          "samsung-galaxy-a42-5g-accessories",
+          "samsung-galaxy-a50-accessories",
+          "samsung-galaxy-a51-5g-accessories",
+          "samsung-galaxy-a52-5g-accessories",
+          "samsung-galaxy-a53-5g-accesories",
+          "samsung-galaxy-a54-5g-accessories",
+          "samsung-galaxy-a56-5g-accessories",
+          "samsung-galaxy-a71-5g-accessories",
+          "samsung-galaxy-a72-5g-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_Qjwd3D": {
+      "type": "collection-list",
+      "blocks": {
+        "group_4bWe9T": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_kgRnK9": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Samsung Galaxy S Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_kgRnK9"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_fXKLq6": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_TeaWDc": {
+              "type": "group",
+              "name": "t:names.group",
+              "disabled": true,
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "custom_liquid_dBmLUR": {
+                  "type": "custom-liquid",
+                  "name": "t:names.custom_liquid",
+                  "settings": {
+                    "custom_liquid": "<div class=\"device-meta\" style=\"text-align: center; width: 100%;\">\n  <div class=\"m\" style=\"display: inline-block;\">\n    <span class=\"m-lbl\" style=\"display: inline;\">SKUs available: </span>\n    <span class=\"m-val\" style=\"display: inline; font-weight: bold;\">\n      {%- assign count = collection.all_products_count | default: collection.object.all_products_count -%}\n      \n      {%- if count > 0 -%}\n        {{ count | money_without_currency | remove: '.00' | remove: '.0' }}\n      {%- else -%}\n        0\n      {%- endif -%}\n    </span>\n  </div>\n</div>"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "custom_liquid_dBmLUR"
+              ]
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_fXKLq6",
+            "group_TeaWDc"
+          ]
+        }
+      },
+      "block_order": [
+        "group_4bWe9T"
+      ],
+      "name": "Galaxy S",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "samsung-galaxy-s10-accessories",
+          "samsung-galaxy-s10-5g-accessories",
+          "samsung-galaxy-s10-plus-accessories",
+          "samsung-galaxy-s10e-accessories",
+          "samsung-galaxy-s20-plus-accessories",
+          "samsung-galaxy-s20-ultra-accessories",
+          "samsung-galaxy-s21-accessories",
+          "samsung-galaxy-s21-fan-edition-accessories",
+          "samsung-galaxy-s21-plus-accessories",
+          "samsung-galaxy-s21-ultra-accessories",
+          "samsung-galaxy-s22-accessories",
+          "samsung-galaxy-s22-plus-accessories",
+          "samsung-galaxy-s22-ultra-accesories",
+          "samsung-galaxy-s23-accessories",
+          "samsung-galaxy-s23-fan-edition-accessories",
+          "samsung-galaxy-s23-plus-accessories",
+          "samsung-galaxy-s23-ultra-accessories",
+          "samsung-galaxy-s24-accessories",
+          "samsung-galaxy-s24-fan-edition-accessories",
+          "samsung-galaxy-s24-plus-accessories",
+          "samsung-galaxy-s24-ultra-accessories",
+          "samsung-galaxy-s25-accessories",
+          "samsung-galaxy-s25-fan-edition-accessories",
+          "samsung-galaxy-s25-plus-accessories",
+          "samsung-galaxy-s25-ultra-accessories",
+          "wholesale-samsung-galaxy-s26-accessories",
+          "wholesale-galaxy-s26-plus-accessories",
+          "wholesale-samsung-galaxy-s26-ultra-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_ekXiff": {
+      "type": "collection-list",
+      "blocks": {
+        "group_6wrXkN": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_z9ndpf": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Samsung Galaxy Z Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_z9ndpf"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_9JtaXU": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_XAFViq": {
+              "type": "group",
+              "name": "t:names.group",
+              "disabled": true,
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "custom_liquid_VJ74h4": {
+                  "type": "custom-liquid",
+                  "name": "t:names.custom_liquid",
+                  "settings": {
+                    "custom_liquid": "<div class=\"device-meta\" style=\"text-align: center; width: 100%;\">\n  <div class=\"m\" style=\"display: inline-block;\">\n    <span class=\"m-lbl\" style=\"display: inline;\">SKUs available: </span>\n    <span class=\"m-val\" style=\"display: inline; font-weight: bold;\">\n      {%- assign count = collection.all_products_count | default: collection.object.all_products_count -%}\n      \n      {%- if count > 0 -%}\n        {{ count | money_without_currency | remove: '.00' | remove: '.0' }}\n      {%- else -%}\n        0\n      {%- endif -%}\n    </span>\n  </div>\n</div>"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "custom_liquid_VJ74h4"
+              ]
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_9JtaXU",
+            "group_XAFViq"
+          ]
+        }
+      },
+      "block_order": [
+        "group_6wrXkN"
+      ],
+      "name": "Galaxy Z",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "wholesale-samsung-galaxy-z-flip5-accessories",
+          "wholesale-samsung-galaxy-z-flip6-accessories",
+          "wholesale-samsung-galaxy-z-flip7-accessories",
+          "wholesale-samsung-galaxy-z-flip7-fe-accessories",
+          "wholesale-samsung-galaxy-z-fold6-accessories",
+          "wholesale-samsung-galaxy-galaxy-z-fold7-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_ij7G7M": {
+      "type": "collection-list",
+      "blocks": {
+        "group_e3mwkJ": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_pPhDMG": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Samsung Galaxy Tab Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_pPhDMG"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_8LPzk6": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_mcW6ie": {
+              "type": "group",
+              "name": "t:names.group",
+              "disabled": true,
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "custom_liquid_whMKg7": {
+                  "type": "custom-liquid",
+                  "name": "t:names.custom_liquid",
+                  "settings": {
+                    "custom_liquid": "<div class=\"device-meta\" style=\"text-align: center; width: 100%;\">\n  <div class=\"m\" style=\"display: inline-block;\">\n    <span class=\"m-lbl\" style=\"display: inline;\">SKUs available: </span>\n    <span class=\"m-val\" style=\"display: inline; font-weight: bold;\">\n      {%- assign count = collection.all_products_count | default: collection.object.all_products_count -%}\n      \n      {%- if count > 0 -%}\n        {{ count | money_without_currency | remove: '.00' | remove: '.0' }}\n      {%- else -%}\n        0\n      {%- endif -%}\n    </span>\n  </div>\n</div>"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "custom_liquid_whMKg7"
+              ]
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_8LPzk6",
+            "group_mcW6ie"
+          ]
+        }
+      },
+      "block_order": [
+        "group_e3mwkJ"
+      ],
+      "name": "Galaxy Tab",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "samsung-galaxy-tab-a-8-2019-accessories",
+          "wholesale-samsung-galaxy-tab-a-10-1-2019-accessories",
+          "wholesale-samsung-galaxy-tab-a-8-0-2018-accessories",
+          "wholesale-samsung-galaxy-tab-a11-5g-accessories",
+          "wholesale-samsung-galaxy-tab-a7-lite-8-7-accessories",
+          "wholesale-samsung-galaxy-tab-a9-5g-accessories",
+          "wholesale-samsung-galaxy-tab-s10-fe-accessories",
+          "wholesale-samsung-galaxy-tab-s9-accessories",
+          "wholesale-samsung-galaxy-tab-a7-10-4-2020-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "collection_list_iWdBPM": {
+      "type": "collection-list",
+      "blocks": {
+        "group_Xcan4H": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_9rBWg6": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>——— Samsung Galaxy Note Series</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_9rBWg6"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 20
+          },
+          "blocks": {
+            "collection_title_VbLyPQ": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "var(--color-foreground)",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_WQqUg7": {
+              "type": "group",
+              "name": "t:names.group",
+              "disabled": true,
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "custom_liquid_jMxQxV": {
+                  "type": "custom-liquid",
+                  "name": "t:names.custom_liquid",
+                  "settings": {
+                    "custom_liquid": "<div class=\"device-meta\" style=\"text-align: center; width: 100%;\">\n  <div class=\"m\" style=\"display: inline-block;\">\n    <span class=\"m-lbl\" style=\"display: inline;\">SKUs available: </span>\n    <span class=\"m-val\" style=\"display: inline; font-weight: bold;\">\n      {%- assign count = collection.all_products_count | default: collection.object.all_products_count -%}\n      \n      {%- if count > 0 -%}\n        {{ count | money_without_currency | remove: '.00' | remove: '.0' }}\n      {%- else -%}\n        0\n      {%- endif -%}\n    </span>\n  </div>\n</div>"
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "custom_liquid_jMxQxV"
+              ]
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_VbLyPQ",
+            "group_WQqUg7"
+          ]
+        }
+      },
+      "block_order": [
+        "group_Xcan4H"
+      ],
+      "name": "Galaxy Note",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "samsung-galaxy-note-20-ultra-accessories",
+          "samsung-galaxy-note-20-accessories",
+          "samsung-galaxy-note-10-accessories",
+          "samsung-galaxy-note-10-plus-accessories",
+          "samsung-galaxy-note-9-accessories",
+          "samsung-galaxy-note-8-accessories"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "circle",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "shogun-optimizer": {
+      "type": "shogun-optimizer",
+      "settings": {}
+    }
+  },
+  "order": [
+    "shogun-helper",
+    "main",
+    "section_xt6pGC",
+    "collection_list_QGtPQk",
+    "collection_list_Qjwd3D",
+    "collection_list_ekXiff",
+    "collection_list_ij7G7M",
+    "collection_list_iWdBPM",
+    "shogun-optimizer"
+  ]
+}

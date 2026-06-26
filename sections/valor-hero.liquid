@@ -1,0 +1,690 @@
+{%- liquid
+  assign s = section.settings
+  assign arrow_svg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
+  assign main_banner_clickable = false
+  assign main_banner_label = s.cta_text | default: s.title | strip_html | strip
+
+  if s.opens_dialog and s.cta_text != blank
+    assign main_banner_clickable = true
+  elsif s.cta_url != blank
+    assign main_banner_clickable = true
+  endif
+-%}
+
+<div class="section section--page-width" style="{% if s.bg_color != blank %}background-color: {{ s.bg_color }};{% endif %}padding-top: {{ s.padding_top }}px; padding-bottom: {{ s.padding_bottom }}px;">
+<section class="vr-hero" style="--vr-hero-grad-start: {{ s.gradient_start | default: '#2B3A55' }}; --vr-hero-grad-end: {{ s.gradient_end | default: '#1D2636' }};{% if s.glow_color != blank %} --vr-hero-glow: {{ s.glow_color }};{% endif %}">
+  <div class="vr-hero-grid">
+
+    <div class="vr-hero-main{% if s.hero_bg_image != blank %} vr-hero-main--has-bg{% endif %}{% if main_banner_clickable %} vr-hero-main--clickable{% endif %}" style="{% if s.hero_eyebrow_color != blank %}--vr-hero-eyebrow-color:{{ s.hero_eyebrow_color }};{% endif %}{% if s.hero_title_color != blank %}--vr-hero-title-color:{{ s.hero_title_color }};{% endif %}{% if s.hero_sub_color != blank %}--vr-hero-sub-color:{{ s.hero_sub_color }};{% endif %}">
+      {%- if s.hero_bg_image != blank -%}
+        <img src="{{ s.hero_bg_image | image_url: width: 1400 }}" alt="" class="vr-hero-main-bg-img" loading="lazy" aria-hidden="true">
+      {%- endif -%}
+      {%- if main_banner_clickable -%}
+        {%- if s.opens_dialog -%}
+          <button type="button" class="vr-hero-main-hit-area" data-vr-open aria-label="{{ main_banner_label | escape }}"></button>
+        {%- else -%}
+          <a href="{{ s.cta_url }}" class="vr-hero-main-hit-area" aria-label="{{ main_banner_label | escape }}"></a>
+        {%- endif -%}
+      {%- endif -%}
+      {%- if s.eyebrow != blank -%}
+        <div class="vr-hero-eyebrow">{{ s.eyebrow }}</div>
+      {%- endif -%}
+      <h1 class="vr-hero-title">
+        {{- s.title | newline_to_br -}}
+        {%- if s.title_em != blank -%}<br><em>{{ s.title_em }}</em>{%- endif -%}
+      </h1>
+      {%- if s.sub != blank -%}
+        <p class="vr-hero-sub">{{ s.sub }}</p>
+      {%- endif -%}
+      <div class="vr-hero-cta-row">
+        {%- if s.cta_text != blank -%}
+          {%- if s.opens_dialog -%}
+            <button type="button" class="vr-hero-btn vr-hero-btn--chalk vr-hero-btn--lg" data-vr-open>
+              {{ s.cta_text }}
+              {{ arrow_svg }}
+            </button>
+          {%- else -%}
+            <a href="{{ s.cta_url | default: '#' }}" class="vr-hero-btn vr-hero-btn--chalk vr-hero-btn--lg">
+              {{ s.cta_text }}
+              {{ arrow_svg }}
+            </a>
+          {%- endif -%}
+        {%- endif -%}
+        {%- if s.secondary_text != blank -%}
+          <a href="{{ s.secondary_url | default: '#' }}" class="vr-hero-ghost">{{ s.secondary_text }}</a>
+        {%- endif -%}
+      </div>
+
+      {%- if s.device_image != blank -%}
+        <div class="vr-hero-device vr-hero-device--image" aria-hidden="true">
+          <img
+            src="{{ s.device_image | image_url: width: 560 }}"
+            alt="{{ s.device_image.alt | escape }}"
+            width="280"
+            height="400"
+            loading="lazy"
+            class="vr-hero-device-img"
+          >
+        </div>
+      {%- elsif s.hero_bg_image == blank -%}
+        <div class="vr-hero-device" aria-hidden="true"></div>
+      {%- endif -%}
+    </div>
+
+    <div class="vr-hero-side">
+      <a
+        href="{{ s.card1_url | default: '#' }}"
+        class="vr-hero-card"
+        style="background-color: {{ s.card1_bg_color | default: '#D9EEF6' }}; color: {{ s.card1_text_color | default: '#1D2636' }};"
+      >
+        {%- if s.card1_image != blank -%}
+          <img src="{{ s.card1_image | image_url: width: 600 }}" alt="{{ s.card1_image.alt | escape }}" class="vr-hcard-bg-img" loading="lazy" aria-hidden="true">
+        {%- endif -%}
+        <div class="vr-hcard-body">
+          <div class="vr-hcard-tag">{{ s.card1_tag }}</div>
+          <div class="vr-hcard-title">{{ s.card1_title }}</div>
+          {%- if s.card1_sub != blank -%}
+            <div class="vr-hcard-sub">{{ s.card1_sub }}</div>
+          {%- endif -%}
+        </div>
+        <div class="vr-hcard-foot">
+          <span>{{ s.card1_footer }}</span>
+          <div class="vr-hcard-arrow">{{ arrow_svg }}</div>
+        </div>
+      </a>
+      <a
+        href="{{ s.card2_url | default: '#' }}"
+        class="vr-hero-card"
+        style="background-color: {{ s.card2_bg_color | default: '#C54448' }}; color: {{ s.card2_text_color | default: '#F4F5F2' }};"
+      >
+        {%- if s.card2_image != blank -%}
+          <img src="{{ s.card2_image | image_url: width: 600 }}" alt="{{ s.card2_image.alt | escape }}" class="vr-hcard-bg-img" loading="lazy" aria-hidden="true">
+        {%- endif -%}
+        <div class="vr-hcard-body">
+          <div class="vr-hcard-tag">{{ s.card2_tag }}</div>
+          <div class="vr-hcard-title">{{ s.card2_title }}</div>
+          {%- if s.card2_sub != blank -%}
+            <div class="vr-hcard-sub">{{ s.card2_sub }}</div>
+          {%- endif -%}
+        </div>
+        <div class="vr-hcard-foot">
+          <span>{{ s.card2_footer }}</span>
+          <div class="vr-hcard-arrow">{{ arrow_svg }}</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</section>
+</div>
+
+{% stylesheet %}
+
+/* ── Color tokens (self-contained, same as --vr-* design system) ─── */
+:root {
+  --vr-navy:        #2B3A55;
+  --vr-navy-deep:   #1D2636;
+  --vr-sky:         #63B9DE;
+  --vr-sky-pale:    #D9EEF6;
+  --vr-crimson:     #C54448;
+  --vr-chalk:       #F4F5F2;
+  --vr-parchment:   #EEEDE7;
+  --vr-steel:       #66717E;
+  --vr-steel-lt:    #A8B0B8;
+  --vr-ink:         #121820;
+  --vr-white:       #FFFFFF;
+  --vr-border:      #0002;
+  --vr-border-str:  #0003;
+  --vr-serif:       var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:        var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Hero layout ────────────────────────────────────────────────── */
+.vr-hero {}
+.vr-hero-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+  height: 540px;
+}
+.vr-hero-main {
+  background: var(--vr-hero-grad-end, var(--vr-navy-deep));
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  color: var(--vr-chalk);
+  padding: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.vr-hero-main-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.vr-hero-main::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 55%;
+  background: linear-gradient(135deg, var(--vr-hero-grad-start, #2B3A55) 0%, var(--vr-hero-grad-end, #1D2636) 100%);
+  clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+  z-index: 1;
+}
+.vr-hero-main::after {
+  content: '';
+  position: absolute;
+  top: 50%; right: 8%;
+  transform: translateY(-50%);
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, var(--vr-hero-glow, rgba(99,185,222,0.22)) 0%, transparent 65%);
+  border-radius: 50%;
+  z-index: 1;
+}
+.vr-hero-main--has-bg::before {
+  display: none;
+}
+.vr-hero-main-hit-area {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  appearance: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+button.vr-hero-main-hit-area {
+  font: inherit;
+}
+.vr-hero-main-hit-area:focus-visible {
+  outline: 3px solid rgba(244, 245, 242, 0.75);
+  outline-offset: -8px;
+}
+.vr-hero-main--clickable .vr-hero-eyebrow,
+.vr-hero-main--clickable .vr-hero-title,
+.vr-hero-main--clickable .vr-hero-sub,
+.vr-hero-main--clickable .vr-hero-device {
+  pointer-events: none;
+}
+.vr-hero-main--clickable .vr-hero-cta-row {
+  pointer-events: none;
+}
+.vr-hero-main--clickable .vr-hero-cta-row > * {
+  pointer-events: auto;
+}
+.vr-hero-main--clickable:hover .vr-hero-btn--chalk {
+  background: var(--vr-white);
+  transform: translateX(2px);
+}
+.vr-hero-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vr-hero-eyebrow-color, var(--vr-sky));
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 3;
+}
+.vr-hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--vr-sky); }
+.vr-hero-title {
+  font-family: var(--vr-serif);
+  font-size: 68px;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  max-width: 70%;
+  position: relative;
+  z-index: 3;
+  font-weight: 400;
+  color: var(--vr-hero-title-color, var(--vr-chalk));
+  margin: 20px 0 14px;
+}
+.vr-hero-title em { color: var(--vr-sky) !important; font-style: italic; }
+.vr-hero-sub {
+  font-family: var(--vr-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--vr-hero-sub-color, rgba(244, 245, 242, 0.78));
+  max-width: 480px;
+  margin: 0 0 28px;
+  position: relative;
+  z-index: 3;
+}
+.vr-hero-cta-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  z-index: 3;
+  flex-wrap: wrap;
+}
+
+/* ── Hero buttons (self-contained) ─────────────────────────────── */
+.vr-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 22px;
+  border-radius: 999px;
+  transition: all 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  line-height: 1;
+}
+.vr-hero-btn--chalk {
+  background: var(--vr-chalk);
+  color: var(--vr-navy-deep);
+}
+.vr-hero-btn--chalk:hover { background: var(--vr-white); transform: translateX(2px); }
+.vr-hero-btn--lg { padding: 16px 30px; font-size: 14px; }
+.vr-hero-ghost {
+  font-family: var(--vr-sans);
+  color: var(--vr-chalk);
+  padding: 14px 24px;
+  border: 1px solid rgba(244,245,242,0.25);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.vr-hero-ghost:hover { background: rgba(244,245,242,0.08); }
+
+/* ── Device image / placeholder ─────────────────────────────────── */
+.vr-hero-device {
+  position: absolute;
+  right: 6%; top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  width: 280px; height: 400px;
+  background: linear-gradient(145deg, #2a2a2e 0%, #151517 100%);
+  border-radius: 36px;
+  border: 2px solid #3a3a40;
+  z-index: 2;
+  box-shadow: -30px 40px 80px rgba(0,0,0,0.5);
+}
+.vr-hero-device::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #C54448 0%, #8a2f33 100%);
+}
+.vr-hero-device::after {
+  content: 'MyBat Pro';
+  position: absolute;
+  bottom: 24px; left: 0; right: 0;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 500;
+  z-index: 1;
+  font-family: var(--vr-sans);
+}
+.vr-hero-device--image {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+.vr-hero-device--image::before,
+.vr-hero-device--image::after { display: none; }
+.vr-hero-device-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(-30px 40px 80px rgba(0,0,0,0.5));
+}
+
+/* ── Side cards ─────────────────────────────────────────────────── */
+.vr-hero-side { display: grid; grid-template-rows: 1fr 1fr; gap: 20px; }
+.vr-hero-card {
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+.vr-hero-card:hover { transform: translateY(-2px); }
+.vr-hcard-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.vr-hcard-body,
+.vr-hcard-foot { position: relative; z-index: 1; }
+.vr-hcard-tag {
+  font-family: var(--vr-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.vr-hcard-tag::before { content: '●'; color: currentColor; opacity: 0.5; font-size: 8px; }
+.vr-hcard-title {
+  font-family: var(--vr-serif);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 400;
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+.vr-hcard-sub { font-family: var(--vr-sans); font-size: 12px; opacity: 0.7; margin-top: 6px; }
+.vr-hcard-foot { font-family: var(--vr-sans); display: flex; justify-content: space-between; align-items: flex-end; font-size: 12px; }
+.vr-hcard-arrow {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s;
+}
+.vr-hero-card:hover .vr-hcard-arrow { transform: translate(3px, -3px); }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .vr-hero-grid { grid-template-columns: 1fr; height: auto; }
+  .vr-hero-side { grid-template-rows: auto; grid-template-columns: 1fr 1fr; }
+  .vr-hero-main { min-height: 420px; }
+}
+@media (max-width: 749px) {
+  .vr-hero-main { padding: 36px 28px; }
+  .vr-hero-title { font-size: 40px; max-width: 100%; }
+  .vr-hero-side { grid-template-columns: 1fr; }
+  .vr-hero-device { display: none; }
+}
+
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Valor hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "info": "Leave blank for no background",
+      "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Become a Valor partner · Apply in 3 steps"
+    },
+    {
+      "type": "textarea",
+      "id": "title",
+      "label": "Title (use line breaks for multi-line)",
+      "default": "The brands your\ncustomers want."
+    },
+    {
+      "type": "text",
+      "id": "title_em",
+      "label": "Title italic suffix",
+      "info": "Rendered in italic on a new line after the title",
+      "default": "Ready for you."
+    },
+    {
+      "type": "textarea",
+      "id": "sub",
+      "label": "Subtext",
+      "default": "16,000+ SKUs across protection, power, audio, attachables, and wearables — engineered, stocked, and shipping from LA & Texas."
+    },
+    {
+      "type": "header",
+      "content": "CTA"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button text",
+      "default": "Apply for an account"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "opens_dialog",
+      "label": "Open registration dialog on click",
+      "info": "When enabled, the button triggers data-vr-open instead of navigating to the URL",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "secondary_text",
+      "label": "Secondary link text",
+      "default": "Sign in to existing account"
+    },
+    {
+      "type": "url",
+      "id": "secondary_url",
+      "label": "Secondary link URL"
+    },
+    {
+      "type": "header",
+      "content": "Device image"
+    },
+    {
+      "type": "image_picker",
+      "id": "device_image",
+      "label": "Device / product image",
+      "info": "Replaces the decorative phone placeholder. Recommended size: 560 × 800px"
+    },
+    {
+      "type": "header",
+      "content": "Main banner text colors"
+    },
+    {
+      "type": "color",
+      "id": "hero_eyebrow_color",
+      "label": "Eyebrow color",
+      "default": "#63B9DE"
+    },
+    {
+      "type": "color",
+      "id": "hero_title_color",
+      "label": "Title color",
+      "default": "#F4F5F2"
+    },
+    {
+      "type": "color",
+      "id": "hero_sub_color",
+      "label": "Subtext color",
+      "default": "#F4F5F2"
+    },
+    {
+      "type": "header",
+      "content": "Hero gradient"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_bg_image",
+      "label": "Background image",
+      "info": "Displayed behind the gradient overlay. Recommended: 1400 × 540px"
+    },
+    {
+      "type": "color",
+      "id": "gradient_start",
+      "label": "Gradient left color",
+      "default": "#2B3A55"
+    },
+    {
+      "type": "color",
+      "id": "gradient_end",
+      "label": "Gradient right color",
+      "default": "#1D2636"
+    },
+    {
+      "type": "color",
+      "id": "glow_color",
+      "label": "Glow color",
+      "info": "Leave blank for default sky-blue glow"
+    },
+    {
+      "type": "header",
+      "content": "Side card 1"
+    },
+    {
+      "type": "text",
+      "id": "card1_tag",
+      "label": "Tag",
+      "default": "Q2 carrier program"
+    },
+    {
+      "type": "text",
+      "id": "card1_title",
+      "label": "Title",
+      "default": "20% off MyBat Pro."
+    },
+    {
+      "type": "text",
+      "id": "card1_sub",
+      "label": "Subtitle",
+      "default": "Stack on top of tier pricing"
+    },
+    {
+      "type": "text",
+      "id": "card1_footer",
+      "label": "Footer text",
+      "default": "Through May 31"
+    },
+    {
+      "type": "url",
+      "id": "card1_url",
+      "label": "URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "card1_image",
+      "label": "Background image",
+      "info": "Covers the background color when set"
+    },
+    {
+      "type": "color",
+      "id": "card1_bg_color",
+      "label": "Background color",
+      "default": "#D9EEF6"
+    },
+    {
+      "type": "color",
+      "id": "card1_text_color",
+      "label": "Text color",
+      "default": "#1D2636"
+    },
+    {
+      "type": "header",
+      "content": "Side card 2"
+    },
+    {
+      "type": "text",
+      "id": "card2_tag",
+      "label": "Tag",
+      "default": "Limited drop"
+    },
+    {
+      "type": "text",
+      "id": "card2_title",
+      "label": "Title",
+      "default": "WWE Championship Series."
+    },
+    {
+      "type": "text",
+      "id": "card2_sub",
+      "label": "Subtitle",
+      "default": "Allocation window open · 90 days"
+    },
+    {
+      "type": "text",
+      "id": "card2_footer",
+      "label": "Footer text",
+      "default": "Reserve now"
+    },
+    {
+      "type": "url",
+      "id": "card2_url",
+      "label": "URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "card2_image",
+      "label": "Background image",
+      "info": "Covers the background color when set"
+    },
+    {
+      "type": "color",
+      "id": "card2_bg_color",
+      "label": "Background color",
+      "default": "#C54448"
+    },
+    {
+      "type": "color",
+      "id": "card2_text_color",
+      "label": "Text color",
+      "default": "#F4F5F2"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor hero"
+    }
+  ]
+}
+{% endschema %}

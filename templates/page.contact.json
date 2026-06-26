@@ -1,0 +1,287 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "section": {
+      "type": "section",
+      "blocks": {
+        "group_3iY7UH": {
+          "type": "group",
+          "name": "Header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fit-content",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_NW84JL": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h6><strong>Let's Talk</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_xDYpGK": {
+              "type": "text",
+              "name": "Heading",
+              "settings": {
+                "text": "<h1>Contact <em>Valor</em></h1>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "center",
+                "padding_left": "0",
+                "type_preset": "h2",
+                "font": "var(--font-heading--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_76qxEV": {
+              "type": "text",
+              "settings": {
+                "text": "<p>If you’ve reached this page, you’re either looking for a top-tier mobile accessory partner, or you’ve wandered deep into the bowels of the internet. Either way; glad you’re here.<br/><br/>At the end of the day, we’re not just moving pallets of product; we’re building the infrastructure that keeps people connected (and keeps their screens from shattering into a thousand pieces). Whether you need to stock 500 stores or just want to see if we’re as smart as we sound, drop us a line.</p>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "narrow",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-heading--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_NW84JL",
+            "text_xDYpGK",
+            "text_76qxEV"
+          ]
+        },
+        "contact_form_jWxXkm": {
+          "type": "contact-form",
+          "settings": {
+            "width": "custom",
+            "custom_width": 60,
+            "width_mobile": "custom",
+            "custom_width_mobile": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "scheme-1",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "submit-button": {
+              "type": "contact-form-submit-button",
+              "static": true,
+              "settings": {
+                "label": "Send us a note",
+                "style_class": "button",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": []
+        }
+      },
+      "block_order": [
+        "group_3iY7UH",
+        "contact_form_jWxXkm"
+      ],
+      "settings": {
+        "section_width": "page-width",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "scroll_on_mobile": false,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "flex-start",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "section_9VnrgU": {
+      "type": "valor-contact-options",
+      "blocks": {
+        "email": {
+          "type": "contact_method",
+          "settings": {
+            "number": "i.",
+            "title": "Drop an email",
+            "copy": "<p>We aim for lightning-fast replies. If it takes more than 24 hours, assume we are helping other dealers maximize revenue, deep in a coffee coma, or lost in a whiteboard session.</p>",
+            "details": "<p>SALES: <a href=\"mailto:sales@valorcomm.com\" title=\"mailto:sales@valorcomm.com\">sales@valorcomm.com</a>  <br/>SUPPORT: <a href=\"mailto:lily@valorcomm.com\">lily@valorcomm.com</a></p>",
+            "meta": "Best for partner questions, product asks, and follow-ups"
+          }
+        },
+        "phone": {
+          "type": "contact_method",
+          "settings": {
+            "number": "ii.",
+            "title": "Old school? Give us a ring",
+            "copy": "<p>If you call after hours, our voicemail is very lonely and would love to hear from you.</p>",
+            "details": "<p><strong>Toll free</strong><br/><a href=\"tel:+18773692088\">+1 (877) 369-2088</a></p><p><strong>Office</strong><br/><a href=\"tel:+16265818085\">+1 (626) 581-8085</a></p>",
+            "meta": "Available Monday-Friday, 9am-5pm Eastern"
+          }
+        },
+        "mail": {
+          "type": "contact_method",
+          "settings": {
+            "number": "iii.",
+            "title": "The snail mail route",
+            "copy": "<p>For official documents, holiday cards, or very high-quality chocolate.</p>",
+            "details": "<p><strong>Corporate office</strong><br>18071 Arenth Ave.<br>City of Industry, CA 91748</p><p><strong>Distribution warehouse</strong><br>10811 S Westview Circle Dr. STE #100<br>Houston, TX 77043</p>",
+            "meta": "Best for documents, samples, and official mail"
+          }
+        }
+      },
+      "block_order": [
+        "email",
+        "phone",
+        "mail"
+      ],
+      "settings": {
+        "color_scheme": "",
+        "accent_color": "#c54448",
+        "eyebrow": "Other ways to reach us",
+        "heading": "Reach out <em>other ways.</em>",
+        "intro": "<p>Pick the route that fits the ask. We will get you to the right person, the right warehouse, or the right answer without making it weird.</p>",
+        "padding_top": 24,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": [
+    "section",
+    "section_9VnrgU"
+  ]
+}

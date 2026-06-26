@@ -1,0 +1,752 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "shogun-helper": {
+      "type": "shogun-helper",
+      "settings": {}
+    },
+    "blocks_Jd3hDj": {
+      "type": "_blocks",
+      "blocks": {
+        "text_nPgGwb": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h6><strong>⸺   Customer Feedback</strong></h6>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 12,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_yTbF4Y": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h1>Real people. Real businesses.<br/>They trust Valor to be their <em><strong>accessory to success.</strong></em></h1>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 24,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_EJFJfc": {
+          "type": "text",
+          "name": "t:names.text",
+          "settings": {
+            "text": "<p>See what they have to say.</p>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "ai_gen_block_7163c89_EygKYQ": {
+          "type": "ai_gen_block_7163c89",
+          "settings": {
+            "padding_top": 20,
+            "padding_bottom": 20,
+            "padding_top_mobile": 15,
+            "padding_bottom_mobile": 15
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_nPgGwb",
+        "text_yTbF4Y",
+        "text_EJFJfc",
+        "ai_gen_block_7163c89_EygKYQ"
+      ],
+      "name": "Group block padding",
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 80,
+        "padding-block-end": 40
+      }
+    },
+    "section_KUyUED": {
+      "type": "section",
+      "blocks": {
+        "text_7agcNF": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h6><strong>⸺   Featured Testimonial</strong></h6>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 12,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_rw4tHK": {
+          "type": "text",
+          "name": "t:names.text",
+          "settings": {
+            "text": "<h3>“<br/>Working with Valor has consistently been one of the smoothest and most supportive vendor relationships we've had. Their team truly goes above and beyond — anytime I reach out, whether it's for a product request, inventory support, or last-minute assistance, they either have what we need or work with us directly to make it happen. <em><strong>That level of care and responsiveness makes a huge difference at the store level.</strong></em></h3>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "600",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "h3",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "divider_kwVVm3": {
+          "type": "_divider",
+          "name": "t:names.divider",
+          "settings": {
+            "thickness": 1,
+            "corner_radius": "square",
+            "width_percent": 100,
+            "padding-block-start": 24,
+            "padding-block-end": 18
+          },
+          "blocks": {}
+        },
+        "text_QPgJWj": {
+          "type": "text",
+          "name": "t:names.heading",
+          "settings": {
+            "text": "<h5>Stephanie Sandhu</h5>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "text_HjmN4g": {
+          "type": "text",
+          "name": "t:names.text",
+          "settings": {
+            "text": "<p>Advanced Cellular  ·  Sacramento, CA</p>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "fit-content",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "rte",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_7agcNF",
+        "text_rw4tHK",
+        "divider_kwVVm3",
+        "text_QPgJWj",
+        "text_HjmN4g"
+      ],
+      "name": "t:names.custom_section",
+      "settings": {
+        "section_width": "page-width",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "scroll_on_mobile": false,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_height": "small",
+        "section_height_custom": 50,
+        "color_scheme": "scheme-4",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 40,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 36,
+        "padding-block-end": 36
+      }
+    },
+    "new_testimonials_CG7tii": {
+      "type": "new-testimonials",
+      "blocks": {
+        "testimonial_yXGmwU": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p><strong>A Decade of Growth and Innovation: </strong></p><p>Valor has helped me expand my accessory business for over 10 years. The variety they have has allowed me to provide the latest and greatest for my customers.</p>",
+            "author_name": "Valerie A.",
+            "author_detail": "Yes Of Course"
+          }
+        },
+        "testimonial_FcrEjq": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p><strong>Outstanding Service and Great Variety:</strong> Valor's customer service is absolutely outstanding. Delivery has always been timely and the variety of products is great.</p>",
+            "author_name": "Bertha W.",
+            "author_detail": "AAA Cellular Accessories"
+          }
+        },
+        "testimonial_cdkq7Q": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p><strong>Reliability You Can Stand Behind:</strong> Valor stands behind what they do and that's what's important to me. I can't service my customers if I'm not being serviced with excellence.</p>",
+            "author_name": "Patrick C.",
+            "author_detail": ""
+          }
+        },
+        "testimonial_Wb6Wt6": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p><strong>Thank you Ondigo! </strong>I've ordered from Ondigo since I opened my stores.  I have always found their selection and pricing to be exactly what I need. Whenever I contact my rep, he is responsive and helpful.   Shipping is easy and arrives on time. I will continue to use Ondigo as my accessory provider. </p>",
+            "author_name": "Omar Eyad",
+            "author_detail": "EZ Cell St. Petersburg FL - VIP Wireless"
+          }
+        },
+        "testimonial_hnRqRz": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p><strong>Absolutely Delighted with Ondigo!</strong> I recently started purchasing my wireless accessories from Ondigo – specifically, their chargers and cases. Beyond the products themselves, the ordering process on Ondigo is easy and shipping was surprisingly fast.  I like the packaging – it feels premium and secure.<br/>I've tried accessories from other places before, but the selection and prices are not as good as Ondigo and support nonexistent. Ondigo provides high-quality and affordable wireless phone accessories, I highly recommend them.  Their team is great and always ready to help.</p>",
+            "author_name": "Sam S.",
+            "author_detail": "SA Ontario Wireless, Buffalo NY. (VHA)"
+          }
+        },
+        "testimonial_PYbLxN": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>Working with Ondigo has consistently been one of the smoothest and most supportive vendor relationships we've had at Advanced Cellular. Their team truly goes above and beyond for us. Anytime I reach out — whether it's for a product request, inventory support, or last-minute assistance — they either have what we need or work with us directly to make it happen. That level of care and responsiveness makes a huge difference at the store level.<br/>Their accessory lineup is strong — the product quality is excellent, and the offerings are practical, well-designed, and customer-ready right out of the box. Whether we're talking about charging solutions, protection, audio, or display items, everything is consistent and reliable. Ondigo also ships quickly and accurately, which helps keep our inventory moving without delays or gaps.<br/>In short, they've earned our trust as a go-to partner. I genuinely enjoy working with them and fully support expanding access to their full brand portfolio. They've proven that they're more than just a vendor — they're invested in our success.<br/>Thanks again, Bruce!<br/></p>",
+            "author_name": "Stephanie Sandhu",
+            "author_detail": "Advanced Cellular (VHA)"
+          }
+        },
+        "testimonial_z93PUD": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>We just want to say thank you for all the work you guys do! We've been able to grow our accessory sales due to the variety of products that are being brought into our stores. The biggest advantage we get is the delivery time, everything gets processed and delivered extremely quickly. It helps when the product is always in stock and available to order to help inventory flow much smoother. With exceptional customer service, we always have someone to reach out to from the field team to even the support team. However, one thing we would love to see from Ondigo is the ability to carry all oems and higher quality items especially with Boost Plus launching. It would help us tremendously to have Ondigo as a one stop shop to all our needs instead of ordering from multiple vendors which complicates the operational procedure.<br/>Thank you for the continued support! <br/></p>",
+            "author_name": "Sami Ayyoub",
+            "author_detail": "20/20 Mobile – Marceco"
+          }
+        },
+        "testimonial_fdw7Gx": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>I am writing this letter to enthusiastically recommend Ondigo as the preferred wireless accessory vendor for Boost Mobile. As the owner of Central PA Wireless LLC, I have had the privilege of working with Ondigo since its inception, and my experience has consistently been exceptional.<br/>From day one, Ondigo has demonstrated an unparalleled commitment to partnership. They are remarkably receptive to constructive feedback, actively listening to our needs and implementing improvements based on our input. This open communication fosters a truly collaborative relationship, which is invaluable in a fast-paced industry like ours.<br/>Ondigo consistently goes above and beyond by proactively reaching out to inquire about our new inventory requirements. This foresight ensures that we are always well-stocked with the accessories our customers demand. Furthermore, they continuously challenge us with their competitive pricing and overall market competitiveness, ensuring that we receive the best possible value.<br/>Their dedication to improvement is evident in the month-over-month enhancements to their operations and accessory availability. This consistent progress translates directly into a smoother workflow for our business. The efficiency of their shipping and order processing is exemplary, allowing us to maintain optimal inventory levels and fulfill customer orders promptly.<br/>Crucially, our profitability has significantly increased because Ondigo offers the best pricing among all our vendors. This competitive edge is a direct contributor to the success of Central PA Wireless LLC.<br/>In summary, Ondigo is more than just a vendor; they are a strategic partner who consistently delivers on their promises, drives efficiency, and contributes directly to our bottom line. I wholeheartedly recommend them without reservation.<br/></p>",
+            "author_name": "Carlos H. Perez",
+            "author_detail": "CPA Wireless – VIP"
+          }
+        },
+        "testimonial_QAEUVg": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>Ondigo provides an excellent and reliable one stop shop for boost dealers. Very rarely does cellgear have to look elsewhere for the product that we need. <br/>My district managers and myself really appreciate how reliable the shipping is, we know their product will be in our shops with in 2 or 3 days every single time. <br/>I believe ondigo fills so many needs because they listen to their clients. Boost owners wanted more cases with designs, they responded with their design lab series, giving us hundreds of designs per phone. Even on a dealer level, Cellgear wanted to run an internal initiative on selling more charging blocks, Ondigo supported us by giving us an excellent price with volume buys.<br/>Cellgear values Ondigo not only due to their current great performance, but because we understand Ondigo will continue to grow and adapt with the changes happening at boost itself. Cellgear looks foward to more great years with Boost and more great years being supported by Ondigo.<br/></p>",
+            "author_name": "Gabriel Wong",
+            "author_detail": "Cellgear – VIP Wireless"
+          }
+        },
+        "testimonial_7zqFHL": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>We started doing business with Valor & Albert about 12 months ago, we met through a mutual friend. When I started to gain more insight about Valor and the background, along with them being the original pioneers of the business through brands that I recognized from almost 15 years ago I was surprised. Their brand and organization has come a long way, we decided to give them a try and started sending them orders weekly. Most vendors claim that they can fulfill thousands of orders but when the time comes they make excuses and create delays. Most people do not realize that the logistics behind filling thousands of orders is almost an art.  Over the last year we continue to challenge Valor on product availability and staying competitive and thus far we have not been let down. The professionalism, response times, order turnaround have been fantastic. Albert and the whole Valor team have been a great partner and we wish them tremendous success in scaling their business.  We are very pleased with our experience and I would recommend Valor to my peers.</p>",
+            "author_name": "Yousuf Meghani",
+            "author_detail": "Mobile Link"
+          }
+        },
+        "testimonial_UhRGDt": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>I just wanted to share a quick note and let you know that Valor does a really good job. I have been working with them for many years now.<br/>I'm glad I decided to work with them. It's easy to use their websites for ordering. They are up to date and manage it very well.<br/>Processing orders and providing me with the resources needed for replenishment. Helping me meet my customers' demands, is a smooth process with Valor.<br/>Thanks for the support Valor !</p>",
+            "author_name": "Omer A.",
+            "author_detail": "Owner, Spacetel"
+          }
+        },
+        "testimonial_GEVkPz": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>It's been a very delightful experience working with you and the Valor team. All our orders are processed within 48 hours which is very advantageous to Sun Com. We would like to do more business in future given Valor gets integrated with iQmetrix.</p>",
+            "author_name": "Bilal Nauman",
+            "author_detail": "Sun Com Mobile"
+          }
+        },
+        "testimonial_RYPDmN": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>Dealing with Valor has been a very good experience. They have wide selection of accessories at very attractive prices. Albert and his team are on point and usually ship out all the orders the same day. RQ integration would help a lot but besides that I would give them a 10/10!</p>",
+            "author_name": "Sam Shah",
+            "author_detail": "Freedom Wireless"
+          }
+        },
+        "testimonial_4bbnEg": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>I order from Ondigo because of the selection and the prices.   Support is good and the return policy is easy.  I will keep buying from them.</p>",
+            "author_name": "Ginem Diah",
+            "author_detail": "Memphis Wireless Corp. - Marceco"
+          }
+        },
+        "testimonial_7P3Bha": {
+          "type": "testimonial",
+          "settings": {
+            "rating": 5,
+            "text": "<p>Ondigo provides nearly all my accessories for all my stores. I like their quality and delivery times.</p>",
+            "author_name": "Lak Jahanzieb",
+            "author_detail": "JS Wireless - Marceco"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_yXGmwU",
+        "testimonial_FcrEjq",
+        "testimonial_cdkq7Q",
+        "testimonial_Wb6Wt6",
+        "testimonial_hnRqRz",
+        "testimonial_PYbLxN",
+        "testimonial_z93PUD",
+        "testimonial_fdw7Gx",
+        "testimonial_QAEUVg",
+        "testimonial_7zqFHL",
+        "testimonial_UhRGDt",
+        "testimonial_GEVkPz",
+        "testimonial_RYPDmN",
+        "testimonial_4bbnEg",
+        "testimonial_7P3Bha"
+      ],
+      "name": "New: Testimonials",
+      "settings": {
+        "caption": "",
+        "title": "All Reviews",
+        "subtitle": "From the partners who actually work with us.",
+        "show_rating": true,
+        "star_color": "#f0a500",
+        "section_width": "page-width",
+        "items_per_view": 4,
+        "items_per_view_mobile": "1",
+        "item_gap": 24,
+        "card_radius": 16,
+        "autoplay": false,
+        "autoplay_speed": 5,
+        "color_scheme": "",
+        "card_bg": "#ffffff",
+        "nav_bg": "#1a1a1a",
+        "nav_icon_color": "#ffffff",
+        "nav_hover": "#333333",
+        "dot_color": "#cccccc",
+        "dot_active_color": "#1a1a1a",
+        "padding-block-start": 12,
+        "padding-block-end": 64
+      }
+    },
+    "collection_list_KjqEAC": {
+      "type": "collection-list",
+      "blocks": {
+        "group_aPJbxB": {
+          "type": "group",
+          "name": "t:names.header",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "align_baseline": false,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_ah9zE6": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h2>Shop Popular <em>Categories</em></h2>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 16,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_ah9zE6"
+          ]
+        },
+        "static-collection-card": {
+          "type": "_collection-card",
+          "name": "t:names.collection_card",
+          "static": true,
+          "settings": {
+            "placement": "below_image",
+            "horizontal_alignment": "center",
+            "vertical_alignment": "center",
+            "collection_card_gap": 8,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0
+          },
+          "blocks": {
+            "collection_title_yMyPXT": {
+              "type": "collection-title",
+              "name": "t:names.collection_title",
+              "settings": {
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h5",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "background": true,
+                "background_color": "#f4f5f2",
+                "corner_radius": 0,
+                "padding-block-start": 4,
+                "padding-block-end": 4,
+                "padding-inline-start": 8,
+                "padding-inline-end": 8
+              },
+              "blocks": {}
+            },
+            "collection-card-image": {
+              "type": "_collection-card-image",
+              "name": "t:names.collection_card_image",
+              "static": true,
+              "settings": {
+                "image_ratio": "adapt",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 20
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "collection_title_yMyPXT"
+          ]
+        }
+      },
+      "block_order": [
+        "group_aPJbxB"
+      ],
+      "disabled": true,
+      "name": "t:names.collections_grid",
+      "settings": {
+        "section_width": "page-width",
+        "gap": 12,
+        "color_scheme": "",
+        "collection_list": [
+          "protection-accessories",
+          "power-accessories",
+          "audio-accessories",
+          "attachables",
+          "collections-wearables",
+          "everything-else"
+        ],
+        "layout_type": "grid",
+        "carousel_on_mobile": false,
+        "columns": 6,
+        "mobile_columns": "2",
+        "mobile_card_size": "60cqw",
+        "columns_gap": 8,
+        "bento_gap": 8,
+        "rows_gap": 8,
+        "max_collections": 4,
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "padding-block-start": 48,
+        "padding-block-end": 48
+      }
+    },
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "100%",
+            "max_width": "normal",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "1rem",
+            "line_height": "normal",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "disabled": true,
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "shogun-optimizer": {
+      "type": "shogun-optimizer",
+      "settings": {}
+    }
+  },
+  "order": [
+    "shogun-helper",
+    "blocks_Jd3hDj",
+    "section_KUyUED",
+    "new_testimonials_CG7tii",
+    "collection_list_KjqEAC",
+    "main",
+    "shogun-optimizer"
+  ]
+}

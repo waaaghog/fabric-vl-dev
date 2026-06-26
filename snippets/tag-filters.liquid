@@ -1,0 +1,112 @@
+{%- doc -%}
+  Renders tag-based filter groups for collection tags formatted as FILTER_Category:Value.
+  @param {string} [filter_style] - 'vertical' or 'horizontal'
+  @param {boolean} [in_drawer] - Whether rendered inside the filters drawer
+  @param {string} [section_id] - The section ID for unique element IDs
+  @param {string} [only_category] - Optional tag filter category to render
+{%- enddoc -%}
+
+{%- liquid
+  assign filter_prefix = 'FILTER_'
+  assign tag_categories_str = ''
+  assign only_category_handle = only_category | handle
+  for tag in collection.all_tags
+    if tag contains filter_prefix
+      assign category = tag | remove_first: filter_prefix | split: ':' | first
+      unless tag_categories_str contains category
+        assign tag_categories_str = tag_categories_str | append: category | append: ','
+      endunless
+    endif
+  endfor
+  assign tag_categories = tag_categories_str | split: ','
+-%}
+
+{%- for category in tag_categories -%}
+  {%- if category == blank -%}{%- continue -%}{%- endif -%}
+  {%- assign category_match_handle = category | handle -%}
+  {%- if only_category_handle != blank and category_match_handle != only_category_handle -%}{%- continue -%}{%- endif -%}
+
+  {%- liquid
+    assign tag_prefix = filter_prefix | append: category | append: ':'
+    assign active_count = 0
+    for tag in collection.all_tags
+      if tag contains tag_prefix
+        if current_tags contains tag
+          assign active_count = active_count | plus: 1
+        endif
+      endif
+    endfor
+  -%}
+
+  {%- capture accordion_children -%}
+    <details
+      id="tag-filter-details-{{ section_id }}-{{ category | handle }}"
+      class="facets__panel"
+      {% if filter_style == 'horizontal' %}data-auto-close-details="desktop"{% endif %}
+      {% if filter_style != 'horizontal' and in_drawer != true %}open{% endif %}
+    >
+      <summary class="facets__summary">
+        <span class="facets__label">{{ category }}</span>
+        <div class="facets__status-wrapper">
+          <facet-status-component class="facets__status" facet-type="list" data-filter-style="{{ filter_style }}">
+            <span class="{% if active_count > 0 %}bubble facets__bubble{% endif %} hide-when-empty" ref="facetStatus">
+              {%- if active_count > 0 -%}{{ active_count }}{%- endif -%}
+            </span>
+          </facet-status-component>
+          <span class="svg-wrapper icon-caret icon-animated">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+        </div>
+      </summary>
+
+      <floating-panel-component
+        {% unless filter_style == 'vertical' %}data-close-on-resize{% endunless %}
+        class="facets__inputs facets__panel-content details-content{% if filter_style == 'horizontal' %} color-{{ settings.popover_color_scheme }}{% endif %}"
+        id="tag-filter-inputs-{{ section_id }}-{{ category | handle }}"
+      >
+        <div class="facets__inputs-wrapper">
+          <ul class="list-unstyled facets__list" role="list">
+            {%- for tag in collection.all_tags -%}
+              {%- unless tag contains tag_prefix -%}{%- continue -%}{%- endunless -%}
+              <li class="facets-inputs-list-item">
+                <div class="checkbox">
+                  <input
+                    type="checkbox"
+                    id="tag-filter-{{ section_id }}-{{ forloop.index }}-{{ tag | handle }}"
+                    class="checkbox__input tag-filter__input"
+                    data-tag-value="{{ tag | handle }}"
+                    data-tag-label="{{ category }}: {{ tag | split: ':' | last | escape }}"
+                    {% if current_tags contains tag %}checked{% endif %}
+                  >
+                  <label class="checkbox__label" for="tag-filter-{{ section_id }}-{{ forloop.index }}-{{ tag | handle }}">
+                    {{- 'icon-checkmark.svg' | inline_asset_content -}}
+                    <span class="checkbox__label-text">{{ tag | split: ':' | last }}</span>
+                  </label>
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </floating-panel-component>
+    </details>
+  {%- endcapture -%}
+
+  {%- liquid
+    assign is_vertical   = false
+    assign is_horizontal = false
+    if filter_style == 'vertical'
+      assign is_vertical = true
+    elsif filter_style == 'horizontal'
+      assign is_horizontal = true
+    endif
+    assign category_handle = category | handle
+  -%}
+  {%- render 'accordion-custom-component',
+    children: accordion_children,
+    class: 'facets__item',
+    open: is_vertical,
+    open_by_default_on_desktop: true,
+    open_by_default_on_mobile: forloop.first,
+    disable_animation_on_desktop: is_horizontal,
+    close_with_escape: is_horizontal,
+    data_filter_param_name: category_handle
+  -%}
+{%- endfor -%}

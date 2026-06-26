@@ -1,0 +1,50 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "context": {
+    "market": "boost-mobile"
+  },
+  "current": {
+    "logo": "shopify://shop_images/mmexport1780936711375.png",
+    "color_schemes": {
+      "scheme-1": {
+        "settings": {}
+      },
+      "scheme-2": {
+        "settings": {}
+      },
+      "scheme-4": {
+        "settings": {}
+      },
+      "scheme-5": {
+        "settings": {}
+      },
+      "scheme-6": {
+        "settings": {}
+      },
+      "scheme-7": {
+        "settings": {}
+      },
+      "scheme-5e8fc485-0dde-4169-b320-ce685096a54d": {
+        "settings": {
+          "background": "#ea571f",
+          "foreground_heading": "#000000",
+          "foreground": "#ffffff",
+          "primary": "#ffffff"
+        }
+      },
+      "scheme-85a99d12-2a90-4512-9e1c-b1c08354eb6d": {
+        "settings": {
+          "foreground_heading": "#ffffff"
+        }
+      }
+    }
+  }
+}

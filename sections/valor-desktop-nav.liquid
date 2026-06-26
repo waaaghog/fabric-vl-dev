@@ -1,0 +1,2032 @@
+{%- comment -%}
+  valor-desktop-nav.liquid
+  Desktop mega-menu navigation bar. Hidden on mobile (≤ 900px).
+  Add to the Header group in the theme editor — it renders as a sticky
+  secondary nav bar below the logo/search row.
+
+  Four block types:
+    link              — simple link, no dropdown
+    dropdown-simple   — plain list dropdown (e.g. About)
+    dropdown-categories — image-card columns mega menu
+    dropdown-devices  — hero banner + brand/device grid
+    dropdown-brands   — brand tile grid
+    dropdown-designlab - Design Lab rail mega menu
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
+<nav class="vdn{% if section.settings.dropdown_align == 'center' %} vdn--center{% endif %}" aria-label="{{ section.settings.aria_label | default: 'Primary navigation' | escape }}">
+  <div class="vdn__inner">
+    <ul class="vdn__list" role="menubar">
+
+      {%- for block in section.blocks -%}
+        {%- assign has_dd = false -%}
+        {%- unless block.type == 'link' -%}
+          {%- assign has_dd = true -%}
+        {%- endunless -%}
+        {%- liquid
+          assign block_label_key = block.settings.label | default: '' | downcase | strip | replace: ' ', '' | replace: '-', ''
+          assign is_design_lab_dropdown = false
+          if block.type == 'dropdown-designlab' or block_label_key == 'designlab'
+            assign is_design_lab_dropdown = true
+          endif
+        -%}
+
+        <li
+          class="vdn__item{% if has_dd %} vdn__item--dd{% endif %}"
+          role="none"
+          {{ block.shopify_attributes }}
+        >
+
+          {%- if block.type == 'link' -%}
+            <a class="vdn__trigger vdn__link" href="{{ block.settings.url }}" role="menuitem">
+              {{- block.settings.label | escape -}}
+            </a>
+
+          {%- else -%}
+            <button
+              class="vdn__trigger"
+              role="menuitem"
+              aria-haspopup="true"
+              aria-expanded="false"
+              type="button"
+            >
+              {{- block.settings.label | escape -}}
+              <svg class="vdn__chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+
+            {%- case block.type -%}
+
+              {%- when 'dropdown-categories' -%}
+                {%- assign dd_menu_handle = block.settings.menu | default: 'desknav-categories' -%}
+                {%- assign dd_menu = linklists[dd_menu_handle] -%}
+                <div class="vdn__mega vdn__mega--cats" role="menu">
+                  {%- assign _palette = '#2B3A55,#C54448,#63B9DE,#B07E1A,#2d7a3f,#66717E' | split: ',' -%}
+                  <div class="vdn__cats-grid">
+                    {%- for link in dd_menu.links -%}
+                      {%- assign ci = forloop.index -%}
+                      {%- assign _pi = ci | minus: 1 -%}
+                      {%- assign col_bg = _palette[_pi] | default: '#2B3A55' -%}
+                      {%- assign img_key = 'col_' | append: ci | append: '_image' -%}
+                      {%- assign col_img = block.settings[img_key] -%}
+                      {%- assign col_fallback_file = blank -%}
+                      {%- case ci -%}
+                        {%- when 1 -%}{%- assign col_fallback_file = 'Protection.png' -%}
+                        {%- when 2 -%}{%- assign col_fallback_file = 'Power.png' -%}
+                        {%- when 3 -%}{%- assign col_fallback_file = 'Audio.png' -%}
+                        {%- when 4 -%}{%- assign col_fallback_file = 'Attachables.png' -%}
+                        {%- when 5 -%}{%- assign col_fallback_file = 'Wearables.png' -%}
+                        {%- when 6 -%}{%- assign col_fallback_file = 'Everything-Else.png' -%}
+                      {%- endcase -%}
+                      {%- assign col_fallback_img = blank -%}
+                      {%- if col_fallback_file != blank -%}
+                        {%- assign col_fallback_img = images[col_fallback_file] -%}
+                      {%- endif -%}
+                      <div class="vdn__col" role="none">
+                        <a
+                          href="{{ link.url }}"
+                          class="vdn__col-img"
+                          style="
+                            background: linear-gradient(135deg, {{ col_bg }} 0%, #1D2636 100%);
+                            aspect-ratio: {{ block.settings.column_image_ratio }};
+                          "
+                          aria-hidden="true"
+                          tabindex="-1"
+                        >
+                          {%- if col_img != blank -%}
+                            {{ col_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vdn__col-img-src' }}
+                          {%- elsif col_fallback_img != blank -%}
+                            {{ col_fallback_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vdn__col-img-src' }}
+                          {%- endif -%}
+                        </a>
+                        <a href="{{ link.url }}" class="vdn__col-title-link" role="none">
+                          <div class="vdn__col-title" role="menuitem">{{ link.title }}</div>
+                        </a>
+                        {%- if link.links.size > 0 -%}
+                          <ul class="vdn__col-links" role="menu">
+                            {%- for child in link.links -%}
+                              <li role="none"><a href="{{ child.url }}" role="menuitem">{{ child.title }}</a></li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </div>
+
+              {%- when 'dropdown-devices' -%}
+                {%- assign dd_menu_handle = block.settings.menu | default: 'desknav-devices' -%}
+                {%- assign dd_menu = linklists[dd_menu_handle] -%}
+                <div class="vdn__mega vdn__mega--devices" role="menu">
+                  {%- if block.settings.hero_title != blank -%}
+                    <a href="{{ block.settings.hero_url | default: '#' }}" class="vdn__dev-hero">
+                      <div class="vdn__hero-graphic" aria-hidden="true">
+                        {%- if block.settings.hero_image != blank -%}
+                          <div class="vdn__hero-device">
+                            {{ block.settings.hero_image | image_url: width: 480 | image_tag: loading: 'lazy', style: 'height: 130px; width: auto; object-fit: contain; display: block;' }}
+                          </div>
+                        {%- else -%}
+                          <div class="vdn__hero-device">
+                            <svg viewBox="0 0 220 360" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:auto;">
+                              <rect x="20" y="10" width="180" height="340" rx="32" fill="#2B3A55" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+                              <rect x="28" y="18" width="164" height="324" rx="26" fill="#111"/>
+                              <rect x="92" y="26" width="36" height="8" rx="4" fill="#000"/>
+                              <circle cx="120" cy="30" r="2" fill="#1a3a4a"/>
+                            </svg>
+                          </div>
+                        {%- endif -%}
+                        <div class="vdn__hero-glow"></div>
+                      </div>
+                      <div class="vdn__hero-text">
+                        {%- if block.settings.hero_eyebrow != blank -%}
+                          <div class="vdn__hero-eyebrow">{{ block.settings.hero_eyebrow | escape }}</div>
+                        {%- endif -%}
+                        <div class="vdn__hero-title">{{ block.settings.hero_title | escape }}</div>
+                        {%- if block.settings.hero_cta != blank -%}
+                          <span class="vdn__hero-cta">
+                            {{ block.settings.hero_cta | escape }}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                          </span>
+                        {%- endif -%}
+                      </div>
+                    </a>
+                  {%- endif -%}
+                  {%- if dd_menu.links.size > 0 -%}
+                    <div class="vdn__dev-grid">
+                      {%- for link in dd_menu.links -%}
+                        <div class="vdn__col" role="none">
+                          <div class="vdn__col-title">{{ link.title }}</div>
+                          {%- if link.links.size > 0 -%}
+                            <ul class="vdn__col-links" role="menu">
+                              {%- for child in link.links -%}
+                                <li role="none">
+                                  <a href="{{ child.url }}" role="menuitem">
+                                    {% render 'valor-menu-title-with-new-badge', title: child.title, badge_class: 'vdn__dl-new' %}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
+                          {%- if link.url != blank and link.url != '#' -%}
+                            {%- assign _words = link.title | split: ' ' -%}
+                            <a href="{{ link.url }}" class="vdn__col-viewall" role="menuitem">View all {{ _words | last }} →</a>
+                          {%- endif -%}
+                        </div>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'dropdown-brands' -%}
+                {%- assign dd_menu_handle = block.settings.menu | default: 'navmenu-brands' -%}
+                {%- assign dd_menu = linklists[dd_menu_handle] -%}
+                <div class="vdn__mega vdn__mega--brands" role="menu">
+                  {%- if block.settings.eyebrow != blank -%}
+                    <div class="vdn__brands-eyebrow">{{ block.settings.eyebrow | escape }}</div>
+                  {%- endif -%}
+
+                  {%- comment -%} Per-brand tiles: upload a logo image OR fall back to text, set in the theme editor {%- endcomment -%}
+                  {%- assign brand_max = 20 -%}
+                  {%- assign brand_rendered = 0 -%}
+                  {%- capture brand_tiles -%}
+                    {%- for i in (1..brand_max) -%}
+                      {%- assign url_key  = 'brand_' | append: i | append: '_url' -%}
+                      {%- assign img_key  = 'brand_' | append: i | append: '_image' -%}
+                      {%- assign name_key = 'brand_' | append: i | append: '_name' -%}
+                      {%- assign b_url  = block.settings[url_key] -%}
+                      {%- assign b_img  = block.settings[img_key] -%}
+                      {%- assign b_name = block.settings[name_key] -%}
+                      {%- assign b_fallback_file = blank -%}
+                      {%- case i -%}
+                        {%- when 1 -%}{%- assign b_fallback_file = 'mybatpro-dropdown_fa2c8e6a-5f6c-4ce6-acd7-f6dc4bb2538a.png' -%}
+                        {%- when 2 -%}{%- assign b_fallback_file = 'mybat-dropdown_ff10186c-dcf8-4fd1-a4c2-2aa5b7b76bc3.png' -%}
+                        {%- when 3 -%}{%- assign b_fallback_file = 'echelon-dropdown_275aeb52-2f1f-4e89-9f3c-6009af5f173c.png' -%}
+                        {%- when 4 -%}{%- assign b_fallback_file = 'ampnergy-dropdown_d1bd5268-9745-4d1c-9cef-abe4a5ca1ac3.png' -%}
+                        {%- when 5 -%}{%- assign b_fallback_file = 'baseline-dropdown_886171a7-48f3-45a7-a28c-22258f9d8cce.png' -%}
+                        {%- when 6 -%}{%- assign b_fallback_file = 'ecoblvd-dropdown_cd89d25d-d588-4860-b96a-d0631d4ba72d.png' -%}
+                        {%- when 7 -%}{%- assign b_fallback_file = 'ondigo-dropdown_8ac29982-58f3-4e3e-98d7-ac9d32d61cf0.png' -%}
+                        {%- when 8 -%}{%- assign b_fallback_file = 'adata-dropdown_908142ec-696d-4d7d-8f79-ada55995017d.png' -%}
+                        {%- when 9 -%}{%- assign b_fallback_file = 'beats-dropdown.png' -%}
+                        {%- when 12 -%}{%- assign b_fallback_file = 'deejays-dropdown.png' -%}
+                        {%- when 14 -%}{%- assign b_fallback_file = 'luxmo-dropdown.png' -%}
+                        {%- when 15 -%}{%- assign b_fallback_file = 'maxpower-dropdown.png' -%}
+                        {%- when 16 -%}{%- assign b_fallback_file = 'mlb-dropdown_a615b1c1-6087-4116-99d3-5504d6fd5f87.png' -%}
+                        {%- when 17 -%}{%- assign b_fallback_file = 'scosche-dropdown.png' -%}
+                        {%- when 18 -%}{%- assign b_fallback_file = 'sentry-dropdown.png' -%}
+                        {%- when 19 -%}{%- assign b_fallback_file = 'RWAN-logo_1.png' -%}
+                      {%- endcase -%}
+                      {%- assign b_fallback_img = blank -%}
+                      {%- if b_fallback_file != blank -%}
+                        {%- assign b_fallback_img = images[b_fallback_file] -%}
+                      {%- endif -%}
+                      {%- assign b_use_fallback_img = false -%}
+                      {%- if b_fallback_img != blank -%}
+                        {%- if b_url != blank or b_name != blank -%}
+                          {%- assign b_use_fallback_img = true -%}
+                        {%- endif -%}
+                      {%- endif -%}
+                      {%- comment -%} Pull the collection's image when the link points to a collection {%- endcomment -%}
+                      {%- assign b_coll_img = nil -%}
+                      {%- if b_url contains '/collections/' -%}
+                        {%- assign b_coll_handle = b_url | split: '/collections/' | last | split: '/' | first | split: '?' | first | split: '#' | first -%}
+                        {%- assign b_coll_img = collections[b_coll_handle].image -%}
+                        {%- comment -%} Ignore Shopify's blank placeholder image so it falls back to text {%- endcomment -%}
+                        {%- if b_coll_img != blank -%}
+                          {%- assign _coll_img_src = b_coll_img | image_url: width: 320 | downcase -%}
+                          {%- if _coll_img_src contains 'placeholder' -%}
+                            {%- assign b_coll_img = nil -%}
+                          {%- endif -%}
+                        {%- endif -%}
+                      {%- endif -%}
+                      {%- if b_img != blank or b_coll_img != blank or b_use_fallback_img or b_name != blank -%}
+                        {%- assign brand_rendered = brand_rendered | plus: 1 -%}
+                        {%- assign b_alt = b_name | strip_html | strip | escape -%}
+                        <a href="{{ b_url | default: '#' }}" class="vdn__brand-pill" role="menuitem">
+                          {%- if b_img != blank -%}
+                            {{ b_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vdn__brand-pill__img', alt: b_alt }}
+                          {%- elsif b_coll_img != blank -%}
+                            {{ b_coll_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vdn__brand-pill__img', alt: b_alt }}
+                          {%- elsif b_use_fallback_img -%}
+                            {{ b_fallback_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vdn__brand-pill__img', alt: b_alt }}
+                          {%- else -%}
+                            {{ b_name }}
+                          {%- endif -%}
+                        </a>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endcapture -%}
+
+                  {%- if brand_rendered > 0 -%}
+                    <div class="vdn__brands-grid">{{ brand_tiles }}</div>
+                  {%- elsif block.settings.brands_html != blank -%}
+                    <div class="vdn__brands-grid">{{ block.settings.brands_html }}</div>
+                  {%- elsif dd_menu.links.size > 0 -%}
+                    <div class="vdn__brands-grid">
+                      {%- for link in dd_menu.links -%}
+                        <a href="{{ link.url }}" class="vdn__brand-tile" role="menuitem">
+                          <span class="vdn__brand-name">{{ link.title }}</span>
+                        </a>
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'dropdown-designlab' -%}
+                <div class="vdn__mega vdn__mega--designlab" role="menu">
+                  {% render 'valor-design-lab-nav',
+                    variant: 'desktop',
+                    block_settings: block.settings,
+                    block_id: block.id
+                  %}
+                </div>
+
+              {%- when 'dropdown-simple' -%}
+                {%- if is_design_lab_dropdown -%}
+                  <div class="vdn__mega vdn__mega--designlab" role="menu">
+                    {% render 'valor-design-lab-nav',
+                      variant: 'desktop',
+                      block_settings: block.settings,
+                      block_id: block.id
+                    %}
+                  </div>
+                {%- else -%}
+                  {%- assign dd_menu = linklists[block.settings.menu] -%}
+                  <div class="vdn__mega vdn__mega--simple{% if block.settings.side_image != blank %} vdn__mega--simple-img{% endif %}" role="menu">
+                    {%- if block.settings.side_image != blank -%}
+                      <div class="vdn__simple-side">
+                        {{ block.settings.side_image | image_url: width: 640 | image_tag }}
+                      </div>
+                    {%- endif -%}
+                    <ul class="vdn__simple-list">
+                      {%- for link in dd_menu.links -%}
+                        <li role="none"><a href="{{ link.url }}" role="menuitem">{{ link.title }}</a></li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                {%- endif -%}
+
+            {%- endcase -%}
+          {%- endif -%}
+
+        </li>
+      {%- endfor -%}
+
+    </ul>
+  </div>
+</nav>
+<script>
+  (function () {
+    var section = document.currentScript.closest('.vdn-section');
+    var vdn = section && section.querySelector('.vdn');
+    var left = document.querySelector('.vhr__left');
+    if (vdn && left) {
+      left.appendChild(vdn);
+      section.style.display = 'none';
+    }
+  })();
+</script>
+{%- endif -%}
+
+{% stylesheet %}
+/* ── Valor Desktop Nav ─────────────────────────────────────── */
+.vdn {
+  /*border-bottom: 1px solid rgba(29, 38, 54, 0.08);*/
+  /*font-family: var(--font-body--family, inherit);*/
+  /*font-size: 13px;*/
+}
+
+.vdn__inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.vdn__list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2px;
+}
+
+/* ── Item ─── */
+.vdn__item { position: relative; }
+
+/* ── Trigger (button or <a>) ─── */
+.vdn__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 14px;
+  height: 52px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1D2636;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  letter-spacing: 0.005em;
+  transition: color 0.15s ease;
+  position: relative;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Underline bar */
+.vdn__trigger::after {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: #C54448;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.18s ease;
+}
+
+/* Active/hover states */
+.vdn__item--dd:hover .vdn__trigger,
+.vdn__trigger[aria-expanded="true"],
+.vdn__trigger:focus-visible {
+  color: #C54448;
+  outline: none;
+}
+
+.vdn__item--dd:hover .vdn__trigger::after,
+.vdn__trigger[aria-expanded="true"]::after,
+.vdn__link:hover::after,
+.vdn__link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Chevron */
+.vdn__chev {
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: transform 0.18s ease;
+}
+
+.vdn__item--dd:hover .vdn__chev,
+.vdn__trigger[aria-expanded="true"] .vdn__chev {
+  transform: rotate(180deg);
+}
+
+/* ── Mega panel (shared base) ─── */
+.vdn__mega {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  background: #FFFFFF;
+  border: 1px solid rgba(29, 38, 54, 0.08);
+  box-shadow: 0 14px 40px -10px rgba(29, 38, 54, 0.15), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+  z-index: 1000;
+  max-width: 100%;
+}
+
+.vdn__item--dd:hover .vdn__mega {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0s;
+}
+
+/* ── Center alignment mode ─── */
+.vdn--center .vdn__mega {
+  position: fixed;
+  left: 50%;
+  top: calc(100% - 3px);
+  transform: translateX(-50%) translateY(-6px);
+}
+
+.vdn--center .vdn__item--dd:hover .vdn__mega {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Categories mega ─── */
+.vdn__mega--cats {
+  padding: 24px 24px 20px;
+  min-width: 880px;
+}
+
+.vdn__cats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 20px 14px;
+}
+
+/* Column image card */
+.vdn__col-img {
+  display: block;
+  width: 100%;
+  /*aspect-ratio: 5 / 3;*/
+  border-radius: 6px;
+  background:none !important;
+  overflow: hidden;
+  margin-bottom: 10px;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px -2px rgba(29, 38, 54, 0.12);
+}
+
+.vdn__col-img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -4px rgba(29, 38, 54, 0.2);
+}
+
+.vdn__col-img-src {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Column title */
+.vdn__col-title-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.vdn__col-title-link:hover .vdn__col-title { color: #C54448; }
+
+.vdn__col-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1D2636;
+  margin-bottom: 8px;
+  transition: color 0.15s ease;
+}
+
+/* Column link list */
+.vdn__col-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vdn__col-links li a {
+  display: block;
+  font-size: 12px;
+  color: #66717E;
+  text-decoration: none;
+  padding: 2px 0;
+  transition: color 0.12s ease, transform 0.12s ease;
+  font-weight: 400;
+}
+
+.vdn__col-links li a:hover {
+  color: #C54448;
+  transform: translateX(2px);
+}
+
+/* ── Devices mega ─── */
+.vdn__mega--devices {
+  padding: 0 0 20px;
+  width: max-content;
+}
+
+.vdn__dev-hero {
+  display: flex;
+  align-items: stretch;
+  background: linear-gradient(135deg, #1D2636 0%, #2B3A55 70%, #0a1220 100%);
+  color: #F4F5F2;
+  border-radius: 8px 8px 0 0;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: filter 0.2s ease;
+  min-height: 160px;
+}
+
+.vdn__dev-hero:hover { filter: brightness(1.1); }
+
+.vdn__hero-graphic {
+  flex: 0 0 28%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.vdn__hero-device {
+  position: relative;
+  z-index: 2;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+.vdn__hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(99, 185, 222, 0.35) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.vdn__hero-text {
+  flex: 1;
+  padding: 22px 26px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.vdn__hero-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #63B9DE;
+  margin-bottom: 8px;
+}
+
+.vdn__hero-title {
+  font-size: 24px;
+  font-weight: 400;
+  color: #F4F5F2;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  font-family: var(--font-heading--family, Georgia, serif);
+}
+
+.vdn__hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #F4F5F2;
+  border-bottom: 1px solid rgba(244, 245, 242, 0.4);
+  padding-bottom: 2px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.vdn__dev-hero:hover .vdn__hero-cta {
+  color: #63B9DE;
+  border-bottom-color: #63B9DE;
+}
+
+.vdn__dev-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 18px 16px;
+  padding: 20px 24px 0;
+}
+
+.vdn__mega--devices .vdn__col {
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.vdn__col-viewall {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1D2636;
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+
+.vdn__col-viewall:hover { color: #C54448; }
+
+/* Device link lists: auto 2-column when list has 13+ items */
+.vdn__mega--devices .vdn__col-links {
+  display: block;
+  column-count: 1;
+  column-gap: 6px;
+}
+
+.vdn__mega--devices .vdn__col-links li {
+  break-inside: avoid;
+  margin-bottom: 5px;
+}
+
+.vdn__mega--devices .vdn__dl-new {
+  margin-left: 6px;
+  vertical-align: 0.1em;
+}
+
+/* ── Brands mega ─── */
+.vdn__mega--brands {
+  padding: 24px 28px 26px;
+  min-width: 880px;
+}
+
+.vdn__brands-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #66717E;
+  margin-bottom: 16px;
+}
+
+.vdn__brands-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* Menu-driven fallback tiles */
+.vdn__brand-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 5 / 2;
+  background: #F4F5F2;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #1D2636;
+  transition: all 0.15s ease;
+  padding: 8px 16px;
+  min-height: 68px;
+}
+
+.vdn__brand-tile:hover {
+  background: #FFFFFF;
+  border-color: #1D2636;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -4px rgba(29, 38, 54, 0.18);
+}
+
+.vdn__brand-name {
+  font-size: 17px;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* Custom HTML brand tiles */
+.vdn__mega--brands .vdn__brand-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 5 / 2;
+  background: #F4F5F2;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #1D2636;
+  transition: all 0.15s ease;
+  padding: 8px 16px;
+  min-height: 68px;
+}
+
+.vdn__mega--brands .vdn__brand-pill:hover {
+  background: #FFFFFF;
+  border-color: #1D2636;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -4px rgba(29, 38, 54, 0.18);
+}
+
+.vdn__mega--brands .vdn__brand-pill__name {
+  font-size: 17px;
+  color: #1D2636;
+  line-height: 1.1;
+  text-align: center;
+}
+
+/* Brand logo image (when uploaded, replaces the text) */
+.vdn__mega--brands .vdn__brand-pill__img {
+  display: block;
+  max-width: 100%;
+  max-height: 64px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ── Design Lab mega ─── */
+.vdn__mega--designlab {
+  width: min(920px, calc(100vw - 32px));
+  padding: 24px 26px 22px;
+}
+
+.vdn__dl-newdrop {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  background:
+    radial-gradient(circle at 12% 50%, rgba(99, 185, 222, 0.16) 0%, transparent 55%),
+    linear-gradient(100deg, #1D2636 0%, #2B3A55 100%);
+  border-radius: 14px;
+  color: #F4F5F2;
+  padding: 20px 28px;
+  margin-bottom: 22px;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vdn__dl-newdrop:hover {
+  color: #F4F5F2;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -10px rgba(29, 38, 54, 0.5);
+}
+
+.vdn__dl-newdrop-gallery {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  padding-right: 8px;
+}
+
+.vdn__dl-newdrop-case {
+  width: 78px;
+  height: 150px;
+  border-radius: 13px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+  transition: transform 0.2s ease;
+}
+
+.vdn__dl-newdrop-case:not(:first-child) {
+  margin-left: -22px;
+}
+
+.vdn__dl-newdrop-case:nth-child(1) {
+  transform: rotate(-5deg);
+}
+
+.vdn__dl-newdrop-case:nth-child(3) {
+  transform: rotate(5deg);
+}
+
+.vdn__dl-newdrop-case svg,
+.vdn__dl-newdrop-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.vdn__dl-newdrop:hover .vdn__dl-newdrop-case:nth-child(1) {
+  transform: rotate(-7deg) translateY(-2px);
+}
+
+.vdn__dl-newdrop:hover .vdn__dl-newdrop-case:nth-child(2) {
+  transform: translateY(-3px);
+}
+
+.vdn__dl-newdrop:hover .vdn__dl-newdrop-case:nth-child(3) {
+  transform: rotate(7deg) translateY(-2px);
+}
+
+.vdn__dl-newdrop-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vdn__dl-newdrop-title {
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: 33px;
+  font-weight: 400;
+  line-height: 1.04;
+  color: #F4F5F2;
+}
+
+.vdn__dl-newdrop-title em {
+  font-style: italic;
+  color: #63B9DE;
+}
+
+.vdn__dl-newdrop-sub {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.vdn__dl-newdrop-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #F4F5F2;
+  color: #1D2636;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px -6px rgba(29, 38, 54, 0.5);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.vdn__dl-newdrop:hover .vdn__dl-newdrop-cta {
+  background: #63B9DE;
+}
+
+.vdn__dl-newdrop-cta svg {
+  transition: transform 0.15s ease;
+}
+
+.vdn__dl-newdrop:hover .vdn__dl-newdrop-cta svg {
+  transform: translateX(3px);
+}
+
+.vdn__dl-shop {
+  display: flex;
+  gap: 0;
+}
+
+.vdn__dl-rail {
+  list-style: none;
+  margin: 0;
+  padding: 0 18px 0 0;
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(29, 38, 54, 0.08);
+}
+
+.vdn__dl-rail li { margin: 0; }
+
+.vdn__dl-rail-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1D2636;
+  transition: background 0.12s ease, color 0.12s ease;
+  font-family: inherit;
+}
+
+.vdn__dl-rail-item svg {
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  transform: translateX(-3px);
+}
+
+.vdn__dl-rail-item:hover,
+.vdn__dl-rail-item:focus-visible {
+  background: #EEEDE7;
+  outline: none;
+}
+
+.vdn__dl-rail-item.is-active {
+  background: #1D2636;
+  color: #F4F5F2;
+  font-weight: 600;
+}
+
+.vdn__dl-rail-item.is-active svg {
+  opacity: 1;
+  transform: translateX(0);
+  color: #F4F5F2;
+}
+
+.vdn__dl-detail {
+  flex: 1;
+  min-width: 0;
+  padding-left: 24px;
+}
+
+.vdn__dl-panel[hidden] { display: none; }
+.vdn__dl-panel.is-active { display: block; }
+
+.vdn__dl-section-head {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1D2636;
+  margin-bottom: 16px;
+}
+
+.vdn__dl-section-head span {
+  color: #C54448;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-left: 6px;
+}
+
+.vdn__dl-brandgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 18px 22px;
+  align-items: start;
+}
+
+.vdn__dl-brand-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1D2636;
+  margin-bottom: 7px;
+}
+
+.vdn__dl-brand ul,
+.vdn__dl-modellist,
+.vdn__dl-typelist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vdn__dl-brand ul li a,
+.vdn__dl-modellist li a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  color: #66717E;
+  text-decoration: none;
+  padding: 2px 0;
+  transition: color 0.12s ease, transform 0.12s ease;
+}
+
+.vdn__dl-brand ul li a:hover,
+.vdn__dl-modellist li a:hover {
+  color: #C54448;
+  transform: translateX(2px);
+}
+
+.vdn__dl-modellist {
+  columns: 3;
+  column-gap: 26px;
+}
+
+.vdn__dl-modellist li {
+  break-inside: avoid;
+}
+
+.vdn__dl-new {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  background: #C54448;
+  padding: 1px 6px;
+  border-radius: 999px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+
+.vdn__dl-typelist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 360px;
+}
+
+.vdn__dl-typelist li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 13px;
+  border-radius: 7px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1D2636;
+  text-decoration: none;
+  border: 1px solid rgba(29, 38, 54, 0.08);
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.vdn__dl-typelist li a::after {
+  content: '\203A';
+  color: #A8B0B8;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.vdn__dl-typelist li a:hover {
+  background: #EEEDE7;
+  border-color: rgba(29, 38, 54, 0.16);
+}
+
+.vdn__dl-foot {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(29, 38, 54, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.vdn__dl-foot-copy {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #66717E;
+  max-width: 72ch;
+}
+
+.vdn__dl-foot-eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #C54448;
+  margin-bottom: 4px;
+}
+
+.vdn__dl-foot-copy strong {
+  color: #1D2636;
+  font-weight: 600;
+}
+
+.vdn__dl-experiment {
+  flex-shrink: 0;
+  background: #1D2636;
+  color: #F4F5F2;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.vdn__dl-experiment:hover {
+  background: #C54448;
+  color: #FFFFFF;
+}
+
+/* ── Simple list dropdown ─── */
+.vdn__mega--simple {
+  padding: 10px 6px;
+}
+
+.vdn__mega--simple-img {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.vdn__simple-side {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 7px 0 0 7px;
+  width: 240px;
+}
+
+.vdn__simple-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vdn__mega--simple-img .vdn__simple-list {
+  padding: 10px 6px;
+}
+
+.vdn__simple-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 240px;
+}
+
+.vdn__simple-list li a {
+  display: block;
+  padding: 9px 16px;
+  font-size: 13px;
+  color: #1D2636;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+  /*text-align: center;*/
+}
+
+.vdn__simple-list li a:hover {
+  /*background: #F4F5F2;*/
+  color: #C54448;
+}
+
+/* ── Tag badge ─── */
+.vdn__tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: #C54448;
+  color: #FFFFFF;
+  vertical-align: middle;
+  margin-left: 6px;
+  line-height: 1;
+}
+
+/* ── Hide below 1400px (drawer takes over) ─── */
+@media (max-width: 1499px) {
+  .vdn { display: none; }
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  var items = document.querySelectorAll('.vdn__item--dd');
+
+  items.forEach(function (item) {
+    var trigger = item.querySelector('.vdn__trigger');
+    if (!trigger) return;
+
+    // Keep aria-expanded in sync with CSS hover state
+    item.addEventListener('mouseenter', function () {
+      trigger.setAttribute('aria-expanded', 'true');
+    });
+    item.addEventListener('mouseleave', function () {
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+
+    // Click: close others, toggle this (keyboard / touch support)
+    trigger.addEventListener('click', function () {
+      var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      items.forEach(function (other) {
+        if (other !== item) {
+          var t = other.querySelector('.vdn__trigger');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        }
+      });
+      trigger.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+    });
+  });
+
+  // Escape closes all
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    items.forEach(function (item) {
+      var t = item.querySelector('.vdn__trigger');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Click outside closes all
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.vdn__item--dd')) return;
+    items.forEach(function (item) {
+      var t = item.querySelector('.vdn__trigger');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  document.querySelectorAll('.vdn__mega--designlab').forEach(function (menu) {
+    var railItems = menu.querySelectorAll('.vdn__dl-rail-item');
+    var panels = menu.querySelectorAll('.vdn__dl-panel');
+
+    function activate(category) {
+      railItems.forEach(function (button) {
+        var active = button.getAttribute('data-vdn-dlcat') === category;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      panels.forEach(function (panel) {
+        var active = panel.getAttribute('data-vdn-dlpanel') === category;
+        panel.classList.toggle('is-active', active);
+        panel.hidden = !active;
+      });
+    }
+
+    railItems.forEach(function (button) {
+      var category = button.getAttribute('data-vdn-dlcat');
+      button.addEventListener('mouseenter', function () { activate(category); });
+      button.addEventListener('focus', function () { activate(category); });
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        activate(category);
+      });
+    });
+  });
+
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Valor desktop nav",
+  "tag": "div",
+  "class": "vdn-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "aria_label",
+      "label": "Aria label",
+      "default": "Primary navigation"
+    },
+    {
+      "type": "select",
+      "id": "dropdown_align",
+      "label": "Dropdown alignment",
+      "options": [
+        { "value": "left", "label": "Left (default)" },
+        { "value": "center", "label": "Page center" }
+      ],
+      "default": "left"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link",
+      "name": "Link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shop"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "URL"
+        }
+      ]
+    },
+    {
+      "type": "dropdown-simple",
+      "name": "Simple dropdown",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "About"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "Design Lab CTA URL",
+          "info": "Used when this dropdown is labeled Design Lab. Leave blank to use the current default customization link."
+        },
+        {
+          "type": "header",
+          "content": "Design Lab banner"
+        },
+        {
+          "type": "checkbox",
+          "id": "designlab_banner_enabled",
+          "label": "Enable Design Lab banner",
+          "default": false,
+          "info": "Only used when this dropdown is labeled Design Lab."
+        },
+        {
+          "type": "url",
+          "id": "designlab_banner_url",
+          "label": "Banner link URL",
+          "info": "Leave blank to use the All Design Lab URL."
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_title_prefix",
+          "label": "Banner title prefix",
+          "default": "New"
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_title_accent",
+          "label": "Banner title accent",
+          "default": "Summer"
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_title_suffix",
+          "label": "Banner title suffix",
+          "default": "Designs"
+        },
+        {
+          "type": "textarea",
+          "id": "designlab_banner_text",
+          "label": "Banner text",
+          "default": "Explore the latest drop with 10 new designs."
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_cta_label",
+          "label": "Banner CTA label",
+          "default": "Shop the Drop"
+        },
+        {
+          "type": "image_picker",
+          "id": "designlab_banner_image_1",
+          "label": "Banner case image 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "designlab_banner_image_2",
+          "label": "Banner case image 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "designlab_banner_image_3",
+          "label": "Banner case image 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "side_image",
+          "label": "Side image (optional)"
+        }
+      ]
+    },
+    {
+      "type": "dropdown-categories",
+      "name": "Categories mega menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Categories"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "info": "Top-level links become columns; their children become list items."
+        },
+        {
+          "type": "text",
+          "id": "column_image_ratio",
+          "label": "Image ratio",
+          "default": "320/378"
+        },
+        {
+          "type": "header",
+          "content": "Column images (optional)"
+        },
+        { "type": "image_picker", "id": "col_1_image", "label": "Column 1 image" },
+        { "type": "image_picker", "id": "col_2_image", "label": "Column 2 image" },
+        { "type": "image_picker", "id": "col_3_image", "label": "Column 3 image" },
+        { "type": "image_picker", "id": "col_4_image", "label": "Column 4 image" },
+        { "type": "image_picker", "id": "col_5_image", "label": "Column 5 image" },
+        { "type": "image_picker", "id": "col_6_image", "label": "Column 6 image" }
+      ]
+    },
+    {
+      "type": "dropdown-devices",
+      "name": "Devices mega menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Devices"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "info": "Top-level links = brand groups; their children = device links. Add a trailing * to a device link title for a 'New' badge."
+        },
+        {
+          "type": "header",
+          "content": "Hero banner"
+        },
+        { "type": "url",          "id": "hero_url",    "label": "Hero link URL" },
+        { "type": "text",         "id": "hero_eyebrow","label": "Eyebrow text",  "default": "Just landed" },
+        { "type": "text",         "id": "hero_title",  "label": "Headline",      "default": "iPhone 17 series." },
+        { "type": "text",         "id": "hero_cta",    "label": "CTA text",      "default": "Shop the lineup" },
+        { "type": "image_picker", "id": "hero_image",  "label": "Device image (optional)" }
+      ]
+    },
+    {
+      "type": "dropdown-brands",
+      "name": "Brands mega menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Brands"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow label",
+          "default": "Shop by brand"
+        },
+        {
+          "type": "textarea",
+          "id": "brands_html",
+          "label": "Custom brands HTML",
+          "info": "Legacy fallback. Used only when none of the per-brand rows below are filled."
+        },
+        { "type": "header", "content": "Brands (logo or text)" },
+        { "type": "paragraph", "content": "Each brand shows, in priority order: an uploaded logo, else the linked collection’s image (set in Collections → the brand → Image), else the text. Set the Link URL to a /collections/… link to use its image." },
+        {
+          "type": "header",
+          "content": "Brand 1 – MyBat Pro"
+        },
+        {
+          "type": "text",
+          "id": "brand_1_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_1_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_1_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat<span style=\"font-style:italic;color:#C54448;\"> Pro</span></span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 2 – MyBat"
+        },
+        {
+          "type": "text",
+          "id": "brand_2_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_2_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_2_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 3 – Echelon"
+        },
+        {
+          "type": "text",
+          "id": "brand_3_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_3_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_3_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Echelon</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 4 – AmpNergy"
+        },
+        {
+          "type": "text",
+          "id": "brand_4_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_4_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_4_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#B07E1A;'>AmpNergy</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 5 – Baseline"
+        },
+        {
+          "type": "text",
+          "id": "brand_5_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_5_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_5_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Baseline</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 6 – EcoBlvd"
+        },
+        {
+          "type": "text",
+          "id": "brand_6_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_6_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_6_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#2d7a3f;'>EcoBlvd</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 7 – Ondigo"
+        },
+        {
+          "type": "text",
+          "id": "brand_7_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_7_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_7_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Ondigo</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 8 – ADATA"
+        },
+        {
+          "type": "text",
+          "id": "brand_8_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_8_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_8_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;letter-spacing:0.05em;'>ADATA</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 9 – Beats"
+        },
+        {
+          "type": "text",
+          "id": "brand_9_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_9_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_9_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:900;'>Beats</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 10 – Borne"
+        },
+        {
+          "type": "text",
+          "id": "brand_10_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_10_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_10_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Borne</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 11 – Coca-Cola"
+        },
+        {
+          "type": "text",
+          "id": "brand_11_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_11_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_11_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;font-style:italic;color:#C54448;'>Coca-Cola</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 12 – Deejays"
+        },
+        {
+          "type": "text",
+          "id": "brand_12_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_12_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_12_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;'>Deejays</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 13 – Edge"
+        },
+        {
+          "type": "text",
+          "id": "brand_13_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_13_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_13_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Edge</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 14 – Luxmo"
+        },
+        {
+          "type": "text",
+          "id": "brand_14_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_14_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_14_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Luxmo</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 15 – MaxPower"
+        },
+        {
+          "type": "text",
+          "id": "brand_15_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_15_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_15_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:800;'>MaxPower</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 16 – MLB"
+        },
+        {
+          "type": "text",
+          "id": "brand_16_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_16_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_16_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;color:#1D2636;'>MLB</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 17 – Scosche"
+        },
+        {
+          "type": "text",
+          "id": "brand_17_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_17_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_17_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Scosche</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 18 – Sentry"
+        },
+        {
+          "type": "text",
+          "id": "brand_18_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_18_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_18_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:500;'>Sentry</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 19 (empty)"
+        },
+        {
+          "type": "text",
+          "id": "brand_19_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_19_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_19_name",
+          "label": "Text (used when no image)"
+        },
+        {
+          "type": "header",
+          "content": "Brand 20 (empty)"
+        },
+        {
+          "type": "text",
+          "id": "brand_20_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_20_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_20_name",
+          "label": "Text (used when no image)"
+        }
+      ]
+    },
+    {
+      "type": "dropdown-designlab",
+      "name": "Design Lab mega menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Design Lab"
+        },
+        {
+          "type": "link_list",
+          "id": "designlab_menu",
+          "label": "Menu",
+          "info": "Top-level links = tabs. A tab with nested links renders as a brand grid (links = brands, their children = models); a tab with plain links renders as a flat list. Add a trailing * to any title for a 'New' badge. Leave empty to use the built-in default."
+        },
+        {
+          "type": "url",
+          "id": "all_url",
+          "label": "All Design Lab URL"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "CTA label",
+          "default": "Start Customizing"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "CTA URL"
+        },
+        {
+          "type": "header",
+          "content": "Banner"
+        },
+        {
+          "type": "checkbox",
+          "id": "designlab_banner_enabled",
+          "label": "Enable banner",
+          "default": false
+        },
+        {
+          "type": "url",
+          "id": "designlab_banner_url",
+          "label": "Banner link URL",
+          "info": "Leave blank to use the All Design Lab URL."
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_title_prefix",
+          "label": "Banner title prefix",
+          "default": "New"
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_title_accent",
+          "label": "Banner title accent",
+          "default": "Summer"
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_title_suffix",
+          "label": "Banner title suffix",
+          "default": "Designs"
+        },
+        {
+          "type": "textarea",
+          "id": "designlab_banner_text",
+          "label": "Banner text",
+          "default": "Explore the latest drop with 10 new designs."
+        },
+        {
+          "type": "text",
+          "id": "designlab_banner_cta_label",
+          "label": "Banner CTA label",
+          "default": "Shop the Drop"
+        },
+        {
+          "type": "image_picker",
+          "id": "designlab_banner_image_1",
+          "label": "Banner case image 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "designlab_banner_image_2",
+          "label": "Banner case image 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "designlab_banner_image_3",
+          "label": "Banner case image 3"
+        },
+        {
+          "type": "text",
+          "id": "footer_eyebrow",
+          "label": "Footer eyebrow",
+          "default": "Customization"
+        },
+        {
+          "type": "text",
+          "id": "footer_heading",
+          "label": "Footer heading",
+          "default": "Design your own."
+        },
+        {
+          "type": "textarea",
+          "id": "footer_text",
+          "label": "Footer text",
+          "default": "Put your logo, colors, or local artwork on any product and build it to order - low minimums with rapid small-batch turnaround."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor desktop nav",
+      "blocks": [
+        { "type": "dropdown-categories" },
+        { "type": "dropdown-devices" },
+        { "type": "dropdown-brands" },
+        { "type": "dropdown-designlab" },
+        { "type": "dropdown-simple" }
+      ]
+    }
+  ]
+}
+{% endschema %}

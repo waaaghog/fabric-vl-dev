@@ -1,0 +1,46 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "context": {
+    "market": "cricket-wireless"
+  },
+  "parent": "footer-group.json",
+  "sections": {
+    "divider_9PYyE8": {
+      "settings": {
+        "color_scheme": "scheme-1"
+      },
+      "blocks": {}
+    },
+    "footer": {
+      "settings": {
+        "color_scheme": "scheme-85a99d12-2a90-4512-9e1c-b1c08354eb6d"
+      },
+      "blocks": {
+        "group_nDHzex": {
+          "blocks": {
+            "text_A8EbGm": {
+              "settings": {
+                "text": "<p>TOLL FREE: +1 (877) 369-2088<br/>OFFICE: +1 (626) 581-8085</p>"
+              }
+            }
+          },
+          "settings": {}
+        }
+      }
+    },
+    "section_7a9mbw": {
+      "settings": {
+        "color_scheme": "scheme-85a99d12-2a90-4512-9e1c-b1c08354eb6d"
+      },
+      "blocks": {}
+    }
+  }
+}

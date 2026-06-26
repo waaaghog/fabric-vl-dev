@@ -1,0 +1,299 @@
+{%- doc -%}
+  Intended for use in a block similar to the text block.
+
+  @param {string} [class] - custom class to define in addition to text-block classes
+  @param {string} [fallback_text] - fallback text if settings.text does not exist
+  @param {object} [block] - The block object
+  @param {string} [width] - width of the text block
+{%- enddoc -%}
+
+{% liquid
+  assign block_settings = block.settings
+  assign plain_text = block_settings.text | strip_newlines | strip
+  assign visible_text = plain_text | strip_html
+  assign text_width = width | default: block_settings.width
+
+  if block_settings.type_preset == 'rte' or block_settings.type_preset == 'paragraph'
+    assign is_rte = true
+  endif
+
+  capture text_block_classes
+    if text_width == '100%'
+      echo 'text-block--align-' | append: block_settings.alignment
+      if block_settings.max_width == blank
+        echo ' text-block--full-width '
+      endif
+    elsif text_width == 'fit-content'
+      echo ' text-block--fit '
+    endif
+    if block_settings.type_preset == 'custom'
+      echo ' custom-typography '
+      if block_settings.font_size != ''
+        echo ' custom-font-size '
+      endif
+      if block_settings.color != ''
+        echo ' custom-color '
+      endif
+    endif
+    if block_settings.background
+      echo ' text-block--background '
+    endif
+    if block_settings.icon != 'none' or block_settings.image_upload != blank
+      echo ' text-block--with-icon '
+    endif
+    if block_settings.wrap == 'truncate'
+      echo ' text-block--truncate '
+    endif
+    if is_rte
+      echo ' rte '
+    endif
+  endcapture
+
+  assign heading_bold_highlight_bold = block_settings.heading_bold_highlight_bold | append: '' | downcase
+  assign heading_italic_highlight_italic = block_settings.heading_italic_highlight_italic | append: '' | downcase
+  assign heading_bold_highlight_font_weight = 'bolder'
+  assign heading_italic_highlight_font_style = 'italic'
+
+  if block_settings.heading_bold_highlight_bold == false
+    assign heading_bold_highlight_font_weight = 'normal'
+  elsif heading_bold_highlight_bold == 'false' or heading_bold_highlight_bold == '0' or heading_bold_highlight_bold == 'off'
+    assign heading_bold_highlight_font_weight = 'normal'
+  endif
+
+  if block_settings.heading_italic_highlight_italic == false
+    assign heading_italic_highlight_font_style = 'normal'
+  elsif heading_italic_highlight_italic == 'false' or heading_italic_highlight_italic == '0' or heading_italic_highlight_italic == 'off'
+    assign heading_italic_highlight_font_style = 'normal'
+  endif
+%}
+
+{% capture attributes %}
+  class="{{ class }} spacing-style text-block text-block--{{ block.id }} {{ block_settings.type_preset }}
+    {{ text_block_classes }}
+  "
+
+  style="
+    {% render 'spacing-padding', settings: block_settings %}
+    {% render 'typography-style', settings: block_settings %}
+    --width: {{ text_width }};
+    --heading-bold-highlight-color: {{ block_settings.heading_bold_highlight_color | default: '#c54448' }};
+    --heading-italic-highlight-color: {{ block_settings.heading_italic_highlight_color | default: '#63b9de' }};
+    --heading-bold-highlight-font-weight: {{ heading_bold_highlight_font_weight }};
+    --heading-italic-highlight-font-style: {{ heading_italic_highlight_font_style }};
+    {% if block_settings.max_width != blank %}--max-width: {{ block_settings.max_width }};{% endif %}
+    {% if text_width == "100%" %}
+      --text-align: {{ block_settings.alignment }};
+      {% if block_settings.alignment == 'left' %}
+        padding-inline-start: {{ block_settings.padding_left | default: 0 }};
+      {% endif %}
+    {% endif %}
+    {% if block_settings.background %}
+      --text-background-color: {{ block_settings.background_color | default: 'rgb(255 255 255 / 1.0)' }};
+      --text-corner-radius: {{ block_settings.corner_radius }}px;
+      --text-padding: {{ block_settings.text_padding | default: 'var(--padding-2xs)' }};
+    {% endif %}
+  "
+
+  {{ block.shopify_attributes }}
+{% endcapture %}
+
+{% liquid
+  # {{ attributes }} must be on the immediate HTML parent of the text to preserve
+  # the click-to-edit connection in the theme editor. Any break between the text,
+  # including if-statements, will break the connection.
+
+  assign element = 'div'
+  if is_rte
+    assign element = 'rte-formatter'
+  endif
+%}
+
+{% if fallback_text != blank and visible_text == blank %}
+  <div {{ attributes | strip_newlines | strip }}>
+    {{ fallback_text }}
+  </div>
+{% elsif plain_text != blank %}
+  <{{ element }} {{ attributes | strip_newlines | strip }}>
+    {%- if block_settings.icon != 'none' or block_settings.image_upload != blank -%}
+      {%- render 'icon-or-image',
+        icon: block_settings.icon,
+        image_upload: block_settings.image_upload,
+        width: block_settings.icon_width,
+        class_name: 'text-block__icon'
+      -%}
+    {%- endif -%}
+    {{ block.settings.text }}
+  </{{ element }}>
+{% endif %}
+
+{% stylesheet %}
+  :root {
+    --text-align-default: left;
+  }
+
+  [style*='--horizontal-alignment: center'] .text-block {
+    --text-align-default: center;
+  }
+
+  [style*='--horizontal-alignment: flex-end'] .text-block {
+    --text-align-default: right;
+  }
+
+  [style*='--horizontal-alignment: flex-start'] > .text-block {
+    --text-align-default: left;
+  }
+
+  [style*='--horizontal-alignment: center'] > .text-block {
+    --text-align-default: center;
+  }
+
+  [style*='--horizontal-alignment: flex-end'] > .text-block {
+    --text-align-default: right;
+  }
+
+  .text-block {
+    width: var(--width);
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: var(--horizontal-alignment);
+  }
+
+  .text-block > * {
+    width: var(--width);
+    max-inline-size: min(100%, var(--max-width, 100%));
+    text-align: var(--text-align, var(--text-align-default));
+    text-wrap: var(--text-wrap);
+  }
+
+  .text-block--fit {
+    max-width: none;
+  }
+
+  .text-block--fit > * {
+    max-inline-size: var(--max-width, none);
+  }
+
+
+  .text-block:not(.text-block--full-width).rte,
+  .text-block:not(.text-block--full-width).paragraph {
+    /* Safari doesn't support pretty, so fallback to balance */
+    text-wrap: balance;
+    text-wrap: pretty;
+  }
+
+  .text-block:not(.text-block--full-width):is(.h1, .h2, .h3, .h4, .h5, .h6) {
+    text-wrap: balance;
+  }
+
+  /* Hide underline unless text is using paragraph styles. */
+  .text-block:is(.h1, .h2, .h3, .h4, .h5, .h6) a {
+    text-decoration-color: transparent;
+  }
+
+  .text-block h1,
+  .text-block.h1 > * {
+    margin-block: var(--font-h1--spacing);
+  }
+
+  .text-block h2,
+  .text-block.h2 > * {
+    margin-block: var(--font-h2--spacing);
+  }
+
+  .text-block h3,
+  .text-block.h3 > * {
+    margin-block: var(--font-h3--spacing);
+  }
+
+  .text-block h4,
+  .text-block.h4 > * {
+    margin-block: var(--font-h4--spacing);
+  }
+
+  .text-block h5,
+  .text-block.h5 > * {
+    margin-block: var(--font-h5--spacing);
+  }
+
+  .text-block h6,
+  .text-block.h6 > * {
+    margin-block: var(--font-h6--spacing);
+  }
+
+  .text-block p,
+  .text-block.p > * {
+    margin-block: 0.5em;
+  }
+
+  .text-block:not(.text-block--align-center) > *:first-child {
+    margin-block-start: 0;
+  }
+
+  .text-block :not(.text-block--align-center)> *:last-child {
+    margin-block-end: 0;
+  }
+
+  .text-block--align-center,
+  .text-block--align-center > * {
+    margin-inline: auto;
+  }
+
+  .text-block--align-right,
+  .text-block--align-right > * {
+    margin-inline-start: auto;
+  }
+
+  .text-block--background {
+    background-color: var(--text-background-color);
+    border-radius: var(--text-corner-radius);
+    padding: var(--text-padding);
+  }
+
+  .custom-color,
+  .custom-color > :is(h1, h2, h3, h4, h5, h6, p, *) {
+    color: var(--color);
+  }
+
+  .text-block--truncate {
+    width: var(--max-width);
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .text-block--truncate > * {
+    text-wrap: unset;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-inline-size: 100%;
+  }
+
+  .text-block--with-icon {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6em;
+  }
+
+  .text-block--with-icon > * {
+    width: auto;
+    margin-inline: 0;
+  }
+
+  .text-block--align-center.text-block--with-icon {
+    justify-content: center;
+  }
+
+  .text-block--align-right.text-block--with-icon {
+    justify-content: flex-end;
+  }
+
+  .text-block--with-icon p {
+    margin-block: 0;
+  }
+
+  .text-block__icon {
+    flex-shrink: 0;
+    width: auto;
+  }
+{% endstylesheet %}

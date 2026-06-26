@@ -1,0 +1,700 @@
+{% render 'product-badges-styles' %}
+
+{% stylesheet %}
+  fc3-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: var(--fc3-max-width, var(--content-max-width));
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* ── Tabs bar (full-width wrapper) ─────── */
+  .fc3__tabs-bar {
+    border-bottom: 1px solid rgba(0 0 0 / 0.1);
+  }
+
+  /* ── Tabs ───────────────────────────────── */
+  .fc3__tabs {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: center;
+    padding-top: 20px;
+  }
+  
+  @media screen and (min-width: 750px) {
+	gap: 30px;
+  }
+
+  .fc3__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fc3__tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--color-foreground);
+    opacity: 0.5;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s, border-color 0.2s, color 0.2s;
+  }
+
+  .fc3__tab--active {
+    opacity: 1;
+    color: #d54;
+    border-bottom-color: #d54;
+  }
+
+  .fc3__count {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.6;
+  }
+
+  .fc3__tab:hover:not(.fc3__tab--active) {
+    opacity: 0.75;
+  }
+
+  /* ── Heading ────────────────────────────── */
+  .fc3__heading {
+    margin: 0;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Panels ─────────────────────────────── */
+  .fc3__panel {
+    display: none;
+  }
+
+  .fc3__panel--active {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fc3-gap, 16px);
+  }
+
+  /* ── Product grid ───────────────────────── */
+  .fc3__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--fc3-columns, 4), 1fr);
+    gap: var(--fc3-gap, 16px);
+  }
+
+  .fc3__item {
+    min-width: 0;
+  }
+
+  /* ── Banner row (spans full grid width) ─── */
+  .fc3__banner {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--fc3-gap, 16px);
+  }
+
+  .fc3__banner-img {
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .fc3__banner-img img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ── Footer ─────────────────────────────── */
+  .fc3__footer {
+    display: flex;
+    justify-content: center;
+  }
+  .fc3__footer .button {
+	background: transparent;
+	box-shadow: none;
+    border: 1px solid #000;
+    margin-top: 30px;
+  }
+  .fc3__footer .button:hover {
+	transform: translateY(-1px)
+  }
+
+  /* ── Mobile ─────────────────────────────── */
+  @media screen and (max-width: 749px) {
+    .fc3__grid {
+      grid-template-columns: repeat(var(--fc3-columns-mobile, 2), 1fr);
+    }
+  }
+{% endstylesheet %}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+
+{%- assign fc3_collections = section.settings.collections -%}
+
+{%- comment -%}── Full-width tabs bar ────────────────────────────────{%- endcomment -%}
+{%- if fc3_collections.size > 1 -%}
+  <div class="fc3__tabs-bar" style="background-color: {{ section.settings.tabs_bg_color }};">
+    <div class="section--{{ section.settings.section_width }}">
+      <nav class="fc3__tabs" role="tablist">
+        {%- for _tab_coll in fc3_collections -%}
+          <button
+            class="fc3__tab{% if forloop.first %} fc3__tab--active{% endif %}"
+            data-panel="tab-{{ forloop.index }}"
+            role="tab"
+            aria-selected="{{ forloop.first }}"
+          >{{ _tab_coll.title }}</button>
+        {%- endfor -%}
+      </nav>
+    </div>
+  </div>
+{%- endif -%}
+
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  {{ section.shopify_attributes }}
+>
+  <fc3-section
+    style="
+      --fc3-columns: {{ section.settings.columns }};
+      --fc3-columns-mobile: {{ section.settings.columns_mobile }};
+      --fc3-gap: {{ section.settings.columns_gap }}px;
+      {% if section.settings.max_width != blank %}--fc3-max-width: {{ section.settings.max_width }};{% endif %}
+    "
+  >
+
+    {%- comment -%}── Heading ────────────────────────────────────────{%- endcomment -%}
+    {%- if section.settings.heading != blank -%}
+      <h2 class="fc3__heading">{{ section.settings.heading }}</h2>
+    {%- endif -%}
+
+    {%- comment -%}── Banner settings ───────────────────────────────{%- endcomment -%}
+    {%- liquid
+      assign b1_tab_str   = section.settings.banner1_tab
+      assign b1_after_row = section.settings.banner1_after_row
+      assign b1_img1      = section.settings.banner1_img1
+      assign b1_img2      = section.settings.banner1_img2
+      assign b1_img3      = section.settings.banner1_img3
+      assign b1_img4      = section.settings.banner1_img4
+      assign b2_tab_str   = section.settings.banner2_tab
+      assign b2_after_row = section.settings.banner2_after_row
+      assign b2_img1      = section.settings.banner2_img1
+      assign b2_img2      = section.settings.banner2_img2
+      assign b2_img3      = section.settings.banner2_img3
+      assign b2_img4      = section.settings.banner2_img4
+    -%}
+
+    {%- comment -%}── Panels ─────────────────────────────────────────{%- endcomment -%}
+    {%- for collection in fc3_collections -%}
+
+      {%- liquid
+        assign i_str    = forloop.index | append: ''
+        assign b1_at    = b1_after_row | times: section.settings.columns
+        assign b2_at    = b2_after_row | times: section.settings.columns
+        assign b1_show  = false
+        assign b2_show  = false
+        if b1_tab_str == '0' or b1_tab_str == i_str
+          if b1_img1 != blank or b1_img2 != blank or b1_img3 != blank or b1_img4 != blank
+            assign b1_show = true
+          endif
+        endif
+        if b2_tab_str == '0' or b2_tab_str == i_str
+          if b2_img1 != blank or b2_img2 != blank or b2_img3 != blank or b2_img4 != blank
+            assign b2_show = true
+          endif
+        endif
+      -%}
+
+      <div
+        class="fc3__panel{% if forloop.first %} fc3__panel--active{% endif %}"
+        data-panel="tab-{{ forloop.index }}"
+        role="tabpanel"
+      >
+        <p class="fc3__count">{{ collection.products_count }} products</p>
+        <div class="fc3__grid">
+          {%- if collection != blank and collection.products.size > 0 -%}
+            {%- for product in collection.products limit: section.settings.products_limit offset: 1 -%}
+
+              {%- comment -%}── Banner 1 injection ──{%- endcomment -%}
+              {%- if b1_show and forloop.index0 == b1_at -%}
+                <div class="fc3__banner">
+                  {%- if b1_img1 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b1_img1.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b1_img1 | image_url: width: 1200 }}"
+                        srcset="{{ b1_img1 | image_url: width: 600 }} 600w, {{ b1_img1 | image_url: width: 900 }} 900w, {{ b1_img1 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b1_img1.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b1_img1.width }}"
+                        height="{{ b1_img1.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                  {%- if b1_img2 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b1_img2.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b1_img2 | image_url: width: 1200 }}"
+                        srcset="{{ b1_img2 | image_url: width: 600 }} 600w, {{ b1_img2 | image_url: width: 900 }} 900w, {{ b1_img2 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b1_img2.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b1_img2.width }}"
+                        height="{{ b1_img2.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                  {%- if b1_img3 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b1_img3.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b1_img3 | image_url: width: 1200 }}"
+                        srcset="{{ b1_img3 | image_url: width: 600 }} 600w, {{ b1_img3 | image_url: width: 900 }} 900w, {{ b1_img3 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b1_img3.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b1_img3.width }}"
+                        height="{{ b1_img3.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                  {%- if b1_img4 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b1_img4.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b1_img4 | image_url: width: 1200 }}"
+                        srcset="{{ b1_img4 | image_url: width: 600 }} 600w, {{ b1_img4 | image_url: width: 900 }} 900w, {{ b1_img4 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b1_img4.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b1_img4.width }}"
+                        height="{{ b1_img4.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              {%- comment -%}── Banner 2 injection ──{%- endcomment -%}
+              {%- if b2_show and forloop.index0 == b2_at -%}
+                <div class="fc3__banner">
+                  {%- if b2_img1 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b2_img1.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b2_img1 | image_url: width: 1200 }}"
+                        srcset="{{ b2_img1 | image_url: width: 600 }} 600w, {{ b2_img1 | image_url: width: 900 }} 900w, {{ b2_img1 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b2_img1.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b2_img1.width }}"
+                        height="{{ b2_img1.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                  {%- if b2_img2 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b2_img2.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b2_img2 | image_url: width: 1200 }}"
+                        srcset="{{ b2_img2 | image_url: width: 600 }} 600w, {{ b2_img2 | image_url: width: 900 }} 900w, {{ b2_img2 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b2_img2.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b2_img2.width }}"
+                        height="{{ b2_img2.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                  {%- if b2_img3 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b2_img3.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b2_img3 | image_url: width: 1200 }}"
+                        srcset="{{ b2_img3 | image_url: width: 600 }} 600w, {{ b2_img3 | image_url: width: 900 }} 900w, {{ b2_img3 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b2_img3.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b2_img3.width }}"
+                        height="{{ b2_img3.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                  {%- if b2_img4 != blank -%}
+                    <div class="fc3__banner-img" style="flex: {{ b2_img4.aspect_ratio | times: 100 | round }}">
+                      <img
+                        src="{{ b2_img4 | image_url: width: 1200 }}"
+                        srcset="{{ b2_img4 | image_url: width: 600 }} 600w, {{ b2_img4 | image_url: width: 900 }} 900w, {{ b2_img4 | image_url: width: 1200 }} 1200w"
+                        sizes="(max-width: 749px) 100vw, 50vw"
+                        alt="{{ b2_img4.alt | escape }}"
+                        loading="lazy"
+                        width="{{ b2_img4.width }}"
+                        height="{{ b2_img4.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+              {%- comment -%}── Product card ──{%- endcomment -%}
+              <div class="fc3__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: product -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+
+            {%- endfor -%}
+          {%- else -%}
+            {%- for i in (1..4) -%}
+              <div class="fc3__item">
+                {%- # theme-check-disable UniqueStaticBlockId -%}
+                {%- content_for 'block', type: '_product-card', id: 'static-product-card', closest.product: null -%}
+                {%- # theme-check-enable UniqueStaticBlockId -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+
+        {%- comment -%}── Load more ──────────────────────────────────{%- endcomment -%}
+        {%- if section.settings.button_label != blank and collection.url != blank -%}
+          <div class="fc3__footer">
+            <a href="{{ collection.url }}" class="button button--secondary">
+              {{ section.settings.button_label }}
+            </a>
+          </div>
+        {%- endif -%}
+      </div>
+
+    {%- endfor -%}
+
+  </fc3-section>
+</div>
+
+<script>
+  if (!customElements.get('fc3-section')) {
+    class Fc3Section extends HTMLElement {
+      connectedCallback() {
+        const tabsBar = this.closest('.section')?.previousElementSibling;
+        this._tabs   = [...(tabsBar ?? this).querySelectorAll('.fc3__tab')];
+        this._panels = [...this.querySelectorAll('.fc3__panel')];
+        this._tabs.forEach(tab => tab.addEventListener('click', () => this._activate(tab)));
+      }
+
+      _activate(tab) {
+        const id = tab.dataset.panel;
+        this._tabs.forEach(t => {
+          t.classList.toggle('fc3__tab--active', t === tab);
+          t.setAttribute('aria-selected', String(t === tab));
+        });
+        this._panels.forEach(p => {
+          p.classList.toggle('fc3__panel--active', p.dataset.panel === id);
+        });
+      }
+    }
+    customElements.define('fc3-section', Fc3Section);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "New: All collections",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    { "type": "@theme" },
+    { "type": "@app" }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Browse the Collection"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Load More Styles"
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "Collections",
+      "limit": 6
+    },
+    {
+      "type": "header",
+      "content": "Banner 1"
+    },
+    {
+      "type": "select",
+      "id": "banner1_tab",
+      "label": "Show in tab",
+      "options": [
+        { "value": "0", "label": "All tabs" },
+        { "value": "1", "label": "Tab 1" },
+        { "value": "2", "label": "Tab 2" },
+        { "value": "3", "label": "Tab 3" },
+        { "value": "4", "label": "Tab 4" },
+        { "value": "5", "label": "Tab 5" },
+        { "value": "6", "label": "Tab 6" }
+      ],
+      "default": "0"
+    },
+    {
+      "type": "range",
+      "id": "banner1_after_row",
+      "label": "Insert after row",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "image_picker",
+      "id": "banner1_img1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner1_img2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner1_img3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner1_img4",
+      "label": "Image 4"
+    },
+    {
+      "type": "header",
+      "content": "Banner 2"
+    },
+    {
+      "type": "select",
+      "id": "banner2_tab",
+      "label": "Show in tab",
+      "options": [
+        { "value": "0", "label": "All tabs" },
+        { "value": "1", "label": "Tab 1" },
+        { "value": "2", "label": "Tab 2" },
+        { "value": "3", "label": "Tab 3" },
+        { "value": "4", "label": "Tab 4" },
+        { "value": "5", "label": "Tab 5" },
+        { "value": "6", "label": "Tab 6" }
+      ],
+      "default": "0"
+    },
+    {
+      "type": "range",
+      "id": "banner2_after_row",
+      "label": "Insert after row",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "image_picker",
+      "id": "banner2_img1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner2_img2",
+      "label": "Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner2_img3",
+      "label": "Image 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner2_img4",
+      "label": "Image 4"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Products to show per tab",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Products per row (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Products per row (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Gap between items",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "text",
+      "id": "max_width",
+      "label": "Max width",
+      "placeholder": "e.g. 1500px or 90rem",
+      "info": "Leave empty to use the global content max width."
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color",
+      "id": "tabs_bg_color",
+      "label": "Nav background color",
+      "default": "#F2F2F2"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: All collections",
+      "blocks": {
+        "static-product-card": {
+          "type": "_product-card",
+          "name": "Product card",
+          "static": true,
+          "settings": {
+            "product_card_gap": 4
+          },
+          "blocks": {
+            "product-card-gallery": {
+              "type": "_product-card-gallery",
+              "name": "Product media",
+              "settings": {
+                "image_ratio": "adapt",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              }
+            },
+            "product_title": {
+              "type": "product-title",
+              "name": "Product title",
+              "settings": {}
+            },
+            "price": {
+              "type": "price",
+              "name": "Price",
+              "settings": {
+                "show_sale_price_first": false,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "h6",
+                "width": "100%",
+                "alignment": "left",
+                "font": "",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "color": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              }
+            },
+            "quick_view": {
+              "type": "valor-quick-add",
+              "name": "Quick view button",
+              "settings": {
+                "label": "Quick View"
+              }
+            }
+          },
+          "block_order": ["product-card-gallery", "product_title", "price", "quick_view"]
+        }
+      },
+      "block_order": []
+    }
+  ]
+}
+{% endschema %}

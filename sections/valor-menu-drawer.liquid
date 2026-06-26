@@ -1,0 +1,2090 @@
+{%- liquid
+  assign s = section.settings
+-%}
+
+<valor-menu-drawer
+  {{ section.shopify_attributes }}
+>
+
+  {%- comment -%} ── Drawer header ─────────────────────────────────── {%- endcomment -%}
+  <div class="vmd-head">
+    <button
+      class="vmd-close"
+      data-vmd-close
+      aria-label="{{ 'accessibility.close' | t }}"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M18 6 6 18M6 6l12 12"/>
+      </svg>
+    </button>
+    {%- if s.logo != blank -%}
+      <a href="{{ routes.root_url }}" class="vmd-logo">
+        {{- s.logo | image_url: height: 52 | image_tag:
+          height: 26,
+          loading: 'eager',
+          alt: shop.name,
+          class: 'vmd-logo__img'
+        -}}
+      </a>
+    {%- else -%}
+      <a href="{{ routes.root_url }}" class="vmd-logo vmd-logo--text">{{ shop.name }}</a>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} ── Tab bar ───────────────────────────────────────── {%- endcomment -%}
+  <div class="vmd-tabs" role="tablist">
+    {%- for block in section.blocks -%}
+      <button
+        class="vmd-tab{% if forloop.first %} vmd-tab--active{% endif %}"
+        data-vmd-tab="{{ block.id }}"
+        role="tab"
+        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+        {{ block.shopify_attributes }}
+      >{{- block.settings.tab_label | default: 'Tab' -}}</button>
+    {%- endfor -%}
+  </div>
+
+  {%- comment -%} ── Search bar ────────────────────────────────────── {%- endcomment -%}
+  <div class="vmd-search">
+    <button
+      type="button"
+      class="vmd-search__btn"
+      on:click="#search-modal/showDialog"
+      aria-label="{{ 'content.search_input_label' | t }}"
+      aria-haspopup="dialog"
+    >
+      <span class="vmd-search__icon">
+        {{- 'icon-search.svg' | inline_asset_content -}}
+      </span>
+      <span class="vmd-search__placeholder">{{ 'content.search_input_placeholder' | t }}</span>
+    </button>
+  </div>
+
+  {%- comment -%} ── Scrollable body ───────────────────────────────── {%- endcomment -%}
+  <div class="vmd-body">
+
+    {%- for block in section.blocks -%}
+      {%- assign bs = block.settings -%}
+      {%- assign tab_menu = bs.menu -%}
+      {%- liquid
+        assign tab_label_key = bs.tab_label | default: '' | downcase | strip | replace: ' ', '' | replace: '-', ''
+        assign is_design_lab_tab = false
+        if block.type == 'tab_designlab' or tab_label_key == 'designlab'
+          assign is_design_lab_tab = true
+        endif
+        assign is_devices_tab = false
+        assign tab_menu_handle = bs.menu | default: '' | downcase
+        if tab_label_key == 'devices' or tab_menu_handle contains 'devices'
+          assign is_devices_tab = true
+        endif
+      -%}
+
+      <div
+        class="vmd-panel{% if forloop.first %} vmd-panel--active{% endif %}"
+        data-vmd-panel="{{ block.id }}"
+        role="tabpanel"
+        {% unless forloop.first %}hidden{% endunless %}
+      >
+
+        {%- comment -%} Optional banner {%- endcomment -%}
+        {%- if bs.banner_image != blank or bs.banner_headline != blank -%}
+          {%- liquid
+            assign banner_from = bs.banner_from | default: '#1D2636'
+            assign banner_to   = bs.banner_to   | default: '#2B3A55'
+            assign gradient_style = 'background: linear-gradient(135deg, ' | append: banner_from | append: ' 0%, ' | append: banner_to | append: ' 130%);'
+            assign use_img_as_bg = false
+            if bs.banner_image != blank
+              assign img_ratio = bs.banner_image.width | times: 1.0 | divided_by: bs.banner_image.height
+              if img_ratio >= 2.0
+                assign use_img_as_bg = true
+              endif
+            endif
+            if use_img_as_bg
+              assign img_url = bs.banner_image | image_url: width: 560
+              assign banner_style = 'background-image: url(' | append: img_url | append: '); background-size: cover; background-position: center;'
+              assign banner_class = 'vmd-banner'
+            else
+              assign banner_style = gradient_style
+              assign banner_class = 'vmd-banner vmd-banner--device-img'
+            endif
+          -%}
+          <div class="{{ banner_class }}" style="{{ banner_style }}">
+            <div class="vmd-banner__overlay"></div>
+            <div class="vmd-banner__text">
+              {%- if bs.banner_eyebrow != blank -%}
+                <div class="vmd-banner__eyebrow" style="color: {{ bs.banner_eyebrow_color | default: '#63B9DE' }};">{{ bs.banner_eyebrow }}</div>
+              {%- endif -%}
+              <div class="vmd-banner__headline">{{ bs.banner_headline }}</div>
+              {%- if bs.banner_sub != blank -%}
+                <div class="vmd-banner__sub">{{ bs.banner_sub }}</div>
+              {%- endif -%}
+              {%- if bs.banner_cta != blank and bs.banner_url != blank -%}
+                <a href="{{ bs.banner_url }}" class="vmd-banner__cta">
+                  {{- bs.banner_cta -}}
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                </a>
+              {%- endif -%}
+            </div>
+            <div class="vmd-banner__device">
+              {%- unless use_img_as_bg -%}
+                {%- if bs.banner_image != blank -%}
+                  <img
+                    src="{{ bs.banner_image | image_url: width: 160 }}"
+                    alt="{{ bs.banner_image.alt | escape }}"
+                    width="{{ bs.banner_image.width }}"
+                    height="{{ bs.banner_image.height }}"
+                    loading="lazy"
+                  >
+                {%- endif -%}
+              {%- endunless -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Content by block type {%- endcomment -%}
+        {%- if is_design_lab_tab -%}
+          {% render 'valor-design-lab-nav',
+            variant: 'drawer',
+            block_settings: bs,
+            block_id: block.id
+          %}
+        {%- else -%}
+          {%- case block.type -%}
+
+            {%- when 'tab_featured' -%}
+              {%- if tab_menu.links.size > 0 -%}
+                <ul class="vmd-links" role="list">
+                  {%- for link in tab_menu.links -%}
+                    <li>
+                      <a href="{{ link.url }}" class="vmd-link{% if link.active %} vmd-link--active{% endif %}">
+                        <span class="vmd-link__title">{{ link.title }}</span>
+                        <span class="vmd-link__arrow" aria-hidden="true">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 17 17 7M7 7h10v10"/></svg>
+                        </span>
+                      </a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+
+            {%- when 'tab_accordion' -%}
+            {%- if tab_menu.links.size > 0 -%}
+              <ul class="vmd-acc-list" role="list">
+                {%- for link in tab_menu.links -%}
+                  <li class="vmd-acc-item" data-vmd-acc-item>
+                    {%- if link.links != blank -%}
+                      <button class="vmd-acc-parent" data-vmd-acc aria-expanded="false">
+                        {{- link.title -}}
+                        <svg class="vmd-acc-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                      </button>
+                      <ul class="vmd-acc-subs" role="list">
+                        {%- if bs.show_view_all and link.url != blank and link.url != '#' -%}
+                          <li>
+                            <a href="{{ link.url }}" class="vmd-sublink vmd-sublink--view-all">
+                              View all {{ link.title }}
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                            </a>
+                          </li>
+                        {%- endif -%}
+                        {%- for sub_link in link.links -%}
+                          <li>
+                            <a href="{{ sub_link.url }}" class="vmd-sublink">
+                              {%- if is_devices_tab -%}
+                                {% render 'valor-menu-title-with-new-badge', title: sub_link.title, badge_class: 'vmd-dl-new' %}
+                              {%- else -%}
+                                {{ sub_link.title }}
+                              {%- endif -%}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- else -%}
+                      <a href="{{ link.url }}" class="vmd-acc-parent vmd-acc-parent--link">{{ link.title }}</a>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+          {%- when 'tab_brands' -%}
+            {%- comment -%} Per-brand tiles: upload a logo image OR fall back to text, set in the theme editor {%- endcomment -%}
+            {%- assign brand_max = 20 -%}
+            {%- assign brand_rendered = 0 -%}
+            {%- capture brand_tiles -%}
+              {%- for i in (1..brand_max) -%}
+                {%- assign url_key  = 'brand_' | append: i | append: '_url' -%}
+                {%- assign img_key  = 'brand_' | append: i | append: '_image' -%}
+                {%- assign name_key = 'brand_' | append: i | append: '_name' -%}
+                {%- assign b_url  = bs[url_key] -%}
+                {%- assign b_img  = bs[img_key] -%}
+                {%- assign b_name = bs[name_key] -%}
+                {%- assign b_fallback_file = blank -%}
+                {%- case i -%}
+                  {%- when 1 -%}{%- assign b_fallback_file = 'mybatpro-dropdown_fa2c8e6a-5f6c-4ce6-acd7-f6dc4bb2538a.png' -%}
+                  {%- when 2 -%}{%- assign b_fallback_file = 'mybat-dropdown_ff10186c-dcf8-4fd1-a4c2-2aa5b7b76bc3.png' -%}
+                  {%- when 3 -%}{%- assign b_fallback_file = 'echelon-dropdown_275aeb52-2f1f-4e89-9f3c-6009af5f173c.png' -%}
+                  {%- when 4 -%}{%- assign b_fallback_file = 'ampnergy-dropdown_d1bd5268-9745-4d1c-9cef-abe4a5ca1ac3.png' -%}
+                  {%- when 5 -%}{%- assign b_fallback_file = 'baseline-dropdown_886171a7-48f3-45a7-a28c-22258f9d8cce.png' -%}
+                  {%- when 6 -%}{%- assign b_fallback_file = 'ecoblvd-dropdown_cd89d25d-d588-4860-b96a-d0631d4ba72d.png' -%}
+                  {%- when 7 -%}{%- assign b_fallback_file = 'ondigo-dropdown_8ac29982-58f3-4e3e-98d7-ac9d32d61cf0.png' -%}
+                  {%- when 8 -%}{%- assign b_fallback_file = 'adata-dropdown_908142ec-696d-4d7d-8f79-ada55995017d.png' -%}
+                  {%- when 9 -%}{%- assign b_fallback_file = 'beats-dropdown.png' -%}
+                  {%- when 12 -%}{%- assign b_fallback_file = 'deejays-dropdown.png' -%}
+                  {%- when 14 -%}{%- assign b_fallback_file = 'luxmo-dropdown.png' -%}
+                  {%- when 15 -%}{%- assign b_fallback_file = 'maxpower-dropdown.png' -%}
+                  {%- when 16 -%}{%- assign b_fallback_file = 'mlb-dropdown_a615b1c1-6087-4116-99d3-5504d6fd5f87.png' -%}
+                  {%- when 17 -%}{%- assign b_fallback_file = 'scosche-dropdown.png' -%}
+                  {%- when 18 -%}{%- assign b_fallback_file = 'sentry-dropdown.png' -%}
+                  {%- when 19 -%}{%- assign b_fallback_file = 'RWAN-logo_1.png' -%}
+                {%- endcase -%}
+                {%- assign b_fallback_img = blank -%}
+                {%- if b_fallback_file != blank -%}
+                  {%- assign b_fallback_img = images[b_fallback_file] -%}
+                {%- endif -%}
+                {%- assign b_use_fallback_img = false -%}
+                {%- if b_fallback_img != blank -%}
+                  {%- if b_url != blank or b_name != blank -%}
+                    {%- assign b_use_fallback_img = true -%}
+                  {%- endif -%}
+                {%- endif -%}
+                {%- comment -%} Pull the collection's image when the link points to a collection {%- endcomment -%}
+                {%- assign b_coll_img = nil -%}
+                {%- if b_url contains '/collections/' -%}
+                  {%- assign b_coll_handle = b_url | split: '/collections/' | last | split: '/' | first | split: '?' | first | split: '#' | first -%}
+                  {%- assign b_coll_img = collections[b_coll_handle].image -%}
+                  {%- comment -%} Ignore Shopify's blank placeholder image so it falls back to text {%- endcomment -%}
+                  {%- if b_coll_img != blank -%}
+                    {%- assign _coll_img_src = b_coll_img | image_url: width: 320 | downcase -%}
+                    {%- if _coll_img_src contains 'placeholder' -%}
+                      {%- assign b_coll_img = nil -%}
+                    {%- endif -%}
+                  {%- endif -%}
+                {%- endif -%}
+                {%- if b_img != blank or b_coll_img != blank or b_use_fallback_img or b_name != blank -%}
+                  {%- assign brand_rendered = brand_rendered | plus: 1 -%}
+                  {%- assign b_alt = b_name | strip_html | strip | escape -%}
+                  <a href="{{ b_url | default: '#' }}" class="vmd-brand-pill">
+                    {%- if b_img != blank -%}
+                      {{ b_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vmd-brand-pill__img', alt: b_alt }}
+                    {%- elsif b_coll_img != blank -%}
+                      {{ b_coll_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vmd-brand-pill__img', alt: b_alt }}
+                    {%- elsif b_use_fallback_img -%}
+                      {{ b_fallback_img | image_url: width: 320 | image_tag: loading: 'lazy', class: 'vmd-brand-pill__img', alt: b_alt }}
+                    {%- else -%}
+                      {{ b_name }}
+                    {%- endif -%}
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endcapture -%}
+
+            {%- if brand_rendered > 0 -%}
+              <div class="vmd-section-title">{{ bs.tab_label | default: 'Brands' }}</div>
+              <div class="vmd-brand-pills">{{ brand_tiles }}</div>
+            {%- elsif tab_menu.links.size > 0 -%}
+              <div class="vmd-section-title">{{ bs.tab_label | default: 'Brands' }}</div>
+              <div class="vmd-brand-pills">
+                {%- for link in tab_menu.links -%}
+                  <a href="{{ link.url }}" class="vmd-brand-pill">
+                    <span class="vmd-brand-pill__name">{{ link.title }}</span>
+                  </a>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+
+        {%- endcase -%}
+        {%- endif -%}
+
+      </div>
+    {%- endfor -%}
+
+    <div class="vmd-body-spacer"></div>
+  </div>
+
+  {%- comment -%} ── Footer ────────────────────────────────────────── {%- endcomment -%}
+  <div class="vmd-foot">
+    {%- if s.footer_menu != blank and s.footer_menu.links.size > 0 -%}
+      <nav class="vmd-foot-links" aria-label="Quick links">
+        {%- for link in s.footer_menu.links -%}
+          <a href="{{ link.url }}" class="vmd-foot-link">{{ link.title }}</a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+    {%- if customer -%}
+      <div class="vmd-account-card">
+        <a href="/pages/my-account" class="vmd-account-card__left">
+          <div class="vmd-avatar" id="vmd-account-avatar" aria-hidden="true">
+            {{- customer.first_name | slice: 0 -}}{{- customer.last_name | slice: 0 -}}
+          </div>
+          <div>
+            <div class="vmd-account-card__label">Signed in as</div>
+            <div class="vmd-account-card__name" id="vmd-account-card-name">{{ customer.first_name }} {{ customer.last_name }}</div>
+          </div>
+        </a>
+        <div class="vmd-account-card__tier" id="vmd-account-card-market"></div>
+      </div>
+    {%- else -%}
+      <div class="vmd-account-card vmd-account-card--guest">
+        {%- comment -%}Mobile: native shopify-account handles dialog directly{%- endcomment -%}
+        <shopify-account menu="{{ settings.customer_account_menu }}" class="vmd-account-card__left vmd-account-sa">
+          <span slot="signed-out-avatar" class="vmd-account-sa-content">
+            <div class="vmd-avatar vmd-avatar--guest" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div>
+              <div class="vmd-account-card__label">Not signed in</div>
+              <div class="vmd-account-card__name">Sign in to your account</div>
+            </div>
+          </span>
+        </shopify-account>
+        {%- comment -%}Desktop: triggers the header shopify-account pill instead{%- endcomment -%}
+        <button type="button" class="vmd-account-card__left vmd-account-sa-trigger js-shopify-login-trigger">
+          <div class="vmd-avatar vmd-avatar--guest" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          </div>
+          <div>
+            <div class="vmd-account-card__label">Not signed in</div>
+            <div class="vmd-account-card__name">Sign in to your account</div>
+          </div>
+        </button>
+        <a href="/pages/register" class="vmd-account-card__register">Register</a>
+      </div>
+    {%- endif -%}
+  </div>
+
+</valor-menu-drawer>
+
+{% stylesheet %}
+/* ================================================================
+   VALOR MENU DRAWER — sections/valor-menu-drawer.liquid
+   Self-contained styles, independent of color scheme system.
+   Global vars used: --font-body--family, --font-heading--family,
+                     --drawer-animation-speed, --animation-easing
+   ================================================================ */
+
+/* ── Isolated color tokens + drawer shell ───────────────────────── */
+valor-menu-drawer {
+  --vmd-navy:          	#2B3A55;
+  --vmd-navy-deep:     	#1D2636;
+  --vmd-sky-pale:      	#D9EEF6;
+  --vmd-chalk:         	#F4F5F2;
+  --vmd-parchment:     	#EEEDE7;
+  --vmd-steel:         	#66717E;
+  --vmd-navy-rgb:      	43, 58, 85;
+  --vmd-white:         	#FFFFFF;
+  --vmd-border:        	#0002;
+  --vmd-border-strong: 	#0003;
+  --vmd-accent:        	#C54448;
+  --vmd-accent-deep:   	#7a2629;
+  --vmd-font-body:     	var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  --vmd-font-heading:  	var(--font-heading--family, Georgia, 'Times New Roman', serif);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 560px;
+  max-width: 100%;
+  height: 100dvh;
+  background: var(--vmd-chalk);
+  transform: translateX(-100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 4px 0 40px rgba(29, 38, 54, 0.16);
+  z-index: var(--layer-menu-drawer, 200);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Open state — toggled by ValorMenuDrawer.open() */
+valor-menu-drawer.vmd-open {
+  transform: translateX(0);
+}
+
+/* ── Hamburger button — sync open/close icon state ── */
+button[data-vmd-trigger] .header-drawer-icon--close { display: none; }
+body:has(valor-menu-drawer.vmd-open) button[data-vmd-trigger] .header-drawer-icon--open { display: none; }
+body:has(valor-menu-drawer.vmd-open) button[data-vmd-trigger] .header-drawer-icon--close { display: flex; }
+
+/* ── Shared drawer overlay (menu + cart) ── */
+.valor-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(29, 38, 54, 0);
+  backdrop-filter: blur(0px);
+  z-index: 15;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, backdrop-filter 0.3s ease, background 0.3s ease;
+}
+.valor-drawer-overlay.valor-open {
+  opacity: 1;
+  pointer-events: auto;
+  background: rgba(29, 38, 54, 0.4);
+  backdrop-filter: blur(3px);
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+valor-menu-drawer .vmd-head {
+  padding: 18px var(--drawer-content-padding);
+  /*display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;*/
+  border-bottom: 1px solid var(--vmd-border);
+  display: flex;
+  justify-content: center;
+}
+
+valor-menu-drawer .vmd-logo {
+	display: flex; align-items: center; text-decoration: none;
+	justify-content: center;
+}
+valor-menu-drawer .vmd-logo__img { height: 26px; width: auto; display: block; }
+valor-menu-drawer .vmd-logo--text {
+  font-family: var(--vmd-font-heading);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--vmd-navy-deep);
+}
+
+valor-menu-drawer .vmd-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vmd-navy);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s;
+  /*flex-shrink: 0;*/
+  position: absolute;
+  left: var(--drawer-content-padding);
+}
+valor-menu-drawer .vmd-close:hover { background: var(--vmd-parchment); }
+
+/* ── Tab bar ────────────────────────────────────────────────────── */
+valor-menu-drawer .vmd-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 16px var(--drawer-content-padding) 0 var(--drawer-content-padding);
+  border-bottom: 1px solid var(--vmd-border);
+  flex-shrink: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+valor-menu-drawer .vmd-tabs::-webkit-scrollbar { display: none; }
+
+valor-menu-drawer .vmd-tab {
+  flex: 1;
+  min-width: fit-content;
+  white-space: nowrap;
+  padding: 10px 14px;
+  font-family: var(--vmd-font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--vmd-steel);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  text-align: center;
+}
+valor-menu-drawer .vmd-tab:hover { color: var(--vmd-navy); }
+valor-menu-drawer .vmd-tab--active { color: var(--vmd-navy-deep); }
+valor-menu-drawer .vmd-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--vmd-accent);
+}
+
+/* ── Search bar ─────────────────────────────────────────────────── */
+valor-menu-drawer .vmd-search {
+  padding: 10px var(--drawer-content-padding);
+  border-bottom: 1px solid var(--vmd-border);
+  flex-shrink: 0;
+}
+@media screen and (min-width: 750px) {
+	valor-menu-drawer .vmd-search {
+		display: none;
+	}
+}
+
+valor-menu-drawer .vmd-search__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--vmd-white);
+  border: 1px solid var(--vmd-border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+valor-menu-drawer .vmd-search__btn:hover {
+  border-color: var(--vmd-border-strong);
+  background: var(--vmd-parchment);
+}
+
+valor-menu-drawer .vmd-search__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--vmd-steel);
+}
+valor-menu-drawer .vmd-search__icon svg { width: 16px; height: 16px; }
+
+valor-menu-drawer .vmd-search__placeholder {
+  font-family: var(--vmd-font-body);
+  font-size: 13px;
+  color: var(--vmd-steel);
+}
+
+/* ── Scrollable body ─────────────────────────────────────────────── */
+valor-menu-drawer .vmd-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px var(--drawer-content-padding);
+  scrollbar-gutter: stable both-edges;
+}
+valor-menu-drawer .vmd-body::-webkit-scrollbar { width: 4px; }
+valor-menu-drawer .vmd-body::-webkit-scrollbar-thumb { background: var(--vmd-border-strong); border-radius: 2px; }
+valor-menu-drawer .vmd-body-spacer { height: 20px; }
+
+/* ── Panels ─────────────────────────────────────────────────────── */
+valor-menu-drawer .vmd-panel { display: none; }
+valor-menu-drawer .vmd-panel--active { display: block; }
+
+/* ── Per-tab banner ─────────────────────────────────────────────── */
+valor-menu-drawer .vmd-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  min-height: 118px;
+  display: flex;
+  align-items: center;
+  color: #F4F5F2;
+}
+
+valor-menu-drawer .vmd-banner__overlay {
+  position: absolute;
+  top: -40%; right: -20%;
+  width: 70%; height: 180%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+valor-menu-drawer .vmd-banner__device {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%) rotate(8deg);
+  width: 52px;
+  height: 94px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255,255,255,0.10);
+  flex-shrink: 0;
+}
+
+/* Hide device placeholder when image is used as background */
+valor-menu-drawer .vmd-banner:not(.vmd-banner--device-img) .vmd-banner__device { display: none; }
+
+/* Device-image variant: image shown in the device slot, gradient background */
+valor-menu-drawer .vmd-banner--device-img .vmd-banner__device {
+  background: transparent;
+  border: none;
+  width: 80px;
+  height: 80px;
+  border-radius: 0;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+valor-menu-drawer .vmd-banner--device-img .vmd-banner__device img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  border-radius: 8px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+valor-menu-drawer .vmd-banner__text {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+  padding-right: 74px;
+}
+
+valor-menu-drawer .vmd-banner__eyebrow {
+  font-family: var(--vmd-font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+valor-menu-drawer .vmd-banner__headline {
+  font-family: var(--vmd-font-heading);
+  font-size: 22px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+  color: #F4F5F2;
+  font-weight: 400;
+}
+
+valor-menu-drawer .vmd-banner__sub {
+  font-family: var(--vmd-font-body);
+  font-size: 11px;
+  color: rgba(244, 245, 242, 0.72);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+valor-menu-drawer .vmd-banner__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #F4F5F2;
+  color: #1D2636;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-family: var(--vmd-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: transform 0.15s, background 0.15s;
+}
+valor-menu-drawer .vmd-banner__cta:hover { background: #fff; transform: translateX(2px); }
+
+/* ── Featured: large serif link list ────────────────────────────── */
+valor-menu-drawer .vmd-links {
+  list-style: none;
+  padding: 0 12px;
+  margin: 0;
+}
+
+valor-menu-drawer .vmd-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-family: var(--vmd-font-heading);
+  font-size: 28px;
+  color: var(--vmd-navy-deep);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background 0.18s, padding-left 0.18s, color 0.18s;
+}
+valor-menu-drawer .vmd-link:hover {
+  background: var(--vmd-white);
+  padding-left: 22px;
+}
+valor-menu-drawer .vmd-link--active .vmd-link__title { color: var(--vmd-accent); }
+
+valor-menu-drawer .vmd-link__arrow {
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.18s, transform 0.18s;
+  color: var(--vmd-accent);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+valor-menu-drawer .vmd-link:hover .vmd-link__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Section label (used above brand pills) ──────────────────────── */
+valor-menu-drawer .vmd-section-title {
+  font-family: var(--vmd-font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vmd-steel);
+  font-weight: 600;
+  padding: 12px 0 10px 0;
+}
+
+/* ── Accordion (Categories & Devices) ───────────────────────────── */
+valor-menu-drawer .vmd-acc-list {
+  list-style: none;
+  /*padding: 0 12px;*/
+  margin: 0;
+  padding-inline-start: 0;
+}
+
+valor-menu-drawer .vmd-acc-item { margin: 0; }
+
+valor-menu-drawer .vmd-acc-parent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 14px;
+  border: none;
+  background: transparent;
+  color: var(--vmd-navy-deep);
+  font-family: var(--vmd-font-body);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.15s, padding-left 0.18s, color 0.15s;
+}
+valor-menu-drawer .vmd-acc-parent:hover {
+  background: var(--vmd-white);
+  padding-left: 22px;
+}
+valor-menu-drawer .vmd-acc-parent--link {
+  justify-content: flex-start;
+}
+
+valor-menu-drawer .vmd-acc-chev {
+  transform: rotate(-90deg);
+  transition: transform 0.22s ease;
+  color: var(--vmd-steel);
+  flex-shrink: 0;
+}
+valor-menu-drawer .vmd-acc-item.vmd-acc--open .vmd-acc-chev {
+  transform: rotate(0deg);
+  color: var(--vmd-accent);
+}
+
+valor-menu-drawer .vmd-acc-subs {
+  max-height: 0;
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+valor-menu-drawer .vmd-sublink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px 8px 28px;
+  font-family: var(--vmd-font-body);
+  font-size: 13px;
+  color: var(--vmd-steel);
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 1px;
+  transition: background 0.15s, color 0.15s, padding-left 0.15s;
+}
+valor-menu-drawer .vmd-sublink:hover {
+  color: var(--vmd-navy-deep);
+  background: var(--vmd-white);
+  padding-left: 34px;
+}
+
+valor-menu-drawer .vmd-sublink--view-all {
+  color: var(--vmd-accent);
+  font-weight: 600;
+  justify-content: flex-start;
+  gap: 5px;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--vmd-border);
+}
+valor-menu-drawer .vmd-sublink--view-all:hover { color: var(--vmd-accent-deep); }
+
+/* ── Brand pill grid ─────────────────────────────────────────────── */
+valor-menu-drawer .vmd-brand-pills {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding-bottom: 20px;
+}
+
+valor-menu-drawer .vmd-brand-pill {
+  background: var(--vmd-white);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid var(--vmd-border);
+  min-height: 56px;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+valor-menu-drawer .vmd-brand-pill:hover {
+  background: var(--vmd-parchment);
+  border-color: var(--vmd-border-strong);
+  transform: translateY(-1px);
+}
+
+valor-menu-drawer .vmd-brand-pill__name,
+valor-menu-drawer .vmd-brand-pill .vdn__brand-pill__name {
+  font-family: var(--vmd-font-heading);
+  font-size: 14px;
+  color: var(--vmd-navy-deep);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Inline font-family/weight/color preset per brand still apply; only size/layout are normalized for the drawer */
+valor-menu-drawer .vmd-brand-pill .vdn__brand-pill__name {
+  font-size: 14px;
+}
+
+/* Brand logo image (when uploaded, replaces the text) */
+valor-menu-drawer .vmd-brand-pill__img {
+  display: block;
+  max-width: 100%;
+  max-height: 46px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ── Design Lab drawer tab ─────────────────────────────────────── */
+valor-menu-drawer .vmd-dl-menu {
+  padding-bottom: 20px;
+}
+
+valor-menu-drawer .vmd-dl-all,
+valor-menu-drawer .vmd-dl-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-family: var(--vmd-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+valor-menu-drawer .vmd-dl-all {
+  margin-bottom: 12px;
+  color: var(--vmd-navy-deep);
+  background: var(--vmd-white);
+  border: 1px solid var(--vmd-border);
+}
+
+valor-menu-drawer .vmd-dl-cta {
+  margin-top: 14px;
+  color: var(--vmd-chalk);
+  background: var(--vmd-navy-deep);
+}
+
+valor-menu-drawer .vmd-dl-group {
+  border: 1px solid var(--vmd-border);
+  border-radius: 12px;
+  background: var(--vmd-white);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+valor-menu-drawer .vmd-dl-group summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  font-family: var(--vmd-font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vmd-navy-deep);
+  cursor: pointer;
+  list-style: none;
+}
+
+valor-menu-drawer .vmd-dl-group summary::-webkit-details-marker {
+  display: none;
+}
+
+valor-menu-drawer .vmd-dl-group summary::after {
+  content: '\203A';
+  color: var(--vmd-steel);
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.16s ease;
+}
+
+valor-menu-drawer .vmd-dl-group[open] summary::after {
+  transform: rotate(90deg);
+  color: var(--vmd-accent);
+}
+
+valor-menu-drawer .vmd-dl-brandgrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+valor-menu-drawer .vmd-dl-brand-name {
+  font-family: var(--vmd-font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vmd-navy-deep);
+  margin-bottom: 6px;
+}
+
+valor-menu-drawer .vmd-dl-brand ul,
+valor-menu-drawer .vmd-dl-modellist,
+valor-menu-drawer .vmd-dl-typelist {
+  list-style: none;
+  margin: 0;
+  padding: 0 14px 14px;
+}
+
+valor-menu-drawer .vmd-dl-brand ul {
+  padding: 0;
+}
+
+valor-menu-drawer .vmd-dl-brand ul li a,
+valor-menu-drawer .vmd-dl-modellist li a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 0;
+  font-family: var(--vmd-font-body);
+  font-size: 13px;
+  line-height: 1.25;
+  color: var(--vmd-steel);
+  text-decoration: none;
+}
+
+valor-menu-drawer .vmd-dl-brand ul li a:hover,
+valor-menu-drawer .vmd-dl-modellist li a:hover {
+  color: var(--vmd-navy-deep);
+}
+
+valor-menu-drawer .vmd-dl-new {
+  display: inline-flex;
+  align-items: center;
+  min-height: 15px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--vmd-accent);
+  color: var(--vmd-white);
+  font-family: var(--vmd-font-body);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+valor-menu-drawer .vmd-sublink .vmd-dl-new {
+  margin-left: auto;
+}
+
+valor-menu-drawer .vmd-dl-typelist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+valor-menu-drawer .vmd-dl-typelist li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--vmd-border);
+  background: var(--vmd-chalk);
+  color: var(--vmd-navy-deep);
+  font-family: var(--vmd-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+valor-menu-drawer .vmd-dl-typelist li a::after {
+  content: '\203A';
+  color: var(--vmd-steel);
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+valor-menu-drawer .vmd-foot {
+  border-top: 1px solid var(--vmd-border);
+  padding: 16px var(--drawer-content-padding);
+  background: var(--vmd-parchment);
+  flex-shrink: 0;
+}
+
+valor-menu-drawer .vmd-foot-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+valor-menu-drawer .vmd-foot-link {
+  font-family: var(--vmd-font-body);
+  font-size: 12px;
+  color: var(--vmd-navy);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+  text-decoration: none;
+  transition: opacity 0.15s, color 0.15s;
+}
+valor-menu-drawer .vmd-foot-link:hover { opacity: 1; color: var(--vmd-accent); }
+
+valor-menu-drawer .vmd-account-card {
+  background: var(--vmd-white);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--vmd-border);
+}
+
+valor-menu-drawer .vmd-account-card__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+valor-menu-drawer .vmd-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--vmd-navy-deep);
+  color: #F4F5F2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--vmd-font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+valor-menu-drawer .vmd-avatar--guest {
+  background: var(--vmd-border);
+  color: var(--vmd-steel);
+}
+valor-menu-drawer .vmd-account-card--guest .vmd-account-card__name {
+  color: var(--vmd-navy);
+}
+valor-menu-drawer .vmd-account-card__register {
+  font-family: var(--vmd-font-body);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vmd-steel);
+  font-weight: 500;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+valor-menu-drawer .vmd-account-card__register:hover { color: var(--vmd-navy-deep); }
+
+/* Mobile: show shopify-account, hide desktop trigger */
+@media screen and (max-width: 749px) {
+  valor-menu-drawer .vmd-account-sa-trigger { display: none; }
+}
+/* Desktop: hide shopify-account, show desktop trigger */
+@media screen and (min-width: 750px) {
+  valor-menu-drawer shopify-account.vmd-account-sa { display: none; }
+}
+
+valor-menu-drawer .vmd-account-sa-trigger {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+valor-menu-drawer shopify-account.vmd-account-sa {
+  min-width: 0;
+}
+valor-menu-drawer shopify-account.vmd-account-sa::part(signed-out-avatar) {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  min-height: unset;
+  height: auto;
+  line-height: 1;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  min-width: 0;
+}
+valor-menu-drawer .vmd-account-sa-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+valor-menu-drawer .vmd-account-card__label {
+  font-family: var(--vmd-font-body);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vmd-steel);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+valor-menu-drawer .vmd-account-card__name {
+  font-family: var(--vmd-font-body);
+  font-size: 13px;
+  color: var(--vmd-navy-deep);
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+valor-menu-drawer .vmd-account-card__tier {
+  font-family: var(--vmd-font-body);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--vmd-sky-pale);
+  color: var(--vmd-navy);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  /* Shared overlay singleton */
+  function _getValorOverlay() {
+    if (window.__valorDrawerOverlay) return window.__valorDrawerOverlay;
+    const el = document.createElement('div');
+    el.className = 'valor-drawer-overlay';
+    document.body.appendChild(el);
+    const ov = {
+      el,
+      _handler: null,
+      show(onClose) {
+        el.classList.add('valor-open');
+        if (this._handler) el.removeEventListener('click', this._handler);
+        this._handler = () => { this.hide(); onClose && onClose(); };
+        el.addEventListener('click', this._handler, { once: true });
+      },
+      hide() {
+        el.classList.remove('valor-open');
+        if (this._handler) { el.removeEventListener('click', this._handler); this._handler = null; }
+      },
+    };
+    return (window.__valorDrawerOverlay = ov);
+  }
+
+  class ValorMenuDrawer extends HTMLElement {
+    connectedCallback() {
+      this._initTabs();
+      this._initAccordions();
+      this._initOpen();
+    }
+
+    _initOpen() {
+      /* Trigger from header hamburger button */
+      document.addEventListener('vmd:open-menu', () => this.open());
+
+      /* Close button inside drawer */
+      this.querySelector('[data-vmd-close]')?.addEventListener('click', () => this.close());
+
+      /* Register link → open popup instead of redirecting */
+      this.querySelector('.vmd-account-card__register')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.close();
+        setTimeout(() => document.dispatchEvent(new CustomEvent('vr:open-register')), 0);
+      });
+
+      /* Escape key */
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.classList.contains('vmd-open')) this.close();
+      });
+    }
+
+    open() {
+      this.classList.add('vmd-open');
+      document.body.classList.add('vcd-scroll-locked');
+      _getValorOverlay().show(() => this.close());
+    }
+
+    close() {
+      this.classList.remove('vmd-open');
+      document.body.classList.remove('vcd-scroll-locked');
+      _getValorOverlay().hide();
+      const trigger = document.querySelector('[data-vmd-trigger]');
+      trigger?.setAttribute('aria-expanded', 'false');
+      trigger?.focus();
+    }
+
+    _initTabs() {
+      const tabs = this.querySelectorAll('[data-vmd-tab]');
+      const panels = this.querySelectorAll('[data-vmd-panel]');
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.vmdTab;
+          tabs.forEach((t) => {
+            t.classList.remove('vmd-tab--active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          panels.forEach((p) => {
+            const active = p.dataset.vmdPanel === target;
+            p.hidden = !active;
+            p.classList.toggle('vmd-panel--active', active);
+          });
+          tab.classList.add('vmd-tab--active');
+          tab.setAttribute('aria-selected', 'true');
+          const body = this.querySelector('.vmd-body');
+          if (body) body.scrollTop = 0;
+        });
+      });
+    }
+
+    _initAccordions() {
+      this.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-vmd-acc]');
+        if (!btn) return;
+        const item = btn.closest('[data-vmd-acc-item]');
+        if (!item) return;
+        const wasOpen = item.classList.contains('vmd-acc--open');
+        const panel = btn.closest('[data-vmd-panel]');
+        if (panel) {
+          panel.querySelectorAll('[data-vmd-acc-item].vmd-acc--open').forEach((el) => {
+            el.classList.remove('vmd-acc--open');
+            const subs = el.querySelector('.vmd-acc-subs');
+            if (subs) subs.style.maxHeight = '0';
+            const b = el.querySelector('[data-vmd-acc]');
+            if (b) b.setAttribute('aria-expanded', 'false');
+          });
+        }
+        if (!wasOpen) {
+          item.classList.add('vmd-acc--open');
+          btn.setAttribute('aria-expanded', 'true');
+          const subs = item.querySelector('.vmd-acc-subs');
+          if (subs) subs.style.maxHeight = subs.scrollHeight + 'px';
+        }
+      });
+    }
+  }
+
+  if (!customElements.get('valor-menu-drawer')) {
+    customElements.define('valor-menu-drawer', ValorMenuDrawer);
+  }
+})();
+
+// Drawer-close on shopify-account click disabled for testing — re-enable if dialog appears behind drawer
+// (function () {
+//   document.addEventListener('click', function (e) {
+//     if (!e.target.closest('shopify-account.vmd-account-sa')) return;
+//     var drawer = document.querySelector('valor-menu-drawer.vmd-open');
+//     if (drawer && typeof drawer.close === 'function') drawer.close();
+//   });
+// })();
+
+// B2B account card: populate company name, market, and avatar initials from cached customer-info
+(function () {
+  var nameEl   = document.getElementById('vmd-account-card-name');
+  var marketEl = document.getElementById('vmd-account-card-market');
+  var avatarEl = document.getElementById('vmd-account-avatar');
+  if (!nameEl && !marketEl) return;
+  function applyInfo(d) {
+    var company = d.name || d.Name || '';
+    var handle  = d.shopifyMarketHandle || '';
+    if (company && nameEl)  nameEl.textContent  = company;
+    if (handle  && marketEl) marketEl.textContent = handle.toLowerCase().replace(/[-_]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  window.__vaCustomerInfo.then(function (d) { if (d) applyInfo(d); });
+})();
+
+
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Valor Menu Drawer",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "header",
+      "content": "Footer"
+    },
+    {
+      "type": "link_list",
+      "id": "footer_menu",
+      "label": "Footer quick links"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab_featured",
+      "name": "Tab – Featured links",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab label",
+          "default": "Featured"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "info": "For the Devices tab, add a trailing * to a device link title for a 'New' badge."
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "Design Lab CTA URL",
+          "info": "Used when this tab is labeled Design Lab. Leave blank to use the current default customization link."
+        },
+        {
+          "type": "header",
+          "content": "Banner (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_image",
+          "label": "Background image (overrides gradient)"
+        },
+        {
+          "type": "text",
+          "id": "banner_eyebrow",
+          "label": "Eyebrow text"
+        },
+        {
+          "type": "text",
+          "id": "banner_headline",
+          "label": "Headline"
+        },
+        {
+          "type": "text",
+          "id": "banner_sub",
+          "label": "Subtext"
+        },
+        {
+          "type": "text",
+          "id": "banner_cta",
+          "label": "CTA label"
+        },
+        {
+          "type": "url",
+          "id": "banner_url",
+          "label": "CTA URL"
+        },
+        {
+          "type": "color",
+          "id": "banner_from",
+          "label": "Gradient start",
+          "default": "#1D2636"
+        },
+        {
+          "type": "color",
+          "id": "banner_to",
+          "label": "Gradient end",
+          "default": "#C54448"
+        },
+        {
+          "type": "color",
+          "id": "banner_eyebrow_color",
+          "label": "Eyebrow color",
+          "default": "#63B9DE"
+        }
+      ]
+    },
+    {
+      "type": "tab_designlab",
+      "name": "Tab - Design Lab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab label",
+          "default": "Design Lab"
+        },
+        {
+          "type": "link_list",
+          "id": "designlab_menu",
+          "label": "Menu",
+          "info": "Top-level links = sections. A section with nested links renders as a brand grid (links = brands, their children = models); a section with plain links renders as a flat list. Add a trailing * to any title for a 'New' badge. Leave empty to use the built-in default."
+        },
+        {
+          "type": "url",
+          "id": "all_url",
+          "label": "All Design Lab URL"
+        },
+        {
+          "type": "text",
+          "id": "cta_label",
+          "label": "CTA label",
+          "default": "Start Customizing"
+        },
+        {
+          "type": "url",
+          "id": "cta_url",
+          "label": "CTA URL"
+        },
+        {
+          "type": "header",
+          "content": "Banner (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_image",
+          "label": "Background image (overrides gradient)"
+        },
+        {
+          "type": "text",
+          "id": "banner_eyebrow",
+          "label": "Eyebrow text"
+        },
+        {
+          "type": "text",
+          "id": "banner_headline",
+          "label": "Headline"
+        },
+        {
+          "type": "text",
+          "id": "banner_sub",
+          "label": "Subtext"
+        },
+        {
+          "type": "text",
+          "id": "banner_cta",
+          "label": "CTA label"
+        },
+        {
+          "type": "url",
+          "id": "banner_url",
+          "label": "CTA URL"
+        },
+        {
+          "type": "color",
+          "id": "banner_from",
+          "label": "Gradient start",
+          "default": "#1D2636"
+        },
+        {
+          "type": "color",
+          "id": "banner_to",
+          "label": "Gradient end",
+          "default": "#C54448"
+        },
+        {
+          "type": "color",
+          "id": "banner_eyebrow_color",
+          "label": "Eyebrow color",
+          "default": "#63B9DE"
+        }
+      ]
+    },
+    {
+      "type": "tab_accordion",
+      "name": "Tab – Accordion links",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab label",
+          "default": "Categories"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_view_all",
+          "label": "Show 'View all' link in each accordion group",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Banner (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_image",
+          "label": "Background image (overrides gradient)"
+        },
+        {
+          "type": "text",
+          "id": "banner_eyebrow",
+          "label": "Eyebrow text"
+        },
+        {
+          "type": "text",
+          "id": "banner_headline",
+          "label": "Headline"
+        },
+        {
+          "type": "text",
+          "id": "banner_sub",
+          "label": "Subtext"
+        },
+        {
+          "type": "text",
+          "id": "banner_cta",
+          "label": "CTA label"
+        },
+        {
+          "type": "url",
+          "id": "banner_url",
+          "label": "CTA URL"
+        },
+        {
+          "type": "color",
+          "id": "banner_from",
+          "label": "Gradient start",
+          "default": "#2B3A55"
+        },
+        {
+          "type": "color",
+          "id": "banner_to",
+          "label": "Gradient end",
+          "default": "#D9EEF6"
+        },
+        {
+          "type": "color",
+          "id": "banner_eyebrow_color",
+          "label": "Eyebrow color",
+          "default": "#63B9DE"
+        }
+      ]
+    },
+    {
+      "type": "tab_brands",
+      "name": "Tab – Brand pills",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_label",
+          "label": "Tab label",
+          "default": "Brands"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu (legacy fallback)",
+          "info": "Used only when none of the per-brand rows below are filled."
+        },
+        { "type": "header", "content": "Brands (logo or text)" },
+        { "type": "paragraph", "content": "Each brand shows, in priority order: an uploaded logo, else the linked collection’s image (set in Collections → the brand → Image), else the text. Set the Link URL to a /collections/… link to use its image." },
+        {
+          "type": "header",
+          "content": "Brand 1 – MyBat Pro"
+        },
+        {
+          "type": "text",
+          "id": "brand_1_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_1_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_1_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat<span style=\"font-style:italic;color:#C54448;\"> Pro</span></span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 2 – MyBat"
+        },
+        {
+          "type": "text",
+          "id": "brand_2_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_2_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_2_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 3 – Echelon"
+        },
+        {
+          "type": "text",
+          "id": "brand_3_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_3_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_3_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Echelon</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 4 – AmpNergy"
+        },
+        {
+          "type": "text",
+          "id": "brand_4_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_4_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_4_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#B07E1A;'>AmpNergy</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 5 – Baseline"
+        },
+        {
+          "type": "text",
+          "id": "brand_5_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_5_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_5_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Baseline</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 6 – EcoBlvd"
+        },
+        {
+          "type": "text",
+          "id": "brand_6_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_6_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_6_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#2d7a3f;'>EcoBlvd</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 7 – Ondigo"
+        },
+        {
+          "type": "text",
+          "id": "brand_7_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_7_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_7_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Ondigo</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 8 – ADATA"
+        },
+        {
+          "type": "text",
+          "id": "brand_8_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_8_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_8_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;letter-spacing:0.05em;'>ADATA</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 9 – Beats"
+        },
+        {
+          "type": "text",
+          "id": "brand_9_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_9_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_9_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:900;'>Beats</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 10 – Borne"
+        },
+        {
+          "type": "text",
+          "id": "brand_10_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_10_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_10_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Borne</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 11 – Coca-Cola"
+        },
+        {
+          "type": "text",
+          "id": "brand_11_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_11_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_11_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;font-style:italic;color:#C54448;'>Coca-Cola</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 12 – Deejays"
+        },
+        {
+          "type": "text",
+          "id": "brand_12_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_12_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_12_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;'>Deejays</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 13 – Edge"
+        },
+        {
+          "type": "text",
+          "id": "brand_13_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_13_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_13_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Edge</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 14 – Luxmo"
+        },
+        {
+          "type": "text",
+          "id": "brand_14_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_14_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_14_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Luxmo</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 15 – MaxPower"
+        },
+        {
+          "type": "text",
+          "id": "brand_15_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_15_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_15_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:800;'>MaxPower</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 16 – MLB"
+        },
+        {
+          "type": "text",
+          "id": "brand_16_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_16_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_16_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;color:#1D2636;'>MLB</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 17 – Scosche"
+        },
+        {
+          "type": "text",
+          "id": "brand_17_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_17_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_17_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Scosche</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 18 – Sentry"
+        },
+        {
+          "type": "text",
+          "id": "brand_18_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_18_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_18_name",
+          "label": "Text (used when no image)",
+          "default": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:500;'>Sentry</span>"
+        },
+        {
+          "type": "header",
+          "content": "Brand 19 (empty)"
+        },
+        {
+          "type": "text",
+          "id": "brand_19_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_19_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_19_name",
+          "label": "Text (used when no image)"
+        },
+        {
+          "type": "header",
+          "content": "Brand 20 (empty)"
+        },
+        {
+          "type": "text",
+          "id": "brand_20_url",
+          "label": "Link URL"
+        },
+        {
+          "type": "image_picker",
+          "id": "brand_20_image",
+          "label": "Logo image (optional – overrides collection image & text)"
+        },
+        {
+          "type": "text",
+          "id": "brand_20_name",
+          "label": "Text (used when no image)"
+        },
+        {
+          "type": "header",
+          "content": "Banner (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_image",
+          "label": "Background image (overrides gradient)"
+        },
+        {
+          "type": "text",
+          "id": "banner_eyebrow",
+          "label": "Eyebrow text"
+        },
+        {
+          "type": "text",
+          "id": "banner_headline",
+          "label": "Headline"
+        },
+        {
+          "type": "text",
+          "id": "banner_sub",
+          "label": "Subtext"
+        },
+        {
+          "type": "text",
+          "id": "banner_cta",
+          "label": "CTA label"
+        },
+        {
+          "type": "url",
+          "id": "banner_url",
+          "label": "CTA URL"
+        },
+        {
+          "type": "color",
+          "id": "banner_from",
+          "label": "Gradient start",
+          "default": "#C54448"
+        },
+        {
+          "type": "color",
+          "id": "banner_to",
+          "label": "Gradient end",
+          "default": "#1D2636"
+        },
+        {
+          "type": "color",
+          "id": "banner_eyebrow_color",
+          "label": "Eyebrow color",
+          "default": "#d4af37"
+        }
+      ]
+    }
+  ],
+  "presets": []
+}
+{% endschema %}

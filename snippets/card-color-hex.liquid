@@ -1,0 +1,72 @@
+{%- doc -%}
+  Maps a color name (e.g. "Red", "Reflex Blue", "Rose Gold") to a hex value for a
+  solid swatch circle. Renders the hex string, the literal `clear` for
+  clear/transparent finishes, or nothing when the name has no solid-color match
+  (e.g. patterns/prints like "Mexican Flag" or "Leopard Print"), in which case the
+  caller should fall back to the product image.
+
+  Ordered specific → general so compound names resolve correctly
+  (e.g. "Rose Gold" → gold, "Reflex Blue" → its own blue).
+
+  @param {string} name - The color name
+  @example
+  {% capture hex %}{% render 'card-color-hex', name: color_name %}{% endcapture %}
+{%- enddoc -%}
+{%- liquid
+  assign n = name | downcase | strip
+  assign hex = ''
+
+  if n contains 'clear' or n contains 'crystal' or n contains 'transparent'
+    assign hex = 'clear'
+  elsif n contains 'rose gold'
+    assign hex = '#b76e79'
+  elsif n contains 'gold'
+    assign hex = '#d4af37'
+  elsif n contains 'silver'
+    assign hex = '#c0c0c0'
+  elsif n contains 'reflex blue'
+    assign hex = '#1b1f4b'
+  elsif n contains 'navy'
+    assign hex = '#1f2a44'
+  elsif n contains 'sky'
+    assign hex = '#87ceeb'
+  elsif n contains 'teal'
+    assign hex = '#008080'
+  elsif n contains 'mint'
+    assign hex = '#9fe2bf'
+  elsif n contains 'blue'
+    assign hex = '#2b5fce'
+  elsif n contains 'black'
+    assign hex = '#1d2636'
+  elsif n contains 'white'
+    assign hex = '#f4f5f2'
+  elsif n contains 'crimson'
+    assign hex = '#b11226'
+  elsif n contains 'red'
+    assign hex = '#c54448'
+  elsif n contains 'lilac'
+    assign hex = '#c8a2c8'
+  elsif n contains 'pink'
+    assign hex = '#ff8fb1'
+  elsif n contains 'purple' or n contains 'violet'
+    assign hex = '#7a5aa8'
+  elsif n contains 'olive'
+    assign hex = '#708238'
+  elsif n contains 'green'
+    assign hex = '#2d7d46'
+  elsif n contains 'yellow'
+    assign hex = '#f2c200'
+  elsif n contains 'orange'
+    assign hex = '#e8833a'
+  elsif n contains 'brown'
+    assign hex = '#6b4f3a'
+  elsif n contains 'sand' or n contains 'beige' or n contains 'tan'
+    assign hex = '#e5c49e'
+  elsif n contains 'gunmetal'
+    assign hex = '#2a3439'
+  elsif n contains 'gray' or n contains 'grey' or n contains 'steel' or n contains 'graphite' or n contains 'charcoal'
+    assign hex = '#66717e'
+  endif
+
+  echo hex
+-%}

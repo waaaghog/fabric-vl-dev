@@ -1,0 +1,325 @@
+{% style %}
+  .valor-contact-options {
+    --contact-accent: {{ section.settings.accent_color | default: '#c54448' }};
+    --contact-ink: var(--color-foreground, #121820);
+    --contact-muted: rgb(var(--color-foreground-rgb, 18 24 32) / 0.68);
+    --contact-border: rgb(var(--color-border-rgb, 29 38 54) / 0.16);
+    --contact-surface: rgb(var(--color-background-rgb, 244 245 242) / 1);
+    --contact-card: color-mix(in srgb, var(--contact-surface) 88%, #ffffff);
+
+    background: var(--color-background);
+    color: var(--contact-ink);
+    font-family: var(--font-body--family), Inter, Arial, sans-serif;
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+  }
+
+  .valor-contact-options__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .valor-contact-options__head {
+    display: grid;
+    grid-template-columns: minmax(0, 0.55fr) minmax(0, 1fr);
+    gap: 48px;
+    align-items: end;
+    margin-bottom: 44px;
+    padding-top: 36px;
+    border-top: 1px solid var(--contact-border);
+  }
+
+  .valor-contact-options__eyebrow {
+    margin-bottom: 18px;
+    color: var(--contact-accent);
+    font-family: var(--font-h6--family);
+    font-size: var(--font-h6--size);
+    font-style: var(--font-h6--style);
+    font-weight: 700;
+    letter-spacing: var(--font-h6--letter-spacing);
+    line-height: var(--font-h6--line-height);
+    text-transform: var(--font-h6--case);
+  }
+
+  .valor-contact-options__title {
+    margin: 0;
+    color: var(--contact-ink);
+    font-family: var(--font-heading--family), Georgia, serif;
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: 0.03em;
+  }
+
+  .valor-contact-options__title em {
+    color: var(--contact-accent);
+    font-style: italic;
+  }
+
+  .valor-contact-options__intro {
+    max-width: 560px;
+    margin: 0;
+    color: var(--contact-muted);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .valor-contact-options__intro p {
+    margin: 0;
+  }
+
+  .valor-contact-options__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .valor-contact-options__card {
+    display: flex;
+    flex-direction: column;
+    min-height: 260px;
+    padding: 28px;
+    border: 1px solid var(--contact-border);
+    border-radius: 8px;
+    background: var(--contact-card);
+  }
+
+  .valor-contact-options__number {
+    margin-bottom: 32px;
+    color: var(--contact-accent);
+    font-family: var(--font-h6--family);
+    font-size: var(--font-h6--size);
+    font-style: var(--font-h6--style);
+    font-weight: 700;
+    letter-spacing: var(--font-h6--letter-spacing);
+    line-height: var(--font-h6--line-height);
+    text-transform: var(--font-h6--case);
+  }
+
+  .valor-contact-options__card-title {
+    margin: 0 0 12px;
+    color: var(--contact-ink);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .valor-contact-options__copy {
+    margin-bottom: 22px;
+    color: var(--contact-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .valor-contact-options__copy p {
+    margin: 0 0 12px;
+  }
+
+  .valor-contact-options__copy p:last-child {
+    margin-bottom: 0;
+  }
+
+  .valor-contact-options__details {
+    display: grid;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--contact-border);
+  }
+
+  .valor-contact-options__details p {
+    margin: 0;
+  }
+
+  .valor-contact-options__details a,
+  .valor-contact-options__details strong {
+    color: var(--contact-ink);
+    font-weight: 600;
+  }
+
+  .valor-contact-options__details a {
+    text-decoration: none;
+  }
+
+  .valor-contact-options__details a:hover {
+    color: var(--contact-accent);
+  }
+
+  .valor-contact-options__meta {
+    margin-top: 18px;
+    color: var(--contact-muted);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  @media screen and (max-width: 990px) {
+    .valor-contact-options__head {
+      grid-template-columns: 1fr;
+      gap: 22px;
+    }
+
+    .valor-contact-options__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .valor-contact-options__card {
+      min-height: 0;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .valor-contact-options__inner {
+      padding: 0 20px;
+    }
+
+    .valor-contact-options__card {
+      padding: 22px;
+    }
+  }
+{% endstyle %}
+
+<section class="valor-contact-options color-{{ section.settings.color_scheme }}" {{ section.shopify_attributes }}>
+  <div class="valor-contact-options__inner">
+    <div class="valor-contact-options__head">
+      <div>
+        {% if section.settings.eyebrow != blank %}
+          <div class="valor-contact-options__eyebrow">{{ section.settings.eyebrow | escape }}</div>
+        {% endif %}
+        {% if section.settings.heading != blank %}
+          <h2 class="valor-contact-options__title">{{ section.settings.heading }}</h2>
+        {% endif %}
+      </div>
+      {% if section.settings.intro != blank %}
+        <div class="valor-contact-options__intro">{{ section.settings.intro }}</div>
+      {% endif %}
+    </div>
+
+    <div class="valor-contact-options__grid">
+      {% for block in section.blocks %}
+        <article class="valor-contact-options__card" {{ block.shopify_attributes }}>
+          {% if block.settings.number != blank %}
+            <div class="valor-contact-options__number">{{ block.settings.number | escape }}</div>
+          {% endif %}
+          {% if block.settings.title != blank %}
+            <h3 class="valor-contact-options__card-title">{{ block.settings.title | escape }}</h3>
+          {% endif %}
+          {% if block.settings.copy != blank %}
+            <div class="valor-contact-options__copy">{{ block.settings.copy }}</div>
+          {% endif %}
+          {% if block.settings.details != blank %}
+            <div class="valor-contact-options__details">{{ block.settings.details }}</div>
+          {% endif %}
+          {% if block.settings.meta != blank %}
+            <div class="valor-contact-options__meta">{{ block.settings.meta | escape }}</div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Valor contact options",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#c54448"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Other ways to reach us"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Reach out <em>other ways.</em>"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro",
+      "default": "<p>Pick the route that fits the ask. We will get you to the right person, the right warehouse, or the right answer without making it weird.</p>"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "contact_method",
+      "name": "Contact method",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number",
+          "default": "i."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Drop an email"
+        },
+        {
+          "type": "richtext",
+          "id": "copy",
+          "label": "Copy",
+          "default": "<p>We aim for lightning-fast replies. If it takes more than 24 hours, assume we are helping another dealer maximize revenue, deep in a coffee coma, or lost in a whiteboard session.</p>"
+        },
+        {
+          "type": "richtext",
+          "id": "details",
+          "label": "Details",
+          "default": "<p><a href=\"mailto:lily@valorcomm.com\">lily@valorcomm.com</a></p>"
+        },
+        {
+          "type": "text",
+          "id": "meta",
+          "label": "Meta text",
+          "default": "Best for partner questions, product asks, and follow-ups"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Valor contact options"
+    }
+  ]
+}
+{% endschema %}

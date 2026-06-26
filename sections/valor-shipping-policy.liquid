@@ -1,0 +1,399 @@
+{%- comment -%}
+  Valor — Shipping Policy page (admin-managed, like Valor about core).
+
+  The whole policy is built from theme-editor settings + blocks so it can be
+  edited from admin without touching code. The "Shipping Rates & Carriers"
+  block weaves in a dynamic, per-market B2B free-shipping threshold:
+
+    • Logged-out / non-B2B → "Login to view your Free Shipping threshold"
+    • Logged-in B2B        → "...orders totaling $X or more..." ($X per market)
+
+  Login gate is server-side (customer.b2b?). The market handle is resolved
+  client-side from window.__vaCustomerInfo.shopifyMarketHandle — the same
+  source of truth used by the cart, account, header and menu drawer.
+{%- endcomment -%}
+
+{%- liquid
+  assign is_b2b = false
+  if customer and customer['b2b?']
+    assign is_b2b = true
+  endif
+  assign accent = section.settings.accent_color | default: '#c54448'
+-%}
+
+{% style %}
+  .vsp-{{ section.id }} {
+    --vsp-navy: #2b3a55;
+    --vsp-navy-deep: #1d2636;
+    --vsp-crimson: {{ accent }};
+    --vsp-steel: #66717e;
+    --vsp-line: #e3e6ec;
+    --vsp-chalk: #f6f8fb;
+  }
+  .vsp-page {
+    max-width: 880px;
+    margin-inline: auto;
+    padding-inline: 20px;
+    color: var(--vsp-navy-deep);
+  }
+  .vsp-crumb { font-size: 13px; color: var(--vsp-steel); margin-bottom: 18px; }
+  .vsp-crumb a { color: var(--vsp-steel); text-decoration: none; }
+  .vsp-crumb a:hover { text-decoration: underline; }
+  .vsp-crumb-sep { margin: 0 6px; opacity: .6; }
+  .vsp-crumb-current { color: var(--vsp-navy-deep); font-weight: 600; }
+
+  .vsp-eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--vsp-crimson); margin-bottom: 8px;
+  }
+  .vsp-title { font-size: clamp(28px, 5vw, 44px); line-height: 1.1; margin: 0 0 8px; color: var(--vsp-navy-deep); }
+  .vsp-title em { font-style: italic; color: var(--vsp-crimson); }
+  .vsp-title strong { font-weight: 800; }
+  .vsp-updated { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--vsp-steel); margin: 0 0 36px; }
+
+  .vsp-block { padding: 26px 0; border-top: 1px solid var(--vsp-line); }
+  .vsp-block:first-of-type { border-top: 0; }
+  .vsp-block-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .vsp-num {
+    font-size: 14px; font-weight: 800; letter-spacing: .04em;
+    color: var(--vsp-crimson); flex: 0 0 auto;
+  }
+  .vsp-block-title { font-size: 20px; font-weight: 700; margin: 0; color: var(--vsp-navy-deep); }
+  .vsp-body { font-size: 16px; line-height: 1.65; color: #3a4658; }
+  .vsp-body p { margin: 0 0 14px; }
+  .vsp-body p:last-child { margin-bottom: 0; }
+
+  .vsp-sub { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--vsp-navy-deep); margin: 18px 0 6px; font-size: 14px; }
+  .vsp-sub:first-child { margin-top: 0; }
+
+  /* Dynamic free-shipping line */
+  .vsp-ground { font-size: 16px; line-height: 1.65; color: #3a4658; margin: 0 0 14px; }
+  .vsp-amount { font-weight: 800; color: var(--vsp-crimson); white-space: nowrap; }
+  .vsp-ground[data-vsp-state="loading"] .vsp-amount { opacity: .5; }
+  .vsp-login {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 0; background: none; padding: 0; cursor: pointer; font: inherit;
+    font-weight: 700; color: var(--vsp-crimson);
+  }
+  .vsp-login svg { width: 14px; height: 14px; }
+  .vsp-login:hover { text-decoration: underline; }
+
+  .vsp-footer {
+    margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--vsp-line);
+    font-size: 13px; color: var(--vsp-steel); line-height: 1.6;
+  }
+{% endstyle %}
+
+<section class="vsp-{{ section.id }} valor-shipping-policy color-{{ section.settings.color_scheme }}" {{ section.shopify_attributes }}>
+  <div class="vsp-page">
+    {%- if section.settings.show_breadcrumb -%}
+      <nav class="vsp-crumb" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        <span class="vsp-crumb-sep">/</span>
+        <span class="vsp-crumb-current">{{ section.settings.breadcrumb_label | escape }}</span>
+      </nav>
+    {%- endif -%}
+
+    {%- if section.settings.hero_eyebrow != blank -%}
+      <div class="vsp-eyebrow">{{ section.settings.hero_eyebrow | escape }}</div>
+    {%- endif -%}
+    <h1 class="vsp-title">{{ section.settings.hero_title }}</h1>
+    {%- if section.settings.last_updated != blank -%}
+      <p class="vsp-updated">{{ section.settings.last_updated | escape }}</p>
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'policy_section' -%}
+          <div class="vsp-block" {{ block.shopify_attributes }}>
+            <div class="vsp-block-head">
+              {%- if block.settings.number != blank -%}<span class="vsp-num">{{ block.settings.number | escape }}</span>{%- endif -%}
+              <h2 class="vsp-block-title">{{ block.settings.title | escape }}</h2>
+            </div>
+            <div class="vsp-body">{{ block.settings.body }}</div>
+          </div>
+
+        {%- when 'rates_section' -%}
+          <div class="vsp-block" {{ block.shopify_attributes }}>
+            <div class="vsp-block-head">
+              {%- if block.settings.number != blank -%}<span class="vsp-num">{{ block.settings.number | escape }}</span>{%- endif -%}
+              <h2 class="vsp-block-title">{{ block.settings.title | escape }}</h2>
+            </div>
+            <div class="vsp-body">
+              {%- if block.settings.ground_heading != blank -%}<p class="vsp-sub">{{ block.settings.ground_heading | escape }}</p>{%- endif -%}
+
+              {%- if is_b2b -%}
+                <p class="vsp-ground"
+                   data-vsp-state="loading"
+                   data-vsp-default="{{ section.settings.threshold_default | default: 250 }}"
+                   data-vsp-boost="{{ section.settings.threshold_boost | default: 100 }}"
+                   data-vsp-cricket="{{ section.settings.threshold_cricket | default: 250 }}"
+                   data-vsp-valor="{{ section.settings.threshold_valor | default: 250 }}"
+                   data-vsp-total="{{ section.settings.threshold_total | default: 250 }}">
+                  {{ block.settings.ground_prefix }}<span class="vsp-amount" data-vsp-amount>&hellip;</span>{{ block.settings.ground_suffix }}
+                </p>
+              {%- else -%}
+                <p class="vsp-ground">
+                  {{ block.settings.ground_locked_prefix }}<a class="vsp-login js-shopify-login-trigger" href="{{ settings.b2b_login_url | default: '/account/login' }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>{{ block.settings.ground_locked_text | default: 'sign in' }}</a>{{ block.settings.ground_locked_suffix }}
+                </p>
+              {%- endif -%}
+
+              {%- if block.settings.ground_extra != blank -%}<div>{{ block.settings.ground_extra }}</div>{%- endif -%}
+
+              {%- if block.settings.express_heading != blank -%}<p class="vsp-sub">{{ block.settings.express_heading | escape }}</p>{%- endif -%}
+              {%- if block.settings.express_body != blank -%}<div>{{ block.settings.express_body }}</div>{%- endif -%}
+            </div>
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+
+    {%- if section.settings.footer_text != blank -%}
+      <div class="vsp-footer">{{ section.settings.footer_text }}</div>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- if is_b2b -%}
+  <script>
+    (function () {
+      var sec = document.currentScript.previousElementSibling;
+      var row = sec && sec.querySelector('[data-vsp-state]');
+      if (!row || !window.__vaCustomerInfo) return;
+      var amountEl = row.querySelector('[data-vsp-amount]');
+
+      function fmt(n) { return '$' + Number(n).toLocaleString('en-US'); }
+      function thresholdFor(handle) {
+        switch ((handle || '').toUpperCase()) {
+          case 'BOOST-MOBILE':     return row.dataset.vspBoost;
+          case 'CRICKET-WIRELESS': return row.dataset.vspCricket;
+          case 'VALOR-WHOLESALE':  return row.dataset.vspValor;
+          case 'TOTAL-WIRELESS':   return row.dataset.vspTotal;
+          default:                 return row.dataset.vspDefault;
+        }
+      }
+
+      window.__vaCustomerInfo.then(function (data) {
+        var handle = data && (data.shopifyMarketHandle || data.ShopifyMarketHandle);
+        if (amountEl) amountEl.textContent = fmt(thresholdFor(handle));
+        row.dataset.vspState = 'ready';
+      }).catch(function () {
+        if (amountEl) amountEl.textContent = fmt(row.dataset.vspDefault);
+        row.dataset.vspState = 'ready';
+      });
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Valor shipping policy",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#c54448"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_label",
+      "label": "Breadcrumb label",
+      "default": "Shipping Policy"
+    },
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "hero_title",
+      "label": "Title",
+      "default": "Shipping Policy"
+    },
+    {
+      "type": "text",
+      "id": "last_updated",
+      "label": "Last updated",
+      "default": "Last Updated: February 2026"
+    },
+    {
+      "type": "header",
+      "content": "B2B Free Shipping thresholds ($)",
+      "info": "Used by the dynamic line inside the 'Shipping Rates & Carriers' block. Shown only to logged-in B2B customers, matched to their market."
+    },
+    {
+      "type": "number",
+      "id": "threshold_boost",
+      "label": "Boost Mobile",
+      "default": 100
+    },
+    {
+      "type": "number",
+      "id": "threshold_cricket",
+      "label": "Cricket Wireless",
+      "default": 250
+    },
+    {
+      "type": "number",
+      "id": "threshold_valor",
+      "label": "Valor Wholesale",
+      "default": 250
+    },
+    {
+      "type": "number",
+      "id": "threshold_total",
+      "label": "Total Wireless",
+      "default": 250
+    },
+    {
+      "type": "number",
+      "id": "threshold_default",
+      "label": "Default (other markets)",
+      "default": 250
+    },
+    {
+      "type": "header",
+      "content": "Footer"
+    },
+    {
+      "type": "richtext",
+      "id": "footer_text",
+      "label": "Footer text",
+      "default": "<p>Valor Communication, Inc. · 18071 Arenth Ave., City of Industry, CA 91748</p><p>© 2026 Valor Communication, Inc. All rights reserved.</p>"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "policy_section",
+      "name": "Policy section",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number",
+          "default": "01"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Overview"
+        },
+        {
+          "type": "richtext",
+          "id": "body",
+          "label": "Body",
+          "default": "<p>This Shipping Policy applies to wholesale orders placed through the Company.</p>"
+        }
+      ]
+    },
+    {
+      "type": "rates_section",
+      "name": "Shipping rates & carriers",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number",
+          "default": "02"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Shipping Rates & Carriers"
+        },
+        {
+          "type": "header",
+          "content": "Ground shipping (dynamic threshold)"
+        },
+        {
+          "type": "text",
+          "id": "ground_heading",
+          "label": "Ground heading",
+          "default": "Ground Shipping"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "ground_prefix",
+          "label": "Text before amount (B2B)",
+          "default": "Free ground shipping is available on orders totaling "
+        },
+        {
+          "type": "inline_richtext",
+          "id": "ground_suffix",
+          "label": "Text after amount (B2B)",
+          "default": " or more, before taxes and fees."
+        },
+        {
+          "type": "text",
+          "id": "ground_locked_prefix",
+          "label": "Logged-out text (before link)",
+          "default": "Free Shipping Thresholds vary by market — "
+        },
+        {
+          "type": "text",
+          "id": "ground_locked_text",
+          "label": "Logged-out link text",
+          "default": "sign in"
+        },
+        {
+          "type": "text",
+          "id": "ground_locked_suffix",
+          "label": "Logged-out text (after link)",
+          "default": " to see the offer for your account."
+        },
+        {
+          "type": "richtext",
+          "id": "ground_extra",
+          "label": "Ground extra text",
+          "default": "<p>Orders that do not qualify will receive real-time discounted rates at checkout.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Express & expedited"
+        },
+        {
+          "type": "text",
+          "id": "express_heading",
+          "label": "Express heading",
+          "default": "Express & Expedited Shipping"
+        },
+        {
+          "type": "richtext",
+          "id": "express_body",
+          "label": "Express body",
+          "default": "<p>Expedited options are available for an additional cost. Express shipping does not qualify for free shipping, regardless of order value.</p><p>All shipping rates are calculated using discounted carrier rates, primarily through FedEx.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor shipping policy",
+      "blocks": [
+        { "type": "policy_section" },
+        { "type": "rates_section" }
+      ]
+    }
+  ]
+}
+{% endschema %}

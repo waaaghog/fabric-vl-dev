@@ -1,0 +1,229 @@
+
+{% liquid
+  assign related_products = closest.product.metafields.custom.related_products.value
+%}
+
+{% if related_products.size > 0 %}
+  <div class="related-products" {{ block.shopify_attributes }}>
+    {% if block.settings.heading != blank %}
+      <h3 class="related-products__heading">{{ block.settings.heading }}</h3>
+    {% endif %}
+
+    <div
+      class="related-products__grid"
+      style="--related-products-columns: {{ block.settings.columns }};"
+    >
+      {% for related_product in related_products %}
+        {% liquid
+          case block.settings.image_ratio
+            when 'adapt'
+              if related_product.featured_image
+                assign card_ratio = related_product.featured_image.aspect_ratio | default: 1
+              else
+                assign card_ratio = 1
+              endif
+            when 'portrait'
+              assign card_ratio = '0.8'
+            when 'landscape'
+              assign card_ratio = '1.7778'
+            else
+              assign card_ratio = 1
+          endcase
+        %}
+
+        <div class="related-products__card">
+          <a class="related-products__image-link" href="{{ related_product.url }}">
+            <div
+              class="related-products__image-wrapper"
+              style="aspect-ratio: {{ card_ratio }};"
+            >
+              {% if related_product.featured_image %}
+                <img
+                  src="{{ related_product.featured_image | image_url: width: 400 }}"
+                  srcset="
+                    {{ related_product.featured_image | image_url: width: 200 }} 200w,
+                    {{ related_product.featured_image | image_url: width: 400 }} 400w,
+                    {{ related_product.featured_image | image_url: width: 800 }} 800w
+                  "
+                  sizes="(min-width: 750px) calc(100vw / {{ block.settings.columns }}), 50vw"
+                  alt="{{ related_product.title | escape }}"
+                  width="{{ related_product.featured_image.width }}"
+                  height="{{ related_product.featured_image.height }}"
+                  loading="lazy"
+                >
+              {% else %}
+                {{ 'product-apparel-1' | placeholder_svg_tag: 'related-products__placeholder' }}
+              {% endif %}
+            </div>
+          </a>
+
+          <div class="related-products__info">
+            {% if block.settings.show_title %}
+              <a class="related-products__title" href="{{ related_product.url }}">
+                {{- related_product.title -}}
+              </a>
+            {% endif %}
+
+            {% if block.settings.show_price %}
+              <div class="related-products__price">
+                {% if related_product.compare_at_price > related_product.price %}
+                  <s class="related-products__compare-price">{{ related_product.compare_at_price | money }}</s>
+                  <span class="related-products__sale-price">{{ related_product.price | money }}</span>
+                {% else %}
+                  <span>{{ related_product.price | money }}</span>
+                {% endif %}
+              </div>
+            {% endif %}
+
+            {% render 'quick-add', product: related_product, section_id: section.id, block: block %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .related-products__heading {
+    margin: 0 0 12px;
+    font-size: var(--font-size--lg);
+    font-weight: var(--font-body--weight);
+  }
+
+  .related-products__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--related-products-columns, 3), 1fr);
+    gap: 16px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .related-products__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .related-products__card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .related-products__image-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .related-products__image-wrapper {
+    overflow: hidden;
+    background-color: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
+  .related-products__image-wrapper img,
+  .related-products__image-wrapper .related-products__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .related-products__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .related-products__title {
+    font-size: var(--font-size--sm);
+    color: var(--color-foreground);
+    text-decoration: none;
+    line-height: var(--line-height--tight);
+  }
+
+  .related-products__title:hover {
+    text-decoration: underline;
+  }
+
+  .related-products__price {
+    font-size: var(--font-size--sm);
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+
+  .related-products__compare-price {
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+    font-size: 0.875em;
+    text-decoration: line-through;
+  }
+
+  .related-products__sale-price {
+    color: var(--color-foreground);
+  }
+
+  .related-products__card .quick-add {
+    margin-top: auto;
+  }
+
+  .related-products__card .quick-add .button {
+    width: 100%;
+    justify-content: center;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Related Products",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "select",
+      "id": "columns",
+      "label": "Columns",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image ratio",
+      "options": [
+        { "value": "adapt", "label": "Adapt to image" },
+        { "value": "square", "label": "Square" },
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "landscape", "label": "Landscape (16:9)" }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show product title",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Related Products",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

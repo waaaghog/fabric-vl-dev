@@ -1,0 +1,120 @@
+{%- doc -%}
+  Per-dealer purchase-history notes on Valor product cards.
+
+  Emits the logged-in customer's recent order lines (keyed by variant SKU) as a
+  JS global, then injects a passive "last ordered" note onto each card's stock
+  line (snippets/valor-product-card.liquid -> .vpc-stock[data-vpc-sku]).
+
+  Render once per page, near the end of <body>. Guests output nothing, so order
+  history is never exposed to logged-out visitors.
+
+  Source of truth: customer.orders (Liquid). This covers the customer's most
+  recent ~50 orders — Shopify's per-object ceiling. For very high-frequency
+  buyers, purchases living in older orders won't surface a note; that is the
+  documented "never ordered" empty state and is acceptable for a reorder hint.
+{%- enddoc -%}
+
+{%- if customer -%}
+  <script>
+    window.VALOR_ORDER_LINES = [
+      {%- assign first = true -%}
+      {%- for order in customer.orders -%}
+        {%- assign ots = order.created_at | date: '%s' -%}
+        {%- assign odate = order.created_at | date: '%b %Y' -%}
+        {%- for li in order.line_items -%}
+          {%- if li.sku != blank -%}
+            {%- unless first -%},{%- endunless -%}{%- assign first = false -%}
+            {"sku":{{ li.sku | json }},"qty":{{ li.quantity }},"ts":{{ ots }},"date":{{ odate | json }}}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+    ];
+  </script>
+
+  <style>
+    .vpc-stock .reorder-note {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--steel);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .vpc-stock .reorder-note svg { flex: none; color: #63B9DE; }
+  </style>
+
+  <script>
+    (function () {
+      if (window.__valorPurchaseHistoryBound) return;
+      window.__valorPurchaseHistoryBound = true;
+
+      var RECEIPT_SVG =
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M5 21V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16l-3-2-2 2-2-2-2 2-2-2-3 2z"/>' +
+        '<path d="M9 8h6M9 12h6"/></svg>';
+
+      function unitLabel(n) { return n + (n === 1 ? ' unit' : ' units'); }
+
+      /* Reduce raw order lines -> last order per SKU.
+         qty = total quantity in that most-recent order (handles a SKU split
+         across multiple line items in the same order). */
+      var lines = window.VALOR_ORDER_LINES || [];
+      var lastOrdered = {};
+      lines.forEach(function (l) {
+        if (!l || !l.sku) return;
+        var cur = lastOrdered[l.sku];
+        if (!cur || l.ts > cur.ts) {
+          lastOrdered[l.sku] = { ts: l.ts, qty: l.qty, date: l.date };
+        } else if (l.ts === cur.ts) {
+          cur.qty += l.qty;
+        }
+      });
+
+      function addNote(stockEl) {
+        if (!stockEl || stockEl.querySelector('.reorder-note')) return;
+        var sku = stockEl.getAttribute('data-vpc-sku');
+        var entry = sku && lastOrdered[sku];
+        if (!entry) return; // never ordered: no note
+
+        var note = document.createElement('span');
+        note.className = 'reorder-note';
+        note.setAttribute('data-last-ordered', '');
+        note.setAttribute('title', 'Your most recent order of this item');
+        note.innerHTML =
+          RECEIPT_SVG + '<span>' + unitLabel(entry.qty) + ' · ' + entry.date + '</span>';
+        stockEl.appendChild(note);
+      }
+
+      function scan(root) {
+        (root || document).querySelectorAll('.vpc-stock[data-vpc-sku]').forEach(addNote);
+      }
+
+      // Initial pass.
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { scan(); });
+      } else {
+        scan();
+      }
+
+      // Re-decorate cards injected by collection filtering / pagination / morph.
+      var pending = false;
+      var observer = new MutationObserver(function (mutations) {
+        if (pending) return;
+        for (var i = 0; i < mutations.length; i++) {
+          if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
+            pending = true;
+            window.requestAnimationFrame(function () {
+              pending = false;
+              scan();
+            });
+            break;
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    })();
+  </script>
+{%- endif -%}

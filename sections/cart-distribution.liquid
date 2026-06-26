@@ -1,0 +1,1959 @@
+
+
+
+
+
+{% style %}
+	[data-block-handle="cart-distribution"] {
+		width: 100%;
+	}
+	/**********************For Studio theme**********************/
+	.multi-ship *:focus-visible {
+		outline: initial;
+		outline-offset: initial;
+		box-shadow: initial;
+	}
+	@media screen and (min-width: 750px) {
+		.page-width {
+			padding-left: 3.2rem;
+			padding-right: 3.2rem;
+		}
+	}
+	@media screen and (min-width: 990px) {
+		.page-width {
+			padding-left: 5rem;
+			padding-right: 5rem;
+		}
+	}
+	.distribution-dlg-content .dlg-resizer {
+		width: 15px;
+		height: 15px;
+		position: absolute;
+		right: 0px;
+		bottom: 0px;
+		cursor: nwse-resize;
+	}
+
+	/* Image zoom overlay */
+	.cart-dist-img-overlay {
+		position: fixed; inset: 0; background: rgba(0,0,0,.85);
+		display: flex; align-items: center; justify-content: center;
+		z-index: 99999; cursor: zoom-out;
+	}
+	.cart-dist-img-popup img {
+		max-width: 90vw; max-height: 90vh; object-fit: contain;
+		display: block; cursor: default;
+	}
+	/* Carrier items thumbnail strip */
+	.carrier-items { padding: 2px; }
+	.carrier-items-inner { display: flex; align-items: center; gap: 2px; }
+	.carrier-items-wrap { overflow: hidden; flex: 1; min-width: 0; }
+	.carrier-items-track { display: flex; gap: 4px; transition: transform .2s; will-change: transform; }
+	.carrier-thumb { width: 50px; object-fit: cover; border-radius: 3px; flex-shrink: 0; cursor: zoom-in; }
+	.carrier-items-btn { background: none; border: 1px solid #ccc; border-radius: 3px; width: 18px; padding: 0; cursor: pointer; font-size: 16px; line-height: 1.4; flex-shrink: 0; }
+	.carrier-items-btn:disabled { opacity: .3; cursor: default; }
+
+	/* Checkout error dialog */
+	.cart-dist-dialog-overlay {
+		position: fixed; inset: 0; background: rgba(0,0,0,.5);
+		display: flex; align-items: center; justify-content: center;
+		z-index: 99999;
+	}
+	.cart-dist-dialog {
+		background: #fff; border-radius: 8px; padding: 24px 28px; max-width: 500px; width: 90%;
+		box-shadow: 0 8px 32px rgba(0,0,0,.25);
+	}
+	.cart-dist-dialog__title { margin: 0 0 12px; font-size: 18px; }
+	.cart-dist-dialog__body { margin: 0 0 8px; }
+	.cart-dist-dialog__list { margin: 0 0 12px; padding-left: 20px; }
+	.cart-dist-dialog__list li { margin-bottom: 4px; font-size: 14px; }
+	.cart-dist-dialog__note { margin: 0 0 20px; font-size: 13px; color: #666; }
+	.cart-dist-dialog__actions { display: flex; gap: 12px; justify-content: flex-end; }
+	.cart-dist-dialog__actions button { padding: 5px 15px; cursor: pointer;}
+	.sticky-sum .cart-dist-dialog__proceed {
+		background: #154;
+	}
+	.sticky-sum .cart-dist-dialog__proceed:hover {
+		background: #375;
+	}
+
+	/*************************************************************/
+	.bubble-container {
+		font-family: sans-serif;
+		border: 1px solid #ccc;
+		padding: 8px;
+		cursor: text;
+		width: 100%;
+		height: 100%;
+		overflow-y: scroll;
+		overflow-x: hidden;
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+		flex-wrap: wrap;
+		justify-content: start;
+		align-items: start;
+		align-content: start;
+	}
+	.bubble-container:focus-visible {
+		border: 1px solid #668;
+		outline: none;
+	}
+	.bubble-input {
+		outline: none;
+		min-width: 50px;
+		flex-grow: 0;
+		width: 100%;
+	}
+	.bubble-input:focus-visible {
+		box-shadow: none;
+	}
+	[contenteditable]:empty:before {
+		content: attr(placeholder);
+		color: #aaa;
+	}
+
+	.bubble-list {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		width: 100%;
+	}
+	.bubble-line {
+		border-radius: 4px;
+		padding: 5px 0;
+		display: flex;
+		align-items: center;
+		font-size: 14px;
+		justify-content: space-between;
+		background-color: rgb(240 246 255);
+		border: 1px solid rgb(151 179 214);
+		cursor: initial;
+	}
+	.bubble-line:hover {
+		background-color: rgb(240 252 255);
+		border: 1px solid rgb(121 149 224);
+	}
+	.bubble-line.edit {
+		background-color: rgb(255 255 250);
+	}
+	.bubble-line input,
+	.bubble-line span {
+		padding: 0 10px;
+	}
+	.bubble-line .bubble-edit {
+		width: 100%;
+		font-size: inherit;
+		background: transparent;
+		border: none;
+		letter-spacing: inherit;
+		line-height: inherit;
+	}
+	.bubble-line .bubble-close {
+		margin-left: 10px;
+		margin-right: 10px;
+		padding: 0;
+		cursor: pointer;
+		font-weight: bold;
+		color: #333;
+		width: 18px;
+		height: 18px;
+	}
+	.bubble-line .bubble-close:hover {
+		color: #ff0000;
+	}
+
+	/*************************************************************/
+	.cart-distribution textarea {
+		width: 100%;
+		height: 100%;
+		resize: none;
+	}
+	.cart-distribution textarea {
+		box-shadow: inset 1px 1px 2px rgba(55,94,118,.6), inset -1px -1px 2px rgba(225,225,225,.6);
+		border: 0 solid #bed1e6;
+		border-radius: 5px;
+		color: #111;
+		background-color: #FFF;
+		background-clip: padding-box;
+		padding: 8px 14px;
+		line-height: 1.5;
+	}
+	.cart-distribution textarea:focus-visible {
+		border: 1px solid #668;
+		outline: none;
+	}
+
+	/*************************************************************/
+	.distribution-bkgrd *:empty,
+	.cart-distribution *:empty {
+		display: initial;
+	}
+	.distribution-bkgrd input:focus-visible,
+	.distribution-bkgrd select:focus-visible,
+	.cart-distribution input:focus-visible,
+	.cart-distribution select:focus-visible {
+		outline: none;
+		box-shadow: none;
+	}
+	.cart-distribution,
+	.distribution-bkgrd {
+		font-size: 14px;
+	}
+	.cart-distribution input[type="number"]::-webkit-outer-spin-button,
+	.cart-distribution input[type="number"]::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+	.cart-distribution input[type="number"] {
+		-moz-appearance: textfield;
+	}
+
+	.cart-distribution div::-webkit-scrollbar,
+	.distribution-bkgrd div::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+	.cart-distribution div::-webkit-scrollbar-thumb,
+	.distribution-bkgrd div::-webkit-scrollbar-thumb {
+		background-color: #AAA;
+		box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+		-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+		-moz-box-shadow: inset 0 0 6px rgba(0,0,0,0.6);
+		border-radius: 0;
+	}
+	.cart-distribution div::-webkit-scrollbar-track,
+	.distribution-bkgrd div::-webkit-scrollbar-track {
+		background-color: #FFF;
+		box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
+		-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.4);
+		-moz-box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+		border-radius: 0;
+	}
+
+
+	/*************************************************************/
+	.distribution-list-item-row {
+		margin: auto auto auto 10px;
+		display: flex;
+		line-height: 40px;
+		align-items: center;
+		white-space: nowrap;
+	}
+	.distribution-list-item-variant,
+	.distribution-list-item-sku {
+		flex: 1 1 180px;
+	}
+	.distribution-list-item-variant {
+		flex: 1 1 100px;
+	}
+	.distribution-list-item-coupon {
+		margin: 0;
+	}
+	.distribution-list-item-coupon,
+	.distribution-list-item-price {
+		flex: 1 1 60px;
+		justify-content: end;
+	}
+	.distribution-list-item-image {
+		width: 40px;
+		margin: auto;
+		margin-right: 20px;
+		border-radius: 2px;
+		overflow: hidden;
+	}
+	.distribution-list-item-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.distribution-list-item-price span {
+		width: 40px;
+		text-align: end;
+		font-size: 12px;
+	}
+	.distribution-list-item-setall {
+		border-radius: 4px;
+		height: auto;
+		background: #154;
+	}
+	.distribution-list-item-setall input {
+		width: 48px;
+	}
+	.distribution-list-item-setall div {
+		display: flex;
+		width: 26px;
+	}
+	.distribution-list-item-setall div svg {
+		width: 18px;
+		margin: auto;
+		transition: all 0.3s ease;
+		cursor: pointer;
+		color: #FFF;
+	}
+	.distribution-list-item-setall div:hover svg {
+		color: #EEE;
+		transform: translateX(1px);
+	}
+
+
+	/*************************************************************/
+	.distribution-dlg {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.5);
+		z-index: 990;
+		display: none;
+		/*align-items: center;*/
+		/*justify-content: center;*/
+	}
+	.distribution-dlg.active {
+		display: block;
+	}
+	.distribution-dlg-content {
+		max-width: 100%;
+		max-height: 100vh;
+		min-width: 450px;
+		min-height: 450px;
+		display: flex;
+		flex-direction: column;
+		background-color: #EEE;
+		padding: 25px;
+		border-radius: 9px;
+		gap: 20px;
+		position: relative;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+	.distribution-dlg-content .tb-button {
+		min-width: 100px;
+	}
+	.distribution-dlg-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.distribution-dlg-title {
+		margin: 0;
+		font-size: 24px;
+		font-weight: bold;
+	}
+	.distribution-dlg-close {
+		border: none;
+		cursor: pointer;
+		padding: 0;
+		transition: all 0.2s ease;
+	}
+	.distribution-dlg-close:hover {
+		transform: translateY(-1px);
+	}
+	.distribution-dlg-filter {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+	}
+	input.distribution-dlg-search,
+	.distribution-dlg-type {
+		/*border: 1px solid #666;
+		border-radius: 5px;*/
+		border: none;
+		border-bottom: 2px solid #555;
+		background-color: #FFF;
+		min-width: 230px;
+		padding: 12px 20px;
+	}
+	.distribution-dlg-search:focus,
+	.distribution-dlg-type:focus {
+		border-bottom: 2px solid #00E;
+	}
+	.dlg-search-wrap {
+		position: relative;
+		flex: 1 1 250px;
+	}
+	.dlg-search-wrap .distribution-dlg-search {
+		width: 100%;
+		flex: unset;
+		padding-right: 32px;
+	}
+	.dlg-search-clear {
+		position: absolute;
+		right: 10px;
+		top: 50%;
+		transform: translateY(-50%);
+		cursor: pointer;
+		color: #999;
+		font-size: 18px;
+		line-height: 1;
+		padding: 2px 4px;
+		user-select: none;
+	}
+	.dlg-search-clear:hover {
+		color: #333;
+	}
+	.distribution-dlg-body {
+		background: #FFF;
+		overflow-y: scroll;
+		flex: 1;
+		/*box-shadow: inset 1px 1px 2px rgba(55, 94, 118, .6), inset -1px -1px 2px rgba(225, 225, 225, .6);*/
+	}
+	.distribution-dlg-search:focus {
+		outline: 2px solid #999;
+		outline-offset: 1px;
+	}
+	.distribution-dlg-footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		line-height: 1;
+		gap: 4px;
+	}
+	.distribution-dlg-page-info {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		justify-content: center;
+	}
+	.distribution-dlg-page-btn,
+	.distribution-dlg-page-num {
+		border: none;
+		padding: 3px 12px;
+		transition: all 0.2s ease;
+		cursor: pointer;
+		text-align: center;
+	}
+	.distribution-dlg-page-btn:hover,
+	.distribution-dlg-page-num:hover:not(.active) {
+		background: #FFF;
+		border-radius: 3px;
+	}
+	.distribution-dlg-page-btn[disabled] {
+		color: #AAA;
+		background: none;
+		cursor: not-allowed;
+	}
+	.distribution-dlg-page-sep {
+		color: #AAA;
+		padding: 0 4px;
+		user-select: none;
+	}
+	.distribution-dlg-page-num.active {
+		border-bottom: 1px solid #000;
+	}
+
+	add-product .distribution-dlg-content {
+		width: 800px;
+		height: 700px;
+	}
+	add-address .distribution-dlg-content {
+		width: 500px;
+	}
+	edit-address .distribution-dlg-content {
+		width: 800px;
+		height: 700px;
+		display: flex;
+	}
+	edit-address .address-table {
+		flex: 1;
+		overflow-x: auto;
+		background-color: #FFF;
+	}
+	@media screen and (max-width: 768px) {
+	}
+
+
+	/*************************************************************/
+	.distribution-dlg-list-item {
+		align-items: center;
+		padding: 0 2px;
+		padding-bottom: 20px;
+		cursor: pointer;
+		border-bottom: 1px solid #CCC;
+	}
+	.distribution-dlg-empty {
+		padding: 10px;
+		text-align: center;
+	}
+	.distribution-dlg-list-item-info {
+		display: flex;
+		margin-top: 2px;
+		padding: 0 10px;
+	}
+	.distribution-dlg-list-item-info:hover {
+		background-color: #EEE;
+	}
+	.distribution-dlg-list-item-info.product {
+		line-height: 40px;
+		gap: 12px;
+	}
+	.distribution-dlg-list-item-info.product svg {
+		transition: all 0.3s ease;
+	}
+	.distribution-dlg-list-item.collapse .distribution-dlg-list-item-info.product svg {
+		transform: rotate(-90deg);
+	}
+	.distribution-dlg-list-item.collapse .distribution-dlg-list-item-info:not(.product) {
+		display: none;
+	}
+	.distribution-dlg-list-item-title {
+		font-weight: 600;
+		color: #000;
+		margin: 0;
+	}
+	.distribution-dlg-list-item-cart {
+		width: 110px;
+	}
+
+
+	/*************************************************************/
+	.address-form {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+	.address-form-row {
+		display: flex;
+		gap: 16px;
+	}
+	.address-form-group {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+	.address-form-row .address-form-group {
+		width: calc(50% - 8px);
+	}
+	.address-form-label {
+		position: absolute;
+		margin-left: 14px;
+		margin-top: 14px;
+		line-height: 1;
+		color: #000;
+		opacity: 0.5;
+		transition: all 0.4s ease;
+		pointer-events: none;
+	}
+	.address-form-input:not(:placeholder-shown) ~ .address-form-label {
+		margin-top: 2px;
+		opacity: 0.2;
+	}
+	.address-form-input,
+	.address-form-select {
+		padding: 8px 14px;
+		border: none;
+		border-bottom: 2px solid #555;
+		color: #000;
+		background-color: #FFF;
+		height: 42px;
+	}
+	.address-form-input {
+		padding-top: 16px;
+	}
+	.address-form-input:focus,
+	.address-form-select:focus {
+		outline: none;
+		border-bottom: 2px solid #00E;
+	}
+	.address-form-actions {
+		display: flex;
+		gap: 16px;
+		margin-top: 20px;
+		flex-wrap: wrap;
+	}
+	.address-form-cancel,
+	.address-form-submit {
+		flex: 1;
+		padding: 12px 24px;
+		background-color: #111;
+		color: #FFF;
+		border: 1px solid #111;
+		font-size: 16px;
+		cursor: pointer;
+		transition: transform 0.3s ease;
+	}
+	.address-form-cancel {
+		background-color: transparent;
+		color: #000;
+	}
+	.address-form-cancel:hover,
+	.address-form-submit:hover {
+		transform: translateY(-2px);
+	}
+	.address-success-message {
+		background-color: #d4edda;
+		color: #155724;
+		padding: 8px 15px;
+		border-radius: 4px;
+		display: none;
+	}
+	.address-error-message {
+		background-color: #f8d7da;
+		color: #721c24;
+		padding: 8px 15px;
+		border-radius: 4px;
+		display: none;
+	}
+	@media screen and (max-width: 768px) {
+	}
+
+
+	/*************************************************************/
+	.cart-distribution {
+		color: var(--text-color);
+		display: block;
+		position: relative;
+		z-index: 3; /*otherwise the page header will floating on top when scrolling up*/
+		padding-top: var(--margin-top);
+		padding-bottom: var(--margin-bottom);
+		/*background-color: var(--back-color);*/
+	}
+	.cart-distribution-carrier,
+	.cart-distribution-wrapper {
+		position: relative;
+		width: 100%;
+		border: 1px solid #AAA;
+		border-bottom: none;
+	}
+	.cart-distribution-carrier {
+		display: none;
+	}
+	.cart-loading-overlay {
+		display: none;
+		position: absolute;
+		inset: 0;
+		background: rgba(255,255,255,.7);
+		z-index: 10;
+		align-items: center;
+		justify-content: center;
+	}
+	.cart-loading-overlay.active {
+		display: flex;
+	}
+	.cart-loading-spinner {
+		width: 36px;
+		height: 36px;
+		border: 3px solid #ccc;
+		border-top-color: #555;
+		border-radius: 50%;
+		animation: cart-loading-spin .7s linear infinite;
+	}
+	@keyframes cart-loading-spin {
+		to { transform: rotate(360deg); }
+	}
+	.cart-distribution__table-head,
+	.cart-distribution__table-foot,
+	.cart-distribution__table-body {
+		width: 100%;
+		margin: auto;
+		overflow-x: hidden;
+	}
+	.cart-distribution__table-foot {
+		overflow-x: scroll;
+	}
+	.cart-distribution__table-foot table {
+		height: 30px;
+	}
+	.cart-distribution__table {
+		width: 100%;
+		line-height: 1;
+		background-color: var(--table-background);
+	}
+	.cart-distribution__table-head table,
+	.cart-distribution__table-foot table,
+	.cart-distribution__table-body table {
+		border-collapse: collapse;
+		/*table-layout: fixed;*/
+	}
+	
+	.cart-distribution__table tr {
+		border-bottom: 1px solid var(--border-color);
+	}
+	.cart-distribution__table td,
+	.cart-distribution__table th {
+		padding: 5px 5px;
+		text-align: left;
+		vertical-align: middle;
+		border-right: 1px solid var(--border-color);
+		border-bottom: 1px solid var(--border-color);
+		background-color: var(--table-background);
+		color: #000;
+		font-weight: initial;
+	}
+	.cart-distribution__table-body td:not(.sticky-left),
+	.cart-distribution__table-foot td:not(.sticky-left) {
+		text-align: center;
+	}
+
+	.edit-address-btn {
+		display: none;
+	}
+	.carrier-select-input {
+		width: 100%;
+		padding: 4px 6px;
+		border: 1px solid #bbb;
+		border-radius: 4px;
+		background-color: #fff;
+		font-size: 13px;
+		color: #111;
+		cursor: pointer;
+		line-height: 1.4;
+	}
+	.carrier-select-input:focus {
+		outline: none;
+		border-color: #555;
+	}
+	.cart-distribution .sticky-top,
+	.cart-distribution .sticky-bottom,
+	.cart-distribution .sticky-sum,
+	.cart-distribution .sticky-left {
+		position: sticky;
+		z-index: 1;
+		box-shadow: 2px 2px 2px #2222;
+	}
+	.cart-distribution .sticky-left {
+		left: 0;
+		max-width: 90%;
+		min-width: 292px;
+		overflow: hidden;
+	}
+	.cart-distribution .sticky-top {
+		z-index: 3;
+		top: var(--page-header-height, 0px);
+		border-bottom: 1px solid #000;
+	}
+	.cart-distribution .sticky-bottom {
+		z-index: 5;
+		bottom: 39px;
+		border-top: 1px solid #000;
+	}
+	.cart-distribution .sticky-top .sticky-left,
+	.cart-distribution .sticky-bottom .sticky-left {
+		z-index: 3;
+		display: table-cell;
+		justify-items: end;
+		align-content: center;
+		font-weight: bold;
+		padding: 5px 15px;
+	}
+	.cart-distribution .sticky-bottom .sticky-left {
+		background: #EEE;
+	}
+	.cart-distribution .resize-handle {
+		position: absolute;
+		z-index: 5;
+		top: 0;
+		width: 3px;
+		height: 100%;
+		cursor: col-resize;
+		user-select: none;
+		border-left: 1px solid #444;
+		box-shadow: inset 2px 0px 2px #2222;
+	}
+	.cart-distribution__group-header {
+		cursor: pointer;
+		height: 22px;
+	}
+	.cart-distribution__group-header td {
+		background-color: var(--header-background);
+	}
+	.cart-distribution .button-group {
+		display: flex;
+		gap: 15px;
+	}
+	.cart-distribution .tb-button {
+		background-color: #111;
+		color: #FFF;
+		padding: 0 20px;
+		border: none;
+		border-radius: 5px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-align: center;
+		justify-content: center;
+		height: 32px;
+		line-height: 32px;
+	}
+	.cart-distribution .tb-button:hover {
+		background-color: #059;
+	}
+	.cart-distribution .tb-button[disabled],
+	.cart-distribution .tb-button:disabled {
+		background-color: #999;
+		cursor: not-allowed;
+	}
+	.cart-distribution__table-head .product-header {
+		margin-right: auto;
+		margin-left: 15px;
+		line-height: 30px;
+	}
+	.cart-distribution__table-head .button-group,
+	.cart-distribution__table-head .product-header {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	.cart-distribution .addr-search-input {
+		height: 32px;
+		padding: 0 8px 0 32px;
+		border: 1px solid #ccc;
+		border-radius: 5px;
+		font-size: 13px;
+		outline: none;
+		width: 240px;
+		flex-shrink: 0;
+		background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 8px center;
+	}
+	.cart-distribution .addr-search-input:focus { border-color: #059; }
+	.cart-distribution .addr-filler-col { display: none; visibility: hidden; }
+	.cart-distribution .addr-col--hidden { display: none !important; }
+	.cart-distribution .sticky-sum {
+		z-index: 5;
+		height: 40px;
+		bottom: 0;
+		border-top: 1px solid #AAA;
+	}
+	.cart-distribution .sticky-sum .text-group {
+		margin: auto;
+		display: flex;
+		gap: 10px;
+	}
+	.sticky-sum .vc-note-toggle {
+		display: inline-flex; align-items: center; margin-right: 30px; cursor: pointer;
+	}
+	.sticky-sum {
+		background-color: var(--total-row-background);
+		color: #000;
+		box-shadow: none;
+		font-weight: 600;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+	.ship-sum {
+		display: none;
+	}
+	.sticky-sum .tb-button {
+		width: 202px;
+		line-height: 38px;
+		height: 100%;
+		border-radius: unset;
+		border-bottom: 1px solid #999;
+		transition: all 0.3s ease;
+	}
+	.sticky-sum .tb-button:hover {
+		transform: none;
+	}
+	.sticky-sum .tb-button {
+		line-height: 39px;
+	}
+	.sticky-sum .table-prev {
+		border-bottom: 1px solid #555;
+		border-left: 1px solid #555;
+		border-right: 1px solid #555;
+	}
+	.sticky-sum .table-import {
+		display: none;
+	}
+	.sticky-sum .table-import,
+	.sticky-sum .table-export {
+		background: transparent;
+		border-top: 1px solid #555;
+		border-bottom: 1px solid #555;
+		border-left: 1px solid #555;
+		color: #000;
+	}
+	.sticky-sum .table-import:hover,
+	.sticky-sum .table-export:hover {
+		background: #0001;
+	}
+	.sticky-sum .table-next {
+		background: #154;
+		color: #FFF;
+	}
+	.sticky-sum .table-next:hover {
+		background: #375;
+	}
+	.ship-sum.no-checkout .table-next { display: none; }
+	.sticky-sum.no-checkout .vc-note-toggle { display: none; }
+	.sticky-sum.no-checkout .table-export {
+		background: #154;
+		color: #FFF;
+	}
+	.sticky-sum.no-checkout .table-export:hover {
+		background: #375;
+	}
+	.table-import-group { display: flex; }
+	.table-import-modal {
+		position: fixed; inset: 0; z-index: 9999;
+		display: flex; align-items: center; justify-content: center;
+	}
+	.table-import-modal-backdrop {
+		position: absolute; inset: 0; background: rgba(0,0,0,.45);
+	}
+	.table-import-modal-inner {
+		position: relative; background: #fff; border-radius: 8px;
+		padding: 24px; max-width: 480px; width: 90%;
+		box-shadow: 0 8px 32px rgba(0,0,0,.18);
+	}
+	.table-import-modal-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+	.table-import-modal-body {
+		font-size: 13px; line-height: 1.7; margin-bottom: 16px;
+		max-height: 280px; overflow-y: auto;
+	}
+	.table-import-ok { color: #154; font-weight: 600; margin-bottom: 6px; }
+	.table-import-err-head { color: #b00; font-weight: 600; margin-top: 8px; display: none; }
+	.table-import-err-item { color: #900; margin-left: 14px; }
+	.table-import-modal-close { width: 100%; }
+	.table-import-confirm-actions { display: flex; gap: 8px; }
+	.table-import-confirm-actions .tb-button { flex: 1; }
+	.table-import-confirm-actions .table-import-confirm-proceed { flex: 1; }
+	.table-slide-ctrls {
+		display: flex;
+		justify-content: space-between;
+		position: sticky;
+    	top: var(--page-header-height, 0px);
+		height: 0;
+		pointer-events: none;
+		z-index: 5;
+		margin: auto;
+		margin-right: 0;
+		padding: 0 3px;
+	}
+	.cart-distribution .table-slide-prev,
+	.cart-distribution .table-slide-next {
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		border: none;
+		cursor: pointer;
+		pointer-events: auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.3s ease;
+		color: #FFF;
+		background-color: #0004;
+		margin-top: 40px;
+	}
+	.cart-distribution .table-slide-prev:hover,
+	.cart-distribution .table-slide-next:hover {
+		background-color: #000C;
+		transform: scale(1.05);
+	}
+	.cart-distribution .table-slide-prev[disabled="true"],
+	.cart-distribution .table-slide-next[disabled="true"] {
+		cursor: auto;
+		background-color: #0001;
+		transform: none;
+	}
+
+	.cart-distribution__product-remove {
+		color: #D33;
+		cursor: pointer;
+		margin-left: 8px;
+		padding: 2px;
+		display: flex;
+		flex-shrink: 0;
+		transition: all 0.2s ease;
+		line-height: 40px;
+	}
+	.cart-distribution__product-remove svg {
+		margin: auto;
+		width: 20px;
+	}
+	.cart-distribution__product-remove:hover {
+		color: #B00;
+		transform: translateY(-1px);
+	}
+
+	.cart-distribution__product-cell {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+	.cart-distribution__product-image {
+		width: 50px;
+		height: 50px;
+		flex-shrink: 0;
+		border-radius: 4px;
+		overflow: hidden;
+		display: flex;
+	}
+	.cart-distribution__product-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.cart-distribution__product-info {
+		flex-grow: 1;
+		display: flex;
+	}
+	.cart-distribution__product-title {
+		white-space: nowrap;
+	}
+	/*.cart-distribution__product-variant {
+		opacity: 0.7;
+		display: inline-block;
+	}*/
+	/*.cart-distribution__product-total {
+		font-weight: 500;
+	}*/
+	input.cart-distribution__quantity-input {
+		width: 80px;
+		padding: 8px;
+		background-color: #FFF;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		text-align: center;
+		display: block;
+		margin: auto;
+		line-height: 1;
+		height: 34px;
+	}
+	.distribution-list-item-setall input.cart-distribution__quantity-input {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+	/*.cart-distribution__subtotal {
+		opacity: 0.8;
+		color: #333;
+	}*/
+	.cart-distribution__quantity-input:focus {
+		outline: 2px solid #999;
+		outline-offset: 1px;
+	}
+	.cart-distribution__address-header {
+		text-align: center;
+	}
+	.cart-distribution__address-name {
+		margin-bottom: 4px;
+    	word-break: break-all;
+		/*overflow-wrap: break-word;*/
+		/*white-space: pre-wrap;*/
+		/*display: inline-block;*/
+	}
+	.cart-distribution__address-code {
+		display: block;
+		font-weight: bold;
+		margin-bottom: 2px;
+	}
+	.cart-distribution__address-details {
+		opacity: 0.8;
+		line-height: 1.3;
+	}
+	.cart-distribution__empty-state {
+		text-align: center;
+		padding: 40px 20px;
+		opacity: 0.7;
+	}
+
+	/*.cart-distribution__group-header-total {
+		text-align: center;
+	}*/
+	.cart-distribution__group-toggle-icon {
+		transition: transform 0.2s ease-in-out;
+	}
+	.cart-distribution__group-toggle-icon--collapsed {
+		transform: rotate(-90deg);
+	}
+	.cart-distribution__variant-row--collapsed {
+		display: none;
+	}
+	.cart-distribution--saving {
+		opacity: 0.7;
+		box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+		transition: opacity 0.3s ease, box-shadow 0.3s ease;
+	}
+	@media screen and (max-width: 768px) {
+		.cart-distribution__table th,
+		.cart-distribution__table td {
+			padding: 8px 6px;
+		}
+		.cart-distribution__product-image {
+			width: 40px;
+			height: 40px;
+		}
+		.cart-distribution__quantity-input {
+			width: 60px;
+			padding: 6px;
+		}
+	}
+
+	.cart-distribution.readonly .ship-sum .table-next {
+		display: none;
+	}
+	.cart-distribution.readonly .cart-distribution__product-remove,
+	.cart-distribution.readonly .distribution-list-item-setall {
+		display: none;
+	}
+	.cart-distribution--page-width {
+		max-width: var(--page-width);
+		margin-inline: auto;
+		padding-inline: var(--page-margin);
+	}
+
+	.cart-distribution-carrier table {
+		line-height: 30px;
+		table-layout: auto;
+		width: 100%;
+	}
+	.cart-distribution-carrier .cart-distribution__table-head th {
+		text-align: center;
+	}
+	.cart-distribution__table td,
+	.cart-distribution__table th,
+	.cart-distribution-carrier tr th,
+	.cart-distribution-carrier tr td {
+		width: 120px;
+		min-width: 120px;
+	}
+	.cart-distribution-carrier tr .carrier-method {
+		width: 280px;
+		min-width: 200px;
+	}
+	.cart-distribution-carrier tr .carrier-items {
+		width: unset;
+		min-width: 200px;
+	}
+	.cart-distribution-carrier tr .carrier-address {
+		width: 0;
+		white-space: nowrap;
+	}
+	.cart-distribution-carrier tr .carrier-weight { display: none; }
+	.cart-distribution-carrier tr .carrier-address,
+	.cart-distribution-carrier tr .carrier-method {
+		padding: 5px 15px;
+	}
+	.cart-distribution-carrier tr td.carrier-address {
+		text-align: left;
+	}
+
+	/* Order note popup */
+	.cd-note-popup {
+		position: fixed; inset: 0; z-index: 9999;
+		display: flex; align-items: center; justify-content: center;
+	}
+	.cd-note-popup__backdrop {
+		position: absolute; inset: 0; background: rgba(0,0,0,.4);
+	}
+	.cd-note-popup__inner {
+		position: relative; background: #fff; border-radius: 8px;
+		padding: 20px; width: 360px; max-width: 90vw;
+		box-shadow: 0 8px 32px rgba(0,0,0,.2);
+		display: flex; flex-direction: column; gap: 12px;
+	}
+	.cd-note-popup__header {
+		display: flex; justify-content: space-between; align-items: center;
+		font-weight: 600; font-size: 15px;
+	}
+	.cd-note-popup__close {
+		background: none; border: none; cursor: pointer; padding: 2px;
+		color: #555; display: flex; align-items: center;
+	}
+	.cd-note-popup__close:hover { color: #000; }
+	.cd-note-popup__input {
+		width: 100%; resize: vertical; border: 1px solid #ccc;
+		border-radius: 5px; padding: 8px 12px; font-size: 14px;
+		line-height: 1.5; color: #111;
+		box-shadow: inset 1px 1px 2px rgba(55,94,118,.3);
+	}
+	.cd-note-popup__input:focus { outline: none; border-color: #555; }
+	.cd-note-popup__input::placeholder { color: #aaa; }
+	.cd-note-popup__save { align-self: flex-end; padding: 0 20px; }
+{% endstyle %}
+
+<script type="application/json" data-block-settings>{{ section.settings | json }}</script>
+<style>
+	:root {
+		--text-color: {{ section.settings.text_color }};
+		--margin-top: {{ section.settings.margin_top }};
+		--margin-bottom: {{ section.settings.margin_bottom }};
+		--back-color: {{ section.settings.back_color }};
+		--title-size: {{ section.settings.title_size }};
+		--table-background: {{ section.settings.table_background }};
+		--border-color: {{ section.settings.border_color }};
+		--header-background: {{ section.settings.header_background }};
+		--total-row-background: {{ section.settings.total_row_background }};
+	}
+</style>
+
+<!--script src="{{ 'cart-distribution.js' | asset_url }}" defer></script-->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.rnrn.us/ship2.js" defer></script>
+
+{%- liquid
+  assign acct_ts    = 'now' | date: '%s'
+  assign secret     = shop.metafields.valor.connect.value[0]
+  assign acct_token = customer.id | append: '|' | append: acct_ts | hmac_sha256: secret
+-%}
+
+<script>
+  window.__cartDistributionAuth = {
+    customer_id: {{ customer.id | json }},
+    ts:          {{ acct_ts | json }},
+    token:       {{ acct_token | json }},
+	proxy:       window.__vaProxy
+  };
+</script>
+
+<multi-ship class="cart-distribution
+	{% if section.settings.layout == 'page-width' %} cart-distribution--page-width{% endif %}
+	{% if section.settings.incart == false %} readonly{% endif %}"
+	{{ block.shopify_attributes }}
+	{% if section.settings.incart %}data-checkout-url='/checkout'{% endif %}
+	data-group-products={{ section.settings.group_products }}
+	data-show-sku={{ section.settings.show_sku }}
+	data-shop-url="{{ shop.permanent_domain }}"
+	{% if section.settings.storefront_access_token != blank %}data-storefront-token="{{ section.settings.storefront_access_token }}"{% endif %}
+	data-rate-error-notice="{{ section.settings.rate_error_notice | escape }}"
+	data-checkout-mode="{{ section.settings.checkout_mode | default: 'draft_order' }}">
+
+	<script type="application/json" data-customer-id>
+		{{ customer.id }}
+	</script>
+	<script type="application/json" data-money-format>
+		{{ shop.money_format | json }}
+	</script>
+	<script type="application/json" data-customer-addresses>
+		{% if customer.company_contact.company %}
+			[{% for location in customer.company_contact.company.locations %}
+				{
+					"id": {{ location.id | json }},
+					"name": {{ location.name | json }},
+					"address1": {{ location.address.address1 | json }},
+					"address2": {{ location.address.address2 | json }},
+					"city": {{ location.address.city | json }},
+					"province": {{ location.address.province | json }},
+					"country": {{ location.address.country | json }},
+					"zip": {{ location.address.zip | json }},
+					"phone": {{ location.address.phone | json }}
+				}{%- unless forloop.last -%},{%- endunless -%}
+			{% endfor %}]
+		{% else %}
+			[]
+		{% endif %}
+	</script>
+	<script type="application/json" data-b2b-entity>
+		{% if customer.company_contact.company %}
+			{
+				"companyId":         "gid://shopify/Company/{{ customer.company_contact.company.id }}",
+				"companyLocationId": "gid://shopify/CompanyLocation/{{ customer.company_contact.company.locations.first.id }}",
+				"companyContactId":  "gid://shopify/CompanyContact/{{ customer.company_contact.id }}"
+			}
+		{% else %}
+			null
+		{% endif %}
+	</script>
+{% comment %}
+	<script type="application/json" data-cart-items>
+	{
+		{% if section.settings.incart %}
+			"items": [{% for item in cart.items %}
+				{
+					"key": {{ item.key | json }},
+					"product_id": {{ item.product_id | json }},
+					"variant_id": {{ item.variant_id | json }},
+					"product_title": {{ item.product.title | json }},
+					"variant_title": {{ item.variant.title | json }},
+					"variant_sku": {{ item.variant.sku | json }},
+					{% if item.image %}"image": {{ item.image | image_url: width: 100 | json }},{% endif %}
+					"price": {{ item.final_price | json }},
+					"original_price": {{ item.original_price | json }},
+					"quantity": {{ item.quantity | json }},
+					"properties": {{ item.properties | json }},
+					"inventory": {{ item.variant.inventory_quantity | json }},
+					"discounts": {{ item.line_level_discount_allocations | json }}
+				}
+				{%- unless forloop.last -%},{%- endunless -%}
+			{% endfor %}],
+			"attributes": {{ cart.attributes | json }}
+		{% else %}
+			"items": [{% for item in order.line_items %}
+				{
+					"key": {{ item.key | json }},
+					"product_id": {{ item.product_id | json }},
+					"variant_id": {{ item.variant_id | json }},
+					"product_title": {{ item.product.title | json }},
+					"variant_title": {{ item.variant.title | json }},
+					"variant_sku": {{ item.variant.sku | json }},
+					{% if item.image %}"image": {{ item.image | image_url: width: 100 | json }},{% endif %}
+					"price": {{ item.final_price | json }},
+					"original_price": {{ item.original_price | json }},
+					"quantity": {{ item.quantity | json }},
+					"properties": {{ item.properties | json }},
+					"inventory": {{ item.variant.inventory_quantity | json }},
+					"discounts": {{ item.line_level_discount_allocations | json }}
+				}
+				{%- unless forloop.last -%},{%- endunless -%}
+			{% endfor %}],
+			"attributes": {{ order.attributes | json }}
+		{% endif %}
+	}
+	</script>
+{% endcomment %}
+
+	<div style="display: none;" id="icon-placeholder">
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="200 210 130 105"><path d="M324.5 212.7H203c-1.6 0-2.8 1.3-2.8 2.8V308c0 1.6 1.3 2.8 2.8 2.8h121.6c1.6 0 2.8-1.3 2.8-2.8v-92.5c0-1.6-1.3-2.8-2.9-2.8zm1.1 95.3c0 .6-.5 1.1-1.1 1.1H203c-.6 0-1.1-.5-1.1-1.1v-92.5c0-.6.5-1.1 1.1-1.1h121.6c.6 0 1.1.5 1.1 1.1V308z"></path><path d="M210.4 299.5H240v.1s.1 0 .2-.1h75.2v-76.2h-105v76.2zm1.8-7.2l20-20c1.6-1.6 3.8-2.5 6.1-2.5s4.5.9 6.1 2.5l1.5 1.5 16.8 16.8c-12.9 3.3-20.7 6.3-22.8 7.2h-27.7v-5.5zm101.5-10.1c-20.1 1.7-36.7 4.8-49.1 7.9l-16.9-16.9 26.3-26.3c1.6-1.6 3.8-2.5 6.1-2.5s4.5.9 6.1 2.5l27.5 27.5v7.8zm-68.9 15.5c9.7-3.5 33.9-10.9 68.9-13.8v13.8h-68.9zm68.9-72.7v46.8l-26.2-26.2c-1.9-1.9-4.5-3-7.3-3s-5.4 1.1-7.3 3l-26.3 26.3-.9-.9c-1.9-1.9-4.5-3-7.3-3s-5.4 1.1-7.3 3l-18.8 18.8V225h101.4z"></path><path d="M232.8 254c4.6 0 8.3-3.7 8.3-8.3s-3.7-8.3-8.3-8.3-8.3 3.7-8.3 8.3 3.7 8.3 8.3 8.3zm0-14.9c3.6 0 6.6 2.9 6.6 6.6s-2.9 6.6-6.6 6.6-6.6-2.9-6.6-6.6 3-6.6 6.6-6.6z"></path></svg>
+	</div>
+	<div style="display: none;" id="icon-discount">
+		<svg class="icon icon-discount" viewBox="0 0 12 12"><path fill="currentColor" fill-rule="evenodd" d="M7 0h3a2 2 0 0 1 2 2v3a1 1 0 0 1-.3.7l-6 6a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4l6-6A1 1 0 0 1 7 0m2 2a1 1 0 1 0 2 0 1 1 0 0 0-2 0" clip-rule="evenodd"/></svg>
+	</div>
+	
+	<span style="display: none;">{{section.settings.incart}}</span>
+	{% if section.settings.incart %}
+	<add-product class="distribution-bkgrd" data-search-url="{{ routes.predictive_search_url }}" data-default-collection="{{ section.settings.default_collection | default: 'all' }}">
+	
+		<div class="distribution-dlg" data-dialog>
+			<div class="distribution-dlg-content">
+				<div class="distribution-dlg-header">
+					<h2 class="distribution-dlg-title">Select Product</h2>
+					<div class="distribution-dlg-close" data-dialog-close>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="18" y1="6" x2="6" y2="18"></line>
+							<line x1="6" y1="6" x2="18" y2="18"></line>
+						</svg>
+					</div>
+				</div>
+	
+				<div class="distribution-dlg-filter">
+					{%- liquid
+						# 1. Determine the source (Collections vs. Product Types)
+						if section.settings.collections != blank
+							assign colls = section.settings.collections
+							assign is_type_list = false
+							assign text_to_check = colls | map: 'title' | join: ''
+						else
+							assign colls = shop.types | compact
+							assign is_type_list = true
+							assign text_to_check = colls | join: ''
+						endif
+						# 2. Check if all items are uppercase (No loop required!)
+						assign upcased_text = text_to_check | upcase
+						if text_to_check == upcased_text and text_to_check != blank
+							assign search_label = 'SEARCH PRODUCTS'
+							assign all_label = 'All PRODUCTS'
+						else
+							assign search_label = 'Search products'
+							assign all_label = 'All products'
+						endif
+					-%}
+
+					<div class="dlg-search-wrap">
+						<input class="distribution-dlg-search" data-filter-search type="text" placeholder="{{ search_label }}">
+						<span class="dlg-search-clear" data-search-clear style="display:none">&times;</span>
+					</div>
+					<select class="distribution-dlg-type" data-filter-type>
+						<option value="all">{{ all_label }}</option>
+						{%- for coll in colls -%}
+							{%- if coll == blank %}{% continue %}{% endif -%}
+							{%- if is_type_list -%}
+							  <option value="{{ coll | handle }}">{{ coll }}</option>
+							{%- else -%}
+							  <option value="{{ coll.handle | escape }}">{{ coll.title | escape }}</option>
+							{%- endif -%}
+						{%- endfor -%}
+					</select>
+				</div>
+
+				<div class="distribution-dlg-body result-type" data-result-type>
+					<div class="distribution-dlg-empty">No products found.</div>
+				</div>
+				<div class="distribution-dlg-body result-search" data-result-search style="display: none;">
+					<div class="distribution-dlg-empty">No products found.</div>
+				</div>
+
+				<div class="distribution-dlg-footer ooo">
+					<div class="distribution-dlg-page-btn" data-page-prev disabled>1</div>
+					<div class="distribution-dlg-page-sep">...</div>
+					<div class="distribution-dlg-page-info" style="display: flex;" data-page-info></div>
+					<div class="distribution-dlg-page-sep">...</div>
+					<div class="distribution-dlg-page-btn" data-page-next>1</div>
+				</div>
+				<div class="dlg-resizer">
+					<svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" mirror-in-rtl="true">
+						<path fill="#494c4e" d="M14.228 16.227a1 1 0 0 1-.707-1.707l1-1a1 1 0 0 1 1.416 1.414l-1 1a1 1 0 0 1-.707.293zm-5.638 0a1 1 0 0 1-.707-1.707l6.638-6.638a1 1 0 0 1 1.416 1.414l-6.638 6.638a1 1 0 0 1-.707.293zm-5.84 0a1 1 0 0 1-.707-1.707L14.52 2.043a1 1 0 1 1 1.415 1.414L3.457 15.934a1 1 0 0 1-.707.293z"/>
+					</svg>
+				</div>
+			</div>
+		</div>
+	</add-product>
+	
+	{% comment %}
+	<add-address class="distribution-bkgrd">
+	
+		<div class="distribution-dlg" data-dialog>
+			<div class="distribution-dlg-content">
+				<div class="distribution-dlg-header">
+					<h2 class="distribution-dlg-title">New Address</h2>
+					<div class="distribution-dlg-close" data-dialog-close>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="18" y1="6" x2="6" y2="18"></line>
+							<line x1="6" y1="6" x2="18" y2="18"></line>
+						</svg>
+					</div>
+				</div>
+				<div class="address-success-message" data-success-message>Address added successfully!</div>
+				<div class="address-error-message" data-error-message>Please fill in all required fields.</div>
+	
+				{% form 'customer_address', customer.new_address, class: 'address-form', data-address-form: true %}
+					<div class="address-form-row">
+						<div class="address-form-group">
+							<input
+								type="text"
+								id="address_first_name"
+								placeholder=""
+								name="address[first_name]"
+								class="address-form-input">
+							<label class="address-form-label" for="address_first_name">First name</label>
+						</div>
+						<div class="address-form-group">
+							<input
+								type="text"
+								id="address_last_name"
+								placeholder=""
+								name="address[last_name]"
+								class="address-form-input"
+								required>
+							<label class="address-form-label" for="address_last_name">Last name *</label>
+						</div>
+					</div>
+	
+					<div class="address-form-group">
+						<input
+							type="text"
+							id="address_company"
+							placeholder=""
+							name="address[company]"
+							class="address-form-input">
+						<label class="address-form-label" for="address_company">Company</label>
+					</div>
+	
+					<div class="address-form-group">
+						<input
+							type="text"
+							id="address_address1"
+							placeholder=""
+							name="address[address1]"
+							class="address-form-input"
+							required>
+						<label class="address-form-label" for="address_address1">Address *</label>
+					</div>
+	
+					<div class="address-form-row">
+						<div class="address-form-group">
+							<input
+								type="text"
+								id="address_address2"
+								placeholder=""
+								name="address[address2]"
+								class="address-form-input">
+							<label class="address-form-label" for="address_address2">Apartment / Suite</label>
+						</div>
+						<div class="address-form-group">
+							<input
+								type="text"
+								id="address_city"
+								placeholder=""
+								name="address[city]"
+								class="address-form-input"
+								required>
+							<label class="address-form-label" for="address_city">City *</label>
+						</div>
+					</div>
+	
+					<div class="address-form-row">
+						<div class="address-form-group">
+							<!--label class="address-form-label" for="address_province">State / Province *</label-->
+							<select
+								id="address_province"
+								name="address[province]"
+								class="address-form-select"
+								data-province-selector
+								required>
+								<option value="">State / Province *</option>
+							</select>
+						</div>
+						<div class="address-form-group">
+							<input
+								type="text"
+								id="address_zip"
+								placeholder=""
+								name="address[zip]"
+								class="address-form-input"
+								required>
+							<label class="address-form-label" for="address_zip">Postal / Zip code *</label>
+						</div>
+					</div>
+	
+					<div class="address-form-row">
+						<div class="address-form-group">
+							<!--label class="address-form-label" for="address_country">Country *</label-->
+							<select
+								id="address_country"
+								name="address[country]"
+								class="address-form-select"
+								data-country-selector
+								required>
+								<option value="">Country *</option>
+								{% for country in all_country_option_tags %}
+									{{ country }}
+								{% endfor %}
+							</select>
+						</div>
+						<div class="address-form-group">
+							<input
+								type="tel"
+								id="address_phone"
+								placeholder=""
+								name="address[phone]"
+								class="address-form-input">
+							<label class="address-form-label" for="address_phone">Phone number</label>
+						</div>
+					</div>
+	
+					<div class="address-form-actions">
+						<div type="submit" class="tb-button address-form-submit">Confirm</div>
+						<div type="button" class="tb-button address-form-cancel">Cancel</div>
+					</div>
+				{% endform %}
+			</div>
+		</div>
+	</add-address>
+	{% endcomment %}
+	
+	<edit-address class="distribution-bkgrd">
+		<div class="distribution-dlg" data-dialog>
+			<div class="distribution-dlg-content">
+				<div class="distribution-dlg-header">
+					<h2 class="distribution-dlg-title">Add Shipping Addresses</h2>
+					<div class="distribution-dlg-close" data-dialog-close>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="18" y1="6" x2="6" y2="18"></line>
+							<line x1="6" y1="6" x2="18" y2="18"></line>
+						</svg>
+					</div>
+				</div>
+				<address-list class="address-table">
+					<div class="bubble-container">
+						<div class="bubble-list"></div>
+						<span class="bubble-input" contenteditable="true" placeholder="Please input or paste addresses by lines. &#10;For example: Alice Smith, 123 Main St Apt 001, New York, NY 10001"></span>
+					</div>
+				</address-list>
+				<div class="address-success-message" data-success-message>Addresses has been saved.</div>
+				<div class="address-error-message" data-error-message>Something went wrong. Please try again.</div>
+				<div class="button-group">
+					<div class="tb-button address-submit">OK</div>
+					<div class="tb-button address-cancel">Cancel</div>
+				</div>
+				<div class="dlg-resizer">
+					<svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" mirror-in-rtl="true">
+						<path fill="#494c4e" d="M14.228 16.227a1 1 0 0 1-.707-1.707l1-1a1 1 0 0 1 1.416 1.414l-1 1a1 1 0 0 1-.707.293zm-5.638 0a1 1 0 0 1-.707-1.707l6.638-6.638a1 1 0 0 1 1.416 1.414l-6.638 6.638a1 1 0 0 1-.707.293zm-5.84 0a1 1 0 0 1-.707-1.707L14.52 2.043a1 1 0 1 1 1.415 1.414L3.457 15.934a1 1 0 0 1-.707.293z"/>
+					</svg>
+				</div>
+			</div>
+		</div>
+	</edit-address>
+	{% endif %}
+
+	{% if section.settings.incart %}
+		{% if false and cart.items.size == 0 %}
+			<div class="cart-distribution__empty-state">
+				<p>{{ section.settings.empty_cart_message }}</p>
+			</div>
+		{% endif %}
+	{% endif %}
+
+	<div class="cart-loading-overlay"><div class="cart-loading-spinner"></div></div>
+	<div class="cart-distribution-wrapper">
+		<style class="resize-style"></style>
+		<div class="resize-handle"></div>
+		<div class="table-slide-ctrls">
+			<div class="table-slide-prev">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+			</div>
+			<div class="table-slide-next">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+			</div>
+		</div>
+		<div class="cart-distribution__table-head sticky-top">
+			<table class="cart-distribution__table">
+				<thead>
+					<tr>
+						<th class="sticky-left">
+							<div class="button-group" style="width: 100%; display: flex; align-items: center;">
+							<div class="product-header">{{ section.settings.product_column_header }}</div>
+							<div class="tb-button add-product-btn">Add Product</div>
+							<div class="tb-button edit-address-btn">Add Address</div>
+							<input type="text" class="addr-search-input" placeholder="Search addresses…" autocomplete="off">
+							</div>
+						</th>
+						{% if customer.company_contact.company %}
+							{% for location in customer.company_contact.company.locations %}
+								<th data-address-id="{{ location.id }}">
+									<div class="address-header__name">{{ location.name }}</div>
+									<div class="address-header__detail">{{ location.address.address1 }}{% if location.address.city %}, {{ location.address.city }}{% endif %}</div>
+								</th>
+							{% endfor %}
+						{% endif %}
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="cart-distribution__table-body">
+			<table class="cart-distribution__table">
+				<tbody></tbody>
+			</table>
+		</div>
+		<div class="cart-distribution__table-foot sticky-bottom">
+			<table class="cart-distribution__table">
+				<tfoot>
+					<tr>
+						<td class="sticky-left">{{ section.settings.total_row_label }}</td>
+						{% if customer.company_contact.company %}
+							{% for location in customer.company_contact.company.locations %}
+								<td data-address-id="{{ location.id }}"></td>
+							{% endfor %}
+						{% endif %}
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+
+	<div class="cart-distribution-carrier">
+		<div class="cart-distribution__table-head sticky-top">
+			<table class="cart-distribution__table">
+				<thead>
+					<tr>
+						<th class="carrier-address">Address</th>
+						<th class="carrier-items">Products</th>
+						<th>Qty</th>
+						<th>Subtotal</th>
+						<th class="carrier-weight">Weight (lbs)</th>
+						<th class="carrier-method">Shipping method</th>
+						<th>Shipping fee</th>
+						<th>Total</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="cart-distribution__table-body">
+			<table class="cart-distribution__table">
+				<tbody></tbody>
+			</table>
+		</div>
+		<div class="cart-distribution__table-foot sticky-bottom">
+			<table class="cart-distribution__table">
+				<tfoot>
+					<tr>
+						<td class="carrier-address">&nbsp;</td>
+						<td class="carrier-items">&nbsp;</td>
+						<td class="carrier-qty">0</td>
+						<td class="carrier-subtotal">$0.00</td>
+						<td class="carrier-weight">0.00</td>
+						<td class="carrier-method">&nbsp;</td>
+						<td class="carrier-cost">$0.00</td>
+						<td class="carrier-total">$0.00</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+
+	<div class="cart-sum sticky-sum">
+		<div class="tb-button table-prev">Continue shopping</div>
+		<div class="text-group" {% if section.settings.sub_total == blank %}style="display: none;"{% endif %}>
+			<span>{{ section.settings.sub_total }}:</span>
+			<span class="cart-sum-total">$0.00</span>
+			<span style="font-size: 12px; font-weight: normal;">{{ section.settings.sub_total_comment }}</span>
+		</div>
+		<div type="button" class="vc-note-toggle" data-vc-note-toggle>
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			Add order note
+		</div>
+		<div class="table-import-group">
+			<input type="file" class="table-import-file" accept=".csv,.tsv,.txt,.xlsx" style="display:none">
+			<div class="tb-button table-import">Import</div>
+			<div class="tb-button table-next">Next step</div>
+		</div>
+	</div>
+	<div class="ship-sum sticky-sum">
+		<div class="tb-button table-prev">Previous</div>
+		<div class="text-group" {% if section.settings.total == blank %}style="display: none;"{% endif %}>
+			<span>{{ section.settings.total }}:</span>
+			<span class="cart-sum-total">$0.00</span>
+			<span style="font-size: 12px; font-weight: normal;">{{ section.settings.total_comment }}</span>
+		</div>
+		<div type="button" class="vc-note-toggle" data-vc-note-toggle>
+			<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+			Add order note
+		</div>
+		<div class="tb-button table-export">Export XLS</div>
+		<div class="tb-button table-next">Checkout</div>
+	</div>
+	<div class="table-import-modal" style="display:none" role="dialog" aria-modal="true">
+		<div class="table-import-modal-backdrop"></div>
+		<div class="table-import-modal-inner">
+			<div class="table-import-modal-title">Import Result</div>
+			<div class="table-import-modal-body"></div>
+			<div class="tb-button table-import-modal-close">OK</div>
+		</div>
+	</div>
+
+	<div class="cd-note-popup" id="cdNotePopup" style="display:none">
+		<div class="cd-note-popup__backdrop"></div>
+		<div class="cd-note-popup__inner">
+			<div class="cd-note-popup__header">
+				<span>Order note</span>
+				<button type="button" class="cd-note-popup__close" aria-label="Close">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</div>
+			<textarea class="cd-note-popup__input" rows="4" placeholder="Add a note to your order...">{{ cart.note }}</textarea>
+			<button type="button" class="cd-note-popup__save tb-button">Save</button>
+		</div>
+	</div>
+
+	<script>
+	(function() {
+		var popup = document.getElementById('cdNotePopup');
+		if (!popup) return;
+		var backdrop = popup.querySelector('.cd-note-popup__backdrop');
+		var closeBtn = popup.querySelector('.cd-note-popup__close');
+		var saveBtn  = popup.querySelector('.cd-note-popup__save');
+		var input    = popup.querySelector('.cd-note-popup__input');
+
+		function openPopup() { popup.style.display = 'flex'; input.focus(); }
+		function closePopup() { popup.style.display = 'none'; }
+
+		document.querySelectorAll('[data-vc-note-toggle]').forEach(function(btn) {
+			btn.addEventListener('click', openPopup);
+		});
+		backdrop.addEventListener('click', closePopup);
+		closeBtn.addEventListener('click', closePopup);
+		document.addEventListener('keydown', function(e) {
+			if (e.key === 'Escape' && popup.style.display !== 'none') closePopup();
+		});
+
+		saveBtn.addEventListener('click', async function() {
+			saveBtn.disabled = true;
+			try {
+				await fetch('/cart/update.js', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ note: input.value })
+				});
+				closePopup();
+			} catch(_) {}
+			saveBtn.disabled = false;
+		});
+	})();
+	</script>
+</multi-ship>
+
+
+{% schema %}
+{
+	"name": "Cart distribution",
+	"settings": [
+		{
+			"type": "select",
+			"id": "layout",
+			"label": "Layout",
+			"options": [
+				{ "value": "full-width", "label": "Full width" },
+				{ "value": "page-width", "label": "Page width" }
+			],
+			"default": "full-width"
+		},
+		{
+			"type": "text",
+			"id": "margin_top",
+			"label": "Space to the previous section",
+			"default": "20px"
+		},
+		{
+			"type": "text",
+			"id": "margin_bottom",
+			"label": "Space to the next section",
+			"default": "20px"
+		},
+		{
+			"type": "header",
+			"content": "Content"
+		},
+		{
+			"type": "text",
+			"id": "product_column_header",
+			"label": "Product column header",
+			"default": "Products"
+		},
+		{
+			"type": "collection_list",
+			"id": "collections",
+			"label": "Filter collections",
+			"limit": 50
+		},
+		{
+			"type": "text",
+			"id": "total_row_label",
+			"label": "Total row label",
+			"default": "Total Items per Address"
+		},
+		{
+			"type": "text",
+			"id": "items_text",
+			"label": "Items text",
+			"default": "items"
+		},
+		{
+			"type": "text",
+			"id": "sub_total",
+			"label": "Subtotal text",
+			"default": "Estimated Subtotal"
+		},
+		{
+			"type": "text",
+			"id": "sub_total_comment",
+			"label": "Subtotal comment",
+			"default": "(Shipping options will be calculated next page)"
+		},
+		{
+			"type": "text",
+			"id": "total",
+			"label": "Total text",
+			"default": "Estimated Subtotal"
+		},
+		{
+			"type": "text",
+			"id": "total_comment",
+			"label": "Total comment",
+			"default": "(The shipping costs are estimated)"
+		},
+		{
+			"type": "checkbox",
+			"id": "incart",
+			"label": "Show product and address button in cart page",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "group_products",
+			"label": "Show cart items in product groups",
+			"default": true
+		},
+		{
+			"type": "checkbox",
+			"id": "show_sku",
+			"label": "Show variant SKU",
+			"default": true
+		},
+		{
+			"type": "header",
+			"content": "Messages"
+		},
+		{
+			"type": "text",
+			"id": "empty_cart_message",
+			"label": "Empty cart message",
+			"default": "Your cart is empty"
+		},
+		{
+			"type": "textarea",
+			"id": "rate_error_notice",
+			"label": "Rate error dialog notice",
+			"default": "Our customer service team will be notified and will contact you to resolve these issues. You may still proceed with checkout."
+		},
+		{
+			"type": "header",
+			"content": "Colors"
+		},
+		{
+			"type": "color",
+			"id": "text_color",
+			"label": "Text",
+			"default": "#000000"
+		},
+		{
+			"type": "color",
+			"id": "back_color",
+			"label": "Section background",
+			"default": "#ffffff"
+		},
+		{
+			"type": "color",
+			"id": "table_background",
+			"label": "Table background",
+			"default": "#ffffff"
+		},
+		{
+			"type": "color",
+			"id": "header_background",
+			"label": "Header background",
+			"default": "#f8f8f8"
+		},
+		{
+			"type": "color",
+			"id": "total_row_background",
+			"label": "Total row background",
+			"default": "#ffffff"
+		},
+		{
+			"type": "color",
+			"id": "border_color",
+			"label": "Border",
+			"default": "#e0e0e0"
+		},
+		{
+			"type": "range",
+			"id": "title_size",
+			"min": 16,
+			"max": 40,
+			"step": 2,
+			"unit": "px",
+			"label": "Title size",
+			"default": 24
+		},
+		{
+			"type": "header",
+			"content": "Checkout"
+		},
+		{
+			"type": "select",
+			"id": "checkout_mode",
+			"label": "Checkout mode",
+			"options": [
+				{ "value": "draft_order", "label": "Draft order (current)" },
+				{ "value": "direct", "label": "Direct checkout (for Shopify Function)" }
+			],
+			"default": "draft_order"
+		},
+		{
+			"type": "text",
+			"id": "default_collection",
+			"label": "Default product collection handle",
+			"default": "wholesale-phone-tech-accessories",
+			"info": "Collection handle used to populate the Add Product dialog on initial load."
+		}
+	],
+	"presets": [
+		{
+			"name": "Cart distribution",
+			"category": "Forms",
+			"settings": {
+				"incart": true
+			}
+		}
+	]
+}
+{% endschema %}
+
+
+
+
+
+
+
+

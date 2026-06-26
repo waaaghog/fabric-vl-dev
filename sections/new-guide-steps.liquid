@@ -1,0 +1,319 @@
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <div class="gs">
+
+    {%- comment -%}── Header ─────────────────────────────────────{%- endcomment -%}
+    {%- if section.settings.eyebrow != blank
+      or section.settings.heading != blank
+      or section.settings.description != blank
+    -%}
+      <div class="gs__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="gs__eyebrow">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="gs__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.description != blank -%}
+          <div class="gs__description rte">{{ section.settings.description }}</div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}── Steps ──────────────────────────────────────{%- endcomment -%}
+    {%- if section.blocks.size > 0 -%}
+      <div class="gs__steps">
+        {%- for block in section.blocks -%}
+          <div class="gs__step" {{ block.shopify_attributes }}>
+            <div class="gs__step-top">
+              <div class="gs__step-circle">{{ forloop.index }}</div>
+            </div>
+            <div class="gs__step-content">
+              {%- if block.settings.title != blank -%}
+                <p class="gs__step-title">{{ block.settings.title }}</p>
+              {%- endif -%}
+              {%- if block.settings.description != blank -%}
+                <div class="gs__step-desc rte">{{ block.settings.description }}</div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{% stylesheet %}
+  /* ── Section wrapper ─────────────────────────── */
+  .gs {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+
+  /* ── Header ──────────────────────────────────── */
+  .gs__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    max-width: 700px;
+  }
+
+  .gs__eyebrow {
+    margin: 0;
+    /*font-size: 0.75rem;*/
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 5px;
+  }
+
+  .gs__heading {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+
+  .gs__description {
+    margin: 0;
+    line-height: 1.6;
+    opacity: 0.8;
+    font-size: calc(13px + 0.2vw);
+  }
+
+  /* ── Steps row ───────────────────────────────── */
+  .gs__steps {
+    display: flex;
+    width: 100%;
+    max-width: 1400px;
+    align-items: flex-start;
+  }
+
+  .gs__step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .gs__step-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Circle + connector line row */
+  .gs__step-top {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Lines on either side of the circle */
+  .gs__step-top::before,
+  .gs__step-top::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.2;
+  }
+
+  /* Hide left line on first step, right line on last step */
+  .gs__step:first-child .gs__step-top::before,
+  .gs__step:last-child .gs__step-top::after {
+    visibility: hidden;
+  }
+
+  .gs__step-circle {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 500;
+    background: var(--color-primary-button-hover-background);
+    margin-inline: 12px;
+  }
+
+  .gs__step-title {
+    margin: 0;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 1.2em;
+  }
+
+  .gs__step-desc {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    opacity: 0.75;
+    max-width: 320px;
+  }
+
+  /* ── Mobile ──────────────────────────────────── */
+  @media screen and (max-width: 749px) {
+    .gs {
+      gap: 36px;
+    }
+
+    .gs__steps {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 24px;
+    }
+
+    .gs__step {
+      flex-direction: row;
+      text-align: left;
+      gap: 16px;
+    }
+
+    /* On mobile, lines run vertically between steps */
+    .gs__step-top {
+      flex-direction: column;
+      width: auto;
+      align-self: stretch;
+    }
+
+    .gs__step-top::before,
+    .gs__step-top::after {
+      flex: 1;
+      width: 1px;
+      height: auto;
+    }
+
+    .gs__step-circle {
+      margin-inline: 0;
+      margin-block: 8px;
+    }
+
+    .gs__step-content {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .gs__step-desc {
+      max-width: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "New: Guide Steps",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Easy Application"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Salon nails in 4 simple steps"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Step"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Guide Steps",
+      "blocks": [
+        { "type": "step", "settings": { "title": "Prep", "description": "<p>Push back cuticles and clean each nail with the alcohol prep pad.</p>" } },
+        { "type": "step", "settings": { "title": "Size", "description": "<p>Select a nail from the set that perfectly matches the width of your natural nail.</p>" } },
+        { "type": "step", "settings": { "title": "Apply", "description": "<p>Apply a thin layer of glue to the press-on, then press firmly for 10–15 seconds.</p>" } },
+        { "type": "step", "settings": { "title": "Finish", "description": "<p>Shape and file to your desired style. Apply cuticle oil for a salon-grade finish.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,271 @@
+<div class="vaa-bar" id="valor-add-all" hidden>
+  <span class="vaa-bar__summary"></span>
+  <button type="button" class="vaa-bar__btn">
+    <span class="vaa-bar__label">{{ section.settings.label }}</span>
+    <span class="vaa-bar__check" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <svg class="vaa-bar__arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </button>
+</div>
+
+{% stylesheet %}
+.vaa-bar {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #1D2636;
+  color: #F4F5F2;
+  border-radius: 999px;
+  padding: 8px;
+  border: 1px solid rgba(244,245,242,0.1);
+  font-family: inherit;
+  font-size: 12px;
+  animation: vaa-slide-in 0.2s ease;
+}
+
+.vaa-bar[hidden] { display: none; }
+
+@keyframes vaa-slide-in {
+  from { opacity: 0; translate: 0 12px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+.vaa-bar__summary {
+  padding: 0 12px 0 14px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #A8B0B8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-right: 1px solid rgba(244,245,242,0.12);
+  height: 28px;
+  white-space: nowrap;
+}
+
+.vaa-bar__summary::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2d7a3f;
+  flex-shrink: 0;
+}
+
+.vaa-bar__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F4F5F2;
+  color: #1D2636;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background 0.15s;
+  overflow: hidden;
+}
+
+.vaa-bar__btn:hover { background: #e8e9e6; }
+
+.vaa-bar__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vaa-bar__label { transition: opacity 0.15s; }
+
+.vaa-bar__check {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes vaa-check-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.vaa-bar--added .vaa-bar__label,
+.vaa-bar--added .vaa-bar__arrow { opacity: 0; }
+.vaa-bar--added .vaa-bar__check { animation: vaa-check-in 0.2s ease forwards; }
+.vaa-bar--added .vaa-bar__btn { background: #2d7a3f; color: #fff; }
+
+.vaa-bar--loading .vaa-bar__btn { pointer-events: none; }
+.vaa-bar--loading .vaa-bar__label,
+.vaa-bar--loading .vaa-bar__arrow { opacity: 0; }
+.vaa-bar--loading .vaa-bar__btn::after {
+  content: '';
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(29,38,54,0.25);
+  border-top-color: #1D2636;
+  border-radius: 50%;
+  animation: vaa-spin 0.6s linear infinite;
+}
+
+@keyframes vaa-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 749px) {
+  .vaa-bar__summary { display: none; }
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  var bar = document.getElementById('valor-add-all');
+  if (!bar) return;
+
+  var summaryEl = bar.querySelector('.vaa-bar__summary');
+  var btn = bar.querySelector('.vaa-bar__btn');
+
+  function getItems() {
+    var items = [];
+    document.querySelectorAll('.vqa-wrap[data-variant-id]').forEach(function (wrap) {
+      var input = wrap.querySelector('.vqa__qty-input');
+      var qty = input ? Math.max(0, parseInt(input.value) || 0) : 0;
+      if (qty < 1) return;
+      var atcBtn = wrap.querySelector('.vqa__btn');
+      if (atcBtn && atcBtn.disabled) return;
+      items.push({ id: parseInt(wrap.dataset.variantId), quantity: qty, brand: wrap.dataset.productBrand || '', wrap: wrap });
+    });
+    return items;
+  }
+
+  function markAdded(wrap, qty) {
+    if (typeof window.__valorProductCardMarkAdded === 'function') {
+      window.__valorProductCardMarkAdded(wrap, qty);
+      return;
+    }
+
+    var card = wrap.closest('.vpc-card, .product-card, product-card');
+    if (card) card.classList.add('vpc-card--just-added', 'just-added');
+
+    var atcBtn = wrap.querySelector('.vqa__btn');
+    if (atcBtn) {
+      var label = atcBtn.querySelector('.vpc-add__label, .vqa__label');
+      if (label) label.textContent = 'Added · ' + qty;
+      atcBtn.dataset.added = '';
+      atcBtn.disabled = true;
+    }
+
+    var input = wrap.querySelector('.vqa__qty-input');
+    if (input) {
+      input.value = '';
+      input.setAttribute('readonly', 'true');
+      input.classList.add('vqa__qty-input--added');
+    }
+  }
+
+  function update() {
+    var items = getItems();
+    var totalQty = items.reduce(function (s, i) { return s + i.quantity; }, 0);
+    var variantCount = items.length;
+    if (totalQty === 0) {
+      bar.setAttribute('hidden', '');
+      return;
+    }
+    bar.removeAttribute('hidden');
+    summaryEl.textContent = variantCount + (variantCount === 1 ? ' variant' : ' variants') + ', ' + totalQty + ' units';
+  }
+
+  // Update on any qty input change
+  document.addEventListener('input', function (e) {
+    if (e.target.matches('.vqa__qty-input')) update();
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.vqa__qty-btn')) setTimeout(update, 0);
+  });
+
+  // Initial scan (cards may load after script)
+  setTimeout(update, 0);
+
+  btn.addEventListener('click', async function () {
+    var items = getItems();
+    if (!items.length) return;
+
+    bar.classList.add('vaa-bar--loading');
+    btn.disabled = true;
+
+    try {
+      var payload = items.map(function (item) {
+        var payloadItem = { id: item.id, quantity: item.quantity };
+        return payloadItem;
+      });
+
+      var res = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: payload })
+      });
+      if (!res.ok) return;
+
+      var cartData = await (await fetch('/cart.js')).json();
+      document.dispatchEvent(new CustomEvent('cart:update', {
+        bubbles: true,
+        detail: { cart: cartData, resource: cartData, sourceId: '', data: { itemCount: cartData.item_count ?? 0 } }
+      }));
+
+      items.forEach(function (item) {
+        markAdded(item.wrap, item.quantity);
+      });
+
+      bar.classList.remove('vaa-bar--loading');
+      bar.classList.add('vaa-bar--added');
+      await new Promise(function (r) { setTimeout(r, 1500); });
+      bar.classList.remove('vaa-bar--added');
+    } catch (_) {
+    } finally {
+      bar.classList.remove('vaa-bar--loading');
+      btn.disabled = false;
+      update();
+    }
+  });
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Add all to cart",
+  "tag": "div",
+  "class": "vaa-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Button label",
+      "default": "Add all to cart"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Add all to cart"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,102 @@
+{% comment %}
+  valor-crumbs.liquid
+  Breadcrumb navigation for product pages.
+  Renders: Shop / Collection / Product type / Vendor / Product title
+  Segments are skipped when the data is blank or unavailable.
+{% endcomment %}
+
+<style>
+  .vc-crumbs-wrap {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .vc-crumbs {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 12px; color: #66717E; font-weight: 500; list-style: none;
+    margin: 0; padding: 0;
+  }
+  .vc-crumbs li { display: flex; align-items: center; gap: 8px; }
+  .vc-crumbs a  { color: #66717E; text-decoration: none; transition: color 0.15s; }
+  .vc-crumbs a:hover { color: #2B3A55; }
+  .vc-crumbs .vc-sep { color: #A8B0B8; user-select: none; }
+  .vc-crumbs .vc-current { color: #1D2636; }
+</style>
+
+<div class="section section--page-width">
+<nav class="vc-crumbs-wrap" aria-label="Breadcrumb" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <ol class="vc-crumbs">
+
+    <li>
+      <a href="{{ routes.root_url }}">Shop</a>
+    </li>
+
+    {%- if collection != blank -%}
+      <li>
+        <span class="vc-sep" aria-hidden="true">/</span>
+        <a href="{{ collection.url }}">{{ collection.title }}</a>
+      </li>
+    {%- endif -%}
+
+    {%- if section.settings.show_type and product.type != blank -%}
+      <li>
+        <span class="vc-sep" aria-hidden="true">/</span>
+        <a href="{{ product.type | url_for_type }}">{{ product.type }}</a>
+      </li>
+    {%- endif -%}
+
+    {%- if section.settings.show_vendor and product.vendor != blank -%}
+      <li>
+        <span class="vc-sep" aria-hidden="true">/</span>
+        <a href="{{ product.vendor | url_for_vendor }}">{{ product.vendor }}</a>
+      </li>
+    {%- endif -%}
+
+    <li>
+      <span class="vc-sep" aria-hidden="true">/</span>
+      <span class="vc-current" aria-current="page">{{ product.title }}</span>
+    </li>
+
+  </ol>
+</nav>
+</div>
+
+{% schema %}
+{
+  "name": "Valor crumbs",
+  "tag": "div",
+  "class": "valor-crumbs-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0, "max": 60, "step": 4, "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0, "max": 60, "step": 4, "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "show_type",
+      "label": "Show product type",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor crumbs"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,394 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "valor_about_core": {
+      "type": "valor-about-core",
+      "blocks": {
+        "metric_established": {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Established",
+            "value": "1997",
+            "unit": "",
+            "full_width": false
+          }
+        },
+        "metric_headquarters": {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Headquarters",
+            "value": "Los Angeles",
+            "unit": "CA",
+            "full_width": false
+          }
+        },
+        "metric_distribution": {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Distribution",
+            "value": "Houston",
+            "unit": "TX",
+            "full_width": false
+          }
+        },
+        "metric_catalog": {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Catalog",
+            "value": "16,000",
+            "unit": "+ SKUs",
+            "full_width": false
+          }
+        },
+        "metric_shipped": {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Shipped",
+            "value": "220M",
+            "unit": "+ units",
+            "full_width": false
+          }
+        },
+        "metric_summary": {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Summary",
+            "value": "Nearly 30 years building the wireless accessory industry from product development to shelf execution - backed by manufacturing control, fulfillment scale, deep device coverage, and channel programs spanning carriers, national retail, off-price, dealer networks, OEM, and digital marketplaces. Because the shelf does not stock itself.",
+            "unit": "",
+            "full_width": true
+          }
+        },
+        "value_foresight": {
+          "type": "value",
+          "settings": {
+            "number": "i.",
+            "title": "Foresight",
+            "subtitle": "Built ahead of demand.",
+            "description": "<p>Valor doesn't wait for the market to catch up. <strong>Decades of industry experience, early device insights, and in-house development capabilities</strong> help partners prepare for what customers will need next - before demand reaches the shelf.</p>"
+          }
+        },
+        "value_velocity": {
+          "type": "value",
+          "settings": {
+            "number": "ii.",
+            "title": "Velocity",
+            "subtitle": "Fast only matters when it shows up on time.",
+            "description": "<p>Manufacturing control, deep inventory, and bicoastal distribution move products from development to delivery with <strong>fewer delays and more confidence.</strong> Speed isn't the headline here. Reliable speed is.</p>"
+          }
+        },
+        "value_precision": {
+          "type": "value",
+          "settings": {
+            "number": "iii.",
+            "title": "Precision",
+            "subtitle": "Details that drive performance.",
+            "description": "<p>Every product decision matters - from <strong>device fit and material selection to packaging, compliance, and shelf presentation.</strong> Engineering discipline and category expertise built into products made for everyday use, retail-ready performance, and fewer almost-fits moments.</p>"
+          }
+        },
+        "value_integrity": {
+          "type": "value",
+          "settings": {
+            "number": "iv.",
+            "title": "Integrity",
+            "subtitle": "Three decades of proof.",
+            "description": "<p>Since 1997, Valor has built its reputation through <strong>consistency, reliability, and long-term partner trust.</strong> The numbers help tell the story, but the real proof is simpler: partners keep coming back because Valor keeps showing up.</p>"
+          }
+        },
+        "channel_carrier": {
+          "type": "channel",
+          "settings": {
+            "label": "Carrier programs",
+            "title": "Wireless carrier accessory programs",
+            "description": "<p>Multi-year accessory programs across the carriers that anchor the U.S. wireless market - postpaid, prepaid, and cable-MVNO. Assortment planning tuned to device mix, launch calendars, seasonal cadence, packaging requirements, and reorder patterns. Because when a new phone hits the floor, the accessories shouldn't be three steps behind.</p>",
+            "pills": "AT&T\nVerizon\nBoost Mobile\nCricket Wireless\nTotal Wireless\nXfinity\nSpectrum"
+          }
+        },
+        "channel_retail": {
+          "type": "channel",
+          "settings": {
+            "label": "National retail & off-price",
+            "title": "Big shelves. Fast turns. Very little guesswork.",
+            "description": "<p>Wholesale programs across the retail formats consumers actually shop - mass retail, big-box electronics, off-price, and home improvement. Same California and Texas infrastructure. Different channel demands. Same job: get the right products where they need to be.</p>",
+            "pills": "Walmart\nTarget\nBest Buy\nHome Depot\nLowe's\nStaples\nTJ Maxx\nMarshalls\nHomeGoods\nRoss\nBurlington"
+          }
+        },
+        "channel_marketplaces": {
+          "type": "channel",
+          "settings": {
+            "label": "Digital marketplaces",
+            "title": "Clicks, carts, and catalog control.",
+            "description": "<p>Marketplace and direct-to-consumer programs built for digital velocity - without pulling inventory out from under physical retail. Listing infrastructure, catalog content, inventory allocation, marketplace operations, and social-commerce readiness for partners selling across online channels. Digital growth is great. Digital growth with inventory discipline is better.</p>",
+            "pills": "Amazon\nTikTok Shop\nMarketplace ops\nCatalog & content\nListing infrastructure"
+          }
+        },
+        "channel_distribution": {
+          "type": "channel",
+          "settings": {
+            "label": "Distribution & manufacturing",
+            "title": "More control under the hood. Fewer surprises on the shelf.",
+            "description": "<p>250,000 square feet of fulfillment across California and Texas, $8-10M in active on-site inventory, and a Shenzhen manufacturing arm operating since 1999 - handling mold creation, injection molding, assembly, packaging, testing, and production oversight under one roof. Fewer handoffs, cleaner timelines, more control from product development to delivery.</p>",
+            "pills": "250K sq ft fulfillment\nCA & TX warehouses\nShenzhen factory\nActive on-site inventory\nISO 9001 / 14001 / RoHS"
+          }
+        },
+        "cap_assortment": {
+          "type": "capability",
+          "settings": {
+            "number": "i.",
+            "title": "Assortment planning",
+            "description": "Device-cycle planning aligned to launch calendars, channel demand, partner reorder velocity, price points, and real customer behavior."
+          }
+        },
+        "cap_packaging": {
+          "type": "capability",
+          "settings": {
+            "number": "ii.",
+            "title": "Packaging & merchandising",
+            "description": "Channel-specific packaging, planogram-ready displays, sample-in-order programs, and merchandising built for how products actually sell."
+          }
+        },
+        "cap_custom": {
+          "type": "capability",
+          "settings": {
+            "number": "iii.",
+            "title": "Co-branded, licensed & custom",
+            "description": "Licensed, co-branded, private-label, and build-to-suit accessory programs sized for wholesale, retail, OEM, and partner-specific opportunities."
+          }
+        },
+        "cap_intelligence": {
+          "type": "capability",
+          "settings": {
+            "number": "iv.",
+            "title": "API, EDI & retail intelligence",
+            "description": "Direct catalog, inventory, order, and fulfillment integration with partner systems. Retail intelligence and supply chain visibility for data-backed planning."
+          }
+        }
+      },
+      "block_order": [
+        "metric_established",
+        "metric_headquarters",
+        "metric_distribution",
+        "metric_catalog",
+        "metric_shipped",
+        "metric_summary",
+        "value_foresight",
+        "value_velocity",
+        "value_precision",
+        "value_integrity",
+        "channel_carrier",
+        "channel_retail",
+        "channel_marketplaces",
+        "channel_distribution",
+        "cap_assortment",
+        "cap_packaging",
+        "cap_custom",
+        "cap_intelligence"
+      ],
+      "settings": {
+        "color_scheme": "",
+        "accent_color": "#c54448",
+        "heading_bold_highlight_color": "#c54448",
+        "heading_italic_highlight_color": "#c54448",
+        "heading_bold_highlight_bold": false,
+        "heading_italic_highlight_italic": true,
+        "show_breadcrumb": true,
+        "breadcrumb_label": "About Valor",
+        "hero_eyebrow": "About Valor Communication",
+        "hero_title": "Ahead of the curve. <em><strong>Already on the shelf.</strong></em>",
+        "hero_image": "shopify://shop_images/Valor_Warehouse.png",
+        "hero_image_alt": "Valor distribution center building",
+        "hero_image_placeholder": "",
+        "story_num": "01 - Origin",
+        "story_title": "Here before wireless was everywhere. Still ahead of <em><strong>what's next.</strong></em>",
+        "story_label": "Founded",
+        "story_year": "1997",
+        "story_place": "Los Angeles, California",
+        "story_image": "shopify://shop_images/Valor_phones_archive.png",
+        "story_image_alt": "Early 2000s Era Wireless Phones",
+        "story_image_placeholder": "",
+        "story_body": "<p>Valor Communication started in Los Angeles in 1997 with a wholesale operation built for the people who actually move wireless accessories - independent dealers, regional distributors, master agents, and the buyers stocking shelves at retail. The work was practical from day one: get the right product built, priced, packed, shipped, and ready before demand turned into a missed sale.</p><p>That channel-first mindset shaped a company designed to last, scale, and keep pace with how wireless accessories actually sell. Tooling, packaging, freight, MOQs, terms, fulfillment, manufacturing, testing, and certifications were never background details - they were the operating system. <strong>Every part of the business was designed around what holds up at the point of sale</strong>, not what looks good in a corporate lookbook.</p><p>Nearly 30 years later, those wholesale roots have grown into a full-scale wireless accessory partner with the product depth, supply chain control, and channel reach to support demand across every major wireless path to sale.</p>",
+        "story_quote": "We do not build brands and hope the channel catches up. We build brands made to move through it.",
+        "story_body_after_quote": "<p>Today the operation spans <strong>250,000 square feet of fulfillment</strong> across California and Texas, a Shenzhen-based manufacturing arm running since 1999, and a portfolio of in-house brands covering protection, power, audio, attachables, and wearables. Product development, engineering, manufacturing, fulfillment, and custom programs now work as one connected system - from packaging through retail execution. Fewer handoffs, cleaner supply chains, more products ready where demand shows up.</p><p>Programs reach <strong>21,000+ retail locations at a 99% on-time delivery rate</strong> across major carrier networks, national retail, off-price chains, home improvement, OEM programs, and digital marketplaces. Retail intelligence, demand planning, inventory support, global logistics, and POS-ready integration help partners manage more than product availability - they help manage the systems that keep products stocked, moving, and selling.</p><p>What changed over those years is the depth of the operation. What didn't is the customer at the center of it: the operator selling phones at street level, the buyer stocking a planogram, the merchandiser picking next quarter's assortment, and the partner who needs the right products ready before the next ask hits.</p><p>The infrastructure scaled. The work didn't. <strong>Partners keep coming back because Valor keeps showing up.</strong></p>",
+        "interstitial_image": "shopify://shop_images/valor_warehouse_team_motion.png",
+        "interstitial_image_alt": "Valor warehouse team in motion",
+        "interstitial_image_placeholder": "Warehouse, fulfillment floor, or product detail at scale",
+        "values_num": "02 - Mission & Values",
+        "values_title": "The way <em><strong>we operate.</strong></em>",
+        "mission_label": "Mission",
+        "mission_copy": "<p>Help retailers, carriers, and wireless partners <em>move faster</em> with accessory solutions built for real market demand - making the path from concept to shelf cleaner, quicker, and a lot less complicated.</p>",
+        "channel_num": "03 - Channel Expertise",
+        "channel_title": "We don't change the channel. We know <em><strong>how to work it.</strong></em>",
+        "channel_image": "shopify://shop_images/Valor_AWPE_2025.jpg",
+        "channel_image_alt": "Valor at AWPE Las Vegas",
+        "channel_image_placeholder": "",
+        "channel_lead": "<p>Every channel has its own pace, pressure points, and path to sale. <strong>Carrier programs don't move like off-price buys. Marketplace velocity doesn't move like a national retail reset. Dealer counters don't move like big-box planograms.</strong></p><p>Valor supports partners with channel-specific execution across assortment planning, packaging compliance, fulfillment, retail intelligence, API/EDI integration, and inventory visibility - keeping the right accessories ready for the channels that need them next.</p>",
+        "channel_kicker": "<p>Because the accessory aisle isn't just an add-on. <em>Done right, it's a revenue engine hiding in plain sight.</em></p>",
+        "closing_image": "shopify://shop_images/Valor_lifestyle_product.jpg",
+        "closing_image_alt": "Valor product lifestyle scene",
+        "closing_image_placeholder": "",
+        "closing_eyebrow": "04 - Open accounts & partner programs",
+        "closing_title": "You bring the business. <em><strong>We bring the backbone.</strong></em>",
+        "closing_copy": "<p>If you operate a dealer location, master agent network, regional or national retail program, OEM program, off-price business, or marketplace operation - Valor is ready to help make your wireless accessory program stronger from the first shipment to the next reorder. <strong>You bring the business. We bring the infrastructure to keep it moving.</strong></p>",
+        "primary_label": "Apply for an account",
+        "primary_link": "",
+        "secondary_label": "Contact us",
+        "secondary_link": ""
+      }
+    },
+    "section_Pigq9m": {
+      "type": "section",
+      "blocks": {
+        "video_rgGy8X": {
+          "type": "video",
+          "name": "t:names.video",
+          "settings": {
+            "source": "url",
+            "video_url": "https://youtu.be/ExMlDXAfiMA",
+            "video_autoplay": true,
+            "video_loop": true,
+            "alt": "",
+            "custom_width": 100,
+            "custom_width_mobile": 100,
+            "aspect_ratio": "16/9",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "group_TcQc6g": {
+          "type": "group",
+          "name": "t:names.caption",
+          "settings": {
+            "content_direction": "row",
+            "vertical_on_mobile": true,
+            "scroll_on_mobile": false,
+            "horizontal_alignment": "space-between",
+            "vertical_alignment": "flex-end",
+            "align_baseline": true,
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 12,
+            "gap_mobile": 12,
+            "width": "fill",
+            "custom_width": "",
+            "width_mobile": "fill",
+            "custom_width_mobile": "",
+            "height": "fit",
+            "custom_height": 100,
+            "inherit_color_scheme": true,
+            "color_scheme": "",
+            "background_media": "none",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_radius": 0,
+            "toggle_overlay": false,
+            "overlay_color": "#00000026",
+            "overlay_style": "solid",
+            "gradient_direction": "to top",
+            "link": "",
+            "open_in_new_tab": false,
+            "placeholder": "",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "text_4YMUdk": {
+              "type": "text",
+              "name": "t:names.text",
+              "disabled": true,
+              "settings": {
+                "text": "",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "32.5em",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-body--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "heading_bold_highlight_color": "#c54448",
+                "heading_italic_highlight_color": "#63b9de",
+                "heading_bold_highlight_bold": true,
+                "heading_italic_highlight_italic": true,
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "text_padding": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_4YMUdk"
+          ]
+        }
+      },
+      "block_order": [
+        "video_rgGy8X",
+        "group_TcQc6g"
+      ],
+      "name": "t:names.video_section",
+      "settings": {
+        "section_width": "page-width",
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "scroll_on_mobile": false,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 16,
+        "section_height": "",
+        "section_height_custom": 50,
+        "color_scheme": "",
+        "background_media": "none",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_radius": 0,
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "padding-block-start": 32,
+        "padding-block-end": 32
+      }
+    }
+  },
+  "order": [
+    "valor_about_core",
+    "section_Pigq9m"
+  ]
+}

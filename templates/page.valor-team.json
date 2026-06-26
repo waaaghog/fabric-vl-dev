@@ -1,0 +1,172 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "shogun-helper": {
+      "type": "shogun-helper",
+      "settings": {}
+    },
+    "shogun-optimizer": {
+      "type": "shogun-optimizer",
+      "settings": {}
+    },
+    "valor_team_core": {
+      "type": "valor-team-core",
+      "blocks": {
+        "mary_dong": {
+          "type": "member",
+          "settings": {
+            "featured_founder": true,
+            "name": "Mary Dong",
+            "role": "Founder",
+            "initials": "MD"
+          }
+        },
+        "steven_lu": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Steven Lu",
+            "role": "Chief Executive Officer",
+            "initials": "SL"
+          }
+        },
+        "casey_gordon": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Casey Gordon",
+            "role": "Chief Operating Officer, B2B",
+            "initials": "CG"
+          }
+        },
+        "katie_lu": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Katie Lu",
+            "role": "Head of Products",
+            "initials": "KL"
+          }
+        },
+        "skylar_evans": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Skylar Evans",
+            "role": "Brand & Marketing Director",
+            "initials": "SE"
+          }
+        },
+        "cameron_christian": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Cameron Christian",
+            "role": "Head of IT",
+            "initials": "CC"
+          }
+        },
+        "bruce_cava": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Bruce Cava",
+            "role": "VP of Sales, Boost Mobile",
+            "initials": "BC"
+          }
+        },
+        "brian_carter": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Brian Carter",
+            "role": "VP of Sales, Indirect Channels",
+            "initials": "BC"
+          }
+        },
+        "nick_cruz": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Nick Cruz",
+            "role": "VP of Sales, Cricket Wireless",
+            "initials": "NC"
+          }
+        },
+        "tom_redington": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Tom Redington",
+            "role": "VP of Sales, Verizon",
+            "initials": "TR"
+          }
+        },
+        "raul_valle": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Raul Valle",
+            "role": "LATAM Sales Director",
+            "initials": "RV"
+          }
+        },
+        "albert_vicencio": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Albert Vicencio",
+            "role": "Sales Manager",
+            "initials": "AV"
+          }
+        },
+        "francis_tran": {
+          "type": "member",
+          "settings": {
+            "featured_founder": false,
+            "name": "Francis Tran",
+            "role": "Sales Manager",
+            "initials": "FT"
+          }
+        }
+      },
+      "block_order": [
+        "mary_dong",
+        "steven_lu",
+        "casey_gordon",
+        "katie_lu",
+        "skylar_evans",
+        "cameron_christian",
+        "bruce_cava",
+        "brian_carter",
+        "nick_cruz",
+        "tom_redington",
+        "raul_valle",
+        "albert_vicencio",
+        "francis_tran"
+      ],
+      "settings": {
+        "color_scheme": "",
+        "accent_color": "#c54448",
+        "hero_eyebrow": "Our Team",
+        "hero_title": "The people behind <em><strong>Valor.</strong></em>",
+        "hero_copy": "<p>Decades of combined experience across the wireless industry, run by a leadership group that's been at this a long time, knows the work from every angle, and is allergic to the status quo. <strong>They're the ones who get the job done.</strong></p>",
+        "contact_link": "shopify://pages/contact",
+        "contact_label": "Contact us"
+      }
+    }
+  },
+  "order": [
+    "shogun-helper",
+    "shogun-optimizer",
+    "valor_team_core"
+  ]
+}

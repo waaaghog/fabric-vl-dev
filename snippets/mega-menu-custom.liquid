@@ -1,0 +1,328 @@
+
+{%- doc -%}
+  Renders a 3-level hierarchical mega menu for a matched header_megamenu section block.
+  Level-1 items are collection links; their featured images are shown in the image panel.
+  @param {object} block - The matched header_megamenu section block.
+{%- enddoc -%}
+
+{% liquid
+  assign b = block.settings
+  assign target_menu = linklists[b.menu_handle]
+  assign block_id = block.id
+%}
+
+{% style %}
+  .header-megamenu--{{ block_id }} {
+    --hm-popup-bg: rgb({{ b.color_scheme_popup.settings.background.rgb }});
+    --hm-popup-color: rgb({{ b.color_scheme_popup.settings.text.rgb }});
+    --hm-level1-bg: rgb({{ b.color_scheme_level1.settings.background.rgb }});
+    --hm-level1-color: rgb({{ b.color_scheme_level1.settings.text.rgb }});
+    --hm-level1-width: {{ b.level1_width }}px;
+    --hm-image-width: {{ b.image_width_percent }}%;
+    --hm-padding: {{ b.menu_padding }}px;
+    --hm-item-radius: {{ b.item_border_radius }}px;
+    --hm-popup-radius: {{ b.popup_border_radius }}px;
+  }
+{% endstyle %}
+
+<div class="header-megamenu header-megamenu--{{ block_id }}" data-megamenu>
+  <div class="header-megamenu__popup">
+    <div class="header-megamenu__content">
+
+      {%- if b.show_image -%}
+        <div class="header-megamenu__image-panel" aria-hidden="true">
+          {%- if target_menu and target_menu.links.size > 0 -%}
+            {%- for level1_link in target_menu.links -%}
+              {%- assign collection_obj = level1_link.object -%}
+              {%- assign featured_img = nil -%}
+              {%- if collection_obj and collection_obj.featured_image -%}
+                {%- assign featured_img = collection_obj.featured_image -%}
+              {%- endif -%}
+              <div class="header-megamenu__image-slide{% if forloop.first %} is-active{% endif %}" data-image-index="{{ forloop.index0 }}">
+                {%- if featured_img -%}
+                  <img
+                    src="{{ featured_img | image_url: width: 800 }}"
+                    alt="{{ featured_img.alt | default: level1_link.title | escape }}"
+                    class="header-megamenu__image"
+                    loading="lazy"
+                    width="{{ featured_img.width }}"
+                    height="{{ featured_img.height }}"
+                    srcset="
+                      {{ featured_img | image_url: width: 400 }} 400w,
+                      {{ featured_img | image_url: width: 600 }} 600w,
+                      {{ featured_img | image_url: width: 800 }} 800w
+                    "
+                    sizes="(min-width: 990px) {{ b.image_width_percent }}vw, 50vw"
+                  >
+                {%- else -%}
+                  <div class="header-megamenu__image-placeholder">
+                    {{ 'collection-1' | placeholder_svg_tag: 'header-megamenu__placeholder-svg' }}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <div class="header-megamenu__nav">
+        {%- if target_menu and target_menu.links.size > 0 -%}
+          <div class="header-megamenu__level1">
+            {%- for level1_link in target_menu.links -%}
+              <a
+                href="{{ level1_link.url }}"
+                class="header-megamenu__level1-item{% if forloop.first %} is-active{% endif %}"
+                data-level1-index="{{ forloop.index0 }}"
+              >
+                <span class="header-megamenu__level1-link">{{- level1_link.title -}}</span>
+                {%- if level1_link.links.size > 0 -%}
+                  <svg class="header-megamenu__level1-arrow" viewBox="0 0 8 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M1 1L6 6L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                {%- endif -%}
+              </a>
+            {%- endfor -%}
+          </div>
+
+          <div class="header-megamenu__level2-area">
+            {%- for level1_link in target_menu.links -%}
+              <div
+                class="header-megamenu__level2-panel{% if forloop.first %} is-active{% endif %}"
+                data-level2-index="{{ forloop.index0 }}"
+              >
+                {%- if level1_link.links.size > 0 -%}
+                  <div class="mega-menu__grid">
+                    {%- for level2_link in level1_link.links -%}
+                      <div class="mega-menu__column">
+                        <a href="{{ level2_link.url }}" class="mega-menu__link mega-menu__link--parent">
+                          {{- level2_link.title -}}
+                        </a>
+                        {%- if level2_link.links.size > 0 -%}
+                          <ul class="list-unstyled">
+                            {%- for level3_link in level2_link.links -%}
+                              <li>
+                                <a href="{{ level3_link.url }}" class="mega-menu__link">
+                                  {{- level3_link.title -}}
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                {%- else -%}
+                  <p class="header-megamenu__empty">No sub-items</p>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+
+        {%- else -%}
+          <p class="header-megamenu__empty">Select a menu in block settings</p>
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function initMegamenu(el) {
+    var level1Items = el.querySelectorAll('[data-level1-index]');
+    var level2Panels = el.querySelectorAll('[data-level2-index]');
+    var imageSlides = el.querySelectorAll('[data-image-index]');
+
+    function activate(index) {
+      level1Items.forEach(function (item) {
+        item.classList.toggle('is-active', parseInt(item.dataset.level1Index) === index);
+      });
+      level2Panels.forEach(function (panel) {
+        panel.classList.toggle('is-active', parseInt(panel.dataset.level2Index) === index);
+      });
+      imageSlides.forEach(function (slide) {
+        slide.classList.toggle('is-active', parseInt(slide.dataset.imageIndex) === index);
+      });
+    }
+
+    level1Items.forEach(function (item) {
+      item.addEventListener('mouseenter', function () {
+        activate(parseInt(item.dataset.level1Index));
+      });
+      // Activate the level-2 panel on keyboard focus so tabbing through items works.
+      // Enter key navigates natively via the <a> element — no keydown handler needed.
+      item.addEventListener('focus', function () {
+        activate(parseInt(item.dataset.level1Index));
+      });
+    });
+
+    el.dataset.megamenuReady = '';
+  }
+
+  document.querySelectorAll('[data-megamenu]:not([data-megamenu-ready])').forEach(initMegamenu);
+
+  // Re-init after Shopify section re-renders (theme editor).
+  // Guard against multiple <script> tags (one per block) each adding a listener.
+  if (!document.documentElement.dataset.megamenuListener) {
+    document.documentElement.dataset.megamenuListener = '';
+    document.addEventListener('shopify:section:load', function () {
+      document.querySelectorAll('[data-megamenu]:not([data-megamenu-ready])').forEach(initMegamenu);
+    });
+  }
+})();
+</script>
+
+{% stylesheet %}
+  /* ── 3-level mega menu (mega-menu-custom.liquid) ─────────────────── */
+
+  .header-megamenu {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--hm-popup-radius, 0px);
+  }
+
+  .header-megamenu__popup {
+    background-color: var(--hm-popup-bg);
+    color: var(--hm-popup-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+    border-radius: var(--hm-popup-radius, 0px);
+    overflow: hidden;
+  }
+
+  .header-megamenu__content {
+    display: flex;
+    min-height: 260px;
+  }
+
+  /* Image panel */
+  .header-megamenu__image-panel {
+    width: var(--hm-image-width, 30%);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-megamenu__image-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .header-megamenu__image-slide.is-active {
+    opacity: 1;
+    position: relative;
+    height: 100%;
+  }
+
+  .header-megamenu__image-slide:not(.is-active) {
+    pointer-events: none;
+  }
+
+  .header-megamenu__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .header-megamenu__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(var(--color-foreground-rgb) / 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-megamenu__placeholder-svg {
+    width: 60%;
+    height: 60%;
+    max-width: 160px;
+    opacity: 0.25;
+  }
+
+  /* Nav area */
+  .header-megamenu__nav {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  /* Level 1 sidebar */
+  .header-megamenu__level1 {
+    width: var(--hm-level1-width, 300px);
+    flex-shrink: 0;
+    background-color: var(--hm-level1-bg);
+    color: var(--hm-level1-color);
+    padding: var(--hm-padding, 20px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .header-megamenu__level1-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: var(--hm-item-radius, 4px);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    font-family: var(--menu-top-level-font-family);
+    font-size: var(--menu-top-level-font-size);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .header-megamenu__level1-item.is-active,
+  .header-megamenu__level1-item:hover {
+    background-color: rgb(var(--color-foreground-rgb) / 0.08);
+  }
+
+  .header-megamenu__level1-link {
+    flex: 1;
+  }
+
+  .header-megamenu__level1-arrow {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  /* Level 2 area */
+  .header-megamenu__level2-area {
+    flex: 1;
+    position: relative;
+    overflow-y: auto;
+    padding: var(--hm-padding, 20px);
+    min-width: 0;
+  }
+
+  .header-megamenu__level2-panel {
+    display: none;
+  }
+
+  .header-megamenu__level2-panel.is-active {
+    display: block;
+  }
+
+  /* Override mega-menu__grid layout inside the custom megamenu's level2 area */
+  .header-megamenu .mega-menu__grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px 24px;
+  }
+
+  .header-megamenu__empty {
+    padding: 40px;
+    text-align: center;
+    opacity: 0.5;
+    font-size: 0.875rem;
+  }
+{% endstylesheet %}

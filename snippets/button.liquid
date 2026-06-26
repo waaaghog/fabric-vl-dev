@@ -1,0 +1,71 @@
+{%- doc -%}
+  Intended for use in a block similar to the button block.
+
+  @param {string} link - link to render
+  @param {object} [block] - The block
+
+  @example
+  {% render 'button', link: '/collections/all' %}
+{%- enddoc -%}
+
+{% assign block_settings = block.settings %}
+
+<a
+  {% if link == blank %}
+    role="link"
+    aria-disabled="true"
+  {% else %}
+    href="{{ link }}"
+  {% endif %}
+  class="
+    {{ block_settings.style_class }}
+    {{ block_settings.style_class }}--{{ block.id }}
+  "
+  style="
+    {%- if block_settings.style_class == 'custom' -%}
+      {%- if block_settings.btn_bg_color != blank -%}--btn-bg: {{ block_settings.btn_bg_color }};{%- endif -%}
+      {%- if block_settings.btn_hover_color != blank -%}--btn-hover-bg: {{ block_settings.btn_hover_color }};{%- endif -%}
+      {%- if block_settings.btn_text_color != blank -%}--btn-text: {{ block_settings.btn_text_color }};{%- endif -%}
+      {%- if block_settings.btn_font_size != blank -%}--btn-font-size: {{ block_settings.btn_font_size }};{%- endif -%}
+      {%- if block_settings.btn_font_weight != blank -%}--btn-font-weight: {{ block_settings.btn_font_weight }};{%- endif -%}
+      {%- if block_settings.btn_font_family != blank -%}--btn-font-family: {{ block_settings.btn_font_family }};{%- endif -%}
+      {%- if block_settings.btn_width != blank -%}--btn-width: {{ block_settings.btn_width }};{%- endif -%}
+      {%- if block_settings.btn_height != blank -%}--btn-height: {{ block_settings.btn_height }};{%- endif -%}
+    {%- endif -%}
+  "
+  {%- if block_settings.open_in_new_tab -%}
+    target="_blank"
+    rel="noopener noreferrer"
+  {%- endif -%}
+  {{ block.shopify_attributes }}
+>
+  {{ block_settings.label }}
+</a>
+
+{% stylesheet %}
+  .link {
+    text-decoration: none;
+    text-decoration-color: currentcolor;
+
+    &:hover {
+      color: var(--color-primary-hover);
+      text-decoration-color: transparent;
+    }
+  }
+
+  .custom {
+    background-color: var(--btn-bg, var(--button-background-color));
+    color: var(--btn-text, var(--button-color));
+    font-size: var(--btn-font-size, var(--font-body--size));
+    font-weight: var(--btn-font-weight, 500);
+    font-family: var(--btn-font-family, var(--font-body--family));
+    width: var(--btn-width, fit-content);
+    height: var(--btn-height, auto);
+    border-radius: var(--style-border-radius-buttons-primary);
+    text-transform: var(--button-text-case-primary);
+
+    &:hover {
+      background-color: var(--btn-hover-bg, var(--button-background-color));
+    }
+  }
+{% endstylesheet %}

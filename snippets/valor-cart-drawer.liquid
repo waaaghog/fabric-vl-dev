@@ -1,0 +1,1409 @@
+{%- doc -%}
+  Self-contained valor-style cart drawer.
+  Slides in from the right; shares the --vc-* design language with valor-cart page.
+  Independent --vcd-* tokens for drawer-specific overrides.
+
+  @param {string} cart_icon     - HTML for the trigger button content (passed from header-actions)
+  @param {string} display_style - 'icon' or 'text'
+  @param {string} section_id    - Section ID for theme editor targeting
+{%- enddoc -%}
+
+{%- liquid
+  assign free_shipping_cents = settings.free_shipping_minimum_amount | times: 100
+  if free_shipping_cents > 0
+    if cart.total_price >= free_shipping_cents
+      assign shipping_reached = true
+      assign shipping_pct = 100
+    else
+      assign shipping_reached = false
+      assign shipping_remaining = free_shipping_cents | minus: cart.total_price
+      assign shipping_pct = cart.total_price | times: 100 | divided_by: free_shipping_cents
+    endif
+  endif
+-%}
+
+<style>
+  valor-cart-drawer { --vcd-item-gap: {{ settings.vcd_item_gap | default: '12px' }}; }
+</style>
+<valor-cart-drawer
+  class="vcd-host{% if display_style == 'text' %} vcd-host--text{% endif %}"
+  data-free-shipping-cents="{{ free_shipping_cents }}"
+  data-low-stock="{{ settings.low_stock_threshold | default: 300 }}"
+>
+  {%- comment -%} Panel {%- endcomment -%}
+  <div
+    class="vcd-panel"
+    role="dialog"
+    aria-label="{{ 'accessibility.cart' | t }}"
+    aria-modal="true"
+    data-vcd-panel
+    tabindex="-1"
+  >
+    {%- comment -%} Panel header {%- endcomment -%}
+    <div class="vcd-panel-header">
+      <div class="vcd-panel-title">
+        <span class="vcd-serif">Cart</span>
+        <span class="vcd-count-pill" data-vcd-count>{{ cart.item_count }}</span>
+      </div>
+      <button class="vcd-close-btn" data-vcd-close aria-label="Close cart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    {%- comment -%} Freight progress bar {%- endcomment -%}
+    {%- if free_shipping_cents > 0 -%}
+      <div class="vcd-freight" data-vcd-freight>
+        <div class="vcd-freight-label">
+          {%- if shipping_reached -%}
+            <span class="vcd-freight-msg vcd-freight-msg--met" data-vcd-freight-msg>
+              &#x2713;&nbsp; You qualify for free shipping!
+            </span>
+          {%- else -%}
+            <span class="vcd-freight-msg" data-vcd-freight-msg>
+              Add <strong data-vcd-freight-remaining>{{ shipping_remaining | money }}</strong> for free shipping
+            </span>
+          {%- endif -%}
+        </div>
+        <div class="vcd-freight-bar">
+          <div class="vcd-freight-fill" style="width:{{ shipping_pct | default: 0 }}%" data-vcd-freight-fill></div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Scrollable items list {%- endcomment -%}
+    <div class="vcd-items-wrap" data-vcd-items>
+      {%- if cart.item_count == 0 -%}
+        <div class="vcd-empty" data-vcd-empty>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <p>Your cart is empty</p>
+          <a href="/search?sort_by=relevance&q=*&filter.p.m.custom.product_designlab=0" class="vcd-empty-link">Start shopping</a>
+        </div>
+      {%- else -%}
+        {%- for item in cart.items -%}
+          {%- assign inv = item.variant.inventory_quantity -%}
+          {%- assign is_low = false -%}
+          {%- if settings.low_stock_threshold > 0 and inv > 0 and inv <= settings.low_stock_threshold -%}
+            {%- assign is_low = true -%}
+          {%- endif -%}
+          {%- assign _ptitle = item.product.title -%}
+          {%- if _ptitle == blank -%}
+            {%- if item.variant_title == blank or item.variant_title == 'Default Title' -%}
+              {%- assign _ptitle = item.title -%}
+            {%- else -%}
+              {%- assign _vsuffix = ' - ' | append: item.variant_title -%}
+              {%- assign _ptitle = item.title | remove: _vsuffix -%}
+            {%- endif -%}
+          {%- endif -%}
+          {%- assign _brand = item.vendor -%}
+          <div class="vcd-item{% if is_low %} vcd-item--low{% endif %}" data-vcd-item data-key="{{ item.key }}" data-unit="{{ item.final_price }}" data-brand="{{ _brand | escape }}">
+            <div class="vcd-item-thumb">
+              {%- if item.image -%}
+                <a href="{{ item.url }}">
+                  <img src="{{ item.image | image_url: width: 160 }}" alt="{{ item.title | escape }}" width="80" height="80" loading="lazy">
+                </a>
+              {%- else -%}
+                <a href="{{ item.url }}" class="vcd-thumb-placeholder">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                </a>
+              {%- endif -%}
+            </div>
+            <div class="vcd-item-info">
+              {%- if _brand != blank -%}
+                <div class="vcd-item-vendor">{{ _brand }}</div>
+              {%- endif -%}
+              <div class="vcd-item-name">
+                <a href="{{ item.url }}">{{ _ptitle }}</a>
+              </div>
+              {%- unless item.variant_title == 'Default Title' or item.variant_title == blank -%}
+                <div class="vcd-item-variant">{{ item.variant_title }}</div>
+              {%- endunless -%}
+              {%- if item.sku != blank -%}
+                <div class="vcd-item-sku">{{ item.sku }}</div>
+              {%- endif -%}
+            </div>
+            <div class="vcd-item-right">
+              <div class="vcd-item-top-row">
+                <div class="vcd-item-sub" data-vcd-subtotal>{{ item.final_line_price | money }}</div>
+                <button class="vcd-remove-btn" data-vcd-remove aria-label="Remove {{ item.title | escape }}">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 2l10 10M12 2 2 12"/></svg>
+                </button>
+              </div>
+              <div class="vcd-item-qty">
+                <button class="vcd-qty-btn" data-vcd-step="-1" aria-label="Decrease">&#x2212;</button>
+                <input class="vcd-qty-input" type="number" value="{{ item.quantity }}" min="0" data-vcd-qty aria-label="Quantity">
+                <button class="vcd-qty-btn" data-vcd-step="1" aria-label="Increase">+</button>
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Sticky footer {%- endcomment -%}
+    <div class="vcd-footer{% if cart.item_count == 0 %} vcd-footer--empty{% endif %}" data-vcd-footer>
+      <div class="vcd-subtotal-row">
+        <span class="vcd-subtotal-label">Subtotal</span>
+        <span class="vcd-subtotal-val" data-vcd-total>{{ cart.total_price | money }}</span>
+      </div>
+      <p class="vcd-footer-note">Shipping and taxes calculated at checkout</p>
+      <div class="vcd-note-wrap{% if cart.note != blank %} is-open{% endif %}">
+        <button type="button" class="vcd-note-toggle vcd-footer-note" data-vcd-note-toggle>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Add order note
+        </button>
+        <div class="vcd-note-body">
+          <div>
+            <textarea class="vcd-note-input" rows="3" placeholder="Add a note to your order…" data-vcd-note>{{ cart.note }}</textarea>
+          </div>
+        </div>
+      </div>
+      {%- if customer == blank -%}
+      <div class="vcd-footer-login">
+        <p class="vcd-login-notice">Sign in to your account to proceed to checkout.</p>
+        <a class="vcd-checkout-btn js-shopify-login-trigger">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Sign in to proceed
+        </a>
+        <a href="/pages/register" class="vcd-view-cart-btn">Create an account</a>
+      </div>
+      {%- else -%}
+      <div class="vcd-footer-actions">
+        <a href="{{ routes.cart_url }}" class="vcd-view-cart-btn">View full cart</a>
+        <a href="/checkout" class="vcd-checkout-btn">
+          <span class="vcd-checkout-label">Checkout</span>
+          <svg class="vcd-checkout-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          <svg class="vcd-checkout-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-dasharray="28 57" stroke-linecap="round"/></svg>
+        </a>
+      </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Recommendations & recently viewed — sibling of panel, slides in together {%- endcomment -%}
+  <div class="vcd-rec" data-vcd-rec>
+    <vcd-rec-tabs>
+      <div class="vcd-rec-nav" role="tablist">
+        <button class="vcd-rec-tab is-active" role="tab" aria-selected="true"  aria-controls="vcd-tab-relate" id="vcd-tab-btn-relate" type="button">You may also like</button>
+        <button class="vcd-rec-tab"           role="tab" aria-selected="false" aria-controls="vcd-tab-recent" id="vcd-tab-btn-recent" type="button">Recently viewed</button>
+      </div>
+    </vcd-rec-tabs>
+    <div id="vcd-tab-relate"    class="vcd-rec-panel vcd-rec-panel--active" role="tabpanel" aria-labelledby="vcd-tab-btn-relate">
+      <vcd-cart-rec
+        class="vcd-rec-list"
+        data-product-id="{{ cart.items.last.product_id }}"
+        data-currency="{{ cart.currency.iso_code }}"
+      ></vcd-cart-rec>
+    </div>
+    <div id="vcd-tab-recent" class="vcd-rec-panel"               role="tabpanel" aria-labelledby="vcd-tab-btn-recent" hidden>
+      <vcd-cart-recent
+        class="vcd-rec-list"
+        data-currency="{{ cart.currency.iso_code }}"
+        data-exclude-id="{{ cart.items.last.product_id }}"
+      ></vcd-cart-recent>
+    </div>
+  </div>
+</valor-cart-drawer>
+
+{% stylesheet %}
+/* ===== Valor Cart Drawer — independent token scope ===== */
+valor-cart-drawer {
+  --vcd-navy:        #2B3A55;
+  --vcd-navy-deep:   #1D2636;
+  --vcd-sky-pale:    #D9EEF6;
+  --vcd-crimson:     #C54448;
+  --vcd-crimson-soft:#F5DADB;
+  --vcd-chalk:       #F4F5F2;
+  --vcd-parchment:   #EEEDE7;
+  --vcd-steel:       #66717E;
+  --vcd-steel-light: #A8B0B8;
+  --vcd-white:       #FFFFFF;
+  --vcd-green:       #2d7a3f;
+  --vcd-amber:       #B07E1A;
+  --vcd-border:      #0002;
+  --vcd-border-strong: #0003;
+  --vcd-panel-width: 420px;
+  --vcd-rec-width:   var(--vcd-panel-width);
+  --vcd-z: 200;
+}
+
+/* Trigger wrapper: must look like part of header-actions */
+valor-cart-drawer.vcd-host {
+  display: contents;
+}
+
+
+/* Panel */
+valor-cart-drawer .vcd-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: calc(100dvh - var(--vcd-offset-top, 0px));
+  width: var(--vcd-panel-width);
+  max-width: 100vw;
+  background: var(--vcd-chalk);
+  z-index: calc(var(--vcd-z) + 1);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -8px 0 48px rgba(29, 38, 54, 0.14);
+}
+valor-cart-drawer.vcd-open .vcd-panel {
+  transform: translateX(0);
+}
+
+/* Panel header */
+valor-cart-drawer .vcd-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px var(--drawer-content-padding);
+  background: var(--vcd-navy-deep);
+  flex-shrink: 0;
+}
+valor-cart-drawer .vcd-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 5px;
+}
+valor-cart-drawer .vcd-serif {
+  font-family: var(--font-heading--family, Georgia, serif);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--vcd-chalk);
+  line-height: 1;
+}
+valor-cart-drawer .vcd-count-pill {
+  background: var(--vcd-crimson);
+  color: var(--vcd-white);
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  letter-spacing: 0;
+}
+valor-cart-drawer .vcd-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--vcd-chalk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  /*background: rgba(244, 245, 242, 0.1);*/
+  background: unset;
+}
+valor-cart-drawer .vcd-close-btn:hover { background: rgba(244, 245, 242, 0.2); }
+
+/* Freight bar */
+valor-cart-drawer .vcd-freight {
+  padding: 12px 16px 10px;
+  background: var(--vcd-navy);
+  flex-shrink: 0;
+}
+valor-cart-drawer .vcd-freight-label { margin-bottom: 7px; }
+valor-cart-drawer .vcd-freight-msg {
+  font-size: 12px;
+  color: var(--vcd-sky-pale);
+  font-weight: 500;
+}
+valor-cart-drawer .vcd-freight-msg--met { color: #7dd48c; }
+valor-cart-drawer .vcd-freight-msg strong { color: var(--vcd-white); font-weight: 600; }
+valor-cart-drawer .vcd-freight-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  position: relative;
+}
+valor-cart-drawer .vcd-freight-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: #7dd48c;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+/* Items */
+valor-cart-drawer .vcd-items-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--drawer-content-padding) 0;
+}
+valor-cart-drawer .vcd-items-wrap::-webkit-scrollbar { width: 4px; }
+valor-cart-drawer .vcd-items-wrap::-webkit-scrollbar-track { background: transparent; }
+valor-cart-drawer .vcd-items-wrap::-webkit-scrollbar-thumb { background: var(--vcd-border-strong); border-radius: 2px; }
+
+/* Empty state */
+valor-cart-drawer .vcd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: var(--vcd-steel);
+  text-align: center;
+}
+valor-cart-drawer .vcd-empty p { font-size: 14px; font-weight: 500; }
+valor-cart-drawer .vcd-empty-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vcd-navy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--vcd-border-strong);
+}
+valor-cart-drawer .vcd-empty-link:hover { text-decoration-color: var(--vcd-navy); }
+
+/* Cart item card */
+valor-cart-drawer .vcd-item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: var(--vcd-item-gap) calc(var(--vcd-item-gap) + 2px);
+  background: var(--vcd-white);
+  margin: 0 var(--drawer-content-padding) 10px;
+  border-radius: 12px;
+  border: 1px solid var(--vcd-border);
+  transition: border-color 0.15s, opacity 0.2s, transform 0.2s;
+}
+valor-cart-drawer .vcd-item:hover { border-color: var(--vcd-border-strong); }
+valor-cart-drawer .vcd-item--low { border-left: 3px solid var(--vcd-amber); }
+
+valor-cart-drawer .vcd-item-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  background: var(--vcd-parchment);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+valor-cart-drawer .vcd-item-thumb img { width: 80px; height: 80px; object-fit: cover; display: block; }
+valor-cart-drawer .vcd-item-thumb a { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+valor-cart-drawer .vcd-thumb-placeholder { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+
+valor-cart-drawer .vcd-item-info { min-width: 0; }
+valor-cart-drawer .vcd-item-vendor {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vcd-crimson);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+valor-cart-drawer .vcd-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vcd-navy-deep);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+valor-cart-drawer .vcd-item-name a { color: inherit; text-decoration: none; }
+valor-cart-drawer .vcd-item-name a:hover { text-decoration: underline; }
+valor-cart-drawer .vcd-item-variant { font-size: 11px; color: var(--vcd-steel); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+valor-cart-drawer .vcd-item-sku {
+  font-family: ui-monospace, 'SF Mono', Monaco, monospace;
+  font-size: 10px;
+  color: var(--vcd-navy);
+  background: var(--vcd-sky-pale);
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-top: 3px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+valor-cart-drawer .vcd-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+valor-cart-drawer .vcd-item-top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+valor-cart-drawer .vcd-item-sub {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--vcd-navy-deep);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+valor-cart-drawer .vcd-item-qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--vcd-border-strong);
+  border-radius: 999px;
+  background: var(--vcd-white);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+valor-cart-drawer .vcd-item-qty:focus-within { border-color: var(--vcd-navy-deep); }
+valor-cart-drawer .vcd-qty-btn {
+  width: 26px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vcd-navy-deep);
+  font-size: 13px;
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+valor-cart-drawer .vcd-qty-btn:hover { background: var(--vcd-chalk); }
+valor-cart-drawer .vcd-qty-input {
+  width: 36px;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vcd-navy-deep);
+  background: transparent;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  font-family: inherit;
+}
+valor-cart-drawer .vcd-qty-input::-webkit-outer-spin-button,
+valor-cart-drawer .vcd-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+valor-cart-drawer .vcd-remove-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--vcd-steel-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+valor-cart-drawer .vcd-remove-btn:hover { background: var(--vcd-crimson-soft); color: var(--vcd-crimson); }
+
+/* Footer */
+valor-cart-drawer .vcd-footer {
+  padding: 16px 24px 24px;
+  background: var(--vcd-white);
+  border-top: 1px solid var(--vcd-border);
+  flex-shrink: 0;
+}
+valor-cart-drawer .vcd-footer--empty .vcd-subtotal-row,
+valor-cart-drawer .vcd-footer--empty .vcd-footer-note,
+valor-cart-drawer .vcd-footer--empty .vcd-note-wrap,
+valor-cart-drawer .vcd-footer--empty .vcd-checkout-btn,
+valor-cart-drawer .vcd-footer--empty .vcd-footer-login { display: none; }
+valor-cart-drawer .vcd-subtotal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+valor-cart-drawer .vcd-subtotal-label { font-size: 13px; color: var(--vcd-steel); font-weight: 500; }
+valor-cart-drawer .vcd-subtotal-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--vcd-navy-deep);
+  letter-spacing: -0.02em;
+  font-family: var(--font-heading--family, Georgia, serif);
+}
+valor-cart-drawer .vcd-footer-note {
+	font-size: 11px;
+	color: var(--vcd-steel-light);
+	margin: 5px 0 10px 0;
+ }
+valor-cart-drawer .vcd-note-toggle {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer; padding: 0;
+  /*font-size: 12px; font-family: inherit; color: var(--vcd-steel-light);*/
+  transition: color 0.15s;
+}
+valor-cart-drawer .vcd-note-toggle:hover { color: var(--vcd-navy-deep); }
+valor-cart-drawer .vcd-note-body {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+valor-cart-drawer .vcd-note-body > div { overflow: hidden; }
+valor-cart-drawer .vcd-note-wrap.is-open .vcd-note-body { grid-template-rows: 1fr; }
+valor-cart-drawer .vcd-note-input {
+  width: 100%; resize: none; border-radius: 10px; box-sizing: border-box;
+  border: 1px solid var(--vcd-border); padding: 10px 12px;
+  font-size: 13px; font-family: inherit; color: var(--vcd-navy-deep);
+  background: var(--vcd-chalk); outline: none; transition: border-color 0.15s;
+  display: block; margin-bottom: 8px;
+}
+valor-cart-drawer .vcd-note-input:focus { border-color: var(--vcd-navy); }
+valor-cart-drawer .vcd-note-input::placeholder { opacity: 0.4; }
+valor-cart-drawer .vcd-footer-actions,
+valor-cart-drawer .vcd-footer-login { display: flex; flex-direction: column; gap: 8px; }
+valor-cart-drawer .vcd-login-notice {
+  font-size: 12px;
+  color: var(--vcd-steel-light);
+  text-align: center;
+  margin: 0 0 2px;
+  line-height: 1.4;
+}
+valor-cart-drawer .vcd-checkout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--vcd-navy-deep);
+  color: var(--vcd-chalk);
+  border-radius: 999px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+valor-cart-drawer .vcd-checkout-btn:hover { background: var(--vcd-crimson); }
+valor-cart-drawer .vcd-checkout-spinner { display: none; animation: vcd-spin 0.8s linear infinite; }
+valor-cart-drawer .vcd-checkout-btn[data-loading] { pointer-events: none; opacity: 0.8; }
+valor-cart-drawer .vcd-checkout-btn[data-loading] .vcd-checkout-label,
+valor-cart-drawer .vcd-checkout-btn[data-loading] .vcd-checkout-arrow { display: none; }
+valor-cart-drawer .vcd-checkout-btn[data-loading] .vcd-checkout-spinner { display: block; }
+@keyframes vcd-spin { to { transform: rotate(360deg); } }
+valor-cart-drawer .vcd-view-cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--vcd-navy);
+  border: 1px solid var(--vcd-border-strong);
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+valor-cart-drawer .vcd-view-cart-btn:hover { border-color: var(--vcd-navy); background: var(--vcd-chalk); }
+
+/* ── Recommendations panel — hidden on mobile ───────────────────── */
+@media (max-width: 749px) {
+  valor-cart-drawer .vcd-rec { display: none; }
+}
+
+/* ── Recommendations panel — fixed left sidebar on desktop ──────── */
+@media (min-width: 750px) {
+  valor-cart-drawer .vcd-rec {
+    position: fixed;
+    top: var(--vcd-offset-top, 0px);
+    right: var(--vcd-panel-width);
+    height: calc(100dvh - var(--vcd-offset-top, 0px));
+    width: 0;
+    z-index: calc(var(--vcd-z) + 1);
+    transform: translateX(calc(100% + var(--vcd-panel-width)));
+    /*
+     * On CLOSE: transform slides out with cart (0.28s, no delay),
+     *           width snaps to 0 after the slide finishes (0s duration, 0.28s delay).
+     */
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) 0s,
+                width 0s 0.28s;
+    display: flex;
+    flex-direction: column;
+    background: var(--vcd-chalk);
+    overflow: hidden;
+  }
+  /*
+   * On OPEN: transform slides in with cart (0.28s, no delay),
+   *          width expands after cart is in place (0.3s, 0.28s delay).
+   */
+  valor-cart-drawer.vcd-open .vcd-rec {
+    width: var(--vcd-rec-width);
+    transform: translateX(0);
+    border-right: 1px solid var(--vcd-border-strong);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) 0s,
+                width 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.28s;
+  }
+  valor-cart-drawer .vcd-rec-panel { display: none; }
+  valor-cart-drawer .vcd-rec-panel--active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  valor-cart-drawer .vcd-rec-list {
+    display: grid;
+    grid-template-columns: repeat(3, calc((var(--vcd-rec-width) - 2 * var(--drawer-content-padding) - 24px) / 3));
+    gap: var(--vcd-item-gap);
+    padding: var(--drawer-content-padding);
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    align-content: flex-start;
+    scrollbar-width: thin;
+    scrollbar-color: var(--vcd-border-strong) transparent;
+  }
+  valor-cart-drawer .vcd-rec-card {
+    flex: unset;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  valor-cart-drawer .vcd-rec-card__media { width: 100%; position: relative; }
+  valor-cart-drawer .vcd-rec-card__img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--vcd-parchment);
+  }
+}
+
+valor-cart-drawer .vcd-rec-nav {
+  display: flex;
+  padding: 0 14px 0;
+  border-bottom: 1px solid var(--vcd-border);
+  flex-shrink: 0;
+	align-items: flex-end;
+	height: 68px;
+  background: #FFF;
+}
+valor-cart-drawer .vcd-rec-tab {
+  flex: 1;
+  padding: 0 4px 15px;
+  font-family: inherit;
+  /*font-size: 12px;*/
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--vcd-steel);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  text-align: center;
+  white-space: nowrap;
+}
+valor-cart-drawer .vcd-rec-tab:hover { color: var(--vcd-navy); }
+valor-cart-drawer .vcd-rec-tab.is-active { color: var(--vcd-navy-deep); }
+valor-cart-drawer .vcd-rec-tab.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: var(--vcd-crimson);
+}
+
+valor-cart-drawer .vcd-rec-card__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+valor-cart-drawer .vcd-rec-card__badge {
+  position: absolute;
+  top: 5px; left: 5px;
+  background: var(--vcd-crimson);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+valor-cart-drawer .vcd-rec-card__add {
+  position: absolute;
+  bottom: -5px; right: 4px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.95);
+  color: var(--vcd-navy-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+valor-cart-drawer .vcd-rec-card__media:hover .vcd-rec-card__add { opacity: 1; }
+valor-cart-drawer .vcd-rec-card__add[data-state="loading"] { color: transparent; opacity: 1; }
+valor-cart-drawer .vcd-rec-card__add[data-state="loading"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--vcd-navy-deep);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: vcd-spin 0.65s linear infinite;
+}
+@keyframes vcd-spin { to { transform: rotate(360deg); } }
+valor-cart-drawer .vcd-rec-card__add[data-state="added"] { background: var(--vcd-crimson); color: #fff; opacity: 1; }
+valor-cart-drawer .vcd-rec-card__info { padding: 0 2px; }
+valor-cart-drawer .vcd-rec-card__title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--vcd-navy-deep);
+  line-height: 1.3;
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+valor-cart-drawer .vcd-rec-card__price { font-size: 11px; color: var(--vcd-steel); margin: 2px 0 0; }
+valor-cart-drawer .vcd-rec-card__compare { text-decoration: line-through; color: var(--vcd-steel-light); margin-right: 3px; }
+
+/* Body scroll lock */
+body.vcd-scroll-locked { overflow: hidden; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  valor-cart-drawer { --vcd-panel-width: 100vw; }
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  /* Shared overlay — same singleton as valor-menu-drawer; whichever loads first creates it */
+  function _getValorOverlay() {
+    if (window.__valorDrawerOverlay) return window.__valorDrawerOverlay;
+    const el = document.createElement('div');
+    el.className = 'valor-drawer-overlay';
+    document.body.appendChild(el);
+    const ov = {
+      el,
+      _handler: null,
+      show(onClose) {
+        el.classList.add('valor-open');
+        if (this._handler) el.removeEventListener('click', this._handler);
+        this._handler = () => { this.hide(); onClose && onClose(); };
+        el.addEventListener('click', this._handler, { once: true });
+      },
+      hide() {
+        el.classList.remove('valor-open');
+        if (this._handler) { el.removeEventListener('click', this._handler); this._handler = null; }
+      },
+    };
+    return (window.__valorDrawerOverlay = ov);
+  }
+
+  class ValorCartDrawer extends HTMLElement {
+    connectedCallback() {
+      this._freeShippingCents = parseInt(this.dataset.freeShippingCents || '0', 10);
+      this._lowStock = parseInt(this.dataset.lowStock || '0', 10);
+      this._bindEvents();
+      this._initCricket();
+      // Listen for theme cart update events (add-to-cart from product page, etc.)
+      document.addEventListener('cart:update', this._onThemeCartUpdate.bind(this));
+    }
+
+    _initCricket() {
+      const btn = this.querySelector('.vcd-checkout-btn');
+      if (!btn || !window.__vaCustomerInfo) return;
+
+      // Hide immediately for all B2B customers; restore below if not CRICKET
+      btn.style.display = 'none';
+
+      window.__vaCustomerInfo.then(function(data) {
+        if (!data) { btn.style.display = ''; return; }
+        const market = (data.shopifyMarketHandle || data.ShopifyMarketHandle || '').toUpperCase();
+        if (market !== 'CRICKET-WIRELESS') btn.style.display = '';
+      });
+    }
+
+    disconnectedCallback() {
+      document.removeEventListener('cart:update', this._onThemeCartUpdate.bind(this));
+    }
+
+    /* ===== Open / Close ===== */
+    open() {
+      this.classList.add('vcd-open');
+      document.body.classList.add('vcd-scroll-locked');
+      _getValorOverlay().show(() => this.close());
+      const panel = this.querySelector('[data-vcd-panel]');
+      if (panel) setTimeout(() => panel.focus(), 280);
+    }
+
+    close() {
+      this.classList.remove('vcd-open');
+      document.body.classList.remove('vcd-scroll-locked');
+      _getValorOverlay().hide();
+      const trigger = document.querySelector('[data-vcd-open]');
+      if (trigger) trigger.focus();
+    }
+
+    /* ===== Events ===== */
+    _bindEvents() {
+      // Open via custom event dispatched by trigger button in header
+      document.addEventListener('vcd:open-cart', () => this.open());
+
+      // Close button
+      this.querySelector('[data-vcd-close]')?.addEventListener('click', () => this.close());
+
+      // Single-address checkout — write a single-entry _order so order processing
+      // has the BC customer info even without the distribution component.
+      const checkoutBtn = this.querySelector('.vcd-checkout-btn[href]');
+      if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const href = checkoutBtn.href;
+          checkoutBtn.dataset.loading = '';
+          try {
+            const [customerData, cartRes] = await Promise.all([
+              window.__vaCustomerInfo,
+              fetch('/cart.js'),
+            ]);
+            const shipTo = customerData?.defaultShipTo || null;
+            const cart  = cartRes.ok ? await cartRes.json() : null;
+            const erpNo = customerData?.No || customerData?.no || '';
+            if (!erpNo) { window.location.href = href; return; }
+
+            const items = {};
+            if (cart?.items?.length) {
+              for (const item of cart.items) {
+                const vid = String(item.variant_id);
+                items[vid] = (items[vid] || 0) + item.quantity;
+              }
+            }
+            const attrs = {
+              _order: JSON.stringify([{
+                id:          shipTo?.systemId   || '',
+                bc_customer: shipTo?.customerNo || '',
+                bc_ship_to:  shipTo?.code       || '',
+                addr:        shipTo?.addr       || '',
+                contact:     { name: shipTo?.contact || '', phone: shipTo?.phoneNo || '' },
+                items,
+              }]),
+              _address: JSON.stringify([{
+                id:                	shipTo?.systemId          || '',
+                bc_customer:       	shipTo?.customerNo        || '',
+                bc_ship_to:        	shipTo?.code              || '',
+                company:           	shipTo?.company           || '',
+                address:           	shipTo?.address           || '',
+                address2:          	shipTo?.address2          || '',
+                city:              	shipTo?.city              || '',
+                contact:           	shipTo?.contact           || '',
+                phone:           	shipTo?.phoneNo           || '',
+                country: 			shipTo?.countryRegionCode || '',
+                zip:          		shipTo?.postCode          || '',
+                state:             	shipTo?.state             || '',
+              }]),
+              _lineitems: '',
+            };
+
+            await fetch('/cart/update.js', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ attributes: attrs }),
+            });
+          } catch (_) {}
+          window.location.href = href;
+        });
+      }
+
+      // Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.classList.contains('vcd-open')) this.close();
+      });
+
+      // Qty steppers
+      this.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-vcd-step]');
+        if (!btn) return;
+        const itemEl = btn.closest('[data-vcd-item]');
+        if (!itemEl) return;
+        const input = itemEl.querySelector('[data-vcd-qty]');
+        if (!input) return;
+        const step = parseInt(btn.getAttribute('data-vcd-step'), 10);
+        const next = Math.max(0, parseInt(input.value || '0', 10) + step);
+        input.value = next;
+        this._changeQty(itemEl, next);
+      });
+
+      // Cart note toggle
+      this.addEventListener('click', (e) => {
+        const toggle = e.target.closest('[data-vcd-note-toggle]');
+        if (!toggle) return;
+        const wrap = toggle.closest('.vcd-note-wrap');
+        wrap.classList.toggle('is-open');
+        if (wrap.classList.contains('is-open')) wrap.querySelector('[data-vcd-note]')?.focus();
+      });
+
+      // Cart note save
+      this.addEventListener('change', (e) => {
+        const note = e.target.closest('[data-vcd-note]');
+        if (!note) return;
+        fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note: note.value })
+        });
+      });
+
+      // Direct qty input
+      this.addEventListener('change', (e) => {
+        const input = e.target.closest('[data-vcd-qty]');
+        if (!input) return;
+        const itemEl = input.closest('[data-vcd-item]');
+        if (!itemEl) return;
+        const qty = Math.max(0, parseInt(input.value || '0', 10));
+        input.value = qty;
+        this._changeQty(itemEl, qty);
+      });
+
+      // Remove
+      this.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-vcd-remove]')) return;
+        const itemEl = e.target.closest('[data-vcd-item]');
+        if (!itemEl) return;
+        this._changeQty(itemEl, 0, true);
+      });
+    }
+
+    /* ===== AJAX cart update ===== */
+    _changeQty(itemEl, qty, isRemove) {
+      const key = itemEl.getAttribute('data-key');
+      if (!key) return;
+      itemEl.style.opacity = '0.5';
+      itemEl.style.pointerEvents = 'none';
+
+      fetch('/cart/change.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: key, quantity: isRemove ? 0 : qty }),
+      })
+        .then((r) => r.json())
+        .then((cart) => {
+          if (isRemove || qty === 0) {
+            itemEl.style.transform = 'translateX(12px)';
+            itemEl.style.opacity = '0';
+            setTimeout(() => {
+              itemEl.remove();
+              this._applyCart(cart);
+            }, 200);
+          } else {
+            itemEl.style.opacity = '1';
+            itemEl.style.pointerEvents = '';
+            const unitCents = parseInt(itemEl.getAttribute('data-unit'), 10) || 0;
+            const subEl = itemEl.querySelector('[data-vcd-subtotal]');
+            if (subEl) subEl.textContent = this._money((unitCents * qty) / 100);
+            this._applyCart(cart);
+          }
+        })
+        .catch(() => {
+          itemEl.style.opacity = '1';
+          itemEl.style.pointerEvents = '';
+        });
+    }
+
+    /* ===== Theme cart:update event (external add-to-cart) ===== */
+    _onThemeCartUpdate(e) {
+      const apply = (cart) => {
+        this._rebuildItems(cart);
+        this._applyCart(cart);
+        if (!this.classList.contains('vcd-open') && !e.detail?.noDrawer && !window.__vpNoDrawer) this.open();
+      };
+      // Use cart data from event detail when available (avoids a second network request)
+      if (e.detail?.cart) { apply(e.detail.cart); return; }
+      fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then((r) => r.json())
+        .then(apply);
+    }
+
+    /* ===== Apply cart totals / freight bar ===== */
+    _applyCart(cart) {
+      const total = cart.total_price ?? 0;
+      const itemCount = cart.item_count ?? 0;
+
+      // Count pill
+      const pill = this.querySelector('[data-vcd-count]');
+      if (pill) pill.textContent = itemCount;
+
+      // Total
+      const totalEl = this.querySelector('[data-vcd-total]');
+      if (totalEl) totalEl.textContent = this._money(total / 100);
+
+      // Footer visibility
+      const footer = this.querySelector('[data-vcd-footer]');
+      if (footer) footer.classList.toggle('vcd-footer--empty', itemCount === 0);
+
+      // Freight bar
+      if (this._freeShippingCents > 0) {
+        const pct = Math.min(100, Math.round((total / this._freeShippingCents) * 100));
+        const fill = this.querySelector('[data-vcd-freight-fill]');
+        if (fill) fill.style.width = pct + '%';
+        const msg = this.querySelector('[data-vcd-freight-msg]');
+        if (msg) {
+          if (total >= this._freeShippingCents) {
+            msg.className = 'vcd-freight-msg vcd-freight-msg--met';
+            msg.innerHTML = '&#x2713;&nbsp; You qualify for free shipping!';
+          } else {
+            const rem = this._freeShippingCents - total;
+            msg.className = 'vcd-freight-msg';
+            msg.innerHTML = `Add <strong data-vcd-freight-remaining>${this._money(rem / 100)}</strong> for free shipping`;
+          }
+        }
+      }
+
+      // Update theme header cart bubble (theme's own elements)
+      document.querySelectorAll('[data-cart-count], .cart-bubble__text-count').forEach((el) => {
+        el.textContent = itemCount > 99 ? '99+' : (itemCount || '');
+        if (el.classList.contains('cart-bubble__text-count')) {
+          el.dataset.cartCountValue = String(itemCount || 0);
+          el.classList.toggle('hidden', itemCount === 0);
+        }
+      });
+    }
+
+    /* ===== Rebuild items list from /cart.js ===== */
+    _rebuildItems(cart) {
+      const wrap = this.querySelector('[data-vcd-items]');
+      if (!wrap) return;
+
+      if (!cart.items || cart.items.length === 0) {
+        wrap.innerHTML = `
+          <div class="vcd-empty" data-vcd-empty>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <p>Your cart is empty</p>
+            <a href="/search?sort_by=relevance&q=*&filter.p.m.custom.product_designlab=0" class="vcd-empty-link">Start shopping</a>
+          </div>`;
+        return;
+      }
+
+      const existingBrands = new Map(
+        Array.from(wrap.querySelectorAll('[data-vcd-item][data-key]')).map((el) => [
+          el.dataset.key,
+          el.dataset.brand || el.querySelector('.vcd-item-vendor')?.textContent?.trim() || '',
+        ])
+      );
+
+      wrap.innerHTML = cart.items
+        .map((item) => this._buildItemHtml({ ...item, _displayBrand: this._getItemBrand(item, false) || existingBrands.get(item.key) || item.vendor || '' }))
+        .join('');
+    }
+
+    _buildItemHtml(item) {
+      const isLow = this._lowStock > 0 && item.variant_inventory_quantity > 0 && item.variant_inventory_quantity <= this._lowStock;
+      const variant = item.variant_title && item.variant_title !== 'Default Title'
+        ? `<div class="vcd-item-variant">${this._esc(item.variant_title)}</div>` : '';
+      const sku = item.sku ? `<div class="vcd-item-sku">${this._esc(item.sku)}</div>` : '';
+      const brand = this._getItemBrand(item);
+      const vendor = brand ? `<div class="vcd-item-vendor">${this._esc(brand)}</div>` : '';
+      const img = item.image
+        ? `<a href="${item.url}"><img src="${item.image}" alt="${this._esc(item.title)}" width="80" height="80" loading="lazy"></a>`
+        : `<a href="${item.url}" class="vcd-thumb-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></a>`;
+
+      return `<div class="vcd-item${isLow ? ' vcd-item--low' : ''}" data-vcd-item data-key="${item.key}" data-unit="${item.final_price}" data-brand="${this._esc(brand)}">
+        <div class="vcd-item-thumb">${img}</div>
+        <div class="vcd-item-info">
+          ${vendor}
+          <div class="vcd-item-name"><a href="${item.url}">${this._esc(item.product_title)}</a></div>
+          ${variant}${sku}
+        </div>
+        <div class="vcd-item-right">
+          <div class="vcd-item-top-row">
+            <div class="vcd-item-sub" data-vcd-subtotal>${this._money(item.final_line_price / 100)}</div>
+            <button class="vcd-remove-btn" data-vcd-remove aria-label="Remove ${this._esc(item.title)}">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 2l10 10M12 2 2 12"/></svg>
+            </button>
+          </div>
+          <div class="vcd-item-qty">
+            <button class="vcd-qty-btn" data-vcd-step="-1" aria-label="Decrease">&#x2212;</button>
+            <input class="vcd-qty-input" type="number" value="${item.quantity}" min="0" data-vcd-qty aria-label="Quantity">
+            <button class="vcd-qty-btn" data-vcd-step="1" aria-label="Increase">+</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    _getLineProperty(item, name) {
+      const props = item?.properties;
+      if (!props) return '';
+      if (Array.isArray(props)) {
+        const match = props.find((prop) => prop?.[0] === name || prop?.name === name || prop?.key === name);
+        return match?.[1] || match?.value || '';
+      }
+      return props[name] || '';
+    }
+
+    _getItemBrand(item, includeVendor = true) {
+      return item?._displayBrand || this._getLineProperty(item, '_brand') || item?.product_brand || (includeVendor ? item?.vendor : '') || '';
+    }
+
+    _money(amount) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+    }
+
+    _esc(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  }
+
+  customElements.define('valor-cart-drawer', ValorCartDrawer);
+})();
+
+/* ── Rec strip custom elements (self-contained, no external deps) ── */
+(function () {
+  const _bagSvg = `<svg aria-hidden="true" width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16.608 9.421V6.906H3.392v8.016c0 .567.224 1.112.624 1.513.4.402.941.627 1.506.627H8.63M8.818 3h2.333c.618 0 1.212.247 1.649.686a2.35 2.35 0 0 1 .683 1.658v1.562H6.486V5.344c0-.622.246-1.218.683-1.658A2.33 2.33 0 0 1 8.82 3"/><path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M14.608 12.563v5m2.5-2.5h-5"/></svg>`;
+
+  function _recMoney(cents, currency) {
+    return new Intl.NumberFormat(document.documentElement.lang || 'en', {
+      style: 'currency', currency, minimumFractionDigits: 2,
+    }).format(cents);
+  }
+
+  function _recBuildCard(p, currency) {
+    const v = p.variants?.[0];
+    // Recommendations API returns price as integer cents; Collections API returns dollar string (e.g. "8.00")
+    const toAmt = n => n == null ? null : (typeof n === 'string' ? parseFloat(n) : n / 100);
+    const priceAmt   = toAmt(v?.price);
+    const compareAmt = toAmt(v?.compare_at_price);
+    const price   = priceAmt != null ? _recMoney(priceAmt, currency) : '';
+    const compare = compareAmt > priceAmt ? _recMoney(compareAmt, currency) : null;
+    const raw = p.featured_image ?? p.images?.[0];
+    const imgUrl = typeof raw === 'string' ? raw : raw?.src ?? '';
+    const imgSrc = imgUrl ? imgUrl.replace(/\?.*$/, '') + '?width=220' : '';
+    const url = `/products/${p.handle}`;
+    const isMulti = (p.variants?.length ?? 1) > 1;
+    const avail = v?.available !== false;
+    const title = p.title.replace(/"/g, '&quot;');
+    const addBtn = isMulti
+      ? `<a href="${url}" class="vcd-rec-card__add" aria-label="View options">${_bagSvg}</a>`
+      : (avail && v?.id ? `<button class="vcd-rec-card__add" data-rec-add data-variant-id="${v.id}" aria-label="Add to cart" type="button">${_bagSvg}</button>` : '');
+    return `<div class="vcd-rec-card">
+      <div class="vcd-rec-card__media">
+        <a href="${url}" class="vcd-rec-card__img">
+          ${imgSrc ? `<img src="${imgSrc}" alt="${title}" loading="lazy" width="110" height="110">` : ''}
+          ${compare ? '<span class="vcd-rec-card__badge">Sale</span>' : ''}
+        </a>${addBtn}
+      </div>
+      <div class="vcd-rec-card__info">
+        <a href="${url}" style="text-decoration:none"><p class="vcd-rec-card__title">${p.title}</p></a>
+        <p class="vcd-rec-card__price">${compare ? `<s class="vcd-rec-card__compare">${compare}</s> ` : ''}${price}</p>
+      </div>
+    </div>`;
+  }
+
+  async function _recAddVariant(variantId, btn) {
+    if (!variantId || btn.disabled) return;
+    btn.disabled = true; btn.dataset.state = 'loading';
+    try {
+      const res = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: Number(variantId), quantity: 1 }),
+      });
+      if (!res.ok) throw new Error();
+      const cart = await fetch('/cart.js', { headers: { 'X-Requested-With': 'XMLHttpRequest' } }).then(r => r.json());
+      btn.dataset.state = 'added';
+      document.dispatchEvent(new CustomEvent('cart:update', { bubbles: true, detail: { cart, resource: cart } }));
+      setTimeout(() => { delete btn.dataset.state; btn.disabled = false; }, 1500);
+    } catch { delete btn.dataset.state; btn.disabled = false; }
+  }
+
+  if (!customElements.get('vcd-cart-rec')) {
+    customElements.define('vcd-cart-rec', class extends HTMLElement {
+      connectedCallback() {
+        const { productId, currency = 'USD' } = this.dataset;
+        const self = this;
+        const fetchRec = productId
+          ? fetch(`/recommendations/products.json?product_id=${productId}&limit=15`)
+              .then(r => r.ok ? r.json() : Promise.reject())
+              .then(({ products = [] }) => products)
+          : Promise.resolve([]);
+        // /collections API returns available: undefined (only variants have it); check both.
+        const _avail = p => p.available === true || (Array.isArray(p.variants) && p.variants.some(v => v.available));
+
+        /*
+        // ── Original recommendation logic (contextual, based on last cart product) ──
+        fetchRec
+          .then(products => {
+            if (products.length >= 15) return products;
+            // Pad with recently viewed products
+            let viewedIds = [];
+            try { viewedIds = JSON.parse(localStorage.getItem('viewedProducts') || '[]'); } catch {}
+            if (productId) viewedIds = viewedIds.filter(id => id.toString() !== productId.toString());
+            const seen = new Set(products.map(p => p.id.toString()));
+            const needed = viewedIds.filter(id => !seen.has(id.toString())).slice(0, 15 - products.length);
+            if (!needed.length) return products;
+            return fetch(`/search/suggest.json?q=${encodeURIComponent(needed.map(id => 'id:' + id).join(' OR '))}&resources[type]=product&resources[limit]=15`)
+              .then(r => r.ok ? r.json() : { resources: {} })
+              .then(data => {
+                const found = data.resources?.results?.products ?? [];
+                const ordered = needed.map(id => found.find(p => p.id.toString() === id.toString())).filter(p => p && _avail(p));
+                return [...products, ...ordered];
+              });
+          })
+        // ── End original recommendation logic ──
+        */
+
+        // Pick 3 guaranteed non-overlapping random pages from top 1500 best-sellers (50 pages × 30)
+        const _pages = new Set();
+        while (_pages.size < 3) _pages.add(Math.floor(Math.random() * 50) + 1);
+        const [page1, page2, page3] = [..._pages];
+        Promise.all([
+          fetch(`/collections/all/products.json?limit=30&page=${page1}&sort_by=best-selling`).then(r => r.ok ? r.json() : { products: [] }),
+          fetch(`/collections/all/products.json?limit=30&page=${page2}&sort_by=best-selling`).then(r => r.ok ? r.json() : { products: [] }),
+          fetch(`/collections/all/products.json?limit=30&page=${page3}&sort_by=best-selling`).then(r => r.ok ? r.json() : { products: [] }),
+        ])
+          .then(([r1, r2, r3]) => {
+            const seen = new Set();
+            const unique = [];
+            for (const p of [...(r1.products || []), ...(r2.products || []), ...(r3.products || [])]) {
+              const id = p.id.toString();
+              if (!seen.has(id) && _avail(p)) { seen.add(id); unique.push(p); }
+            }
+            return unique;
+          })
+          .then(products => {
+            // Shuffle for random presentation
+            for (let i = products.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [products[i], products[j]] = [products[j], products[i]];
+            }
+            if (!products.length) { self.closest('.vcd-rec')?.remove(); return; }
+            self.innerHTML = products.map(p => _recBuildCard(p, currency)).join('');
+          })
+          .catch(() => self.closest('.vcd-rec')?.remove());
+        this.addEventListener('click', e => {
+          const btn = e.target.closest('[data-rec-add]');
+          if (btn) { e.preventDefault(); _recAddVariant(btn.dataset.variantId, btn); }
+        });
+      }
+    });
+  }
+
+  if (!customElements.get('vcd-cart-recent')) {
+    customElements.define('vcd-cart-recent', class extends HTMLElement {
+      connectedCallback() {
+        const { excludeId, currency = 'USD' } = this.dataset;
+        let ids = [];
+        try { ids = JSON.parse(localStorage.getItem('viewedProducts') || '[]'); } catch {}
+        if (excludeId) ids = ids.filter(id => id.toString() !== excludeId);
+        if (!ids.length) { this._hideTab(); return; }
+        ids = ids.slice(0, 15);
+        fetch(`/search/suggest.json?q=${encodeURIComponent(ids.map(id => 'id:' + id).join(' OR '))}&resources[type]=product`)
+          .then(r => r.ok ? r.json() : Promise.reject())
+          .then(data => {
+            const found = data.resources?.results?.products ?? [];
+            const ordered = ids.map(id => found.find(p => p.id.toString() === id.toString())).filter(p => p && p.available !== false);
+            if (!ordered.length) { this._hideTab(); return; }
+            this.innerHTML = ordered.map(p => {
+              const url = p.url;
+              const imgSrc = p.image ? (p.image + (p.image.includes('?') ? '&' : '?') + 'width=220') : '';
+              const title = p.title.replace(/"/g, '&quot;');
+              const isMulti = (Number(p.variants_count) || 1) > 1;
+              const addBtn = isMulti
+                ? `<a href="${url}" class="vcd-rec-card__add" aria-label="View options">${_bagSvg}</a>`
+                : `<button class="vcd-rec-card__add" data-rec-add-handle data-handle="${p.handle}" aria-label="Add to cart" type="button">${_bagSvg}</button>`;
+              return `<div class="vcd-rec-card">
+                <div class="vcd-rec-card__media">
+                  <a href="${url}" class="vcd-rec-card__img">
+                    ${imgSrc ? `<img src="${imgSrc}" alt="${title}" loading="lazy" width="110" height="110">` : ''}
+                  </a>${addBtn}
+                </div>
+                <div class="vcd-rec-card__info">
+                  <a href="${url}" style="text-decoration:none"><p class="vcd-rec-card__title">${p.title}</p></a>
+                  <p class="vcd-rec-card__price">${p.price || ''}</p>
+                </div>
+              </div>`;
+            }).join('');
+          })
+          .catch(() => this._hideTab());
+        this.addEventListener('click', async e => {
+          const btn = e.target.closest('[data-rec-add-handle]');
+          if (!btn || btn.disabled) return;
+          e.preventDefault();
+          btn.disabled = true; btn.dataset.state = 'loading';
+          try {
+            const prod = await fetch(`/products/${btn.dataset.handle}.js`).then(r => r.json());
+            const v = prod.variants?.[0];
+            if (!v?.id || !v?.available) { window.location.href = `/products/${btn.dataset.handle}`; return; }
+            btn.disabled = false;
+            await _recAddVariant(String(v.id), btn);
+          } catch { delete btn.dataset.state; btn.disabled = false; }
+        });
+      }
+      _hideTab() {
+        const tabBtn = document.getElementById('vcd-tab-btn-recent');
+        const panel  = document.getElementById('vcd-tab-recent');
+        if (tabBtn) {
+          tabBtn.hidden = true;
+          if (tabBtn.getAttribute('aria-selected') === 'true') document.getElementById('vcd-tab-btn-relate')?.click();
+        }
+        if (panel) { panel.hidden = true; panel.classList.remove('vcd-rec-panel--active'); }
+      }
+    });
+  }
+
+  if (!customElements.get('vcd-rec-tabs')) {
+    customElements.define('vcd-rec-tabs', class extends HTMLElement {
+      connectedCallback() {
+        this.querySelectorAll('[role="tab"]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            if (btn.getAttribute('aria-selected') === 'true') return;
+            this.querySelectorAll('[role="tab"]').forEach(b => {
+              b.setAttribute('aria-selected', 'false');
+              b.classList.remove('is-active');
+              const p = document.getElementById(b.getAttribute('aria-controls') ?? '');
+              if (p) { p.hidden = true; p.classList.remove('vcd-rec-panel--active'); }
+            });
+            btn.setAttribute('aria-selected', 'true');
+            btn.classList.add('is-active');
+            const target = document.getElementById(btn.getAttribute('aria-controls') ?? '');
+            if (target) { target.hidden = false; target.classList.add('vcd-rec-panel--active'); }
+          });
+        });
+      }
+    });
+  }
+
+  // Track quick view opens as recently viewed products
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-quick-view-url]');
+    if (!btn) return;
+    const match = (btn.dataset.quickViewUrl || '').match(/\/products\/([^/?#]+)/);
+    if (!match) return;
+    fetch(`/products/${match[1]}.js`)
+      .then(r => r.ok ? r.json() : null)
+      .then(p => {
+        if (!p?.id) return;
+        try {
+          const id = p.id.toString();
+          let ids = JSON.parse(localStorage.getItem('viewedProducts') || '[]');
+          ids = ids.filter(i => i !== id);
+          ids.unshift(id);
+          localStorage.setItem('viewedProducts', JSON.stringify(ids.slice(0, 16)));
+        } catch {}
+      });
+  }, { capture: true });
+})();
+{% endjavascript %}

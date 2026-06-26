@@ -1,0 +1,89 @@
+
+{% if closest.collection != blank %}
+  <p
+    class="collection-count spacing-style"
+    style="
+      {% render 'spacing-style', settings: block.settings %}
+      font-size: {{ block.settings.font_size }};
+      opacity: {{ block.settings.opacity | divided_by: 100.0 }};
+    "
+    {{ block.shopify_attributes }}
+  >
+    {{ closest.collection.products_count }}
+    {%- if closest.collection.products_count == 1 -%}
+      {{- ' product' -}}
+    {%- else -%}
+      {{- ' products' -}}
+    {%- endif -%}
+  </p>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Collection count",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "font_size",
+      "label": "t:settings.size",
+      "placeholder": "e.g. 0.75rem, 12px",
+      "default": "0.75rem"
+    },
+    {
+      "type": "range",
+      "id": "opacity",
+      "label": "t:settings.opacity",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "t:settings.left",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "t:settings.right",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,655 @@
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <testimonials-new
+    id="tms-{{ section.id }}"
+    class="tms"
+    data-items-desk="{{ section.settings.items_per_view }}"
+    data-items-mobile="{{ section.settings.items_per_view_mobile }}"
+    data-autoplay="{{ section.settings.autoplay }}"
+    data-autoplay-speed="{{ section.settings.autoplay_speed }}"
+    style="
+      --tms-star-color: {{ section.settings.star_color }};
+      --tms-card-bg: {{ section.settings.card_bg }};
+      --tms-card-radius: {{ section.settings.card_radius }}px;
+      --tms-gap: {{ section.settings.item_gap }}px;
+      --tms-nav-bg: {{ section.settings.nav_bg }};
+      --tms-nav-icon: {{ section.settings.nav_icon_color }};
+      --tms-nav-hover: {{ section.settings.nav_hover }};
+      --tms-dot: {{ section.settings.dot_color }};
+      --tms-dot-active: {{ section.settings.dot_active_color }};
+    "
+    {{ section.shopify_attributes }}
+  >
+
+    {%- if section.settings.caption != blank or section.settings.title != blank or section.settings.subtitle != blank -%}
+      <div class="tms__header">
+        {%- if section.settings.caption != blank -%}
+          <p class="tms__caption">{{ section.settings.caption }}</p>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 class="tms__title">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="tms__subtitle">{{ section.settings.subtitle }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="tms__carousel">
+        <button class="tms__nav tms__prev" aria-label="Previous testimonials">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15,18 9,12 15,6"></polyline>
+          </svg>
+        </button>
+
+        <div class="tms__stage">
+          <div class="tms__track">
+            {%- for block in section.blocks -%}
+              {%- assign rating = block.settings.rating | round -%}
+              <div class="tms__card" {{ block.shopify_attributes }}>
+                <div class="tms__card-inner">
+
+                  {%- if section.settings.show_rating -%}
+                    <div class="tms__stars" aria-label="{{ rating }} out of 5 stars">
+                      {%- for i in (1..5) -%}
+                        {%- if i <= rating -%}
+                          <span class="tms__star tms__star--on" aria-hidden="true">&#9733;</span>
+                        {%- else -%}
+                          <span class="tms__star tms__star--off" aria-hidden="true">&#9733;</span>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </div>
+                  {%- endif -%}
+
+                  {%- if block.settings.text != blank -%}
+                    <div class="tms__text">{{ block.settings.text }}</div>
+                  {%- endif -%}
+
+                  <div class="tms__author">
+                    <span class="tms__qmark" aria-hidden="true">&#8220;</span>
+                    <div class="tms__author-info">
+                      {%- if block.settings.author_name != blank -%}
+                        <span class="tms__author-name">{{ block.settings.author_name }}</span>
+                      {%- endif -%}
+                      {%- if block.settings.author_detail != blank -%}
+                        <span class="tms__author-detail">{{ block.settings.author_detail }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        <button class="tms__nav tms__next" aria-label="Next testimonials">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9,18 15,12 9,6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="tms__dots-wrap">
+        <div class="tms__dots" role="tablist" aria-label="Testimonials navigation"></div>
+      </div>
+    {%- endif -%}
+
+  </testimonials-new>
+</div>
+
+{% stylesheet %}
+  testimonials-new {
+    display: block;
+  }
+
+  /* ── Header ──────────────────────────────────────── */
+  .tms__header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .tms__caption {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin: 0 0 16px;
+  }
+
+  .tms__title {
+    font-size: clamp(24px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 16px;
+  }
+
+  .tms__subtitle {
+    font-size: 16px;
+    opacity: 0.6;
+    margin: 0;
+  }
+
+  /* ── Carousel ────────────────────────────────────── */
+  .tms__carousel {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .tms__stage {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .tms__dots-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+  }
+
+  .tms__track {
+    display: flex;
+    transition: transform 0.45s ease;
+    align-items: stretch;
+  }
+
+  /* ── Card ────────────────────────────────────────── */
+  .tms__card {
+    flex: 0 0 calc(100% / var(--tms-cols, 3));
+    padding-right: var(--tms-gap, 24px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tms__card-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px 28px 28px;
+    background: var(--tms-card-bg, #ffffff);
+    border: 1px solid rgba(0, 0, 0, 0.09);
+    border-radius: var(--tms-card-radius, 16px);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+  /* ── Stars ───────────────────────────────────────── */
+  .tms__stars {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .tms__star {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .tms__star--on  { color: var(--tms-star-color, #F0A500); }
+  .tms__star--off { color: rgba(0, 0, 0, 0.15); }
+
+  /* ── Quote text ──────────────────────────────────── */
+  .tms__text {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.65;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+  }
+
+  .tms__text p { margin: 0; }
+
+  /* ── Author ──────────────────────────────────────── */
+  .tms__author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 12px;
+  }
+
+  .tms__qmark {
+    font-size: 64px;
+    line-height: 0.75;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .tms__author-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .tms__author-name {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .tms__author-detail {
+    font-size: 13px;
+    opacity: 0.55;
+    line-height: 1.4;
+  }
+
+  .tms__nav {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    background: var(--tms-nav-bg, #1a1a1a);
+    color: var(--tms-nav-icon, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s ease;
+  }
+
+  .tms__nav:hover {
+    background: var(--tms-nav-hover, #333333);
+  }
+
+  .tms__nav:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+  }
+
+  .tms__dots {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tms__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: var(--tms-dot, rgba(0, 0, 0, 0.2));
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+
+  .tms__dot.is-active {
+    background: var(--tms-dot-active, #1a1a1a);
+    transform: scale(1.35);
+  }
+
+  /* ── Mobile ──────────────────────────────────────── */
+  @media screen and (max-width: 749px) {
+    .tms__card {
+      flex: 0 0 calc(100% / var(--tms-cols-mobile, 1));
+    }
+
+    .tms__title {
+      font-size: clamp(22px, 7vw, 32px);
+    }
+  }
+
+  @media screen and (max-width: 340px) {
+    .tms__card { flex: 0 0 100%; }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    class TestimonialsNew extends HTMLElement {
+      #currentPage   = 0;
+      #pageCount     = 0;
+      #maxSlide      = 0;
+      #autoplayTimer = null;
+
+      connectedCallback() {
+        this.track    = this.querySelector('.tms__track');
+        this.cards    = this.querySelectorAll('.tms__card');
+        this.prevBtn  = this.querySelector('.tms__prev');
+        this.nextBtn  = this.querySelector('.tms__next');
+        this.dotsWrap = this.querySelector('.tms__dots');
+
+        if (!this.track || this.cards.length === 0) return;
+
+        this.#updateCols();
+        this.#createDots();
+        this.#render();
+
+        this.prevBtn.addEventListener('click', () => this.#prev());
+        this.nextBtn.addEventListener('click', () => this.#next());
+
+        if (this.dataset.autoplay === 'true') {
+          this.#startAutoplay();
+          this.addEventListener('mouseenter', () => this.#stopAutoplay());
+          this.addEventListener('mouseleave', () => this.#startAutoplay());
+        }
+
+        this._onResize = () => {
+          this.#updateCols();
+          this.#createDots();
+          this.#render();
+        };
+        window.addEventListener('resize', this._onResize);
+      }
+
+      disconnectedCallback() {
+        this.#stopAutoplay();
+        if (this._onResize) window.removeEventListener('resize', this._onResize);
+      }
+
+      #updateCols() {
+        this.cols = window.innerWidth <= 749
+          ? (parseInt(this.dataset.itemsMobile) || 1)
+          : (parseInt(this.dataset.itemsDesk)   || 3);
+        if (window.innerWidth <= 340) this.cols = 1;
+
+        this.style.setProperty('--tms-cols',        this.cols);
+        this.style.setProperty('--tms-cols-mobile', parseInt(this.dataset.itemsMobile) || 1);
+
+        this.#maxSlide  = Math.max(0, this.cards.length - this.cols);
+        this.#pageCount = Math.ceil(this.cards.length / this.cols);
+        if (this.#currentPage >= this.#pageCount) this.#currentPage = Math.max(0, this.#pageCount - 1);
+      }
+
+      #createDots() {
+        if (!this.dotsWrap) return;
+        this.dotsWrap.innerHTML = '';
+        for (let i = 0; i < this.#pageCount; i++) {
+          const btn = document.createElement('button');
+          btn.className = 'tms__dot';
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-label', `Page ${i + 1} of ${this.#pageCount}`);
+          btn.addEventListener('click', () => { this.#currentPage = i; this.#render(); });
+          this.dotsWrap.appendChild(btn);
+        }
+      }
+
+      #render() {
+        this.#currentPage = Math.max(0, Math.min(this.#currentPage, this.#pageCount - 1));
+        const cardIdx   = Math.min(this.#currentPage * this.cols, this.#maxSlide);
+        const cardWidth = this.querySelector('.tms__stage').offsetWidth / this.cols;
+        this.track.style.transform = `translateX(-${cardIdx * cardWidth}px)`;
+
+        this.prevBtn.disabled = this.#currentPage === 0;
+        this.nextBtn.disabled = this.#currentPage >= this.#pageCount - 1;
+
+        this.dotsWrap?.querySelectorAll('.tms__dot').forEach((dot, i) => {
+          dot.classList.toggle('is-active', i === this.#currentPage);
+          dot.setAttribute('aria-selected', i === this.#currentPage ? 'true' : 'false');
+        });
+      }
+
+      #prev() { if (this.#currentPage > 0) { this.#currentPage--; this.#render(); } }
+      #next() { if (this.#currentPage < this.#pageCount - 1) { this.#currentPage++; this.#render(); } }
+
+      #startAutoplay() {
+        this.#stopAutoplay();
+        const ms = (parseFloat(this.dataset.autoplaySpeed) || 4) * 1000;
+        this.#autoplayTimer = setInterval(() => {
+          this.#currentPage < this.#pageCount - 1 ? this.#next() : (this.#currentPage = 0, this.#render());
+        }, ms);
+      }
+
+      #stopAutoplay() {
+        if (this.#autoplayTimer) { clearInterval(this.#autoplayTimer); this.#autoplayTimer = null; }
+      }
+    }
+
+    if (!customElements.get('testimonials-new')) {
+      customElements.define('testimonials-new', TestimonialsNew);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "New: Testimonials",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "caption",
+      "label": "Caption",
+      "default": "TESTIMONIALS"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "What Our Customers Are Saying"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "You're in Good Company"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show star ratings",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "Star color",
+      "default": "#F0A500"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "items_per_view",
+      "label": "Cards per row (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "items_per_view_mobile",
+      "label": "Cards per row (mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "item_gap",
+      "label": "Gap between cards",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "nav_bg",
+      "label": "Nav button background",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "nav_icon_color",
+      "label": "Nav button icon color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "nav_hover",
+      "label": "Nav button hover color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "dot_color",
+      "label": "Dot color",
+      "default": "#CCCCCC"
+    },
+    {
+      "type": "color",
+      "id": "dot_active_color",
+      "label": "Active dot color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Star rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Quote text",
+          "default": "<p>Add an authentic customer testimonial here. Share their experience with your product or service in their own words.</p>"
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Author name",
+          "default": "Customer Name"
+        },
+        {
+          "type": "text",
+          "id": "author_detail",
+          "label": "Author detail",
+          "default": "Company or location"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Testimonials",
+      "blocks": [
+        { "type": "testimonial" },
+        { "type": "testimonial" },
+        { "type": "testimonial" },
+        { "type": "testimonial" },
+        { "type": "testimonial" }
+      ]
+    }
+  ]
+}
+{% endschema %}

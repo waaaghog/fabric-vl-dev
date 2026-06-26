@@ -1,0 +1,405 @@
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+
+  {%- if section.settings.title != blank and section.settings.align_image == 'top' -%}
+    <div class="nic-header">
+      <h2 class="nic-title" style="font-size: {{ section.settings.heading_font_size }}px;">{{ section.settings.title }}</h2>
+    </div>
+  {%- endif -%}
+
+  <div class="nic-container-{{ section.id }}">
+    <div class="nic-gallery thin-scrollbar">
+      <div>
+        {%- for block in section.blocks -%}
+          {%- if forloop.index > 1 -%}
+            <div class="nic-spacer"></div>
+          {%- endif -%}
+          {%- if block.settings.image != blank -%}
+            <div
+              class="image-column"
+              style="flex: {{ block.settings.image.aspect_ratio | times: 100 | round }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- if block.settings.image_link != blank -%}
+                <a href="{{ block.settings.image_link }}">
+              {%- endif -%}
+              <img
+                src="{{ block.settings.image | image_url: width: 1200 }}"
+                srcset="
+                  {{ block.settings.image | image_url: width: 400 }} 400w,
+                  {{ block.settings.image | image_url: width: 800 }} 800w,
+                  {{ block.settings.image | image_url: width: 1200 }} 1200w
+                "
+                sizes="50vw"
+                alt="{{ block.settings.image.alt | escape }}"
+                loading="lazy"
+                width="{{ block.settings.image.width }}"
+                height="{{ block.settings.image.height }}"
+              >
+              {%- if block.settings.custom_content != blank -%}
+                <div class="nic-custom-content">{{ block.settings.custom_content }}</div>
+              {%- endif -%}
+              {%- if block.settings.image_link != blank -%}
+                </a>
+              {%- endif -%}
+            </div>
+          {%- else -%}
+            <div class="image-column" {{ block.shopify_attributes }}>
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <div class="nic-description">
+      <div>
+        {%- if section.settings.button_link != blank -%}
+          <a href="{{ section.settings.button_link }}">
+        {%- endif -%}
+        {%- if section.settings.title != blank and section.settings.align_image == 'bottom' -%}
+          <h2 class="nic-title" style="font-size: {{ section.settings.heading_font_size }}px;">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <div class="rte" style="{% if section.settings.text_size != 0 %}font-size: {{ section.settings.text_size }}px;{% endif %} {% if section.settings.text_color != blank %}color: {{ section.settings.text_color }};{% endif %}">{{ section.settings.text }}</div>
+        {%- endif -%}
+        {%- if section.settings.button_link != blank -%}
+          </a>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.button_label != blank -%}
+        <div>
+          <a href="{{ section.settings.button_link }}" class="button-secondary nic-btn"
+            style="{% if section.settings.button_color != blank %}color: {{ section.settings.button_color }};{% endif %} {% if section.settings.button_background != blank %}background-color: {{ section.settings.button_background }};{% endif %}">
+            {{ section.settings.button_label }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .nic-container-{{ section.id }} {
+    {% if section.settings.background_color != blank %}padding: {{ section.settings.padding }};{% endif %}
+    {% if section.settings.background_color != blank %}background-color: {{ section.settings.background_color }};{% endif %}
+  }
+  .nic-container-{{ section.id }} .nic-spacer {
+    width: {{ section.settings.padding }};
+    height: {{ section.settings.padding }};
+    flex-shrink: 0;
+  }
+  .nic-container-{{ section.id }} .nic-description {
+    margin-top: calc({{ section.settings.padding }} - 8px);
+    line-height: 1.6;
+  }
+  @media only screen and (max-width: 749px) {
+    .nic-container-{{ section.id }} .nic-description {
+      text-align: {{ section.settings.align_text }};
+    }
+  }
+  @media only screen and (min-width: 750px) {
+    .nic-container-{{ section.id }} .nic-gallery > div {
+      display: flex;
+    }
+    .nic-container-{{ section.id }} .nic-description {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+  }
+  {% if section.settings.mobile_width != blank %}
+    @media only screen and (max-width: 749px) {
+      .nic-container-{{ section.id }} .nic-gallery {
+        overflow-x: scroll;
+      }
+      .nic-container-{{ section.id }} .nic-gallery > div {
+        display: flex;
+        width: calc({{ section.settings.mobile_width }});
+      }
+      .nic-container-{{ section.id }} .nic-description {
+        text-align: {{ section.settings.align_text }};
+        margin-top: calc({{ section.settings.padding }} - 8px);
+      }
+    }
+  {% endif %}
+  {% if section.settings.button_hover != blank %}
+    .nic-container-{{ section.id }} .nic-btn:hover {
+      background-color: {{ section.settings.button_hover }};
+      border-color: {{ section.settings.button_hover }};
+    }
+  {% endif %}
+</style>
+
+{% stylesheet %}
+  .nic-header {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .nic-title {
+    margin: 0;
+  }
+
+  .nic-gallery {
+    scrollbar-width: thin;
+  }
+
+  .nic-gallery::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .nic-gallery::-webkit-scrollbar-track {
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  }
+
+  .nic-gallery::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+  }
+
+  .nic-custom-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .nic-description a {
+    text-decoration: none;
+  }
+
+  .nic-btn {
+    flex: 0 0 auto;
+    font-weight: 600;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "New: Image columns",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "align_image",
+      "label": "Heading position",
+      "options": [
+        {
+          "value": "top",
+          "label": "Above images"
+        },
+        {
+          "value": "bottom",
+          "label": "Below images"
+        }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use this section to explain a set of product features, to link to a series of pages, or to answer common questions about your products.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "text",
+      "id": "padding",
+      "label": "Padding / gap",
+      "default": "15px",
+      "info": "Gap between images and inner padding when background color is set. Accepts any CSS value e.g. 15px or 1rem."
+    },
+    {
+      "type": "text",
+      "id": "mobile_width",
+      "label": "Total image width on mobile",
+      "info": "Sets the total width of all images on mobile to enable horizontal scroll. Example: for 3 images enter 300%. Leave blank to stack images vertically."
+    },
+    {
+      "type": "select",
+      "id": "align_text",
+      "label": "Text alignment (mobile)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_font_size",
+      "label": "Heading size",
+      "min": 14,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 0,
+      "info": "Set to 0 to use theme default"
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button text color"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background"
+    },
+    {
+      "type": "color",
+      "id": "button_hover",
+      "label": "Button hover color"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_block",
+      "name": "Image column",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "Image link"
+        },
+        {
+          "type": "html",
+          "id": "custom_content",
+          "label": "Custom content (HTML)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Image columns",
+      "blocks": [
+        { "type": "image_block" },
+        { "type": "image_block" },
+        { "type": "image_block" }
+      ]
+    }
+  ]
+}
+{% endschema %}

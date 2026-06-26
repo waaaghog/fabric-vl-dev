@@ -1,0 +1,627 @@
+{% doc %}
+  Renders the B2B pill-style inline search with dropdown panel.
+  @param {String} category_menu - Link list handle for quick category links
+  @param {String} recommended_collection - Collection handle for recommended products
+{% enddoc %}
+
+{% comment %}
+  Old modal-trigger button (replaced by inline dropdown below):
+  <button
+    type="button"
+    class="va-nav-search"
+    on:click="#search-modal/showDialog"
+    aria-label="{{ 'content.search_input_label' | t }}"
+    aria-haspopup="dialog"
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="m21 21-4.3-4.3"/>
+    </svg>
+    <span class="va-nav-search__placeholder">{{ 'content.search_input_placeholder' | t }}</span>
+  </button>
+{% endcomment %}
+
+{%- liquid
+  assign cat_links = linklists[category_menu].links
+  assign rec_col = collections[recommended_collection]
+  assign has_categories = false
+  if cat_links.size > 0
+    assign has_categories = true
+  endif
+  assign has_recommended = false
+  if rec_col != blank and rec_col.products.size > 0
+    assign has_recommended = true
+  endif
+-%}
+
+<div class="va-search" id="va-search-box" role="search">
+  <div class="va-search__trigger">
+    <svg class="va-search__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="m21 21-4.3-4.3"/>
+    </svg>
+    <input
+      type="search"
+      class="va-search__input"
+      id="va-search-input"
+      placeholder="{{ 'content.search_input_placeholder' | t }}"
+      aria-label="{{ 'content.search_input_label' | t }}"
+      aria-autocomplete="list"
+      autocomplete="off"
+    >
+    <button type="button" class="va-search__clear" id="va-search-clear" hidden aria-label="Clear search">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="va-search__panel" id="va-search-panel" hidden>
+
+    {%- if has_categories -%}
+    <div class="va-search__section" id="va-search-categories">
+      <div class="va-search__section-label">Categories</div>
+      <div class="va-search__category-list">
+        {%- for link in cat_links -%}
+        <a href="{{ link.url }}" class="va-search__category-item">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          {{- link.title -}}
+        </a>
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+    <div class="va-search__section va-search__results-section" id="va-search-results" hidden>
+      <div class="va-search__section-label">Results</div>
+      <div class="va-search__results-list" id="va-search-results-list"></div>
+      <a href="#" class="va-search__view-all" id="va-search-view-all">View all results</a>
+    </div>
+
+    {%- if has_recommended -%}
+    <div class="va-search__section" id="va-search-recommended">
+      <div class="va-search__section-label">Recommended</div>
+      <div class="va-search__recommended-list">
+        {%- for product in rec_col.products limit: 10 -%}
+          {%- if product.featured_image -%}
+          <a href="{{ product.url }}" class="va-search__product-item">
+            <img src="{{ product.featured_image | image_url: width: 56 }}" alt="{{ product.featured_image.alt | escape }}" width="56" height="56" loading="lazy" class="va-search__product-img">
+            <div class="va-search__product-info">
+              <div class="va-search__product-title">{{ product.title }}</div>
+              <div class="va-search__product-price">{{ product.price | money }}</div>
+            </div>
+          </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var box = document.getElementById('va-search-box');
+  var input = document.getElementById('va-search-input');
+  var panel = document.getElementById('va-search-panel');
+  var clearBtn = document.getElementById('va-search-clear');
+  var resultsSection = document.getElementById('va-search-results');
+  var resultsList = document.getElementById('va-search-results-list');
+  var viewAllLink = document.getElementById('va-search-view-all');
+  var recommendedSection = document.getElementById('va-search-recommended');
+  var categoryItems = box.querySelectorAll('.va-search__category-item');
+  var timer = null;
+
+  var noImageHtml = '<div class="valor-no-image va-search__product-img va-search__product-img--placeholder valor-no-image--tiny" role="img" aria-label="Image coming soon"><svg class="valor-no-image__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2.5"></rect><circle cx="8.5" cy="9.5" r="1.6"></circle><path d="M21 15.5l-5-5L7 19.5"></path></svg><span class="valor-no-image__text">Image coming soon</span><span class="valor-no-image__rule" aria-hidden="true"></span></div>';
+
+  function formatMoney(price) {
+    var num = parseFloat(price);
+    if (isNaN(num)) return price;
+    var currency = (window.Shopify && window.Shopify.currency && window.Shopify.currency.active) || 'USD';
+    try {
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency }).format(num);
+    } catch (e) {
+      return currency + ' ' + num.toFixed(2);
+    }
+  }
+
+  function getImgUrl(val) {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    return val.url || val.src || '';
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char];
+    });
+  }
+
+  function productImgHtml(src) {
+    src = getImgUrl(src);
+    if (src) {
+      if (src.startsWith('//')) src = 'https:' + src;
+      src += (src.includes('?') ? '&' : '?') + 'width=96';
+      return '<img src="' + src + '" width="48" height="48" class="va-search__product-img" alt="" loading="lazy">';
+    }
+    return noImageHtml;
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    box.setAttribute('data-open', '');
+  }
+
+  function closePanel() {
+    panel.hidden = true;
+    box.removeAttribute('data-open');
+    box.classList.remove('va-search--has-results');
+  }
+
+  function setResultsVisible(visible) {
+    if (resultsSection) resultsSection.hidden = !visible;
+    box.classList.toggle('va-search--has-results', visible);
+  }
+
+  function showRecommended() {
+    setResultsVisible(false);
+    if (recommendedSection) recommendedSection.hidden = false;
+  }
+
+  function hideRecommended() {
+    if (recommendedSection) recommendedSection.hidden = true;
+  }
+
+  function clearActiveCategory() {
+    categoryItems.forEach(function (el) { el.removeAttribute('data-active'); });
+  }
+
+  function appendResultGroup(title, className, children) {
+    if (!children || children.length === 0) return;
+
+    var group = document.createElement('div');
+    group.className = 'va-search__result-group ' + className;
+    group.innerHTML = '<div class="va-search__result-group-title">' + escapeHtml(title) + '</div>';
+
+    var list = document.createElement('div');
+    list.className = 'va-search__result-group-list';
+    children.forEach(function (child) { list.appendChild(child); });
+
+    group.appendChild(list);
+    resultsList.appendChild(group);
+  }
+
+  function createCollectionItem(collection) {
+    var a = document.createElement('a');
+    a.href = collection.url;
+    a.className = 'va-search__collection-item';
+    a.innerHTML =
+      '<span class="va-search__collection-label">Collection</span>' +
+      '<span class="va-search__collection-title">' + escapeHtml(collection.title) + '</span>' +
+      '<svg class="va-search__collection-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+    return a;
+  }
+
+  function createProductItem(item) {
+    var a = document.createElement('a');
+    a.href = item.url;
+    a.className = 'va-search__product-item';
+    a.innerHTML =
+      productImgHtml(getImgUrl(item.featured_image) || getImgUrl(item.image)) +
+      '<div class="va-search__product-info">' +
+        '<div class="va-search__product-title">' + escapeHtml(item.title) + '</div>' +
+        (item.price ? '<div class="va-search__product-price">' + escapeHtml(item.price) + '</div>' : '') +
+      '</div>';
+    return a;
+  }
+
+  function renderResults(products, collections, query) {
+    resultsList.innerHTML = '';
+    products = products || [];
+    collections = collections || [];
+
+    products = products.filter(function (item) { return getImgUrl(item.featured_image) || getImgUrl(item.image); });
+
+    if (products.length === 0 && collections.length === 0) {
+      showRecommended();
+      return;
+    }
+
+    hideRecommended();
+
+    appendResultGroup(
+      'Collections',
+      'va-search__result-group--collections',
+      collections.slice(0, 6).map(createCollectionItem)
+    );
+
+    appendResultGroup(
+      'Products',
+      'va-search__result-group--products',
+      products.slice(0, 10).map(createProductItem)
+    );
+
+    setResultsVisible(true);
+    if (viewAllLink) {
+      viewAllLink.href = '/search?q=' + encodeURIComponent(query) + '&type=product';
+      viewAllLink.textContent = 'View all results';
+    }
+  }
+
+  function renderCategoryProducts(products, collectionUrl, collectionName) {
+    resultsList.innerHTML = '';
+    if (!products || products.length === 0) {
+      showRecommended();
+      return;
+    }
+    hideRecommended();
+    products = products.filter(function (p) { return getImgUrl(p.featured_image) || getImgUrl(p.images && p.images[0]); });
+    products.slice(0, 10).forEach(function (product) {
+      var a = document.createElement('a');
+      a.href = '/products/' + product.handle;
+      a.className = 'va-search__product-item';
+      a.innerHTML =
+        productImgHtml(getImgUrl(product.featured_image) || getImgUrl(product.images && product.images[0])) +
+        '<div class="va-search__product-info">' +
+          '<div class="va-search__product-title">' + escapeHtml(product.title) + '</div>' +
+          (product.price ? '<div class="va-search__product-price">' + formatMoney(product.price / 100) + '</div>' : '') +
+        '</div>';
+      resultsList.appendChild(a);
+    });
+    setResultsVisible(true);
+    if (viewAllLink) {
+      viewAllLink.href = collectionUrl;
+      viewAllLink.textContent = 'Browse ' + collectionName;
+    }
+  }
+
+  function doSearch(q) {
+    if (!q) {
+      showRecommended();
+      return;
+    }
+    fetch('/search/suggest.json?q=' + encodeURIComponent(q) + '&resources[type]=product,collection&resources[limit]=10&resources[limit_scope]=each&resources[options][fields]=title,product_type,vendor,variants.sku,variants.barcode')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var results = d && d.resources && d.resources.results;
+        renderResults((results && results.products) || [], (results && results.collections) || [], q);
+      })
+      .catch(function () {
+        showRecommended();
+      });
+  }
+
+  // Category chip: load collection products inline
+  categoryItems.forEach(function (item) {
+    item.addEventListener('click', function (e) {
+      e.preventDefault();
+      var href = item.getAttribute('href');
+      var match = href.match(/\/collections\/([^/?#]+)/);
+      if (!match) return;
+      var handle = match[1];
+      var label = item.textContent.trim();
+
+      clearActiveCategory();
+      item.setAttribute('data-active', '');
+      openPanel();
+
+      fetch('/collections/' + handle + '/products.json?limit=10')
+        .then(function (r) { return r.json(); })
+        .then(function (d) { renderCategoryProducts(d.products || [], href, label); })
+        .catch(function () { showRecommended(); });
+    });
+  });
+
+  input.addEventListener('focus', function () {
+    openPanel();
+    if (!input.value) showRecommended();
+  });
+
+  input.addEventListener('input', function () {
+    var q = input.value.trim();
+    clearBtn.hidden = q.length === 0;
+    clearActiveCategory();
+    clearTimeout(timer);
+    timer = setTimeout(function () { doSearch(q); }, 300);
+  });
+
+  clearBtn.addEventListener('click', function () {
+    input.value = '';
+    clearBtn.hidden = true;
+    clearActiveCategory();
+    showRecommended();
+    input.focus();
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closePanel();
+      input.blur();
+    }
+    if (e.key === 'Enter') {
+      var q = input.value.trim();
+      if (q) window.location.href = '/search?q=' + encodeURIComponent(q) + '&type=product';
+    }
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!box.contains(e.target)) closePanel();
+  });
+
+  // Start with both sections hidden; they show on panel open
+  if (recommendedSection) recommendedSection.hidden = true;
+  setResultsVisible(false);
+})();
+</script>
+
+{% stylesheet %}
+  .va-search {
+    display: none;
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+    flex: 1;
+    width: 320px;
+  }
+  @media screen and (min-width: 750px) {
+    .va-search { display: block; }
+  }
+  .header__column--va-search {
+    min-width: 0;
+  }
+  .header__column--va-search .va-search {
+    width: 320px;
+  }
+
+  .va-search__trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 0 12px 0 16px;
+    height: 40px;
+    width: 100%;
+    color: var(--color-foreground);
+    cursor: text;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .va-search[data-open] .va-search__trigger {
+    background: #FFF;
+    border-color: rgb(var(--color-foreground-rgb) / 0.15);
+  }
+  .va-search[data-open] .va-search__panel {
+    display: block;
+  }
+  
+  .va-search[data-open] .va-search__trigger {
+	background: none;
+	border: none;
+	width: 420px;
+  }
+  .va-search .va-search__icon {
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+  .va-search .va-search__input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-family: inherit;
+	background: none;
+    color: var(--color-foreground);
+    min-width: 0;
+    padding: 0 10px;
+	line-height: 40px;
+  }
+  .va-search__input::placeholder {
+    color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+  .va-search__input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .va-search__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+    flex-shrink: 0;
+  }
+  .va-search__clear:hover {
+    color: var(--color-foreground);
+  }
+
+  .va-search__panel {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-background);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+    overflow: hidden;
+    z-index: -1;
+  }
+  .va-search__panel[hidden] { display: none; }
+
+  .va-search[data-open] .va-search__panel {
+	display: block;
+	background: #FFF;
+	width: 420px;
+  }
+
+  .va-search__section {
+    padding: 12px 16px;
+	margin-top: 50px;
+  }
+  .va-search__section + .va-search__section {
+    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+  }
+  .va-search__section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--color-foreground-rgb) / 0.45);
+    margin-bottom: 8px;
+  }
+
+  .va-search__category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .va-search__category-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .va-search__category-item:hover,
+  .va-search__category-item[data-active] {
+    background: rgb(var(--color-foreground-rgb) / 0.1);
+    text-decoration: none;
+  }
+  .va-search__category-item[data-active] {
+    font-weight: 600;
+  }
+
+  .va-search__results-list,
+  .va-search__recommended-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 12px;
+  }
+  .va-search__result-group {
+    grid-column: 1 / -1;
+  }
+  .va-search__result-group + .va-search__result-group {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+  }
+  .va-search__result-group-title {
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--color-foreground-rgb) / 0.45);
+  }
+  .va-search__result-group-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 12px;
+  }
+  .va-search__result-group--collections .va-search__result-group-list {
+    grid-template-columns: 1fr;
+  }
+  .va-search__collection-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 7px 0;
+    text-decoration: none;
+    color: var(--color-foreground);
+  }
+  .va-search__collection-item:hover .va-search__collection-title {
+    text-decoration: underline;
+  }
+  .va-search__collection-label {
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: rgb(var(--color-foreground-rgb) / 0.07);
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .va-search__collection-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .va-search__collection-arrow {
+    color: rgb(var(--color-foreground-rgb) / 0.45);
+  }
+  .va-search__product-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    text-decoration: none;
+    color: var(--color-foreground);
+    min-width: 0;
+  }
+  .va-search__product-item:hover .va-search__product-title {
+    text-decoration: underline;
+  }
+  .va-search__product-img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: rgb(var(--color-foreground-rgb) / 0.05);
+    flex-shrink: 0;
+  }
+  .va-search__product-img--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(var(--color-foreground-rgb) / 0.2);
+  }
+  .va-search__product-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .va-search__product-title {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .va-search__product-price {
+    font-size: 12px;
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    margin-top: 2px;
+  }
+  .va-search__view-all {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgb(var(--color-foreground-rgb) / 0.6);
+    text-align: center;
+    text-decoration: none;
+  }
+  .va-search__view-all:hover {
+    color: var(--color-foreground);
+    text-decoration: underline;
+  }
+{% endstylesheet %}

@@ -1,0 +1,467 @@
+{%- liquid
+  assign s = section.settings
+-%}
+
+<div class="section section--page-width" style="{% if s.bg_color != blank %}background-color: {{ s.bg_color }};{% endif %}padding-top: {{ s.padding_top }}px; padding-bottom: {{ s.padding_bottom }}px;">
+<section class="vr-reorder">
+
+  <div class="vr-reorder-head">
+    <div>
+      <div class="vr-reorder-title">{{ s.title }}</div>
+      {%- if s.subtitle != blank -%}
+        <div class="vr-reorder-sub">{{ s.subtitle }}</div>
+      {%- endif -%}
+    </div>
+    <button class="vr-reorder-csv-btn" disabled aria-hidden="true" tabindex="-1">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      {{ s.csv_label }}
+    </button>
+  </div>
+
+  <div class="vr-reorder-table">
+
+    <div class="vr-reorder-row vr-reorder-row--head">
+      <div></div>
+      <div>{{ s.col_product }}</div>
+      <div>{{ s.col_sku }}</div>
+      <div>{{ s.col_ordered }}</div>
+      <div>{{ s.col_price }}</div>
+      <div>{{ s.col_qty }}</div>
+      <div></div>
+    </div>
+
+    {%- for block in section.blocks -%}
+      <div class="vr-reorder-row" {{ block.shopify_attributes }}>
+        <div class="vr-reorder-thumb">
+          <div class="vr-reorder-device" style="background: {{ block.settings.thumb_color | default: '#2B3A55' }};{% if block.settings.thumb_border %} border: 1px solid {{ block.settings.thumb_border }};{% endif %}"></div>
+        </div>
+        <div>
+          <div class="vr-reorder-name">{{ block.settings.name }}</div>
+          {%- if block.settings.sku != blank -%}
+            <div class="vr-reorder-sku">{{ block.settings.sku }}</div>
+          {%- endif -%}
+        </div>
+        <div class="vr-reorder-cell vr-reorder-cell--mono">{{ block.settings.sku }}</div>
+        <div class="vr-reorder-cell">{{ block.settings.last_ordered }}</div>
+        <div class="vr-reorder-cell">{{ block.settings.price }}</div>
+        <div class="vr-qty-input" aria-hidden="true">
+          <button tabindex="-1" disabled>−</button>
+          <input type="number" value="{{ block.settings.qty | default: 1 }}" readonly tabindex="-1">
+          <button tabindex="-1" disabled>+</button>
+        </div>
+        <button class="vr-reorder-add-btn" disabled tabindex="-1" aria-hidden="true">{{ s.add_label }}</button>
+      </div>
+    {%- endfor -%}
+
+  </div>
+</section>
+</div>
+
+{% stylesheet %}
+
+/* ── Color tokens ───────────────────────────────────────────────── */
+:root {
+  --vr-navy:       #2B3A55;
+  --vr-navy-deep:  #1D2636;
+  --vr-crimson:    #C54448;
+  --vr-chalk:      #F4F5F2;
+  --vr-parchment:  #EEEDE7;
+  --vr-steel:      #66717E;
+  --vr-steel-lt:   #A8B0B8;
+  --vr-white:      #FFFFFF;
+  --vr-border:     #0002;
+  --vr-serif:      var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:       var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.vr-reorder-head {
+  background: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+  border-radius: 20px 20px 0 0;
+  padding: 32px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.vr-reorder-title {
+  font-family: var(--vr-serif);
+  font-size: 36px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.vr-reorder-sub {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-steel-lt);
+  margin-top: 4px;
+}
+.vr-reorder-csv-btn {
+  background: transparent;
+  border: 1px solid rgba(244,245,242,0.25);
+  color: var(--vr-chalk);
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--vr-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+/* ── Table ──────────────────────────────────────────────────────── */
+.vr-reorder-table {
+  background: var(--vr-white);
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
+  border: 1px solid var(--vr-border);
+  border-top: none;
+}
+.vr-reorder-row {
+  display: grid;
+  grid-template-columns: 60px 2fr 1fr 1fr 1fr 0.7fr 140px;
+  gap: 20px;
+  padding: 20px 40px;
+  align-items: center;
+  border-bottom: 1px solid var(--vr-border);
+}
+.vr-reorder-row:last-child { border-bottom: none; }
+.vr-reorder-row--head {
+  background: var(--vr-chalk);
+  font-family: var(--vr-sans);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vr-steel);
+  font-weight: 600;
+  padding: 14px 40px;
+}
+
+/* ── Thumbnail ──────────────────────────────────────────────────── */
+.vr-reorder-thumb {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  background: var(--vr-parchment);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vr-reorder-device {
+  width: 20px; height: 32px;
+  border-radius: 4px;
+}
+
+/* ── Cells ──────────────────────────────────────────────────────── */
+.vr-reorder-name {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vr-navy-deep);
+}
+.vr-reorder-sku {
+  display: none; /* shown in dedicated SKU column */
+}
+.vr-reorder-cell {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-navy-deep);
+}
+.vr-reorder-cell--mono {
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  font-size: 11px;
+  color: var(--vr-steel);
+  letter-spacing: 0.02em;
+}
+
+/* ── Qty stepper (readonly) ─────────────────────────────────────── */
+.vr-qty-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--vr-border);
+  border-radius: 999px;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+.vr-qty-input button {
+  width: 32px; height: 32px;
+  background: transparent;
+  border: none;
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: var(--vr-navy-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+.vr-qty-input input {
+  width: 44px;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--vr-navy-deep);
+  pointer-events: none;
+  -moz-appearance: textfield;
+}
+.vr-qty-input input::-webkit-outer-spin-button,
+.vr-qty-input input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ── Add button (readonly) ──────────────────────────────────────── */
+.vr-reorder-add-btn {
+  background: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  font-family: var(--vr-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  cursor: default;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .vr-reorder-row {
+    grid-template-columns: 48px 1.5fr 1fr 1fr 100px;
+    padding: 16px 24px;
+  }
+  .vr-reorder-row > *:nth-child(3),
+  .vr-reorder-row > *:nth-child(4) { display: none; }
+  .vr-reorder-row--head > *:nth-child(3),
+  .vr-reorder-row--head > *:nth-child(4) { display: none; }
+}
+@media (max-width: 749px) {
+  .vr-reorder-head { border-radius: 16px 16px 0 0; padding: 24px 20px; }
+  .vr-reorder-title { font-size: 26px; }
+  .vr-reorder-csv-btn { display: none; }
+  .vr-reorder-row {
+    grid-template-columns: 40px 1fr auto auto;
+    gap: 12px;
+    padding: 14px 20px;
+  }
+  .vr-reorder-row > *:nth-child(3),
+  .vr-reorder-row > *:nth-child(4),
+  .vr-reorder-row > *:nth-child(5),
+  .vr-reorder-row > *:nth-child(7) { display: none; }
+  .vr-reorder-row--head { display: none; }
+}
+
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Valor reorder",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "info": "Leave blank for no background",
+      "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Quick reorder"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Your top 20 SKUs from the last 90 days — one click to refill."
+    },
+    {
+      "type": "text",
+      "id": "csv_label",
+      "label": "CSV button label",
+      "default": "Upload CSV"
+    },
+    {
+      "type": "header",
+      "content": "Column labels"
+    },
+    {
+      "type": "text",
+      "id": "col_product",
+      "label": "Product column",
+      "default": "Product"
+    },
+    {
+      "type": "text",
+      "id": "col_sku",
+      "label": "SKU column",
+      "default": "SKU"
+    },
+    {
+      "type": "text",
+      "id": "col_ordered",
+      "label": "Last ordered column",
+      "default": "Last ordered"
+    },
+    {
+      "type": "text",
+      "id": "col_price",
+      "label": "Price column",
+      "default": "Wholesale"
+    },
+    {
+      "type": "text",
+      "id": "col_qty",
+      "label": "Qty column",
+      "default": "Qty"
+    },
+    {
+      "type": "text",
+      "id": "add_label",
+      "label": "Add button label",
+      "default": "Add to cart"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "row",
+      "name": "Product row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "name",
+          "label": "Product name",
+          "default": "Contour Series — iPhone 17e, Uniform Navy"
+        },
+        {
+          "type": "text",
+          "id": "sku",
+          "label": "SKU",
+          "default": "MPC-17E-CNT-NVY"
+        },
+        {
+          "type": "text",
+          "id": "last_ordered",
+          "label": "Last ordered",
+          "default": "Oct 12, 240 units"
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "Wholesale price",
+          "default": "$8.40"
+        },
+        {
+          "type": "text",
+          "id": "qty",
+          "label": "Default qty",
+          "default": "240"
+        },
+        {
+          "type": "color",
+          "id": "thumb_color",
+          "label": "Thumbnail color",
+          "default": "#2B3A55"
+        },
+        {
+          "type": "color",
+          "id": "thumb_border",
+          "label": "Thumbnail border color",
+          "info": "Leave blank for no border"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor reorder",
+      "blocks": [
+        {
+          "type": "row",
+          "settings": {
+            "name": "Contour Series — iPhone 17e, Uniform Navy",
+            "sku": "MPC-17E-CNT-NVY",
+            "last_ordered": "Oct 12, 240 units",
+            "price": "$8.40",
+            "qty": "240",
+            "thumb_color": "#2B3A55"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "name": "20W GaN Mini Wall Charger — Black",
+            "sku": "AMP-GAN20-MINI-BLK",
+            "last_ordered": "Oct 08, 600 units",
+            "price": "$5.80",
+            "qty": "600",
+            "thumb_color": "#0b0b0c"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "name": "TitanShield tempered glass 3-pack — universal",
+            "sku": "MPC-UNI-TTS-3PK",
+            "last_ordered": "Sep 28, 1,200 units",
+            "price": "$3.20",
+            "qty": "1200",
+            "thumb_color": "#f4f5f2"
+          }
+        },
+        {
+          "type": "row",
+          "settings": {
+            "name": "Essence Series — 16e, Crimson",
+            "sku": "MB-16E-ESS-CRM",
+            "last_ordered": "Sep 21, 480 units",
+            "price": "$4.20",
+            "qty": "480",
+            "thumb_color": "#C54448"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

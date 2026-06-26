@@ -1,0 +1,297 @@
+{%- comment -%}
+  Valor collection banner
+  Compact collection hero based on valor-plp-updated-header-banner.html.
+{%- endcomment -%}
+
+{%- liquid
+  assign display_name = collection.metafields.custom.collection_display_name.value | default: collection.title
+  assign display_name_plain = display_name | strip_html | strip
+  assign eyebrow = collection.metafields.custom.collection_subtitle.value | default: section.settings.eyebrow_fallback
+  assign eyebrow_plain = eyebrow | strip_html | strip
+  assign description_plain = collection.description | strip_html | strip
+  assign fallback_description_plain = section.settings.description_fallback | strip_html | strip
+  assign shop_url = routes.all_products_collection_url | default: routes.root_url
+  assign category_url = section.settings.category_link
+  assign brand_label = ''
+
+  if eyebrow_plain contains '/'
+    assign brand_label = eyebrow_plain | split: '/' | first | strip
+  endif
+-%}
+
+<style>
+  #valor-collection-banner-{{ section.id }} {
+    --vcb-navy: #2b3a55;
+    --vcb-navy-deep: #1d2636;
+    --vcb-sky: #63b9de;
+    --vcb-chalk: #f4f5f2;
+    --vcb-steel: #66717e;
+    --vcb-steel-light: #a8b0b8;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: {{ section.settings.padding_top }}px 32px {{ section.settings.padding_bottom }}px;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-crumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    color: var(--vcb-steel);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-crumbs a {
+    color: var(--vcb-steel);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-crumbs a:hover {
+    color: var(--vcb-navy);
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-sep {
+    color: var(--vcb-steel-light);
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-current {
+    color: var(--vcb-navy-deep);
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-hero {
+    position: relative;
+    margin-top: 16px;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--vcb-navy-deep);
+    color: var(--vcb-chalk);
+    padding: 22px 28px;
+    text-align: center;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-hero::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 185, 222, 0.14) 0%, transparent 65%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--vcb-sky);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-eyebrow::before,
+  #valor-collection-banner-{{ section.id }} .vcb-eyebrow::after {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: var(--vcb-sky);
+    flex: 0 0 auto;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-title {
+    margin: 6px 0 8px;
+    color: inherit;
+    font-family: 'Instrument Serif', var(--font-heading--family), Georgia, serif;
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.05;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-title em {
+    color: var(--vcb-sky);
+    font-style: italic;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-description,
+  #valor-collection-banner-{{ section.id }} .vcb-description p {
+    color: rgba(244, 245, 242, 0.72);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-description {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-description p {
+    margin: 0;
+  }
+
+  #valor-collection-banner-{{ section.id }} .vcb-description a {
+    color: inherit;
+  }
+
+  @media screen and (max-width: 749px) {
+    #valor-collection-banner-{{ section.id }} .vcb-inner {
+      padding-right: 16px;
+      padding-left: 16px;
+    }
+
+    #valor-collection-banner-{{ section.id }} .vcb-hero {
+      padding: 18px;
+    }
+
+    #valor-collection-banner-{{ section.id }} .vcb-title {
+      font-size: 30px;
+    }
+  }
+</style>
+
+<div id="valor-collection-banner-{{ section.id }}">
+  <div class="vcb-inner">
+    {%- if section.settings.show_breadcrumbs -%}
+      <nav class="vcb-crumbs" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">{{ section.settings.home_label }}</a>
+        <span class="vcb-sep" aria-hidden="true">/</span>
+        <a href="{{ shop_url }}">{{ section.settings.shop_label }}</a>
+        {%- if section.settings.category_label != blank -%}
+          <span class="vcb-sep" aria-hidden="true">/</span>
+          {%- if category_url != blank -%}
+            <a href="{{ category_url }}">{{ section.settings.category_label }}</a>
+          {%- else -%}
+            <span>{{ section.settings.category_label }}</span>
+          {%- endif -%}
+        {%- endif -%}
+        {%- if section.settings.show_brand_crumb and brand_label != blank -%}
+          <span class="vcb-sep" aria-hidden="true">/</span>
+          <span>{{ brand_label }}</span>
+        {%- endif -%}
+        <span class="vcb-sep" aria-hidden="true">/</span>
+        <span class="vcb-current" aria-current="page">{{ display_name_plain }}</span>
+      </nav>
+    {%- endif -%}
+
+    <div class="vcb-hero">
+      <div class="vcb-content">
+        {%- if eyebrow_plain != blank -%}
+          <div class="vcb-eyebrow">{{ eyebrow }}</div>
+        {%- endif -%}
+        {%- if display_name_plain != blank -%}
+          <h1 class="vcb-title">{{ display_name }}</h1>
+        {%- endif -%}
+        {%- if description_plain != blank -%}
+          <div class="vcb-description">{{ collection.description }}</div>
+        {%- elsif fallback_description_plain != blank -%}
+          <div class="vcb-description">{{ section.settings.description_fallback }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Valor collection banner",
+  "tag": "section",
+  "class": "valor-collection-banner-section",
+  "enabled_on": {
+    "templates": ["collection"]
+  },
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Show breadcrumbs",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "Home label",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "shop_label",
+      "label": "Shop label",
+      "default": "Shop"
+    },
+    {
+      "type": "text",
+      "id": "category_label",
+      "label": "Category label",
+      "default": "Devices"
+    },
+    {
+      "type": "url",
+      "id": "category_link",
+      "label": "Category link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_brand_crumb",
+      "label": "Show brand crumb from subtitle",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_fallback",
+      "label": "Eyebrow fallback",
+      "default": "Shop wholesale accessories"
+    },
+    {
+      "type": "richtext",
+      "id": "description_fallback",
+      "label": "Description fallback"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor collection banner"
+    }
+  ]
+}
+{% endschema %}

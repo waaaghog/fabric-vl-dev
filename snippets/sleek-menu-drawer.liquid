@@ -1,0 +1,919 @@
+{%- doc -%}
+  xsleek-style menu drawer panel for xfabric.
+
+  Renders the drawer panel content — logo header, sliding multi-level nav, and
+  account + social footer — using xsleek's visual design while preserving
+  xfabric's JS architecture (header-drawer.js refs and <details>/<summary> pattern).
+
+  @param {object} linklist - The navigation linklist to render.
+  @param {object} [block] - Block object (provides color_scheme, font settings, etc.)
+  @param {object} [section] - Section object (provides show_localization_in_drawer, etc.)
+  @param {boolean} [eager_loading] - Whether to eager-load images.
+{%- enddoc -%}
+
+{%- liquid
+  assign block_settings = block_settings | default: block.settings
+  assign color_scheme = block_settings.color_scheme | default: 'scheme-1'
+-%}
+{%- render 'sleek-drawer-shell' -%}
+
+<sleek-menu-drawer
+  ref="menuDrawer"
+  class="menu-drawer drawer-top sleek-menu-drawer color-{{ color_scheme }}{% if block_settings.drawer_accordion %} sleek-menu-drawer--cascade{% endif %}{% if block_settings.drawer_dividers %} sleek-menu-drawer--dividers{% endif %}"
+  {% if block_settings.type_font_primary_size_mobile != blank %}style="--menu-top-level-font-size: {{ block_settings.type_font_primary_size_mobile }};"{% endif %}
+>
+  {%- if section.settings.show_search_in_drawer -%}
+    <div class="sleek-menu-drawer__search-entry">
+      <button
+        type="button"
+        class="sleek-menu-drawer__search-button button-unstyled"
+        on:click="#search-modal/showDialog"
+        aria-label="{{ 'content.search_input_label' | t }}"
+        aria-haspopup="dialog"
+      >
+        <span class="svg-wrapper sleek-menu-drawer__search-icon">
+          {{- 'icon-search.svg' | inline_asset_content -}}
+        </span>
+        <span class="sleek-menu-drawer__search-placeholder">
+          {{- 'content.search_input_placeholder' | t -}}
+        </span>
+      </button>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ── Navigation ───────────────────────────────────────────── {%- endcomment -%}
+  <nav
+    class="sleek-menu-drawer__nav drawer-shell__body"
+    role="navigation"
+    aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+    style="
+      {%- render 'menu-font-styles', settings: block_settings, menu_type: 'drawer' %}
+      {%- render 'submenu-font-styles', settings: block_settings %}
+    "
+  >
+    <ul class="sleek-menu-drawer__menu" role="list">
+      {%- for link in linklist.links -%}
+        {%- liquid
+          assign animation_index = forloop.index
+          assign matched_megamenu = nil
+          assign matched_collection_list = nil
+          assign link_title_lower = link.title | downcase | strip
+          for blk in section.blocks
+            if blk.type == 'header_megamenu'
+              assign blk_title_lower = blk.settings.heading | downcase | strip
+              if blk_title_lower == link_title_lower
+                assign matched_megamenu = blk
+                break
+              endif
+            elsif blk.type == 'mega_menu_collection_list'
+              assign blk_title_lower = blk.settings.heading | downcase | strip
+              if blk_title_lower == link_title_lower
+                assign matched_collection_list = blk
+                break
+              endif
+            endif
+          endfor
+          if matched_megamenu != nil
+            assign effective_child_links = linklists[matched_megamenu.settings.menu_handle].links
+          else
+            assign effective_child_links = link.links
+          endif
+        -%}
+        <li
+          class="sleek-menu-drawer__item"
+          style="--menu-drawer-animation-index: {{ animation_index }};"
+        >
+          {%- if effective_child_links != blank or matched_collection_list != nil -%}
+            {%- comment -%}
+              Parent link: uses <details>/<summary> so header-drawer.js can detect
+              the closest details element and toggle .menu-open on it.
+            {%- endcomment -%}
+            <details class="sleek-menu-drawer__details">
+              <summary
+                class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--parent menu-drawer__animated-element{% if link.child_active %} sleek-menu-drawer__item-link--active{% endif %}"
+                aria-expanded="false"
+                {% unless block_settings.drawer_accordion %}
+                  on:click="header-drawer/open/submenu"
+                {% endunless %}
+              >
+                <span class="sleek-menu-drawer__item-text">{{ link.title | escape }}</span>
+                <span class="svg-wrapper icon-caret icon-caret--forward">
+                  {{- 'icon-caret.svg' | inline_asset_content -}}
+                </span>
+              </summary>
+
+              <div class="menu-drawer__submenu">
+                <div class="sleek-menu-drawer__submenu-inner">
+                  <button
+                    type="button"
+                    class="sleek-menu-drawer__back"
+                    aria-label="{{ 'actions.back_to' | t: title: link.title }}"
+                    on:click="header-drawer/back"
+                  >
+                    <span class="svg-wrapper icon-caret icon-caret--backward">
+                      {{- 'icon-caret.svg' | inline_asset_content -}}
+                    </span>
+                    <span>{{ link.title | escape }}</span>
+                  </button>
+
+                  {%- if matched_collection_list != nil -%}
+                    <div class="sleek-mcl-grid">
+                      {%- for col in matched_collection_list.settings.collections -%}
+                        <a href="{{ col.url }}" class="sleek-mcl-item">
+                          <div class="sleek-mcl-item__image-wrap">
+                            {%- if col.featured_image != blank -%}
+                              {%- assign mob_alt = col.title | split: ' > ' | last | escape -%}
+                              <img
+                                src="{{ col.featured_image | image_url: width: 300 }}"
+                                alt="{{ mob_alt }}"
+                                loading="lazy"
+                                class="sleek-mcl-item__image"
+                                width="{{ col.featured_image.width }}"
+                                height="{{ col.featured_image.height }}"
+                              >
+                            {%- else -%}
+                              <div class="sleek-mcl-item__placeholder">
+                                {{- 'collection' | placeholder_svg_tag -}}
+                              </div>
+                            {%- endif -%}
+                          </div>
+                          <p class="sleek-mcl-item__title">{{ col.title | split: ' > ' | last }}</p>
+                        </a>
+                      {%- endfor -%}
+                    </div>
+                    {%- if block_settings.show_view_all != false -%}
+                      {%- unless link.url == '#' or link.url == blank -%}
+                        <a
+                          href="{{ link.url }}"
+                          class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__item-link--view-all menu-drawer__animated-element"
+                        >
+                          {{ 'actions.view_all' | t }}
+                        </a>
+                      {%- endunless -%}
+                    {%- endif -%}
+                  {%- else -%}
+                  <ul class="sleek-menu-drawer__submenu-list" role="list">
+                    {%- for child_link in effective_child_links -%}
+                      <li class="sleek-menu-drawer__submenu-item{% if matched_megamenu != nil and child_link.links != blank %} sleek-menu-drawer__mega-group{% endif %}">
+                        {%- if matched_megamenu != nil -%}
+                          {%- comment -%}
+                            Mega menu in L2 slide panel (same 2-slide behaviour as standard menu).
+                            Mega L1 items are category headings. Their children (mega L2) are
+                            shown as <details> accordions inline — no third slide. Mega L3 inside.
+                          {%- endcomment -%}
+                          {%- if child_link.links != blank -%}
+                            {%- comment -%}Mega L1 has children: category heading + L2 <details>{%- endcomment -%}
+                            {%- if child_link.url != '#' and child_link.url != blank -%}
+                              <a
+                                href="{{ child_link.url }}"
+                                class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__mega-category menu-drawer__animated-element{% if child_link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+                              >
+                                {{ child_link.title | escape }}
+                              </a>
+                            {%- else -%}
+                              <span class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__mega-category">
+                                {{ child_link.title | escape }}
+                              </span>
+                            {%- endif -%}
+                            {%- for l2_link in child_link.links -%}
+                              {%- if l2_link.links != blank -%}
+                                <details class="sleek-menu-drawer__mega-l2">
+                                  <summary
+                                    class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel menu-drawer__animated-element{% if l2_link.child_active %} sleek-menu-drawer__item-link--active{% endif %}"
+                                  >
+                                    <span class="sleek-menu-drawer__item-text">{{ l2_link.title | escape }}</span>
+                                    <span class="svg-wrapper icon-caret">
+                                      {{- 'icon-caret.svg' | inline_asset_content -}}
+                                    </span>
+                                  </summary>
+                                  <div class="sleek-menu-drawer__mega-l2-content">
+                                    {%- for l3_link in l2_link.links -%}
+                                      <a
+                                        href="{{ l3_link.url }}"
+                                        class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__item-link--mega-l3 menu-drawer__animated-element{% if l3_link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+                                      >
+                                        {{ l3_link.title | escape }}
+                                      </a>
+                                    {%- endfor -%}
+                                  </div>
+                                </details>
+                              {%- else -%}
+                                <a
+                                  href="{{ l2_link.url }}"
+                                  class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel menu-drawer__animated-element{% if l2_link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+                                >
+                                  {{ l2_link.title | escape }}
+                                </a>
+                              {%- endif -%}
+                            {%- endfor -%}
+                          {%- else -%}
+                            {%- comment -%}Mega L1 has no children: plain link{%- endcomment -%}
+                            <a
+                              href="{{ child_link.url }}"
+                              class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel menu-drawer__animated-element{% if child_link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+                            >
+                              {{ child_link.title | escape }}
+                            </a>
+                          {%- endif -%}
+                        {%- else -%}
+                          {%- comment -%}Standard menu: L2 items with children expand inline as <details> (no 3rd slide){%- endcomment -%}
+                          {%- if child_link.links != blank -%}
+                            <details class="sleek-menu-drawer__mega-l2">
+                              <summary
+                                class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel menu-drawer__animated-element{% if child_link.child_active %} sleek-menu-drawer__item-link--active{% endif %}"
+                              >
+                                <span class="sleek-menu-drawer__item-text">{{ child_link.title | escape }}</span>
+                                <span class="svg-wrapper icon-caret">
+                                  {{- 'icon-caret.svg' | inline_asset_content -}}
+                                </span>
+                              </summary>
+                              <div class="sleek-menu-drawer__mega-l2-content">
+                                {%- for grandchild_link in child_link.links -%}
+                                  <a
+                                    href="{{ grandchild_link.url }}"
+                                    class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__item-link--mega-l3 menu-drawer__animated-element{% if grandchild_link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+                                  >
+                                    {{ grandchild_link.title | escape }}
+                                  </a>
+                                {%- endfor -%}
+                                {%- if block_settings.show_view_all != false -%}
+                                  {%- unless child_link.url == '#' or child_link.url == blank -%}
+                                    <a
+                                      href="{{ child_link.url }}"
+                                      class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__item-link--mega-l3 sleek-menu-drawer__item-link--view-all menu-drawer__animated-element"
+                                    >
+                                      {{ 'actions.view_all' | t }}
+                                    </a>
+                                  {%- endunless -%}
+                                {%- endif -%}
+                              </div>
+                            </details>
+                          {%- else -%}
+                            <a
+                              href="{{ child_link.url }}"
+                              class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel menu-drawer__animated-element{% if child_link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+                            >
+                              {{ child_link.title | escape }}
+                            </a>
+                          {%- endif -%}
+                        {%- endif -%}
+                      </li>
+                    {%- endfor -%}
+                    {%- if block_settings.show_view_all != false -%}
+                      {%- unless link.url == '#' or link.url == blank -%}
+                        <li class="sleek-menu-drawer__submenu-item">
+                          <a
+                            href="{{ link.url }}"
+                            class="sleek-menu-drawer__item-link sleek-menu-drawer__item-link--sublevel sleek-menu-drawer__item-link--view-all menu-drawer__animated-element"
+                          >
+                            {{ 'actions.view_all' | t }}
+                          </a>
+                        </li>
+                      {%- endunless -%}
+                    {%- endif -%}
+                  </ul>
+                  {%- endif -%}
+                </div>
+              </div>
+            </details>
+          {%- else -%}
+            <a
+              href="{{ link.url }}"
+              class="sleek-menu-drawer__item-link menu-drawer__animated-element{% if link.active %} sleek-menu-drawer__item-link--active{% endif %}"
+            >
+              {{ link.title | escape }}
+            </a>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </nav>
+
+  {%- liquid
+    assign using_classic_accounts = false
+    if routes.account_login_url contains '/account/login'
+      assign using_classic_accounts = true
+    endif
+  -%}
+
+  {%- comment -%} ── Footer: localization + social (+ new-account icon), then classic sign-in button ──── {%- endcomment -%}
+  <div class="sleek-menu-drawer__footer">
+    <div class="sleek-menu-drawer__footer-info">
+      {%- if section.settings.show_localization_in_drawer -%}
+        <div class="sleek-menu-drawer__localization">
+          {%- render 'localization-form',
+            context: 'drawer',
+            show_country_selector: section.settings.enable_country_selector,
+            show_language_selector: section.settings.enable_language_selector
+          -%}
+        </div>
+      {%- endif -%}
+
+      <div class="sleek-menu-drawer__social-row">
+        {%- if shop.customer_accounts_enabled and using_classic_accounts == false -%}
+          <shopify-account
+            menu="{{ settings.customer_account_menu }}"
+            class="sleek-menu-drawer__account-icon"
+            aria-label="{{ 'content.account_title' | t }}"
+          ></shopify-account>
+        {%- endif -%}
+        {%- render 'sleek-menu-drawer-social' -%}
+      </div>
+    </div>
+
+    {%- if shop.customer_accounts_enabled and using_classic_accounts -%}
+      <div class="sleek-menu-drawer__account-action">
+        {%- if customer -%}
+          <a
+            href="{{ customer.url | default: routes.account_url }}"
+            class="sleek-menu-drawer__account button"
+          >
+            <span class="svg-wrapper">
+              {{- 'icon-account.svg' | inline_asset_content -}}
+            </span>
+            {{ 'content.account_title' | t }}
+          </a>
+        {%- else -%}
+          <button
+            type="button"
+            class="sleek-menu-drawer__account button"
+            onclick="document.querySelector('.account-button__classic-login')?.click()"
+          >
+            <span class="svg-wrapper">
+              {{- 'icon-account.svg' | inline_asset_content -}}
+            </span>
+            {{ 'actions.log_in' | t }}
+          </button>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</sleek-menu-drawer>
+
+{% stylesheet %}
+  /* Prevent layout shift when scroll is locked by any drawer or modal */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  /* ── Drawer panel: override width/easing on top of xfabric's .menu-drawer base ── */
+
+  @media screen and (min-width: 750px) {
+    .sleek-menu-drawer {
+      width: 38rem;
+      max-width: 46rem;
+    }
+  }
+
+  .menu-drawer-container:not([open]) > .sleek-menu-drawer,
+  .menu-drawer-container > .sleek-menu-drawer {
+    transition-timing-function: var(--animation-easing);
+  }
+
+  /* Flex layout: nav + footer sized to content; drawer handles any overflow */
+  .sleek-menu-drawer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Navigation ──────────────────────────────────────────────────────────────── */
+
+  .sleek-menu-drawer__nav {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    position: relative;
+    padding: 20px 0;
+  }
+
+  .sleek-menu-drawer__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sleek-menu-drawer__menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sleek-menu-drawer--dividers .sleek-menu-drawer__item {
+    border-bottom: var(--style-border-width) solid var(--color-border);
+  }
+
+  /* ── Menu item links (shared base) ───────────────────────────────────────────── */
+
+  .sleek-menu-drawer__item-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-block: 0.75rem;
+    padding-inline: var(--padding-xl);
+    font-family: var(--menu-top-level-font-family);
+    font-weight: var(--font-body--weight);
+    font-size: var(--menu-top-level-font-size);
+    color: var(--color-foreground);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: start;
+    list-style: none; /* summary reset */
+  }
+
+  /* Remove default marker on <summary> elements */
+  details.sleek-menu-drawer__details > summary {
+    list-style: none;
+  }
+
+  details.sleek-menu-drawer__details > summary::marker,
+  details.sleek-menu-drawer__details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .sleek-menu-drawer__item-link:hover {
+    color: var(--color-primary);
+  }
+
+  .sleek-menu-drawer__item-link--active {
+    color: var(--color-primary);
+  }
+
+  .sleek-menu-drawer__item-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Caret icon on parent links */
+  .sleek-menu-drawer__item-link > .svg-wrapper {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* ── Submenu panel ───────────────────────────────────────────────────────────── */
+
+  .menu-drawer__submenu {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    transform: translateX(100%);
+    transition: transform var(--drawer-animation-speed, 0.3s) var(--animation-easing),
+      visibility var(--drawer-animation-speed, 0.3s) var(--animation-easing);
+    visibility: hidden;
+    z-index: 1;
+  }
+
+  .menu-drawer__submenu::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Slide in when details gets .menu-open (set by header-drawer.js) */
+  .sleek-menu-drawer__details.menu-open > .menu-drawer__submenu {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .sleek-menu-drawer__submenu-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .sleek-menu-drawer__submenu-list {
+    list-style: none;
+    margin: 0;
+    padding: var(--padding-sm) 0;
+  }
+  .sleek-menu-drawer--cascade .sleek-menu-drawer__submenu-list {
+    padding: 0;
+  }
+
+  .sleek-menu-drawer--dividers .sleek-menu-drawer__submenu-item {
+    border-bottom: var(--style-border-width) solid var(--color-border);
+  }
+
+  /* ── Back button ─────────────────────────────────────────────────────────────── */
+
+  .sleek-menu-drawer__back {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+    width: 100%;
+    padding-block: 0.75rem;
+    padding-inline: var(--padding-xl);
+    background: none;
+    border: none;
+    border-bottom: var(--submenu-border-width, 0px) solid var(--color-border);
+    color: rgba(var(--color-foreground-rgb), 0.6);
+    font-size: var(--font-size--h5);
+    cursor: pointer;
+    text-align: start;
+    flex-shrink: 0;
+  }
+
+  .sleek-menu-drawer__back .svg-wrapper,
+  .sleek-menu-drawer__back svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    /* Direction handled by .icon-caret--backward in base.css (rotate 90deg → left) */
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────────────────── */
+
+  .sleek-menu-drawer__search-entry {
+    padding: var(--padding-sm) var(--padding-lg);
+    /*border-bottom: var(--style-border-width) solid var(--color-border);*/
+  }
+
+  .sleek-menu-drawer__search-button {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm);
+    width: 100%;
+    padding: var(--padding-sm) var(--padding-md);
+    border: var(--style-border-width-inputs) solid var(--color-border);
+    border-radius: var(--style-border-radius-inputs);
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .sleek-menu-drawer__search-icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .sleek-menu-drawer__search-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .sleek-menu-drawer__search-placeholder {
+    font-size: var(--font-size--md);
+  }
+
+  .sleek-menu-drawer__footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    border-top: var(--style-border-width) solid var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .sleek-menu-drawer__footer-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-md);
+    padding: var(--padding-xl);
+  }
+
+  .sleek-menu-drawer__account-action {
+    padding: var(--padding-xl);
+	padding-top: 0;
+  }
+
+  /* New-account icon sits inline with social icons */
+  .sleek-menu-drawer__account-icon {
+    width: 1.8rem;
+    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-foreground);
+  }
+
+  .sleek-menu-drawer__account {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap-xs);
+    text-decoration: none;
+    height: clamp(25px, var(--height-buy-buttons, 44px), 55px);
+  }
+
+  .sleek-menu-drawer__account .svg-wrapper,
+  .sleek-menu-drawer__account svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* ── Social icons ────────────────────────────────────────────────────────────── */
+
+  .sleek-menu-drawer__social-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: calc(var(--gap-sm) * 2);
+  }
+
+  /* shopify-store is auto-injected by Shopify as a 0×0 companion to shopify-account;
+     hide it so it doesn't create a phantom flex gap */
+  .sleek-menu-drawer__social-row > shopify-store {
+    display: none;
+  }
+
+  .sleek-menu-drawer__social-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap-sm) calc(var(--gap-sm) * 2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sleek-menu-drawer__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-foreground);
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .sleek-menu-drawer__social-icon {
+    width: 1.8rem;
+    display: block;
+  }
+
+  /* ── Collection image grid (mobile drawer) ───────────────────────────────────── */
+
+  .sleek-mcl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--padding-sm);
+    padding: var(--padding-md) var(--padding-xl);
+  }
+
+  .sleek-mcl-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .sleek-mcl-item__image-wrap {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .sleek-mcl-item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .sleek-mcl-item__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sleek-mcl-item__placeholder svg {
+    width: 48%;
+    height: 48%;
+    opacity: 0.2;
+  }
+
+  .sleek-mcl-item__title {
+    margin: 0;
+    font-size: var(--font-size--sm);
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* ── Localization inside drawer ──────────────────────────────────────────────── */
+
+  .sleek-menu-drawer__localization {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ── Cascade (accordion) mode ────────────────────────────────────────────────── */
+
+  /* Inline submenu: JS (WAAPI) animates height; CSS only sets the closed default */
+  .sleek-menu-drawer--cascade .menu-drawer__submenu {
+    position: static;
+    visibility: visible;
+    opacity: 1;
+    background: transparent;
+    z-index: auto;
+    transform: none;
+    height: 0;
+    overflow: hidden;
+    padding-inline-start: var(--padding-xl);
+  }
+
+  /* Hide the back button — not needed in accordion layout */
+  .sleek-menu-drawer--cascade .sleek-menu-drawer__back {
+    display: none;
+  }
+
+  /* Caret: point right when closed, down when open */
+  .sleek-menu-drawer--cascade .sleek-menu-drawer__details > summary .icon-caret--forward svg {
+    transform: rotate(-90deg);
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .sleek-menu-drawer--cascade .sleek-menu-drawer__details.menu-open > summary .icon-caret--forward svg {
+    transform: rotate(0deg);
+  }
+
+  /* Remove borders from submenu items — only top-level items keep their border */
+  .sleek-menu-drawer--cascade .sleek-menu-drawer__submenu-item {
+    border-bottom: none;
+  }
+
+  /* Indent children one level deeper + use body font weight */
+  .sleek-menu-drawer--cascade .sleek-menu-drawer__submenu-list .sleek-menu-drawer__item-link {
+    padding-inline-start: var(--padding-xl);
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  /* Indent grandchildren two levels deeper */
+  .sleek-menu-drawer--cascade
+    .sleek-menu-drawer__submenu-list
+    .sleek-menu-drawer__submenu-list
+    .sleek-menu-drawer__item-link {
+    padding-inline-start: calc(var(--padding-xl) + 2.4rem);
+  }
+
+  /* ── Mega menu L2 accordion (inside L2 slide panel) ──────────────────────────── */
+
+  /* Group <li>: the border wraps the heading + all its L2 <details> together */
+  .sleek-menu-drawer__mega-group {
+    padding-block: var(--padding-xs);
+  }
+
+  /* Category heading (mega L1 label) */
+  .sleek-menu-drawer__mega-category {
+    font-size: var(--font-size--xs);
+    font-weight: var(--font-heading--weight);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgb(var(--color-foreground-rgb) / 0.5);
+    padding-block: var(--padding-2xs);
+    justify-content: start;
+    cursor: default;
+
+    &[href] {
+      cursor: pointer;
+      color: var(--color-foreground);
+
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+
+  /* Mega L2 <details>: inline accordion, no slide */
+  .sleek-menu-drawer__mega-l2 {
+    > summary {
+      list-style: none;
+
+      &::marker,
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      .icon-caret svg {
+        transition: transform 0.25s ease;
+        transform: rotate(-90deg); /* caret points right when closed */
+      }
+    }
+
+    &[open] > summary .icon-caret svg {
+      transform: rotate(0deg); /* caret points down when open */
+    }
+  }
+
+  /* L2 content: indented L3 links — always in DOM, height-controlled for animation */
+  .sleek-menu-drawer__mega-l2-content {
+    display: flex;
+    flex-direction: column;
+    padding-inline-start: var(--padding-xl);
+    height: 0;
+    overflow: hidden;
+  }
+
+  /* Mega L3 links: indented, body-weight, smaller */
+  .sleek-menu-drawer__item-link--mega-l3 {
+    padding-inline-start: var(--padding-xl);
+    font-family: var(--menu-top-level-font-family);
+    font-weight: var(--font-body--weight);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  const ANIM_DURATION = 300;
+  const ANIM_EASING = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+  class SleekMenuDrawer extends HTMLElement {
+    connectedCallback() {
+      if (this.classList.contains('sleek-menu-drawer--cascade')) {
+        this.querySelectorAll('.sleek-menu-drawer__details > summary').forEach((summary) => {
+          summary.addEventListener('click', this.#onSummaryClick);
+        });
+      }
+      this.querySelectorAll('.sleek-menu-drawer__mega-l2 > summary').forEach((summary) => {
+        summary.addEventListener('click', this.#onMegaL2Click);
+      });
+    }
+
+    disconnectedCallback() {
+      this.querySelectorAll('.sleek-menu-drawer__details > summary').forEach((summary) => {
+        summary.removeEventListener('click', this.#onSummaryClick);
+      });
+      this.querySelectorAll('.sleek-menu-drawer__mega-l2 > summary').forEach((summary) => {
+        summary.removeEventListener('click', this.#onMegaL2Click);
+      });
+    }
+
+    #onSummaryClick = (event) => {
+      event.preventDefault();
+      const summary = event.currentTarget;
+      const details = summary.closest('details');
+      const submenu = details.querySelector(':scope > .menu-drawer__submenu');
+      if (!submenu) return;
+      this.#animateHeight(
+        submenu,
+        details.classList.contains('menu-open'),
+        () => {
+          if (!details.open) details.open = true;
+          details.classList.add('menu-open');
+          summary.setAttribute('aria-expanded', 'true');
+        },
+        () => {
+          details.classList.remove('menu-open');
+          summary.setAttribute('aria-expanded', 'false');
+        }
+      );
+    };
+
+    #onMegaL2Click = (event) => {
+      event.preventDefault();
+      const details = event.currentTarget.closest('.sleek-menu-drawer__mega-l2');
+      const content = details.querySelector(':scope > .sleek-menu-drawer__mega-l2-content');
+      if (!content) return;
+      this.#animateHeight(
+        content,
+        details.open,
+        () => { details.open = true; },
+        () => { details.open = false; }
+      );
+    };
+
+    #animateHeight(el, isOpen, openFn, closeFn) {
+      el.getAnimations().forEach((a) => a.cancel());
+      if (isOpen) {
+        const h = el.getBoundingClientRect().height;
+        closeFn();
+        el.animate([{ height: h + 'px' }, { height: '0px' }], {
+          duration: ANIM_DURATION, easing: ANIM_EASING,
+        }).onfinish = () => { el.style.height = '0px'; };
+      } else {
+        openFn();
+        el.getBoundingClientRect(); // force reflow
+        el.style.height = '0px';
+        el.animate([{ height: '0px' }, { height: el.scrollHeight + 'px' }], {
+          duration: ANIM_DURATION, easing: ANIM_EASING,
+        }).onfinish = () => { el.style.height = 'auto'; };
+      }
+    }
+  }
+
+  if (!customElements.get('sleek-menu-drawer')) {
+    customElements.define('sleek-menu-drawer', SleekMenuDrawer);
+  }
+{% endjavascript %}

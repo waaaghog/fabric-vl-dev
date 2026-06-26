@@ -1,0 +1,55 @@
+{%- liquid
+  assign market_handle = localization.market.handle | default: localization.market.name | handleize
+  assign threshold = 25000
+
+  if market_handle == 'boost-mobile'
+    assign threshold = 10000
+  endif
+
+  assign b2b_locked = false
+  if settings.b2b_mode
+    if customer == nil or customer['b2b?'] != true
+      assign b2b_locked = true
+    endif
+  endif
+-%}
+
+<span class="shipping-policy-threshold" aria-label="Free shipping threshold">
+  <span class="shipping-policy-threshold__label">Your exclusive B2B Free Shipping threshold is</span>
+
+  {%- if b2b_locked -%}
+    <a class="shipping-policy-threshold__login b2b-login-prompt js-shopify-login-trigger" href="{{ settings.b2b_login_url }}">
+      Login to view Free Shipping threshold
+    </a>
+  {%- else -%}
+    <span class="shipping-policy-threshold__value">{{ threshold | money_without_trailing_zeros }}</span>
+  {%- endif -%}
+</span>
+
+{% stylesheet %}
+  .shipping-policy-threshold {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    width: 100%;
+    margin: 8px 0 20px;
+    color: var(--color-foreground);
+  }
+
+  .shipping-policy-threshold__label {
+    font-weight: 600;
+  }
+
+  .shipping-policy-threshold__value,
+  .shipping-policy-threshold__login {
+    font-weight: 700;
+  }
+
+  .shipping-policy-threshold__login {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+{% endstylesheet %}

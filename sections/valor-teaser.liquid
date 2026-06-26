@@ -1,0 +1,499 @@
+{%- liquid
+  assign s = section.settings
+  assign check_svg = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>'
+  assign arrow_svg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>'
+-%}
+
+<div class="section section--page-width" style="{% if s.bg_color != blank %}background-color: {{ s.bg_color }};{% endif %}padding-top: {{ s.padding_top }}px; padding-bottom: {{ s.padding_bottom }}px;">
+<section class="vr-teaser">
+  <div class="vr-teaser-inner">
+
+    {%- comment -%} ── Left ────────────────────────────────────────── {%- endcomment -%}
+    <div class="vr-teaser-left">
+      {%- if s.eyebrow != blank -%}
+        <div class="vr-teaser-eyebrow">{{ s.eyebrow }}</div>
+      {%- endif -%}
+      <div class="vr-teaser-title">
+        {{- s.title -}}
+        {%- if s.title_em != blank -%} &nbsp;<em>{{ s.title_em }}</em>{%- endif -%}
+      </div>
+      {%- if s.body != blank -%}
+        <p class="vr-teaser-body">{{ s.body }}</p>
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="vr-teaser-features">
+          {%- for block in section.blocks -%}
+            <li {{ block.shopify_attributes }}>
+              <span class="vr-teaser-chk">{{ check_svg }}</span>
+              {{ block.settings.text }}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if s.cta_text != blank -%}
+        <a href="{{ s.cta_url | default: '#' }}" class="vr-teaser-link">
+          {{ s.cta_text }}
+          {{ arrow_svg }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} ── Right: mock dashboard ───────────────────────── {%- endcomment -%}
+    <div class="vr-teaser-mock">
+      <div class="vr-teaser-mock-head">
+        <div class="vr-teaser-mock-title">{{ s.mock_title }}</div>
+        {%- if s.mock_period != blank -%}
+          <div class="vr-teaser-mock-period">{{ s.mock_period }}</div>
+        {%- endif -%}
+      </div>
+
+      <div class="vr-teaser-stats">
+        {%- for i in (1..3) -%}
+          {%- liquid
+            case i
+              when 1
+                assign lbl   = s.stat1_label
+                assign val   = s.stat1_value
+                assign delta = s.stat1_delta
+                assign dir   = s.stat1_dir
+              when 2
+                assign lbl   = s.stat2_label
+                assign val   = s.stat2_value
+                assign delta = s.stat2_delta
+                assign dir   = s.stat2_dir
+              when 3
+                assign lbl   = s.stat3_label
+                assign val   = s.stat3_value
+                assign delta = s.stat3_delta
+                assign dir   = s.stat3_dir
+            endcase
+          -%}
+          <div class="vr-teaser-stat">
+            <div class="vr-teaser-stat-lbl">{{ lbl }}</div>
+            <div class="vr-teaser-stat-val">{{ val }}</div>
+            {%- if delta != blank -%}
+              <div class="vr-teaser-stat-delta vr-teaser-stat-delta--{{ dir }}">{{ delta }}</div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="vr-teaser-chart">
+        <svg viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M 0 80 Q 40 70, 60 65 T 120 45 T 180 55 T 240 30 T 300 38 T 360 20 T 400 25"
+                stroke="#2B3A55" stroke-width="2" fill="none"/>
+          <path d="M 0 80 Q 40 70, 60 65 T 120 45 T 180 55 T 240 30 T 300 38 T 360 20 T 400 25 L 400 100 L 0 100 Z"
+                fill="#2B3A55" opacity="0.08"/>
+          <circle cx="240" cy="30" r="4" fill="#C54448"/>
+          <circle cx="400" cy="25" r="4" fill="#63B9DE"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</section>
+</div>
+
+{% stylesheet %}
+
+/* ── Color tokens ───────────────────────────────────────────────── */
+:root {
+  --vr-navy:       #2B3A55;
+  --vr-navy-deep:  #1D2636;
+  --vr-sky:        #63B9DE;
+  --vr-crimson:    #C54448;
+  --vr-chalk:      #F4F5F2;
+  --vr-parchment:  #EEEDE7;
+  --vr-steel:      #66717E;
+  --vr-white:      #FFFFFF;
+  --vr-border:     #0002;
+  --vr-border-str: #0003;
+  --vr-serif:      var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:       var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.vr-teaser-inner {
+  background: var(--vr-white);
+  border-radius: 24px;
+  padding: 48px;
+  border: 1px solid var(--vr-border);
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 56px;
+  align-items: center;
+}
+
+/* ── Left ───────────────────────────────────────────────────────── */
+.vr-teaser-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vr-crimson);
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.vr-teaser-title {
+  font-family: var(--vr-serif);
+  font-size: 48px;
+  line-height: 1.05;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+.vr-teaser-title em { font-style: italic; color: var(--vr-steel); }
+.vr-teaser-body {
+  font-family: var(--vr-sans);
+  color: var(--vr-steel);
+  font-size: 15px;
+  line-height: 1.65;
+  margin-bottom: 32px;
+}
+.vr-teaser-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.vr-teaser-features li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: var(--vr-navy-deep);
+  font-weight: 500;
+}
+.vr-teaser-chk {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.vr-teaser-link {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--vr-navy);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--vr-border-str);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.vr-teaser-link:hover { background: var(--vr-chalk); border-color: transparent; }
+
+/* ── Mock dashboard ─────────────────────────────────────────────── */
+.vr-teaser-mock {
+  background: var(--vr-chalk);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid var(--vr-border);
+}
+.vr-teaser-mock-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.vr-teaser-mock-title {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vr-navy-deep);
+}
+.vr-teaser-mock-period {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  color: var(--vr-steel);
+  background: var(--vr-white);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--vr-border);
+}
+.vr-teaser-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.vr-teaser-stat {
+  background: var(--vr-white);
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid var(--vr-border);
+}
+.vr-teaser-stat-lbl {
+  font-family: var(--vr-sans);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vr-steel);
+  font-weight: 500;
+}
+.vr-teaser-stat-val {
+  font-family: var(--vr-sans);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--vr-navy-deep);
+  margin-top: 6px;
+  letter-spacing: -0.01em;
+}
+.vr-teaser-stat-delta {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  margin-top: 4px;
+}
+.vr-teaser-stat-delta--up   { color: #2d7a3f; }
+.vr-teaser-stat-delta--down { color: var(--vr-crimson); }
+.vr-teaser-stat-delta--neutral { color: var(--vr-steel); }
+.vr-teaser-chart {
+  background: var(--vr-white);
+  border-radius: 10px;
+  padding: 18px;
+  border: 1px solid var(--vr-border);
+  height: 140px;
+}
+.vr-teaser-chart svg { width: 100%; height: 100%; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .vr-teaser-inner { grid-template-columns: 1fr; gap: 32px; }
+  .vr-teaser-title { font-size: 36px; }
+}
+@media (max-width: 749px) {
+  .vr-teaser-inner { padding: 28px 24px; }
+  .vr-teaser-stats { grid-template-columns: 1fr 1fr; }
+  .vr-teaser-stats .vr-teaser-stat:last-child { grid-column: span 2; }
+}
+
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Valor teaser",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "info": "Leave blank for no background",
+      "alpha": true
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "Left column"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Your dashboard"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Account overview,"
+    },
+    {
+      "type": "text",
+      "id": "title_em",
+      "label": "Title italic suffix",
+      "default": "at a glance."
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body text",
+      "default": "Open orders, year-to-date volume, invoice status, and credit utilization — live for the last 30 days. Click into the dashboard for full filtering, exports, and order history."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA text",
+      "default": "Open full dashboard"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA URL"
+    },
+    {
+      "type": "header",
+      "content": "Mock dashboard"
+    },
+    {
+      "type": "text",
+      "id": "mock_title",
+      "label": "Account name",
+      "default": "Pacific Cellular — account overview"
+    },
+    {
+      "type": "text",
+      "id": "mock_period",
+      "label": "Period label",
+      "default": "Last 30 days"
+    },
+    {
+      "type": "header",
+      "content": "Stat 1"
+    },
+    {
+      "type": "text",
+      "id": "stat1_label",
+      "label": "Label",
+      "default": "Open orders"
+    },
+    {
+      "type": "text",
+      "id": "stat1_value",
+      "label": "Value",
+      "default": "14"
+    },
+    {
+      "type": "text",
+      "id": "stat1_delta",
+      "label": "Delta text",
+      "default": "↑ 3 this week"
+    },
+    {
+      "type": "select",
+      "id": "stat1_dir",
+      "label": "Delta direction",
+      "options": [
+        { "value": "up",      "label": "Up (green)" },
+        { "value": "down",    "label": "Down (red)" },
+        { "value": "neutral", "label": "Neutral (grey)" }
+      ],
+      "default": "up"
+    },
+    {
+      "type": "header",
+      "content": "Stat 2"
+    },
+    {
+      "type": "text",
+      "id": "stat2_label",
+      "label": "Label",
+      "default": "YTD volume"
+    },
+    {
+      "type": "text",
+      "id": "stat2_value",
+      "label": "Value",
+      "default": "$284k"
+    },
+    {
+      "type": "text",
+      "id": "stat2_delta",
+      "label": "Delta text",
+      "default": "↑ 18% vs LY"
+    },
+    {
+      "type": "select",
+      "id": "stat2_dir",
+      "label": "Delta direction",
+      "options": [
+        { "value": "up",      "label": "Up (green)" },
+        { "value": "down",    "label": "Down (red)" },
+        { "value": "neutral", "label": "Neutral (grey)" }
+      ],
+      "default": "up"
+    },
+    {
+      "type": "header",
+      "content": "Stat 3"
+    },
+    {
+      "type": "text",
+      "id": "stat3_label",
+      "label": "Label",
+      "default": "Net 30 credit"
+    },
+    {
+      "type": "text",
+      "id": "stat3_value",
+      "label": "Value",
+      "default": "$57,820"
+    },
+    {
+      "type": "text",
+      "id": "stat3_delta",
+      "label": "Delta text",
+      "default": "$17,180 of $75,000 used"
+    },
+    {
+      "type": "select",
+      "id": "stat3_dir",
+      "label": "Delta direction",
+      "options": [
+        { "value": "up",      "label": "Up (green)" },
+        { "value": "down",    "label": "Down (red)" },
+        { "value": "neutral", "label": "Neutral (grey)" }
+      ],
+      "default": "neutral"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Live order and shipment tracking"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor teaser",
+      "blocks": [
+        { "type": "feature", "settings": { "text": "Live order and shipment tracking" } },
+        { "type": "feature", "settings": { "text": "Custom price lists by tier" } },
+        { "type": "feature", "settings": { "text": "Bulk CSV upload and saved lists" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,1327 @@
+{% comment %}
+  valor-collection.liquid
+  Collection page — filter rail + product grid with three layout modes:
+  grouped-grid (one card per product), individual-grid (one card per variant), list.
+{% endcomment %}
+
+{%- paginate collection.products by section.settings.products_per_page -%}
+
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign active_filter_count = 0
+  assign dl_filter_value = nil
+  assign dl_filter_active = false
+  for filter in collection.filters
+    assign active_filter_count = active_filter_count | plus: filter.active_values.size
+    if filter.param_name contains 'product_designlab'
+      for fv in filter.values
+        if fv.value == 'true'
+          assign dl_filter_value = fv
+          if fv.active
+            assign dl_filter_active = true
+          endif
+        endif
+      endfor
+    endif
+  endfor
+-%}
+
+<style>
+  #valor-collection-{{ section.id }} {
+    --vc-navy:          #2B3A55;
+    --vc-navy-deep:     #1D2636;
+    --vc-sky-pale:      #D9EEF6;
+    --vc-crimson:       #C54448;
+    --vc-chalk:         #F4F5F2;
+    --vc-parchment:     #EEEDE7;
+    --vc-steel:         #66717E;
+    --vc-steel-light:   #A8B0B8;
+    --vc-white:         #FFFFFF;
+    --vc-green:         #2d7a3f;
+    --vc-amber:         #B07E1A;
+    --vc-amber-soft:    #FAEEDA;
+    --vc-border:        rgba(29,38,54,0.08);
+    --vc-border-strong: rgba(29,38,54,0.14);
+    --vc-accent:        var(--vc-crimson);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #121820;
+  }
+
+  /* ===== TOOLBAR ===== */
+  #valor-collection-{{ section.id }} .vc-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding-top: 20px;
+  }
+  #valor-collection-{{ section.id }} .vc-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-result-count {
+    font-size: 13px;
+    color: var(--vc-navy-deep);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-result-count span { color: var(--vc-steel); font-weight: 400; }
+  #valor-collection-{{ section.id }} .vc-active-filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px 6px 14px;
+    background: var(--vc-white);
+    border: 1px solid var(--vc-border-strong);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--vc-navy);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-chip-remove {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--vc-parchment);
+    color: var(--vc-steel);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-chip:hover .vc-filter-chip-remove {
+    background: var(--vc-accent);
+    color: var(--vc-chalk);
+  }
+  #valor-collection-{{ section.id }} .vc-clear-all-link {
+    font-size: 11px;
+    color: var(--vc-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    white-space: nowrap;
+  }
+  #valor-collection-{{ section.id }} .vc-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-sort-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    background: var(--vc-white);
+    border: 1px solid var(--vc-border-strong);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--vc-navy);
+    transition: border-color 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-sort-pill:hover { border-color: var(--vc-navy); }
+  #valor-collection-{{ section.id }} .vc-sort-pill svg { color: var(--vc-steel); flex-shrink: 0; }
+  #valor-collection-{{ section.id }} .vc-sort-pill select {
+    border: none; background: transparent; outline: none;
+    font-size: 12px; font-weight: 500; color: var(--vc-navy);
+    padding-right: 18px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2366717E' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0 center;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  #valor-collection-{{ section.id }} .vc-view-toggle {
+    display: flex;
+    background: var(--vc-white);
+    border: 1px solid var(--vc-border-strong);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-view-toggle-button {
+    width: 32px; height: 32px;
+    border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--vc-steel);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  #valor-collection-{{ section.id }} .vc-view-toggle-button.is-active {
+    background: var(--vc-navy-deep);
+    color: var(--vc-chalk);
+  }
+
+  /* ===== PLP LAYOUT ===== */
+  #valor-collection-{{ section.id }} .vc-plp-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
+    align-items: flex-start;
+    margin-top: 24px;
+    padding-bottom: 48px;
+  }
+
+  /* ===== FILTER RAIL ===== */
+  #valor-collection-{{ section.id }} .vc-filter-rail {
+    position: sticky;
+    top: 96px;
+    background: var(--vc-white);
+    border: 1px solid var(--vc-border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group {
+    border-bottom: 1px solid var(--vc-border);
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group:last-child { border-bottom: none; }
+  #valor-collection-{{ section.id }} .vc-filter-group-head {
+    width: 100%;
+    padding: 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: background 0.15s;
+    text-align: left;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group-head:hover { background: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-filter-group-label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vc-navy-deep);
+    font-weight: 600;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group-chevron {
+    color: var(--vc-steel);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group.is-open .vc-filter-group-chevron {
+    transform: rotate(180deg);
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group-body {
+    padding: 0 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  #valor-collection-{{ section.id }} .vc-filter-group:not(.is-open) .vc-filter-group-body {
+    display: none;
+  }
+  #valor-collection-{{ section.id }} .vc-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--vc-navy-deep);
+    cursor: pointer;
+    padding: 2px 0;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-checkbox-row.is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  #valor-collection-{{ section.id }} .vc-checkbox-box {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--vc-border-strong);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--vc-white);
+    transition: all 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-checkbox-row.is-active .vc-checkbox-box {
+    background: var(--vc-navy-deep);
+    border-color: var(--vc-navy-deep);
+  }
+  #valor-collection-{{ section.id }} .vc-checkbox-row.is-active .vc-checkbox-box::after {
+    content: '';
+    width: 4px; height: 8px;
+    border-right: 1.5px solid var(--vc-chalk);
+    border-bottom: 1.5px solid var(--vc-chalk);
+    transform: rotate(45deg) translate(-0.5px, -0.5px);
+  }
+  #valor-collection-{{ section.id }} .vc-checkbox-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--vc-steel);
+    font-weight: 500;
+  }
+
+  /* ===== DESIGN LAB SIDEBAR TOGGLE ===== */
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar {
+    background: linear-gradient(145deg, var(--vc-navy-deep) 0%, #4a3868 100%);
+    border-radius: 12px;
+    padding: 16px 16px 14px;
+    margin: 16px;
+    color: var(--vc-chalk);
+    box-shadow: 0 4px 16px rgba(29,38,54,0.12);
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(244,245,242,0.12);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--vc-sky, #63B9DE);
+    flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-title {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.1;
+    color: var(--vc-chalk);
+    letter-spacing: -0.01em;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-subtitle {
+    font-size: 11px;
+    color: rgba(244,245,242,0.7);
+    margin-top: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-pills {
+    display: flex;
+    background: rgba(244,245,242,0.08);
+    border: 1px solid rgba(244,245,242,0.1);
+    border-radius: 999px;
+    padding: 3px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-button {
+    flex: 1;
+    padding: 7px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(244,245,242,0.7);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    display: block;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-button:hover { color: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-button.is-active {
+    background: var(--vc-chalk);
+    color: var(--vc-navy-deep);
+    font-weight: 600;
+  }
+  #valor-collection-{{ section.id }} .vc-design-lab-sidebar-hint {
+    font-size: 11px;
+    color: rgba(244,245,242,0.55);
+    line-height: 1.4;
+  }
+
+  /* ===== VIEW SHOW / HIDE ===== */
+  #valor-collection-{{ section.id }} .vc-grouped-grid-view,
+  #valor-collection-{{ section.id }} .vc-individual-grid-view,
+  #valor-collection-{{ section.id }} .vc-list-view { display: none; }
+
+  #valor-collection-{{ section.id }} .vc-view-container[data-active="grouped-grid"]   .vc-grouped-grid-view,
+  #valor-collection-{{ section.id }} .vc-view-container[data-active="individual-grid"] .vc-individual-grid-view,
+  #valor-collection-{{ section.id }} .vc-view-container[data-active="list"]            .vc-list-view { display: block; }
+
+  /* ===== GROUPED GRID ===== */
+  #valor-collection-{{ section.id }} .vc-product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  #valor-collection-{{ section.id }} .vc-product-card {
+    background: var(--vc-white);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--vc-border);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  #valor-collection-{{ section.id }} .vc-product-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--vc-border-strong);
+  }
+  #valor-collection-{{ section.id }} .vc-product-card.is-out-of-stock { opacity: 0.7; }
+  #valor-collection-{{ section.id }} .vc-product-image {
+    aspect-ratio: 1 / 1;
+    background: var(--vc-white);
+    position: relative;
+    overflow: hidden;
+  }
+  #valor-collection-{{ section.id }} .vc-product-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    transition: opacity 0.35s, transform 0.35s;
+  }
+  #valor-collection-{{ section.id }} .vc-product-image-hover {
+    opacity: 0;
+    transform: scale(0.92);
+    z-index: 2;
+  }
+  #valor-collection-{{ section.id }} .vc-product-card:hover .vc-product-image-primary {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  #valor-collection-{{ section.id }} .vc-product-card:hover .vc-product-image-hover {
+    opacity: 1;
+    transform: scale(1);
+  }
+  #valor-collection-{{ section.id }} .vc-product-badges {
+    position: absolute;
+    top: 14px; right: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+    z-index: 3;
+  }
+  #valor-collection-{{ section.id }} .vc-product-badge {
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  #valor-collection-{{ section.id }} .vc-product-badge--new  { background: var(--vc-navy-deep); color: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-product-badge--sale { background: var(--vc-crimson);   color: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-product-badge--low  { background: var(--vc-amber-soft); color: var(--vc-amber); }
+  #valor-collection-{{ section.id }} .vc-product-badge--oos  { background: var(--vc-navy-deep); color: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-product-info {
+    padding: 16px 18px 18px;
+    background: var(--vc-parchment);
+    border-top: 1px solid var(--vc-border);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  #valor-collection-{{ section.id }} .vc-product-brand {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vc-accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  #valor-collection-{{ section.id }} .vc-product-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--vc-navy-deep);
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-product-model {
+    font-size: 12px;
+    color: var(--vc-steel);
+    line-height: 1.3;
+  }
+  #valor-collection-{{ section.id }} .vc-variant-swatches {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 12px 0 14px;
+    flex-wrap: wrap;
+  }
+  #valor-collection-{{ section.id }} .vc-variant-swatch {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--vc-border-strong);
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+  }
+  #valor-collection-{{ section.id }} .vc-variant-swatch-count {
+    font-size: 10px;
+    color: var(--vc-steel);
+    margin-left: 4px;
+    letter-spacing: 0.05em;
+  }
+  #valor-collection-{{ section.id }} .vc-price-block {
+    margin-top: auto;
+    padding: 12px 14px;
+    background: var(--vc-chalk);
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+  }
+  #valor-collection-{{ section.id }} .vc-price-block-left { display: flex; flex-direction: column; min-width: 0; }
+  #valor-collection-{{ section.id }} .vc-wholesale-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vc-steel);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  #valor-collection-{{ section.id }} .vc-price-amount {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--vc-navy-deep);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  #valor-collection-{{ section.id }} .vc-msrp-block {
+    text-align: right;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+  #valor-collection-{{ section.id }} .vc-msrp-label {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vc-steel);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+  }
+  #valor-collection-{{ section.id }} .vc-msrp-amount {
+    font-size: 14px;
+    color: var(--vc-navy);
+    font-weight: 500;
+  }
+
+  /* ===== INDIVIDUAL GRID ===== */
+  #valor-collection-{{ section.id }} .vc-individual-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card {
+    background: var(--vc-white);
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--vc-border);
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--vc-border-strong);
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card.is-out-of-stock { opacity: 0.7; }
+  #valor-collection-{{ section.id }} .vc-individual-card-image {
+    aspect-ratio: 1.2 / 1;
+    position: relative;
+    background: var(--vc-chalk);
+    overflow: hidden;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-image img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 8px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-badges {
+    position: absolute;
+    top: 8px; left: 8px;
+    display: flex;
+    gap: 4px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-badge {
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--vc-white);
+    color: var(--vc-navy-deep);
+    font-weight: 600;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-badge--low { background: var(--vc-amber-soft); color: var(--vc-amber); }
+  #valor-collection-{{ section.id }} .vc-individual-card-badge--oos { background: var(--vc-crimson);   color: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-individual-card-info {
+    padding: 12px 14px 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-brand {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vc-accent);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-name {
+    font-size: 13px;
+    color: var(--vc-navy-deep);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-variant {
+    font-size: 12px;
+    color: var(--vc-steel);
+    margin-top: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-sku {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 10px;
+    color: var(--vc-navy);
+    margin-top: 8px;
+    background: var(--vc-sky-pale);
+    padding: 2px 7px;
+    border-radius: 4px;
+    align-self: flex-start;
+    letter-spacing: 0.02em;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-price {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: var(--vc-chalk);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-wholesale-label {
+    font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--vc-steel); font-weight: 600;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-price-amount {
+    font-size: 16px; color: var(--vc-navy-deep); font-weight: 600; margin-top: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-msrp-block { text-align: right; }
+  #valor-collection-{{ section.id }} .vc-individual-card-msrp-label {
+    font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--vc-steel); font-weight: 600;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-msrp-amount {
+    font-size: 12px; color: var(--vc-navy); font-weight: 500; margin-top: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-stock {
+    font-size: 11px;
+    color: var(--vc-navy-deep);
+    font-weight: 500;
+    margin-top: auto;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-stock-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--vc-green);
+    flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-individual-card-stock--low { color: var(--vc-amber); }
+  #valor-collection-{{ section.id }} .vc-individual-card-stock--low .vc-individual-card-stock-dot { background: var(--vc-amber); }
+  #valor-collection-{{ section.id }} .vc-individual-card-stock--oos { color: var(--vc-steel); }
+  #valor-collection-{{ section.id }} .vc-individual-card-stock--oos .vc-individual-card-stock-dot { background: var(--vc-steel-light); }
+
+  /* ===== LIST VIEW ===== */
+  #valor-collection-{{ section.id }} .vc-list-table {
+    background: var(--vc-white);
+    border: 1px solid var(--vc-border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  #valor-collection-{{ section.id }} .vc-list-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 140px 140px 180px;
+    gap: 16px;
+    padding: 16px 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--vc-border);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-list-row:last-child { border-bottom: none; }
+  #valor-collection-{{ section.id }} .vc-list-row:not(.vc-list-head):hover { background: var(--vc-chalk); }
+  #valor-collection-{{ section.id }} .vc-list-head {
+    background: var(--vc-chalk);
+    padding: 10px 20px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vc-steel);
+    font-weight: 600;
+    cursor: default;
+  }
+  #valor-collection-{{ section.id }} .vc-list-thumbnail {
+    width: 64px; height: 64px;
+    border-radius: 10px;
+    background: var(--vc-chalk);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-list-thumbnail img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 4px;
+  }
+  #valor-collection-{{ section.id }} .vc-list-info { min-width: 0; line-height: 1.3; }
+  #valor-collection-{{ section.id }} .vc-list-info-brand {
+    font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--vc-accent); font-weight: 600; margin-bottom: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-list-info-name {
+    font-size: 14px; font-weight: 500; color: var(--vc-navy-deep);
+  }
+  #valor-collection-{{ section.id }} .vc-list-info-model {
+    font-size: 12px; color: var(--vc-steel); margin-top: 1px;
+  }
+  #valor-collection-{{ section.id }} .vc-list-stock {
+    font-size: 12px; color: var(--vc-navy-deep);
+    font-weight: 500;
+    display: flex; align-items: center; gap: 5px;
+  }
+  #valor-collection-{{ section.id }} .vc-list-stock-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%; background: var(--vc-green); flex-shrink: 0;
+  }
+  #valor-collection-{{ section.id }} .vc-list-stock--low { color: var(--vc-amber); }
+  #valor-collection-{{ section.id }} .vc-list-stock--low .vc-list-stock-dot { background: var(--vc-amber); }
+  #valor-collection-{{ section.id }} .vc-list-stock--oos { color: var(--vc-steel); }
+  #valor-collection-{{ section.id }} .vc-list-stock--oos .vc-list-stock-dot { background: var(--vc-steel-light); }
+  #valor-collection-{{ section.id }} .vc-list-price-block {
+    display: flex; flex-direction: column; line-height: 1.3;
+  }
+  #valor-collection-{{ section.id }} .vc-list-wholesale-price {
+    font-size: 16px; color: var(--vc-navy-deep); font-weight: 600;
+  }
+  #valor-collection-{{ section.id }} .vc-list-msrp-price {
+    font-size: 11px; color: var(--vc-steel); margin-top: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-list-action { display: flex; justify-content: flex-end; }
+  #valor-collection-{{ section.id }} .vc-list-action-button {
+    background: var(--vc-navy-deep);
+    color: var(--vc-chalk);
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 12px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: background 0.15s;
+    text-decoration: none;
+  }
+  #valor-collection-{{ section.id }} .vc-list-action-button:hover { background: var(--vc-accent); }
+
+  /* ===== PAGINATION ===== */
+  #valor-collection-{{ section.id }} .vc-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 32px 0 48px;
+  }
+  #valor-collection-{{ section.id }} .vc-pagination-item {
+    min-width: 36px; height: 36px;
+    padding: 0 10px;
+    border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500;
+    text-decoration: none;
+    color: var(--vc-navy);
+    border: 1px solid transparent;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  #valor-collection-{{ section.id }} .vc-pagination-item:hover {
+    background: var(--vc-chalk);
+    border-color: var(--vc-border);
+  }
+  #valor-collection-{{ section.id }} .vc-pagination-item.is-current {
+    background: var(--vc-navy-deep);
+    color: var(--vc-chalk);
+    border-color: var(--vc-navy-deep);
+  }
+
+  /* ===== EMPTY STATE ===== */
+  #valor-collection-{{ section.id }} .vc-empty-state {
+    padding: 80px 32px;
+    text-align: center;
+    color: var(--vc-steel);
+  }
+  #valor-collection-{{ section.id }} .vc-empty-state-title {
+    font-size: 20px; font-weight: 500; color: var(--vc-navy-deep); margin-bottom: 8px;
+  }
+  #valor-collection-{{ section.id }} .vc-empty-state a {
+    color: var(--vc-accent); text-decoration: underline;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    #valor-collection-{{ section.id }} .vc-plp-layout    { grid-template-columns: 220px 1fr; }
+    #valor-collection-{{ section.id }} .vc-product-grid  { grid-template-columns: repeat(2, 1fr); }
+    #valor-collection-{{ section.id }} .vc-individual-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 900px) {
+    #valor-collection-{{ section.id }} .vc-plp-layout    { grid-template-columns: 1fr; }
+    #valor-collection-{{ section.id }} .vc-filter-rail   { position: static; }
+    #valor-collection-{{ section.id }} .vc-toolbar       { flex-wrap: wrap; }
+    #valor-collection-{{ section.id }} .vc-individual-grid { grid-template-columns: repeat(2, 1fr); }
+    #valor-collection-{{ section.id }} .vc-list-row      { grid-template-columns: 48px 1fr 120px; }
+    #valor-collection-{{ section.id }} .vc-list-stock,
+    #valor-collection-{{ section.id }} .vc-list-action   { display: none; }
+  }
+  @media (max-width: 749px) {
+    #valor-collection-{{ section.id }} .vc-product-grid,
+    #valor-collection-{{ section.id }} .vc-individual-grid { grid-template-columns: 1fr 1fr; }
+    #valor-collection-{{ section.id }} .vc-list-row      { grid-template-columns: 48px 1fr; }
+    #valor-collection-{{ section.id }} .vc-list-price-block { display: none; }
+  }
+</style>
+
+<div id="valor-collection-{{ section.id }}" class="section section--page-width">
+
+  {%- if collection.products.size > 0 -%}
+
+  <!-- ===== TOOLBAR ===== -->
+  <div class="vc-toolbar">
+    <div class="vc-toolbar-left">
+      <span class="vc-result-count">
+        {{ collection.products_count }}
+        <span>{{ collection.products_count | pluralize: 'product', 'products' }}</span>
+      </span>
+
+      {%- if active_filter_count > 0 -%}
+        <div class="vc-active-filter-chips">
+          {%- for filter in collection.filters -%}
+            {%- for value in filter.active_values -%}
+              <a href="{{ value.url_to_remove }}" class="vc-filter-chip">
+                {{ value.label }}
+                <span class="vc-filter-chip-remove" aria-hidden="true">
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 1l6 6M7 1L1 7"/></svg>
+                </span>
+              </a>
+            {%- endfor -%}
+          {%- endfor -%}
+          <a href="{{ collection.url }}" class="vc-clear-all-link">Clear all</a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="vc-toolbar-right">
+      <!-- Sort -->
+      <div class="vc-sort-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+        <select onchange="location.href=this.value" aria-label="Sort by">
+          {%- for option in collection.sort_options -%}
+            <option value="{{ collection.url }}?sort_by={{ option.value }}"
+              {%- if option.value == sort_by %} selected{%- endif -%}>
+              {{ option.name }}
+            </option>
+          {%- endfor -%}
+        </select>
+      </div>
+
+      <!-- View toggle -->
+      <div class="vc-view-toggle" id="vc-view-toggle-{{ section.id }}" role="group" aria-label="Product list layout">
+        <button class="vc-view-toggle-button is-active" data-view="grouped-grid"
+          title="Grouped grid — one card per product" aria-label="Grouped grid view" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </button>
+        <button class="vc-view-toggle-button" data-view="individual-grid"
+          title="Individual grid — one card per variant" aria-label="Individual grid view" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="4" height="4" rx="0.5"/><rect x="10" y="3" width="4" height="4" rx="0.5"/><rect x="17" y="3" width="4" height="4" rx="0.5"/><rect x="3" y="10" width="4" height="4" rx="0.5"/><rect x="10" y="10" width="4" height="4" rx="0.5"/><rect x="17" y="10" width="4" height="4" rx="0.5"/><rect x="3" y="17" width="4" height="4" rx="0.5"/><rect x="10" y="17" width="4" height="4" rx="0.5"/><rect x="17" y="17" width="4" height="4" rx="0.5"/></svg>
+        </button>
+        <button class="vc-view-toggle-button" data-view="list"
+          title="List view — scan-friendly horizontal layout" aria-label="List view" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PLP LAYOUT ===== -->
+  <div class="vc-plp-layout">
+
+    <!-- FILTER RAIL -->
+    <aside class="vc-filter-rail" aria-label="Filters">
+
+      <!-- Design Lab toggle -->
+      {%- if dl_filter_value -%}
+        {%- assign dl_show_url = dl_filter_value.url_to_add -%}
+        {%- assign dl_hide_url = dl_filter_value.url_to_remove -%}
+        <div class="vc-design-lab-sidebar">
+          <div class="vc-design-lab-sidebar-head">
+            <div class="vc-design-lab-sidebar-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div>
+              <div class="vc-design-lab-sidebar-title">Design Lab</div>
+              <div class="vc-design-lab-sidebar-subtitle">{{ dl_filter_value.count }} designs available</div>
+            </div>
+          </div>
+          <div class="vc-design-lab-sidebar-pills">
+            <a href="{{ dl_hide_url }}"
+              class="vc-design-lab-sidebar-button{%- unless dl_filter_active %} is-active{%- endunless -%}"
+              title="Hide Design Lab designs from the grid">Hide</a>
+            <a href="{{ dl_show_url }}"
+              class="vc-design-lab-sidebar-button{%- if dl_filter_active %} is-active{%- endif -%}"
+              title="Show Design Lab designs in the grid">Show</a>
+          </div>
+          <div class="vc-design-lab-sidebar-hint">
+            {%- if dl_filter_active -%}
+              Showing Design Lab designs only.
+            {%- else -%}
+              Design Lab designs are hidden.
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- for filter in collection.filters -%}
+        <div class="vc-filter-group is-open">
+          <button class="vc-filter-group-head" type="button"
+            aria-expanded="true"
+            aria-controls="vc-filter-body-{{ section.id }}-{{ forloop.index }}">
+            <span class="vc-filter-group-label">{{ filter.label }}</span>
+            <svg class="vc-filter-group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 4l4 4 4-4"/></svg>
+          </button>
+          <div class="vc-filter-group-body" id="vc-filter-body-{{ section.id }}-{{ forloop.index }}">
+            {%- if filter.type == 'price_range' -%}
+              {%- assign min_val = filter.min_value.value | default: '' -%}
+              {%- assign max_val = filter.max_value.value | default: '' -%}
+              <div class="vc-price-range-inputs" data-filter-price="{{ section.id }}">
+                <div style="display:flex; gap:8px; margin-top:4px;">
+                  <div style="flex:1; border:1px solid var(--vc-border-strong); border-radius:8px; padding:8px 10px;">
+                    <div style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--vc-steel); font-weight:500; margin-bottom:4px;">Min</div>
+                    <input type="number" name="{{ filter.min_value.param_name }}"
+                      value="{{ min_val }}" placeholder="{{ filter.range_min | money_without_currency }}"
+                      min="0" style="width:100%; border:none; outline:none; font-size:13px; font-weight:500; color:var(--vc-navy-deep); font-family:inherit; background:transparent;">
+                  </div>
+                  <div style="flex:1; border:1px solid var(--vc-border-strong); border-radius:8px; padding:8px 10px;">
+                    <div style="font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--vc-steel); font-weight:500; margin-bottom:4px;">Max</div>
+                    <input type="number" name="{{ filter.max_value.param_name }}"
+                      value="{{ max_val }}" placeholder="{{ filter.range_max | money_without_currency }}"
+                      min="0" style="width:100%; border:none; outline:none; font-size:13px; font-weight:500; color:var(--vc-navy-deep); font-family:inherit; background:transparent;">
+                  </div>
+                </div>
+              </div>
+            {%- else -%}
+              {%- for value in filter.values -%}
+                {%- if value.active -%}
+                  {%- assign filter_url = value.url_to_remove -%}
+                {%- else -%}
+                  {%- assign filter_url = value.url_to_add -%}
+                {%- endif -%}
+                <a href="{{ filter_url }}"
+                  class="vc-checkbox-row{%- if value.active %} is-active{%- endif -%}{%- if value.count == 0 and value.active == false %} is-disabled{%- endif -%}">
+                  <span class="vc-checkbox-box"></span>
+                  <span>{{ value.label }}</span>
+                  <span class="vc-checkbox-count">{{ value.count }}</span>
+                </a>
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </aside>
+
+    <!-- VIEW CONTAINER -->
+    <div class="vc-view-container" data-active="grouped-grid"
+      id="vc-view-container-{{ section.id }}">
+
+      <!-- GROUPED GRID VIEW -->
+      <div class="vc-grouped-grid-view">
+        <div class="vc-product-grid">
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign product_brand = product.metafields.custom.product_brand.value
+              assign product_model = product.metafields.custom.phone_devices | metafield_text
+              assign color_option = nil
+              for opt in product.options_with_values
+                if opt.name == 'Color' or opt.name == 'color'
+                  assign color_option = opt
+                  break
+                endif
+              endfor
+            -%}
+            <a href="{{ product.url }}" class="vc-product-card{%- unless product.available %} is-out-of-stock{%- endunless -%}">
+
+              <div class="vc-product-image">
+                {%- if product.featured_image -%}
+                  <img class="vc-product-image-primary"
+                    src="{{ product.featured_image | image_url: width: 600 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    width="600" height="600"
+                    loading="lazy">
+                  {%- if product.images[1] -%}
+                    <img class="vc-product-image-hover"
+                      src="{{ product.images[1] | image_url: width: 600 }}"
+                      alt="{{ product.images[1].alt | escape }}"
+                      width="600" height="600"
+                      loading="lazy">
+                  {%- endif -%}
+                {%- endif -%}
+
+                <div class="vc-product-badges">
+                  {%- unless product.available -%}
+                    <span class="vc-product-badge vc-product-badge--oos">Out of stock</span>
+                  {%- endunless -%}
+                  {%- if product.compare_at_price > product.price -%}
+                    <span class="vc-product-badge vc-product-badge--sale">Sale</span>
+                  {%- endif -%}
+                </div>
+              </div>
+
+              <div class="vc-product-info">
+                <div class="vc-product-brand">{{ product_brand | default: product.vendor }}</div>
+                <div class="vc-product-name">{{ product.title }}</div>
+                {%- if product_model != blank -%}
+                  <div class="vc-product-model">{{ product_model }}</div>
+                {%- endif -%}
+
+                {%- if color_option and color_option.values.size > 1 -%}
+                  <div class="vc-variant-swatches">
+                    {%- assign swatch_shown = 0 -%}
+                    {%- assign prev_color = nil -%}
+                    {%- for variant in product.variants -%}
+                      {%- if variant.option1 != prev_color and swatch_shown < 6 -%}
+                        {%- assign prev_color = variant.option1 -%}
+                        {%- if variant.featured_image -%}
+                          <span class="vc-variant-swatch" style="background-image:url('{{ variant.featured_image | image_url: width: 30 }}');" title="{{ variant.option1 }}"></span>
+                        {%- else -%}
+                          <span class="vc-variant-swatch" title="{{ variant.option1 }}"></span>
+                        {%- endif -%}
+                        {%- assign swatch_shown = swatch_shown | plus: 1 -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                    {%- if color_option.values.size > 6 -%}
+                      <span class="vc-variant-swatch-count">+{{ color_option.values.size | minus: 6 }}</span>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+
+                <div class="vc-price-block">
+                  <div class="vc-price-block-left">
+                    <div class="vc-wholesale-label">Wholesale</div>
+                    <div class="vc-price-amount">{{ product.price | money }}</div>
+                  </div>
+                  {%- if product.compare_at_price and product.compare_at_price > product.price -%}
+                    <div class="vc-msrp-block">
+                      <span class="vc-msrp-label">MSRP</span>
+                      <div class="vc-msrp-amount">{{ product.compare_at_price | money }}</div>
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
+
+            </a>
+          {%- endfor -%}
+        </div>
+      </div><!-- /.vc-grouped-grid-view -->
+
+      <!-- INDIVIDUAL GRID VIEW -->
+      <div class="vc-individual-grid-view">
+        <div class="vc-individual-grid">
+          {%- for product in collection.products -%}
+            {%- assign product_brand = product.metafields.custom.product_brand.value -%}
+            {%- for variant in product.variants -%}
+              {%- liquid
+                if variant.available == false
+                  assign stock_label = 'Out of stock'
+                  assign stock_modifier = 'vc-individual-card-stock--oos'
+                elsif variant.inventory_management == blank
+                  assign stock_label = '500+ in stock'
+                  assign stock_modifier = ''
+                elsif variant.inventory_quantity >= 500
+                  assign stock_label = '500+ in stock'
+                  assign stock_modifier = ''
+                elsif variant.inventory_quantity > 0
+                  assign stock_label = variant.inventory_quantity | append: ' in stock'
+                  assign stock_modifier = ''
+                  if variant.inventory_quantity < 50
+                    assign stock_label = stock_label | append: ' · Low Stock'
+                    assign stock_modifier = 'vc-individual-card-stock--low'
+                  endif
+                elsif variant.inventory_policy == 'continue'
+                  assign stock_label = '500+ in stock'
+                  assign stock_modifier = ''
+                else
+                  assign stock_label = 'Out of stock'
+                  assign stock_modifier = 'vc-individual-card-stock--oos'
+                endif
+              -%}
+              <a href="{{ product.url }}?variant={{ variant.id }}"
+                class="vc-individual-card{%- unless variant.available %} is-out-of-stock{%- endunless -%}">
+
+                <div class="vc-individual-card-image">
+                  {%- if variant.featured_image -%}
+                    <img src="{{ variant.featured_image | image_url: width: 400 }}"
+                      alt="{{ variant.featured_image.alt | escape }}"
+                      width="400" height="400" loading="lazy">
+                  {%- elsif product.featured_image -%}
+                    <img src="{{ product.featured_image | image_url: width: 400 }}"
+                      alt="{{ product.featured_image.alt | escape }}"
+                      width="400" height="400" loading="lazy">
+                  {%- endif -%}
+                  <div class="vc-individual-card-badges">
+                    {%- unless variant.available -%}
+                      <span class="vc-individual-card-badge vc-individual-card-badge--oos">Out of stock</span>
+                    {%- else -%}
+                      {%- if variant.inventory_management != blank and variant.inventory_quantity > 0 and variant.inventory_quantity < 50 -%}
+                        <span class="vc-individual-card-badge vc-individual-card-badge--low">Low Stock</span>
+                      {%- endif -%}
+                    {%- endunless -%}
+                  </div>
+                </div>
+
+                <div class="vc-individual-card-info">
+                  <div class="vc-individual-card-brand">{{ product_brand | default: product.vendor }}</div>
+                  <div class="vc-individual-card-name">{{ product.title }}</div>
+                  {%- unless product.has_only_default_variant -%}
+                    <div class="vc-individual-card-variant">{{ variant.title }}</div>
+                  {%- endunless -%}
+                  {%- if variant.sku != blank -%}
+                    <div class="vc-individual-card-sku">{{ variant.sku }}</div>
+                  {%- endif -%}
+                  <div class="vc-individual-card-price">
+                    <div>
+                      <div class="vc-individual-card-wholesale-label">Wholesale</div>
+                      <div class="vc-individual-card-price-amount">{{ variant.price | money }}</div>
+                    </div>
+                    {%- if product.compare_at_price and product.compare_at_price > variant.price -%}
+                      <div class="vc-individual-card-msrp-block">
+                        <div class="vc-individual-card-msrp-label">MSRP</div>
+                        <div class="vc-individual-card-msrp-amount">{{ product.compare_at_price | money }}</div>
+                      </div>
+                    {%- endif -%}
+                  </div>
+                  <div class="vc-individual-card-stock {{ stock_modifier }}">
+                    <span class="vc-individual-card-stock-dot"></span>
+                    {{ stock_label }}
+                  </div>
+                </div>
+
+              </a>
+            {%- endfor -%}
+          {%- endfor -%}
+        </div>
+      </div><!-- /.vc-individual-grid-view -->
+
+      <!-- LIST VIEW -->
+      <div class="vc-list-view">
+        <div class="vc-list-table">
+          <div class="vc-list-row vc-list-head">
+            <div></div>
+            <div>Product</div>
+            <div>Stock</div>
+            <div>Price</div>
+            <div></div>
+          </div>
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign product_brand = product.metafields.custom.product_brand.value
+              assign product_model = product.metafields.custom.phone_devices | metafield_text
+              assign total_stock = 0
+              assign has_default_stock = false
+              for v in product.variants
+                if v.available
+                  if v.inventory_management == blank
+                    assign has_default_stock = true
+                  elsif v.inventory_quantity > 0
+                    assign total_stock = total_stock | plus: v.inventory_quantity
+                  elsif v.inventory_policy == 'continue'
+                    assign has_default_stock = true
+                  endif
+                endif
+              endfor
+              if has_default_stock or total_stock >= 500
+                assign list_stock_label = '500+ in stock'
+                assign list_stock_modifier = ''
+              elsif total_stock >= 50
+                assign list_stock_label = total_stock | append: ' in stock'
+                assign list_stock_modifier = ''
+              elsif total_stock > 0
+                assign list_stock_label = total_stock | append: ' in stock · Low Stock'
+                assign list_stock_modifier = 'vc-list-stock--low'
+              else
+                assign list_stock_label = 'Out of stock'
+                assign list_stock_modifier = 'vc-list-stock--oos'
+              endif
+            -%}
+            <a href="{{ product.url }}" class="vc-list-row">
+              <div class="vc-list-thumbnail">
+                {%- if product.featured_image -%}
+                  <img src="{{ product.featured_image | image_url: width: 128 }}"
+                    alt="{{ product.featured_image.alt | escape }}"
+                    width="64" height="64" loading="lazy">
+                {%- endif -%}
+              </div>
+              <div class="vc-list-info">
+                <div class="vc-list-info-brand">{{ product_brand | default: product.vendor }}</div>
+                <div class="vc-list-info-name">{{ product.title }}</div>
+                {%- if product_model != blank -%}
+                  <div class="vc-list-info-model">{{ product_model }}</div>
+                {%- endif -%}
+              </div>
+              <div class="vc-list-stock {{ list_stock_modifier }}">
+                <span class="vc-list-stock-dot"></span>
+                {{ list_stock_label }}
+              </div>
+              <div class="vc-list-price-block">
+                <div class="vc-list-wholesale-price">{{ product.price | money }}</div>
+                {%- if product.compare_at_price and product.compare_at_price > product.price -%}
+                  <div class="vc-list-msrp-price">MSRP {{ product.compare_at_price | money }}</div>
+                {%- endif -%}
+              </div>
+              <div class="vc-list-action">
+                <span class="vc-list-action-button">
+                  View product
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+                </span>
+              </div>
+            </a>
+          {%- endfor -%}
+        </div>
+      </div><!-- /.vc-list-view -->
+
+    </div><!-- /.vc-view-container -->
+  </div><!-- /.vc-plp-layout -->
+
+  <!-- PAGINATION -->
+  {%- if paginate.pages > 1 -%}
+    <div class="vc-pagination">
+      {%- if paginate.previous -%}
+        <a href="{{ paginate.previous.url }}" class="vc-pagination-item">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 2L4 6l4 4"/></svg>
+          Prev
+        </a>
+      {%- endif -%}
+      {%- for part in paginate.parts -%}
+        {%- if part.is_link -%}
+          <a href="{{ part.url }}" class="vc-pagination-item">{{ part.title }}</a>
+        {%- elsif part.title == paginate.current_page -%}
+          <span class="vc-pagination-item is-current" aria-current="page">{{ part.title }}</span>
+        {%- else -%}
+          <span class="vc-pagination-item">{{ part.title }}</span>
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if paginate.next -%}
+        <a href="{{ paginate.next.url }}" class="vc-pagination-item">
+          Next
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 2l4 4-4 4"/></svg>
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- else -%}
+
+  <!-- EMPTY STATE -->
+  <div class="vc-empty-state">
+    <p class="vc-empty-state-title">No products found</p>
+    <p>Try adjusting your filters or <a href="{{ collection.url }}">clear all filters</a>.</p>
+  </div>
+
+  {%- endif -%}
+
+</div><!-- /#valor-collection-{{ section.id }} -->
+
+<script>
+(function () {
+  var sid = '{{ section.id }}';
+  var container = document.getElementById('vc-view-container-' + sid);
+  var toggleWrap = document.getElementById('vc-view-toggle-' + sid);
+  if (!container || !toggleWrap) return;
+
+  var STORAGE_KEY = 'vc-view-' + sid;
+  var VALID_VIEWS  = ['grouped-grid', 'individual-grid', 'list'];
+
+  function setView(view) {
+    if (VALID_VIEWS.indexOf(view) === -1) return;
+    container.setAttribute('data-active', view);
+    toggleWrap.querySelectorAll('.vc-view-toggle-button').forEach(function (btn) {
+      btn.classList.toggle('is-active', btn.getAttribute('data-view') === view);
+    });
+    try { localStorage.setItem(STORAGE_KEY, view); } catch (e) {}
+  }
+
+  toggleWrap.addEventListener('click', function (e) {
+    var btn = e.target.closest('.vc-view-toggle-button[data-view]');
+    if (btn) setView(btn.getAttribute('data-view'));
+  });
+
+  // Restore saved view preference
+  try {
+    var saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && VALID_VIEWS.indexOf(saved) !== -1) setView(saved);
+  } catch (e) {}
+
+  // Filter group accordion
+  document.querySelectorAll(
+    '#valor-collection-' + sid + ' .vc-filter-group-head'
+  ).forEach(function (head) {
+    head.addEventListener('click', function () {
+      var group = head.closest('.vc-filter-group');
+      var open  = group.classList.toggle('is-open');
+      head.setAttribute('aria-expanded', String(open));
+    });
+  });
+})();
+</script>
+
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Valor collection",
+  "tag": "section",
+  "class": "valor-collection-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 12,
+      "max": 48,
+      "step": 12,
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor collection"
+    }
+  ]
+}
+{% endschema %}

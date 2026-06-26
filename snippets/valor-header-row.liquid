@@ -1,0 +1,42 @@
+{%- if row == 'top' -%}
+<div class="vhr">
+  <div class="vhr__left">
+    {{- first -}}
+    {{- logo -}}
+  </div>
+  <div class="vhr__right">
+    {{- va_search -}}
+    {{- actions -}}
+  </div>
+</div>
+{%- endif -%}
+
+{% stylesheet %}
+  .header__columns:has(.vhr) {
+    display: flex;
+  }
+  .vhr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .vhr__left {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 16px;
+  }
+@media (max-width: 749px) {
+  .vhr__left {
+    gap: 0;
+	width: 100%;
+  }
+}
+  .vhr__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+{% endstylesheet %}

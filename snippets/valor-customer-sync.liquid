@@ -1,0 +1,44 @@
+{%- comment -%}
+  valor-customer-sync.liquid
+  On the first page load of each browser session for a logged-in customer,
+  triggers an ERP → Shopify company sync via the proxy to ensure correct pricing state.
+  Include in theme.liquid inside the <body>, after Shopify.shop is defined.
+{%- endcomment -%}
+
+{%- if customer -%}
+  {%- liquid
+    assign _sync_secret = shop.metafields.valor.connect.value[0]
+    assign _sync_ts     = 'now' | date: '%s'
+    assign _sync_token  = customer.id | append: '|' | append: _sync_ts | hmac_sha256: _sync_secret
+  -%}
+  <script>
+  window.addEventListener('load', function () {
+    var KEY = 'erp_synced_{{ customer.id }}';
+    if (sessionStorage.getItem(KEY)) return;
+    sessionStorage.setItem(KEY, '1'); // set optimistically to prevent double-fire on slow pages
+
+    console.log('[ERP sync] Triggering customer sync for {{ customer.email | escape }}');
+
+    fetch(window.__vaProxy, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: {{ customer.id | json }},
+        ts:          {{ _sync_ts | json }},
+        token:       {{ _sync_token | json }},
+        shop:        Shopify.shop,
+        action:      'customer-sync',
+        email:       {{ customer.email | json }}
+      })
+    }).then(function (res) {
+      return res.json();
+    }).then(function (data) {
+      console.log('[ERP sync] Response:', data);
+    }).catch(function (err) {
+      console.warn('[ERP sync] Request failed:', err);
+      // Clear flag so it retries next page load
+      sessionStorage.removeItem(KEY);
+    });
+  });
+  </script>
+{%- endif -%}

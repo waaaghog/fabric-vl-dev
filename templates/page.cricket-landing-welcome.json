@@ -1,0 +1,329 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "shogun-helper": {
+      "type": "shogun-helper",
+      "settings": {}
+    },
+    "media_with_content_N7ADmx": {
+      "type": "media-with-content",
+      "blocks": {
+        "media": {
+          "type": "_media-without-appearance",
+          "static": true,
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/Welcome_1024_-_Mybat.7.25-55.webp",
+            "link": "",
+            "video_loop": true,
+            "video_autoplay": false,
+            "image_position": "cover",
+            "video_position": "cover"
+          },
+          "blocks": {}
+        },
+        "content": {
+          "type": "_content-without-appearance",
+          "static": true,
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "center",
+            "gap": 24,
+            "background_color": ""
+          },
+          "blocks": {
+            "text_zxBE86": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<h6><strong>Welcome</strong></h6>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "h6",
+                "font": "var(--font-primary--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "uppercase",
+                "wrap": "pretty",
+                "color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_bXjiae": {
+              "type": "text",
+              "name": "t:names.heading",
+              "settings": {
+                "text": "<h2>To the Valor <em>Unified Partner Experience</em></h2>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "100%",
+                "max_width": "narrow",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "h2",
+                "font": "var(--font-primary--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 8,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "image_aybzkQ": {
+              "type": "image",
+              "name": "t:names.image",
+              "settings": {
+                "image": "shopify://shop_images/valor_Cricket_logo_full_color_1024px.webp",
+                "link": "",
+                "image_ratio": "adapt",
+                "width": "custom",
+                "custom_width": 60,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "height_value": "400px",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "text_exxaaz": {
+              "type": "text",
+              "name": "t:names.text",
+              "settings": {
+                "text": "<p>Powerful mobile accessories, the deepest catalog in the industry and pricing that makes your margins. Welcome to Valor. </p><p>For returning Ondigo & Valor customers, welcome back. there is no need to create a new account or remember a new password. Simply enter your existing email address, and we will send a 6-digit PIN directly to your inbox. This \"Passwordless\" login keeps your account secure while you focus on growing your business.</p><p>If you are new here, select \"Register\" to for your FREE business account and we will get you onboarded right away.</p>",
+                "icon": "none",
+                "icon_width": 24,
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "padding_left": "0",
+                "type_preset": "rte",
+                "font": "var(--font-primary--family)",
+                "weight": "",
+                "font_size": "",
+                "line_height": "normal",
+                "letter_spacing": "",
+                "case": "none",
+                "wrap": "pretty",
+                "color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_qAnttH": {
+              "type": "group",
+              "name": "t:names.group",
+              "settings": {
+                "content_direction": "row",
+                "vertical_on_mobile": true,
+                "scroll_on_mobile": false,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "gap_mobile": 12,
+                "width": "fill",
+                "custom_width": "",
+                "width_mobile": "fill",
+                "custom_width_mobile": "",
+                "height": "fit",
+                "custom_height": 100,
+                "inherit_color_scheme": true,
+                "color_scheme": "",
+                "background_media": "none",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_radius": 0,
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "button_fPeyck": {
+                  "type": "button",
+                  "name": "t:names.button",
+                  "settings": {
+                    "label": "Login",
+                    "link": "https://account.valorcomm.com",
+                    "open_in_new_tab": false,
+                    "style_class": "button",
+                    "btn_width": "",
+                    "btn_height": "",
+                    "btn_font_size": "",
+                    "btn_font_weight": "",
+                    "btn_font_family": "",
+                    "btn_bg_color": "",
+                    "btn_hover_color": "",
+                    "btn_text_color": ""
+                  },
+                  "blocks": {}
+                },
+                "button_a46jzN": {
+                  "type": "button",
+                  "name": "t:names.button",
+                  "settings": {
+                    "label": "Register",
+                    "link": "https://account.valorcomm.com",
+                    "open_in_new_tab": false,
+                    "style_class": "button",
+                    "btn_width": "",
+                    "btn_height": "",
+                    "btn_font_size": "",
+                    "btn_font_weight": "",
+                    "btn_font_family": "",
+                    "btn_bg_color": "",
+                    "btn_hover_color": "",
+                    "btn_text_color": ""
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "button_fPeyck",
+                "button_a46jzN"
+              ]
+            }
+          },
+          "block_order": [
+            "text_zxBE86",
+            "text_bXjiae",
+            "image_aybzkQ",
+            "text_exxaaz",
+            "group_qAnttH"
+          ]
+        }
+      },
+      "custom_css": [],
+      "name": "Welcome to Valor",
+      "settings": {
+        "media_position": "right",
+        "media_width": "medium",
+        "media_height": "80svh",
+        "section_width": "full-width",
+        "extend_media": false,
+        "color_scheme": "scheme-4",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "main": {
+      "type": "main-page",
+      "blocks": {
+        "heading": {
+          "type": "text",
+          "name": "Title",
+          "settings": {
+            "text": "<h1>{{ closest.page.title }}</h1>",
+            "icon": "none",
+            "icon_width": 24,
+            "width": "100%",
+            "max_width": "",
+            "alignment": "left",
+            "padding_left": "0",
+            "type_preset": "h2",
+            "font": "var(--font-body--family)",
+            "weight": "",
+            "font_size": "",
+            "line_height": "",
+            "letter_spacing": "",
+            "case": "none",
+            "wrap": "pretty",
+            "color": "",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "page-content": {
+          "type": "page-content",
+          "settings": {},
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "page-content"
+      ],
+      "disabled": true,
+      "settings": {
+        "content_direction": "column",
+        "gap": 32,
+        "color_scheme": "",
+        "padding-block-start": 40,
+        "padding-block-end": 80
+      }
+    },
+    "shogun-optimizer": {
+      "type": "shogun-optimizer",
+      "settings": {}
+    }
+  },
+  "order": [
+    "shogun-helper",
+    "media_with_content_N7ADmx",
+    "main",
+    "shogun-optimizer"
+  ]
+}

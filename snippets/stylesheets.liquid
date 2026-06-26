@@ -1,0 +1,16 @@
+{%- liquid
+  case settings.type_font_primary_link
+    when 'body'
+      assign nav_font = settings.type_body_font
+    when 'subheading'
+      assign nav_font = settings.type_subheading_font
+    when 'heading'
+      assign nav_font = settings.type_heading_font
+    when 'accent'
+      assign nav_font = settings.type_accent_font
+  endcase
+-%}
+{% if nav_font %}
+  <link rel="preload" as="font" href="{{ nav_font | font_url: 'woff2' }}" type="font/woff2" crossorigin>
+{% endif %}
+{{ 'base.css' | asset_url | stylesheet_tag: preload: true }}

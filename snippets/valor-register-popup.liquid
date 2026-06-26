@@ -1,0 +1,1258 @@
+{%- comment -%}
+  snippets/valor-register-popup.liquid
+  Reusable registration dialog — included from theme.liquid (global) and
+  from sections/valor-register.liquid (register page).
+
+  Optional parameters (from section settings when called from the section):
+    terms_content — HTML for the terms-summary block
+    terms_url     — URL for Terms & Conditions link (defaults to '#')
+    privacy_url   — URL for Privacy Policy link (defaults to '#')
+{%- endcomment -%}
+
+
+{%- comment -%} ══ Registration dialog ═══════════════════════════════════ {%- endcomment -%}
+<vr-register-dialog id="vr-register-global"
+  data-vr-shop="{{ shop.myshopify_domain | remove: '.myshopify.com' }}">
+
+  <div class="vr-overlay" data-vr-overlay>
+    <div class="vr-dialog" role="dialog" aria-modal="true" aria-label="Apply for an account">
+
+      {%- comment -%} Close ────────────────────────────────────────────── {%- endcomment -%}
+      <button class="vr-close" type="button" data-vr-close aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+
+      {%- comment -%} Progress stepper ────────────────────────────────── {%- endcomment -%}
+      <div class="vr-stepper-wrap" data-vr-stepper-wrap>
+        <div class="vr-stepper">
+          <div class="vr-step vr-step--active" data-vr-step-ind="1">
+            <div class="vr-step-dot">1</div>
+            <div class="vr-step-label">Contact</div>
+          </div>
+          <div class="vr-step" data-vr-step-ind="2">
+            <div class="vr-step-dot">2</div>
+            <div class="vr-step-label">Business</div>
+          </div>
+          <div class="vr-step" data-vr-step-ind="3">
+            <div class="vr-step-dot">3</div>
+            <div class="vr-step-label">Submit</div>
+          </div>
+        </div>
+      </div>
+
+      {%- comment -%} Scrollable body ─────────────────────────────────── {%- endcomment -%}
+      <div class="vr-dialog-body" data-vr-body>
+        <form class="vr-form" id="vr-form-global" novalidate>
+          <input type="hidden" name="shopify_user_id" value="{{ customer.id }}">
+          <input type="hidden" name="email" value="{{ customer.email }}">
+
+          {%- comment -%} ─── Step 1: Contact info ────────────────────── {%- endcomment -%}
+          <div class="vr-panel vr-panel--active" data-vr-page="1">
+
+            <div class="vr-info-banner">
+              <div class="vr-info-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+                </svg>
+              </div>
+              <div style="width:100%">
+                <div class="vr-info-title">Submitting an application doesn't create a live account.</div>
+                <div class="vr-info-sub">All new partners are reviewed before pricing access is granted. We'll email you within 2 business days.</div>
+                <div class="vr-existing-acc">
+                  <button type="button" class="vr-existing-acc__toggle" data-vr-existing-toggle aria-expanded="false">
+                    Already have an account?
+                    <svg class="vr-existing-acc__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+                  <div class="vr-existing-acc__body" data-vr-existing-body hidden>
+                    <p class="vr-existing-acc__desc">If you've previously placed orders with us but can't see wholesale pricing, let us know and we'll fix your account access.</p>
+                    <div class="vr-group">
+                      <label class="vr-label" for="vr-existing-email">Your account email <span class="vr-req">*</span></label>
+                      <input class="vr-input" type="email" id="vr-existing-email" data-vr-existing-email placeholder="you@company.com"{% if customer %} value="{{ customer.email }}"{% endif %}>
+                    </div>
+                    <div class="vr-group">
+                      <label class="vr-label" for="vr-existing-msg">Additional details <span class="vr-optional">(optional)</span></label>
+                      <textarea class="vr-input" id="vr-existing-msg" data-vr-existing-msg rows="2" placeholder="e.g. Company name, previous order number…"></textarea>
+                    </div>
+                    <button type="button" class="vr-btn vr-btn--primary vr-existing-acc__submit" data-vr-existing-submit>Send access request</button>
+                    <p class="vr-existing-acc__sent" data-vr-existing-sent hidden>&#10003; Sent! We'll look into your account and reach out shortly.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="vr-sh1">Tell us who you are.</div>
+            <div class="vr-sh2">Start with the person who will be the primary contact on this account.</div>
+
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-fn-global">First name</label>
+                <input class="vr-input" type="text" id="vr-fn-global" name="first_name" autocomplete="given-name" required>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-ln-global">Last name</label>
+                <input class="vr-input" type="text" id="vr-ln-global" name="last_name" autocomplete="family-name" required>
+              </div>
+            </div>
+
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-role-global">Role / Title</label>
+                <input class="vr-input" type="text" id="vr-role-global" name="role_title" autocomplete="organization-title">
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-email-global">Work email</label>
+                <input class="vr-input" type="email" id="vr-email-global" name="contact_email" autocomplete="email" required{% if customer.email != blank %} value="{{ customer.email | escape }}"{% endif %}>
+              </div>
+            </div>
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-phone-global">Phone number</label>
+                <input class="vr-input" type="tel" id="vr-phone-global" name="phone" placeholder="(555) 555-5555" autocomplete="tel" required>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-contact-global">Primary contact person <span class="vr-opt">(optional)</span></label>
+                <input class="vr-input" type="text" id="vr-contact-global" name="contact_person">
+              </div>
+            </div>
+
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-agent-global">Master agent <span class="vr-opt">(optional)</span></label>
+                <input class="vr-input" type="text" id="vr-agent-global" name="master_agent">
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-ref-global">Referral / Invitation code <span class="vr-opt">(optional)</span></label>
+                <input class="vr-input" type="text" id="vr-ref-global" name="referral_code">
+                <div class="vr-help">If a Valor rep or partner referred you, enter their code here.</div>
+              </div>
+            </div>
+
+            <input type="file" name="sellers_permit" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+
+          </div>
+
+          {%- comment -%} ─── Step 2: Business + address ─────────────── {%- endcomment -%}
+          <div class="vr-panel" data-vr-page="2">
+
+            <div class="vr-sh1">About your <em>business.</em></div>
+            <div class="vr-sh2">This helps us match you with the right rep, catalog tier, and onboarding flow.</div>
+
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-co-global">Company name</label>
+                <input class="vr-input" type="text" id="vr-co-global" name="company_name" autocomplete="organization" required>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-web-global">Website <span class="vr-opt">(optional)</span></label>
+                <input class="vr-input" type="url" id="vr-web-global" name="website" autocomplete="url">
+              </div>
+            </div>
+
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-btype-global">Business type</label>
+                <select class="vr-select" id="vr-btype-global" name="business_type_code" required>
+                  <option value="">Select…</option>
+                  <option value="006">Accessory Kiosk</option>
+                  <option value="005">Accessory Store Front</option>
+                  <option value="045">AT&amp;T</option>
+                  <option value="032">Big Box Retail</option>
+                  <option value="043">Boost Mobile</option>
+                  <option value="042">Cricket</option>
+                  <option value="002">Distributor</option>
+                  <option value="020">International</option>
+                  <option value="041">Metro PCS</option>
+                  <option value="040">Multi Carrier</option>
+                  <option value="001">Online Reseller</option>
+                  <option value="004">Repair</option>
+                  <option value="047">T-Mobile</option>
+                  <option value="044">Total Wireless</option>
+                  <option value="046">Verizon</option>
+                  <option value="014">Others</option>
+                </select>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-locs-global">Number of locations</label>
+                <input class="vr-input" type="number" id="vr-locs-global" name="number_of_locations" min="0" step="1">
+                <div class="vr-help">Use 0 if online only.</div>
+              </div>
+            </div>
+
+            <div class="vr-row">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-spend-global">Est. monthly spend</label>
+                <select class="vr-select" id="vr-spend-global" name="estimated_monthly_spend">
+                  <option value="">Select range…</option>
+                  <option>Under $1,000</option>
+                  <option>$1,000 – $5,000</option>
+                  <option>$5,000 – $15,000</option>
+                  <option>$15,000 – $50,000</option>
+                  <option>$50,000 – $100,000</option>
+                  <option>$100,000+</option>
+                </select>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-hear-global">How did you hear about us? <span class="vr-opt">(optional)</span></label>
+                <select class="vr-select" id="vr-hear-global" name="how_did_you_hear">
+                  <option value="">Select…</option>
+                  <option value="trade_show">Trade Show</option>
+                  <option value="referral">Referral</option>
+                  <option value="website">Website</option>
+                  <option value="social_media">Social Media</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="vr-group">
+              <label class="vr-label" for="vr-vendors-global">Current vendors <span class="vr-opt">(optional)</span></label>
+              <textarea class="vr-textarea" id="vr-vendors-global" name="current_vendors" placeholder="Tell us about your current sourcing — vendors, distributors, or direct relationships."></textarea>
+            </div>
+
+            <div class="vr-subsection-title">Billing address</div>
+            <div class="vr-row vr-row--three">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-str-global">Street address</label>
+                <input class="vr-input" type="text" id="vr-str-global" name="bill_address1" autocomplete="billing street-address" required>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-str2-global">Apt / Suite <span class="vr-opt">(optional)</span></label>
+                <input class="vr-input" type="text" id="vr-str2-global" name="bill_address2" autocomplete="billing address-line2">
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-city-global">City</label>
+                <input class="vr-input" type="text" id="vr-city-global" name="bill_city" autocomplete="billing address-level2" required>
+              </div>
+            </div>
+
+            <div class="vr-row vr-row--three">
+              <div class="vr-group">
+                <label class="vr-label" for="vr-state-global">State</label>
+                <select class="vr-select" id="vr-state-global" name="bill_state" data-province-selector="billing" required>
+                  <option value="">State / Province</option>
+                </select>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-zip-global">ZIP</label>
+                <input class="vr-input" type="text" id="vr-zip-global" name="bill_zip" autocomplete="billing postal-code" required>
+              </div>
+              <div class="vr-group">
+                <label class="vr-label" for="vr-country-global">Country</label>
+                <select class="vr-select" id="vr-country-global" name="bill_country" data-country-selector="billing" required>
+                  <option value="">Country</option>
+                  {% for country in all_country_option_tags %}
+                  {{ country }}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <label class="vr-same-ship" data-vr-same-ship>
+              <input type="checkbox" checked data-vr-same-ship-cb>
+              <span class="vr-cb"></span>
+              <span class="vr-same-ship-label">Use same address for primary shipping</span>
+            </label>
+
+            <div data-vr-ship-fields style="display:none">
+              <div class="vr-subsection-title">Shipping address</div>
+              <div class="vr-row vr-row--three">
+                <div class="vr-group">
+                  <label class="vr-label" for="vr-sstr-global">Street address</label>
+                  <input class="vr-input" type="text" id="vr-sstr-global" name="ship_address1" autocomplete="shipping street-address">
+                </div>
+                <div class="vr-group">
+                  <label class="vr-label" for="vr-sstr2-global">Apt / Suite <span class="vr-opt">(optional)</span></label>
+                  <input class="vr-input" type="text" id="vr-sstr2-global" name="ship_address2" autocomplete="shipping address-line2">
+                </div>
+                <div class="vr-group">
+                  <label class="vr-label" for="vr-scity-global">City</label>
+                  <input class="vr-input" type="text" id="vr-scity-global" name="ship_city" autocomplete="shipping address-level2">
+                </div>
+              </div>
+
+              <div class="vr-row vr-row--three">
+                <div class="vr-group">
+                  <label class="vr-label" for="vr-sstate-global">State</label>
+                  <select class="vr-select" id="vr-sstate-global" name="ship_state" data-province-selector="shipping" required>
+                    <option value="">State / Province</option>
+                  </select>
+                </div>
+                <div class="vr-group">
+                  <label class="vr-label" for="vr-szip-global">ZIP</label>
+                  <input class="vr-input" type="text" id="vr-szip-global" name="ship_zip" autocomplete="shipping postal-code">
+                </div>
+                <div class="vr-group">
+                  <label class="vr-label" for="vr-scountry-global">Country</label>
+                  <select class="vr-select" id="vr-scountry-global" name="ship_country" data-country-selector="shipping" required>
+                    <option value="">Country</option>
+                    {% for country in all_country_option_tags %}
+                    {{ country }}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {%- comment -%} ─── Step 3: Account & Terms ────────────────── {%- endcomment -%}
+          <div class="vr-panel" data-vr-page="3">
+
+            <div class="vr-sh1">Finalize your <em>application.</em></div>
+            <div class="vr-sh2">No password needed — once approved, you'll sign in with a one-time code sent to your email or phone.</div>
+
+            <div class="vr-subsection-title">Terms &amp; Conditions</div>
+            <div class="vr-sh2">Please review and agree to the following before submitting.</div>
+
+            <div class="vr-terms-block">
+              <div class="vr-terms-block-title">Partner terms summary</div>
+              <div class="vr-terms-text">{{ settings.terms_content }}</div>
+            </div>
+
+            <label class="vr-terms-row">
+              <input type="checkbox" name="agree_business" required>
+              <span class="vr-cb"></span>
+              <span class="vr-terms-label">I confirm I represent a legitimate business engaged in the resale of consumer electronics or wireless accessories.</span>
+            </label>
+
+            <label class="vr-terms-row">
+              <input type="checkbox" name="agree_terms" required>
+              <span class="vr-cb"></span>
+              <span class="vr-terms-label">I agree to the <a href="{{ settings.terms_url | default: '#' }}">Partner Terms &amp; Conditions</a> and <a href="{{ settings.privacy_url | default: '#' }}">Privacy Policy</a>, and understand that pricing access is contingent on application approval.</span>
+            </label>
+
+            <label class="vr-terms-row">
+              <input type="checkbox" name="marketing_opt_in" checked>
+              <span class="vr-cb"></span>
+              <span class="vr-terms-label">I'd like to receive product launches, promotions, and industry updates by email and SMS. <span class="vr-terms-note">(Optional — message &amp; data rates may apply. Reply STOP to opt out.)</span></span>
+            </label>
+
+          </div>
+
+          {%- comment -%} ─── Step 4: Confirmation ────────────────────── {%- endcomment -%}
+          <div class="vr-panel" data-vr-page="4">
+            <div class="vr-confirm">
+              <div class="vr-confirm-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <h3 class="vr-confirm-title">Application <em>received.</em></h3>
+              <p class="vr-confirm-msg">Thank you for applying. We've sent a confirmation to <strong data-vr-conf-email>your email</strong>. Here's what happens next:</p>
+              <ol class="vr-confirm-steps">
+                <li>
+                  <span class="vr-cs-num">1</span>
+                  <div><strong>Review (1–2 business days)</strong> Our partner onboarding team will verify your business credentials.</div>
+                </li>
+                <li>
+                  <span class="vr-cs-num">2</span>
+                  <div><strong>Account access &amp; unlocked pricing</strong> Once approved, your account is activated and wholesale pricing unlocks across the full catalog.</div>
+                </li>
+                <li>
+                  <span class="vr-cs-num">3</span>
+                  <div><strong>Welcome &amp; dedicated rep</strong> You'll receive an onboarding email and a dedicated rep will reach out to help you get started.</div>
+                </li>
+              </ol>
+              <button type="button" class="vr-btn vr-btn--primary" data-vr-close>Return to site</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      {%- comment -%} Step actions (sticky bottom) ───────────────────── {%- endcomment -%}
+      <p class="vr-submit-error" data-vr-submit-error hidden></p>
+      <div class="vr-actions" data-vr-actions>
+        <button type="button" class="vr-btn vr-btn--back" data-vr-back>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <button type="button" class="vr-btn vr-btn--primary" data-vr-next>
+          Continue to business info
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <button type="submit" class="vr-btn vr-btn--primary" data-vr-submit form="vr-form-global">
+          Submit application
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</vr-register-dialog>
+
+<style>
+/* ── Color tokens ─────────────────────────────────────────────────── */
+:root {
+  --vr-navy:        #2B3A55;
+  --vr-navy-deep:   #1D2636;
+  --vr-sky:         #63B9DE;
+  --vr-sky-pale:    #D9EEF6;
+  --vr-crimson:     #C54448;
+  --vr-chalk:       #F4F5F2;
+  --vr-parchment:   #EEEDE7;
+  --vr-steel:       #66717E;
+  --vr-steel-lt:    #A8B0B8;
+  --vr-ink:         #121820;
+  --vr-white:       #FFFFFF;
+  --vr-green:       #2d7a3f;
+  --vr-green-soft:  #E1F0E3;
+  --vr-border:      #0002;
+  --vr-border-str:  #0003;
+  --vr-serif:       var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:        var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Dialog overlay ───────────────────────────────────────────────── */
+.vr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 24, 32, 0.72);
+  backdrop-filter: blur(4px);
+  z-index: var(--layer-menu-drawer, 200);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.vr-overlay.vr-open {
+  display: flex;
+}
+
+/* ── Dialog box ───────────────────────────────────────────────────── */
+.vr-dialog {
+  background: var(--vr-white);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+  box-shadow: 0 24px 80px rgba(18, 24, 32, 0.3);
+  position: relative;
+  margin: auto;
+  animation: vrDialogIn 0.28s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+@keyframes vrDialogIn {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vr-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vr-navy);
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.15s;
+}
+.vr-close:hover { background: var(--vr-parchment); }
+
+/* ── Progress stepper ─────────────────────────────────────────────── */
+.vr-stepper-wrap {
+  padding: 40px 40px 20px 40px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--vr-border);
+}
+.vr-stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 0;
+}
+.vr-stepper::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 0; right: 0;
+  height: 1px;
+  background: var(--vr-border);
+  z-index: 0;
+}
+.vr-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  background: var(--vr-white);
+  padding: 0 12px;
+}
+.vr-step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--vr-white);
+  border: 1.5px solid var(--vr-border-str);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vr-steel);
+  font-family: var(--vr-sans);
+  transition: all 0.22s;
+}
+.vr-step-label {
+  font-family: var(--vr-sans);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--vr-steel);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.vr-step--active .vr-step-dot {
+  background: var(--vr-navy-deep);
+  border-color: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+}
+.vr-step--active .vr-step-label {
+  color: var(--vr-navy-deep);
+  font-weight: 600;
+}
+.vr-step--complete .vr-step-dot {
+  background: var(--vr-green);
+  border-color: var(--vr-green);
+  color: var(--vr-white);
+}
+.vr-step--complete .vr-step-label { color: var(--vr-navy-deep); }
+
+/* ── Scrollable body ──────────────────────────────────────────────── */
+.vr-dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 28px 44px 12px;
+  scrollbar-gutter: stable both-edges;
+}
+.vr-dialog-body::-webkit-scrollbar { width: 4px; }
+.vr-dialog-body::-webkit-scrollbar-thumb { background: var(--vr-border-str); border-radius: 2px; }
+
+/* ── Panels (form content panels, one per step) ───────────────────── */
+.vr-panel { display: none; }
+.vr-panel--active {
+  display: block;
+  animation: vrPageIn 0.28s ease;
+}
+@keyframes vrPageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Approval info banner ─────────────────────────────────────────── */
+.vr-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--vr-sky-pale);
+  border: 1px solid rgba(99, 185, 222, 0.4);
+  border-radius: 12px;
+  padding: 24px 16px;
+  margin-bottom: 24px;
+}
+.vr-info-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--vr-navy-deep);
+  color: var(--vr-sky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.vr-info-title {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vr-navy-deep);
+  margin-bottom: 3px;
+}
+.vr-info-sub {
+  font-family: var(--vr-sans);
+  font-size: 12px;
+  color: var(--vr-navy);
+  line-height: 1.5;
+}
+
+/* ── Existing account help form ───────────────────────────────────── */
+.vr-existing-acc { margin-top: 8px; }
+.vr-existing-acc__toggle {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--vr-sans); font-size: 12px; color: var(--vr-accent);
+  display: inline-flex; align-items: center; gap: 4px;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.vr-existing-acc__toggle:hover { opacity: 0.8; }
+.vr-existing-acc__chevron { transition: transform 0.2s; flex-shrink: 0; }
+.vr-existing-acc__toggle[aria-expanded="true"] .vr-existing-acc__chevron { transform: rotate(180deg); }
+.vr-existing-acc__body {
+  margin-top: 12px;
+  display: flex; flex-direction: column; gap: 12px;
+  margin-right: 42px;
+}
+.vr-existing-acc__body[hidden] { display: none; }
+.vr-existing-acc__desc { font-family: var(--vr-sans); font-size: 12px; color: var(--vr-navy); line-height: 1.5; margin: 0; }
+.vr-existing-acc__submit { width: 100%; justify-content: center; }
+.vr-existing-acc__sent { font-family: var(--vr-sans); font-size: 13px; color: #2d7a3f; margin: 0; }
+
+/* ── Section headings ─────────────────────────────────────────────── */
+.vr-sh1 {
+  font-family: var(--vr-serif);
+  font-size: 24px;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  font-weight: 400;
+}
+.vr-sh1 em { color: var(--vr-steel); font-style: italic; }
+.vr-sh2 {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-steel);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+.vr-subsection-title {
+  font-family: var(--vr-serif);
+  font-size: 18px;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  margin: 24px 0 12px;
+  font-weight: 400;
+}
+
+/* ── Form layout ──────────────────────────────────────────────────── */
+.vr-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.vr-row--three { grid-template-columns: 1fr 1fr 1fr; }
+.vr-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+.vr-label {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vr-steel);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.vr-opt {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--vr-steel-lt);
+  font-weight: 500;
+}
+.vr-dialog-body .vr-input,
+.vr-dialog-body .vr-select,
+.vr-dialog-body .vr-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--vr-border-str);
+  border-radius: 10px;
+  background: var(--vr-white);
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: var(--vr-ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.vr-input:focus,
+.vr-select:focus,
+.vr-textarea:focus { border-color: var(--vr-navy-deep); }
+.vr-input::placeholder,
+.vr-textarea::placeholder { color: var(--vr-steel-lt); opacity: 1; }
+.vr-textarea { resize: vertical; min-height: 76px; }
+.vr-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%232B3A55' stroke-width='1.5'%3e%3cpath d='M1 1l5 5 5-5'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+}
+.vr-help {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  color: var(--vr-steel);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+/* ── Same-shipping row ────────────────────────────────────────────── */
+.vr-dialog .vr-same-ship {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--vr-chalk);
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: background 0.15s;
+  user-select: none;
+}
+.vr-same-ship:hover { background: var(--vr-parchment); }
+.vr-same-ship input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.vr-same-ship-label {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-navy-deep);
+  font-weight: 500;
+}
+
+/* ── Custom checkbox ──────────────────────────────────────────────── */
+.vr-cb {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--vr-border-str);
+  background: var(--vr-white);
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.15s;
+  display: block;
+}
+input[type="checkbox"]:checked ~ .vr-cb {
+  background: var(--vr-navy-deep);
+  border-color: var(--vr-navy-deep);
+}
+input[type="checkbox"]:checked ~ .vr-cb::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 5px;
+  width: 4px; height: 8px;
+  border-right: 1.5px solid var(--vr-chalk);
+  border-bottom: 1.5px solid var(--vr-chalk);
+  transform: rotate(45deg);
+}
+.vr-terms-row input[type="checkbox"],
+.vr-same-ship input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ── Terms block ──────────────────────────────────────────────────── */
+.vr-terms-block {
+  background: var(--vr-chalk);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.vr-terms-block-title {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vr-navy-deep);
+  margin-bottom: 8px;
+}
+.vr-terms-text {
+  font-family: var(--vr-sans);
+  font-size: 12px;
+  color: var(--vr-steel);
+  line-height: 1.6;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.vr-terms-text p { margin-bottom: 8px; }
+.vr-dialog .vr-terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.vr-dialog .vr-terms-row .vr-cb { margin-top: 2px; }
+.vr-terms-label {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-navy-deep);
+  line-height: 1.5;
+}
+.vr-terms-label a {
+  color: var(--vr-navy);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.vr-terms-note {
+  color: var(--vr-steel-lt);
+  font-size: 11px;
+}
+
+/* ── Step actions bar ─────────────────────────────────────────────── */
+.vr-actions {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 44px 20px;
+  border-top: 1px solid var(--vr-border);
+  flex-shrink: 0;
+  background: var(--vr-white);
+  border-radius: 0 0 18px 18px;
+  width: 100%;
+  scrollbar-gutter: stable both-edges;
+  overflow: auto;
+}
+[data-vr-back],
+[data-vr-next],
+[data-vr-submit] { flex-shrink: 0; }
+.vr-submit-error {
+  color: #C54448;
+  font-size: 13px;
+  text-align: center;
+  padding: 8px 0 0;
+  margin: 0;
+}
+
+/* ── Confirmation view ────────────────────────────────────────────── */
+.vr-confirm {
+  text-align: center;
+  padding: 32px 24px;
+}
+.vr-confirm-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--vr-green-soft);
+  color: var(--vr-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+.vr-confirm-title {
+  font-family: var(--vr-serif);
+  font-size: 32px;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  font-weight: 400;
+}
+.vr-confirm-title em { color: var(--vr-steel); font-style: italic; }
+.vr-confirm-msg {
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: var(--vr-steel);
+  line-height: 1.6;
+  max-width: 440px;
+  margin: 0 auto 24px;
+}
+.vr-confirm-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto 28px;
+  max-width: 420px;
+  background: var(--vr-chalk);
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: left;
+}
+.vr-confirm-steps li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-steel);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--vr-border);
+  line-height: 1.5;
+}
+.vr-confirm-steps li:last-child { border-bottom: none; }
+.vr-cs-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--vr-sans);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.vr-confirm-steps strong {
+  color: var(--vr-navy-deep);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.vr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+.vr-btn--primary {
+  padding: 13px 24px;
+  background: var(--vr-navy-deep);
+  color: var(--vr-chalk);
+}
+.vr-btn--primary:hover { background: var(--vr-crimson); }
+.vr-btn--back {
+  padding: 13px 18px;
+  background: transparent;
+  color: var(--vr-navy);
+  border: none;
+}
+.vr-btn--back:hover { background: var(--vr-chalk); }
+.vr-btn--chalk {
+  padding: 13px 24px;
+  background: var(--vr-chalk);
+  color: var(--vr-navy-deep);
+}
+.vr-btn--chalk:hover { background: var(--vr-white); transform: translateX(2px); }
+.vr-btn--outline {
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--vr-chalk);
+  border: 1px solid rgba(244, 245, 242, 0.35);
+}
+.vr-btn--outline:hover { border-color: var(--vr-chalk); background: rgba(244, 245, 242, 0.08); }
+.vr-btn--ghost {
+  padding: 13px 20px;
+  background: transparent;
+  color: var(--vr-navy);
+  border: 1px solid var(--vr-border-str);
+}
+.vr-btn--ghost:hover { background: var(--vr-chalk); }
+.vr-btn--lg { padding: 16px 30px; font-size: 14px; }
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  class VrRegisterDialog extends HTMLElement {
+    constructor() {
+      super();
+      this.currentPage = 1;
+      this.totalPages = 3;
+    }
+
+    connectedCallback() {
+      this._overlay   = this.querySelector('[data-vr-overlay]');
+      this._form      = this.querySelector('.vr-form');
+      this._pages     = this.querySelectorAll('[data-vr-page]');
+      this._stepInds  = this.querySelectorAll('[data-vr-step-ind]');
+      this._stepperWrap = this.querySelector('[data-vr-stepper-wrap]');
+      this._actionsBar  = this.querySelector('[data-vr-actions]');
+      this._backBtn   = this.querySelector('[data-vr-back]');
+      this._nextBtn   = this.querySelector('[data-vr-next]');
+      this._submitBtn = this.querySelector('[data-vr-submit]');
+      this._sameShipCb     = this._form.querySelector('[data-vr-same-ship-cb]');
+      this._shipFields     = this._form.querySelector('[data-vr-ship-fields]');
+      this._confEmail      = this.querySelector('[data-vr-conf-email]');
+
+      this._setupTriggers();
+      this._setupNavigation();
+      this._setupCountry();
+      this._setupSameShipping();
+      this._setupExistingAccForm();
+      this._updatePage();
+      //if (this.hasAttribute('data-auto-open')) setTimeout(() => this.open(), 3000);
+    }
+
+    /* ── Triggers ──────────────────────────────────────────────── */
+    _setupTriggers() {
+      // All [data-vr-open] within this element
+      this.querySelectorAll('[data-vr-open]').forEach(btn => {
+        btn.addEventListener('click', () => this.open());
+      });
+      // Also open [data-vr-open] anywhere on the page via delegation (works even for
+      // buttons rendered after this element, e.g. hero CTA on the register page)
+      document.addEventListener('click', e => {
+        if (e.target.closest('[data-vr-open]') && !this.contains(e.target)) this.open();
+      });
+      // Close buttons
+      this.querySelectorAll('[data-vr-close]').forEach(btn => {
+        btn.addEventListener('click', () => this.close());
+      });
+      // Overlay click
+      this._overlay.addEventListener('click', e => {
+        if (e.target === this._overlay) this.close();
+      });
+      // Escape key
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && this._overlay.classList.contains('vr-open')) this.close();
+      });
+      // Custom event from external triggers (e.g. header Register link)
+      document.addEventListener('vr:open-register', () => this.open());
+    }
+
+    /* ── Open / close ──────────────────────────────────────────── */
+    open() {
+      this._overlay.classList.add('vr-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    close() {
+      this._overlay.classList.remove('vr-open');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+
+    /* ── Navigation ────────────────────────────────────────────── */
+    _setupNavigation() {
+      this._nextBtn.addEventListener('click', () => this._advance());
+      this._backBtn.addEventListener('click', () => this._retreat());
+      this._form.addEventListener('submit', e => this._handleSubmit(e));
+    }
+
+    _advance() {
+      if (!this._validatePage(this.currentPage)) return;
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this._updatePage();
+      }
+    }
+
+    _retreat() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this._updatePage();
+      }
+    }
+
+    _validatePage(n) {
+      const page = this.querySelector(`[data-vr-page="${n}"]`);
+      const inputs = page.querySelectorAll('input[required], select[required]');
+      let valid = true;
+      inputs.forEach(inp => {
+        if (!inp.checkValidity()) {
+          inp.reportValidity();
+          valid = false;
+        }
+      });
+      return valid;
+    }
+
+    _updatePage() {
+      const n = this.currentPage;
+
+      // Pages
+      this._pages.forEach(p => {
+        const active = parseInt(p.dataset.vrPage, 10) === n;
+        p.classList.toggle('vr-panel--active', active);
+      });
+
+      // Stepper
+      this._stepInds.forEach(ind => {
+        const i = parseInt(ind.dataset.vrStepInd, 10);
+        ind.classList.toggle('vr-step--active', i === n);
+        ind.classList.toggle('vr-step--complete', i < n);
+        const dot = ind.querySelector('.vr-step-dot');
+        if (i < n) {
+          dot.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+        } else {
+          dot.textContent = i;
+        }
+      });
+
+      // Buttons
+      const isLast = n === this.totalPages;
+      const isFirst = n === 1;
+      const isConfirm = n === 4;
+
+      this._backBtn.style.display   = (isFirst || isConfirm) ? 'none' : 'inline-flex';
+      this._nextBtn.style.display   = (isLast  || isConfirm) ? 'none' : 'inline-flex';
+      this._submitBtn.style.display = (isLast  && !isConfirm) ? 'inline-flex' : 'none';
+      this._actionsBar.style.display = isConfirm ? 'none' : '';
+      this._stepperWrap.style.display = isConfirm ? 'none' : '';
+
+      // Next button label
+      if (n === 1) this._nextBtn.childNodes[0].textContent = 'Continue to business info\u00A0';
+      if (n === 2) this._nextBtn.childNodes[0].textContent = 'Continue to account setup\u00A0';
+
+      // Scroll body to top
+      const body = this.querySelector('[data-vr-body]');
+      if (body) body.scrollTop = 0;
+    }
+
+    /* ── Country / province ────────────────────────────────────── */
+    _setupCountry() {
+      this._form.querySelectorAll('[data-country-selector]').forEach(countryEl => {
+        const pair = countryEl.dataset.countrySelector;
+        const provinceEl = this._form.querySelector(`[data-province-selector="${pair}"]`);
+        if (!provinceEl) return;
+        countryEl.addEventListener('change', () => this._updateProvinces(countryEl, provinceEl));
+        countryEl.value = 'United States';
+        countryEl.dispatchEvent(new Event('change'));
+      });
+    }
+
+    _updateProvinces(countryEl, provinceEl) {
+      const data = countryEl.options[countryEl.selectedIndex]?.dataset?.provinces;
+      provinceEl.innerHTML = '<option value="">State / Province</option>';
+      if (!data) { provinceEl.disabled = true; return; }
+      const provinces = JSON.parse(data);
+      if (!provinces.length) { provinceEl.disabled = true; return; }
+      provinces.forEach(([name, code]) => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = name;
+        provinceEl.appendChild(opt);
+      });
+      provinceEl.disabled = false;
+    }
+
+    /* ── Same shipping toggle ──────────────────────────────────── */
+    _setupSameShipping() {
+      if (!this._sameShipCb) return;
+      const fields = this._shipFields.querySelectorAll('input, select');
+      const sync = () => {
+        const same = this._sameShipCb.checked;
+        this._shipFields.style.display = same ? 'none' : 'block';
+        fields.forEach(f => { f.disabled = same; });
+      };
+      sync(); // set initial state (checkbox starts checked)
+      this._sameShipCb.addEventListener('change', sync);
+    }
+
+    /* ── Existing account help form ────────────────────────────── */
+    _setupExistingAccForm() {
+      const toggle = this.querySelector('[data-vr-existing-toggle]');
+      const body   = this.querySelector('[data-vr-existing-body]');
+      const submit = this.querySelector('[data-vr-existing-submit]');
+      if (!toggle || !body || !submit) return;
+
+      toggle.addEventListener('click', () => {
+        const open = body.hidden;
+        body.hidden = !open;
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      submit.addEventListener('click', async () => {
+        const email = this.querySelector('[data-vr-existing-email]')?.value.trim();
+        const msg   = this.querySelector('[data-vr-existing-msg]')?.value.trim();
+        if (!email) { this.querySelector('[data-vr-existing-email]')?.focus(); return; }
+
+        submit.disabled = true;
+        submit.textContent = 'Sending…';
+
+        try {
+          const shop = this.dataset.vrShop
+            || (window.Shopify?.shop ? window.Shopify.shop.replace('.myshopify.com', '') : '');
+          const res  = await fetch(window.__vaProxy + '?action=account-issue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ shop, email, message: msg || '' }),
+          });
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.error || 'Request failed');
+          submit.textContent = '✓ Sent';
+          const sent = this.querySelector('[data-vr-existing-sent]');
+          if (sent) sent.hidden = false;
+        } catch {
+          submit.disabled = false;
+          submit.textContent = 'Send access request';
+        }
+      });
+    }
+
+    /* ── Form submit ───────────────────────────────────────────── */
+    async _handleSubmit(e) {
+      e.preventDefault();
+      if (!this._validatePage(3)) return;
+
+      const emailField = this._form.querySelector('[name="contact_email"]')?.value
+                      || this._form.querySelector('[name="email"]')?.value || '';
+
+      this._submitBtn.disabled = true;
+      this._submitBtn.textContent = 'Submitting…';
+
+      const errEl = this.querySelector('[data-vr-submit-error]');
+      if (errEl) errEl.hidden = true;
+
+      try {
+        // Collect all form fields as JSON (skip file inputs)
+        const payload = {};
+        for (const el of this._form.elements) {
+          if (!el.name || el.type === 'file') continue;
+          if (el.type === 'checkbox') { payload[el.name] = el.checked; continue; }
+          if (el.type === 'radio' && !el.checked) continue;
+          payload[el.name] = el.value;
+        }
+
+        const shop = this.dataset.vrShop
+          || (window.Shopify?.shop ? window.Shopify.shop.replace('.myshopify.com', '') : '');
+        const res = await fetch(window.__vaProxy + '?action=signup&shop=' + shop, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error('Server error ' + res.status);
+        const json = await res.json();
+        console.log('[vr-register] Signup response:', json);
+        if (!json.ok) throw new Error(json.error || 'Webhook error ' + (json.debug?.http_code ?? ''));
+
+        // Show confirmation only on success
+        if (this._confEmail) this._confEmail.textContent = emailField || 'your email';
+        this.currentPage = 4;
+        this._updatePage();
+      } catch (err) {
+        console.error('[vr-register] Signup error:', err);
+        this._submitBtn.disabled = false;
+        this._submitBtn.textContent = 'Submit application';
+        if (errEl) {
+          errEl.textContent = 'Submission failed. Please try again or contact support.';
+          errEl.hidden = false;
+        }
+      }
+    }
+  }
+
+  if (!customElements.get('vr-register-dialog')) {
+    customElements.define('vr-register-dialog', VrRegisterDialog);
+  }
+})();
+</script>

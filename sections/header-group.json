@@ -1,0 +1,544 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "Header",
+  "sections": {
+    "header_announcements_VeCBNM": {
+      "type": "header-announcements",
+      "blocks": {
+        "announcement_ypGdeQ": {
+          "type": "_announcement",
+          "settings": {
+            "text": "Welcome to the New Valor Unified Partner Experience",
+            "link": "",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none"
+          },
+          "blocks": {}
+        },
+        "announcement_dfUpKU": {
+          "type": "_announcement",
+          "disabled": true,
+          "settings": {
+            "text": "Free Shipping on Orders $250 or more!*",
+            "link": "shopify://blogs/news/free-shipping",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none"
+          },
+          "blocks": {}
+        },
+        "announcement_iY66gP": {
+          "type": "_announcement",
+          "name": "t:names.announcement",
+          "disabled": true,
+          "settings": {
+            "text": "iPhone 18 Family of Accessories Coming Soon.",
+            "link": "",
+            "font": "var(--font-body--family)",
+            "font_size": "0.875rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "announcement_ypGdeQ",
+        "announcement_dfUpKU",
+        "announcement_iY66gP"
+      ],
+      "name": "t:names.announcement_bar",
+      "settings": {
+        "section_width": "full-width",
+        "color_scheme": "scheme-5",
+        "divider_width": 0,
+        "speed": 5,
+        "padding-block-start": 12,
+        "padding-block-end": 12
+      }
+    },
+    "header_section": {
+      "type": "header",
+      "blocks": {
+        "valor_menu_drawer_6LftEf": {
+          "type": "valor_menu_drawer",
+          "settings": {}
+        },
+        "mega_menu_collection_list_TkLt7L": {
+          "type": "mega_menu_collection_list",
+          "settings": {
+            "heading": "Device",
+            "collections": [
+              "all-apple-device-accessories",
+              "all-boost-devices-accesories",
+              "all-motorola-device-accessories",
+              "all-samsung-device-accessories",
+              "all-nokia-device-accessories",
+              "all-tcl-device-accessories"
+            ],
+            "col_min_width": 120,
+            "col_max_width": 150,
+            "gap": 12,
+            "aspect_ratio": "1 / 1",
+            "border_radius": 8,
+            "show_title": true,
+            "show_count": false
+          }
+        },
+        "mega_menu_collection_list_Tq466Q": {
+          "type": "mega_menu_collection_list",
+          "settings": {
+            "heading": "Carrier",
+            "collections": [
+              "all-att-device-accessories",
+              "all-boost-mobile-accessories",
+              "all-cricket-wireless-device-accessories",
+              "all-metro-by-t-mobile-device-accessories",
+              "all-t-mobile-device-accessories",
+              "carrier-total-by-verizon",
+              "all-tracfone-device-accessories",
+              "all-us-cellular-device-accessories",
+              "all-verizon-device-accessories",
+              "all-xfinity-mobile-device-accessories"
+            ],
+            "col_min_width": 120,
+            "col_max_width": 150,
+            "gap": 12,
+            "aspect_ratio": "1 / 1",
+            "border_radius": 8,
+            "show_title": true,
+            "show_count": false
+          }
+        },
+        "mega_menu_collection_list_PVUPMz": {
+          "type": "mega_menu_collection_list",
+          "settings": {
+            "heading": "Brand",
+            "collections": [
+              "wholesale-adata-accessories",
+              "wholesale-ampnergy-accessories",
+              "wholesale-arium-wireless-accessories",
+              "wholesale-baseline-accessories",
+              "wholesale-beats-audio-accessories",
+              "wholesale-cellhelmet-accessories",
+              "wholesale-deejays-accessories",
+              "wholesale-echelon-accessories",
+              "wholesale-ecoblvd-accessories",
+              "wholesale-fdn-accessories",
+              "wholesale-luxmo-phone-pouches",
+              "wholesale-mybat-accessories",
+              "wholesale-mybat-pro-accessories",
+              "wholesale-mlb-bluetooth-speakers",
+              "wholesale-ondigo-accessories",
+              "wholesale-sentry-accessories",
+              "wholesale-syb-accessories"
+            ],
+            "col_min_width": 120,
+            "col_max_width": 150,
+            "gap": 16,
+            "aspect_ratio": "1 / 1",
+            "border_radius": 8,
+            "show_title": true,
+            "show_count": true
+          }
+        },
+        "header_megamenu_VLNn4X": {
+          "type": "header_megamenu",
+          "settings": {
+            "heading": "Design Lab",
+            "menu_handle": "",
+            "show_image": true,
+            "image_width_percent": 30,
+            "color_scheme_popup": "scheme-1",
+            "color_scheme_level1": "scheme-2",
+            "level1_width": 300,
+            "menu_padding": 20,
+            "item_border_radius": 4,
+            "popup_border_radius": 0
+          }
+        },
+        "mega_menu_promo_dYVPeA": {
+          "type": "mega_menu_promo",
+          "settings": {
+            "heading": "Shop All",
+            "promo_heading": "SPRING VIBES",
+            "subheading": "SHOP THE EDIT →",
+            "link": "shopify://collections/best-sellers"
+          }
+        }
+      },
+      "block_order": [
+        "valor_menu_drawer_6LftEf",
+        "mega_menu_collection_list_TkLt7L",
+        "mega_menu_collection_list_Tq466Q",
+        "mega_menu_collection_list_PVUPMz",
+        "header_megamenu_VLNn4X",
+        "mega_menu_promo_dYVPeA"
+      ],
+      "custom_css": [],
+      "settings": {
+        "section_width": "page-width",
+        "section_height": "standard",
+        "enable_sticky_header": "always",
+        "divider_width": false,
+        "divider_size": "page-width",
+        "border_width": true,
+        "submenu_border": true,
+        "menu_bottom_padding": 8,
+        "logo_position": "left",
+        "menu_position": "center",
+        "menu_row": "top",
+        "disable_dropdown_menu": true,
+        "show_search": true,
+        "search_position": "right",
+        "search_row": "top",
+        "show_search_in_drawer": true,
+        "va_search_category_menu": "search-categories",
+        "va_search_recommended_collection": "new-wholesale-accessories",
+        "show_country": false,
+        "country_selector_style": true,
+        "show_language": false,
+        "localization_font": "heading",
+        "localization_font_size": "1rem",
+        "localization_position": "left",
+        "localization_row": "top",
+        "account_direct_link": false,
+        "actions_display_style": "icon",
+        "actions_font_size": "1rem",
+        "actions_font": "body",
+        "actions_text_case": "none",
+        "color_scheme_top": "scheme-1",
+        "color_scheme_bottom": "",
+        "color_scheme_transparent": "scheme-4",
+        "enable_transparent_header_home": false,
+        "home_color_scheme": "inverse",
+        "enable_transparent_header_product": false,
+        "product_color_scheme": "default",
+        "enable_transparent_header_collection": false,
+        "collection_color_scheme": "default",
+        "padding-block-start": 2,
+        "padding-block-end": 10,
+        "menu": "main-menu",
+        "type_font_primary_size": "1.2rem",
+        "type_font_primary_size_mobile": "1.5rem",
+        "type_font_primary_link": "body",
+        "type_case_primary_link": "none",
+        "menu_link_color": "#2b3a55",
+        "menu_link_hover_color": "#000000",
+        "menu_fill_width": false,
+        "color_scheme": "scheme-1",
+        "menu_font_style": "inverse",
+        "menu_style": "text",
+        "featured_products_aspect_ratio": "4 / 5",
+        "featured_collections_aspect_ratio": "16 / 9",
+        "image_border_radius": 0,
+        "show_view_all": false,
+        "navigation_bar": false,
+        "color_scheme_navigation_bar": "",
+        "drawer_accordion": true,
+        "drawer_accordion_expand_first": false,
+        "drawer_dividers": false
+      }
+    },
+    "valor_desktop_nav": {
+      "type": "valor-desktop-nav",
+      "blocks": {
+        "dnav_categories": {
+          "type": "dropdown-categories",
+          "settings": {
+            "label": "Categories",
+            "menu": "desknav-categories",
+            "column_image_ratio": "320/378",
+            "col_1_image": "shopify://shop_images/Protection.png",
+            "col_2_image": "shopify://shop_images/Power.png",
+            "col_3_image": "shopify://shop_images/Audio.png",
+            "col_4_image": "shopify://shop_images/Attachables.png",
+            "col_5_image": "shopify://shop_images/Wearables.png",
+            "col_6_image": "shopify://shop_images/Everything-Else.png"
+          }
+        },
+        "dnav_devices": {
+          "type": "dropdown-devices",
+          "settings": {
+            "label": "Devices",
+            "menu": "desknav-devices",
+            "hero_url": "/collections/wholesale-apple-device-accessories",
+            "hero_eyebrow": "Just landed",
+            "hero_title": "iPhone 17 series.",
+            "hero_cta": "Shop the lineup",
+            "hero_image": "shopify://shop_images/Collection_Image_Sample_iPhone_17_Pro_Max.webp"
+          }
+        },
+        "dnav_brands": {
+          "type": "dropdown-brands",
+          "settings": {
+            "label": "Brands",
+            "menu": "navmenu-brands",
+            "eyebrow": "Shop by brand",
+            "brands_html": "<a href=\"/collections/wholesale-mybat-pro-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat<span style=\"font-style:italic;color:#C54448;\"> Pro</span></span></a><a href=\"/search?sort_by=relevance&filter.p.m.custom.product_brand=MYBAT&q=brand+mybat&filter.p.m.custom.product_designlab=0\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat</span></a><a href=\"/collections/wholesale-echelon-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Echelon</span></a><a href=\"/collections/wholesale-ampnergy-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#B07E1A;'>AmpNergy</span></a><a href=\"/collections/wholesale-baseline-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Baseline</span></a><a href=\"/collections/wholesale-ecoblvd-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#2d7a3f;'>EcoBlvd</span></a><a href=\"/collections/wholesale-ondigo-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Ondigo</span></a><a href=\"/collections/wholesale-adata-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;letter-spacing:0.05em;'>ADATA</span></a><a href=\"/collections/wholesale-beats-audio-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:900;'>Beats</span></a><a href=\"/collections/wholesale-borne-bluetooth-speakers\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Borne</span></a><a href=\"/collections/wholesale-coca-cola-bluetooth-speakers\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;font-style:italic;color:#C54448;'>Coca-Cola</span></a><a href=\"/collections/wholesale-deejays-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;'>Deejays</span></a><a href=\"/collections/brand-edge\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Edge</span></a><a href=\"/collections/wholesale-luxmo-phone-pouches\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Luxmo</span></a><a href=\"/collections/wholesale-maxpower-bluetooth-speakers\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:800;'>MaxPower</span></a><a href=\"/collections/wholesale-mlb-bluetooth-speakers\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;color:#1D2636;'>MLB</span></a><a href=\"/collections/brand-mlb\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Scosche</span></a><a href=\"/collections/wholesale-sentry-accessories\" class=\"vdn__brand-pill\"><span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:500;'>Sentry</span></a>",
+            "brand_1_url": "/collections/wholesale-mybat-pro-accessories",
+            "brand_1_image": "shopify://shop_images/mybatpro-dropdown_fa2c8e6a-5f6c-4ce6-acd7-f6dc4bb2538a.png",
+            "brand_1_name": "MyBat Pro",
+            "brand_2_url": "/search?sort_by=relevance&filter.p.m.custom.product_brand=MYBAT&q=brand+mybat&filter.p.m.custom.product_designlab=0",
+            "brand_2_image": "shopify://shop_images/mybat-dropdown_ff10186c-dcf8-4fd1-a4c2-2aa5b7b76bc3.png",
+            "brand_2_name": "MyBat",
+            "brand_3_url": "/collections/wholesale-echelon-accessories",
+            "brand_3_image": "shopify://shop_images/echelon-dropdown_275aeb52-2f1f-4e89-9f3c-6009af5f173c.png",
+            "brand_3_name": "Echelon",
+            "brand_4_url": "/collections/wholesale-ampnergy-accessories",
+            "brand_4_image": "shopify://shop_images/ampnergy-dropdown_d1bd5268-9745-4d1c-9cef-abe4a5ca1ac3.png",
+            "brand_4_name": "AmpNergy",
+            "brand_5_url": "/collections/wholesale-baseline-accessories",
+            "brand_5_image": "shopify://shop_images/baseline-dropdown_886171a7-48f3-45a7-a28c-22258f9d8cce.png",
+            "brand_5_name": "Baseline",
+            "brand_6_url": "/collections/wholesale-ecoblvd-accessories",
+            "brand_6_image": "shopify://shop_images/ecoblvd-dropdown_cd89d25d-d588-4860-b96a-d0631d4ba72d.png",
+            "brand_6_name": "EcoBlvd",
+            "brand_7_url": "/collections/wholesale-ondigo-accessories",
+            "brand_7_image": "shopify://shop_images/ondigo-dropdown_8ac29982-58f3-4e3e-98d7-ac9d32d61cf0.png",
+            "brand_7_name": "Ondigo",
+            "brand_8_url": "/collections/wholesale-adata-accessories",
+            "brand_8_image": "shopify://shop_images/adata-dropdown_908142ec-696d-4d7d-8f79-ada55995017d.png",
+            "brand_8_name": "ADATA",
+            "brand_9_url": "/collections/wholesale-beats-audio-accessories",
+            "brand_9_image": "shopify://shop_images/beats-dropdown.png",
+            "brand_9_name": "Beats",
+            "brand_10_url": "",
+            "brand_10_name": "",
+            "brand_11_url": "",
+            "brand_11_name": "",
+            "brand_12_url": "/collections/wholesale-deejays-accessories",
+            "brand_12_image": "shopify://shop_images/deejays-dropdown.png",
+            "brand_12_name": "Deejays",
+            "brand_13_url": "",
+            "brand_13_name": "",
+            "brand_14_url": "/collections/wholesale-luxmo-phone-pouches",
+            "brand_14_image": "shopify://shop_images/luxmo-dropdown.png",
+            "brand_14_name": "Luxmo",
+            "brand_15_url": "/collections/wholesale-maxpower-bluetooth-speakers",
+            "brand_15_image": "shopify://shop_images/maxpower-dropdown.png",
+            "brand_15_name": "MaxPower",
+            "brand_16_url": "/collections/wholesale-mlb-bluetooth-speakers",
+            "brand_16_image": "shopify://shop_images/mlb-dropdown_a615b1c1-6087-4116-99d3-5504d6fd5f87.png",
+            "brand_16_name": "MLB",
+            "brand_17_url": "/collections/brand-scosche",
+            "brand_17_image": "shopify://shop_images/scosche-dropdown.png",
+            "brand_17_name": "Scosche",
+            "brand_18_url": "/collections/wholesale-sentry-accessories",
+            "brand_18_image": "shopify://shop_images/sentry-dropdown.png",
+            "brand_18_name": "Sentry",
+            "brand_19_url": "/collections/wholesale-rwan-accessories",
+            "brand_19_image": "shopify://shop_images/RWAN-logo_1.png",
+            "brand_19_name": "RWAN",
+            "brand_20_url": "",
+            "brand_20_name": ""
+          }
+        },
+        "dnav_design_lab": {
+          "type": "dropdown-simple",
+          "settings": {
+            "label": "Design Lab",
+            "menu": "design-lab-1",
+            "cta_url": "",
+            "designlab_banner_enabled": true,
+            "designlab_banner_url": "shopify://collections/design-lab-americana-collection",
+            "designlab_banner_title_prefix": "Red, White",
+            "designlab_banner_title_accent": "& New",
+            "designlab_banner_title_suffix": "Designs",
+            "designlab_banner_text": "Explore 10 new Design Lab designs with Americana style.",
+            "designlab_banner_cta_label": "Shop the Drop",
+            "designlab_banner_image_1": "shopify://shop_images/patriot_camo.png",
+            "designlab_banner_image_2": "shopify://shop_images/free_to_flutter.png",
+            "designlab_banner_image_3": "shopify://shop_images/fireworks.png"
+          }
+        },
+        "dnav_about": {
+          "type": "dropdown-simple",
+          "settings": {
+            "label": "About",
+            "menu": "navmenu-footer",
+            "cta_url": "",
+            "designlab_banner_enabled": false,
+            "designlab_banner_url": "",
+            "designlab_banner_title_prefix": "New",
+            "designlab_banner_title_accent": "Summer",
+            "designlab_banner_title_suffix": "Designs",
+            "designlab_banner_text": "Explore the latest drop with 10 new designs.",
+            "designlab_banner_cta_label": "Shop the Drop"
+          }
+        }
+      },
+      "block_order": [
+        "dnav_categories",
+        "dnav_devices",
+        "dnav_brands",
+        "dnav_design_lab",
+        "dnav_about"
+      ],
+      "settings": {
+        "aria_label": "Primary navigation",
+        "dropdown_align": "center"
+      }
+    },
+    "valor_menu_drawer": {
+      "type": "valor-menu-drawer",
+      "blocks": {
+        "tab_featured_wCExb4": {
+          "type": "tab_featured",
+          "name": "Tab – Featured",
+          "settings": {
+            "tab_label": "Featured",
+            "menu": "navmenu-featured",
+            "cta_url": "",
+            "banner_eyebrow": "",
+            "banner_headline": "",
+            "banner_sub": "",
+            "banner_cta": "",
+            "banner_url": "",
+            "banner_from": "rgba(0,0,0,0)",
+            "banner_to": "rgba(0,0,0,0)",
+            "banner_eyebrow_color": "rgba(0,0,0,0)"
+          }
+        },
+        "tab_designlab_9DkqVh": {
+          "type": "tab_featured",
+          "name": "Tab - Design Lab",
+          "settings": {
+            "tab_label": "Design Lab",
+            "menu": "",
+            "cta_url": "",
+            "banner_eyebrow": "",
+            "banner_headline": "",
+            "banner_sub": "",
+            "banner_cta": "",
+            "banner_url": "",
+            "banner_from": "#1d2636",
+            "banner_to": "#c54448",
+            "banner_eyebrow_color": "#63b9de"
+          }
+        },
+        "tab_accordion_6xJnnY": {
+          "type": "tab_accordion",
+          "name": "Tab – Category",
+          "settings": {
+            "tab_label": "Categories",
+            "menu": "navmenu-categories",
+            "show_view_all": false,
+            "banner_eyebrow": "NEW ARRIVAL",
+            "banner_headline": "35W GaN Dual-Port Wall Charger",
+            "banner_sub": "Power Your Devices",
+            "banner_cta": "Shop Now",
+            "banner_url": "",
+            "banner_from": "#2b3a55",
+            "banner_to": "#d9eef6",
+            "banner_eyebrow_color": "#63b9de"
+          }
+        },
+        "tab_accordion_6wc7UY": {
+          "type": "tab_accordion",
+          "name": "Tab – Devices",
+          "settings": {
+            "tab_label": "Devices",
+            "menu": "navmenu-devices",
+            "show_view_all": false,
+            "banner_eyebrow": "POPULAR MODEL",
+            "banner_headline": "Galaxy A17",
+            "banner_sub": "Accessories Available",
+            "banner_cta": "",
+            "banner_url": "",
+            "banner_from": "#2b3a55",
+            "banner_to": "#d9eef6",
+            "banner_eyebrow_color": "#63b9de"
+          }
+        },
+        "tab_brands_CiFAcp": {
+          "type": "tab_brands",
+          "settings": {
+            "tab_label": "Brands",
+            "menu": "navmenu-brands",
+            "brand_1_url": "/collections/wholesale-mybat-pro-accessories",
+            "brand_1_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat<span style=\"font-style:italic;color:#C54448;\"> Pro</span></span>",
+            "brand_2_url": "/search?sort_by=relevance&filter.p.m.custom.product_brand=MYBAT&q=brand+mybat&filter.p.m.custom.product_designlab=0",
+            "brand_2_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>MyBat</span>",
+            "brand_3_url": "/collections/wholesale-echelon-accessories",
+            "brand_3_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Echelon</span>",
+            "brand_4_url": "/collections/wholesale-ampnergy-accessories",
+            "brand_4_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#B07E1A;'>AmpNergy</span>",
+            "brand_5_url": "/collections/wholesale-baseline-accessories",
+            "brand_5_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Baseline</span>",
+            "brand_6_url": "/collections/wholesale-ecoblvd-accessories",
+            "brand_6_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;color:#2d7a3f;'>EcoBlvd</span>",
+            "brand_7_url": "/collections/wholesale-ondigo-accessories",
+            "brand_7_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Ondigo</span>",
+            "brand_8_url": "/collections/wholesale-adata-accessories",
+            "brand_8_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;letter-spacing:0.05em;'>ADATA</span>",
+            "brand_9_url": "/collections/wholesale-beats-audio-accessories",
+            "brand_9_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:900;'>Beats</span>",
+            "brand_10_url": "/collections/wholesale-borne-bluetooth-speakers",
+            "brand_10_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Borne</span>",
+            "brand_11_url": "/collections/wholesale-coca-cola-bluetooth-speakers",
+            "brand_11_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;font-style:italic;color:#C54448;'>Coca-Cola</span>",
+            "brand_12_url": "/collections/wholesale-deejays-accessories",
+            "brand_12_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:700;'>Deejays</span>",
+            "brand_13_url": "/collections/brand-edge",
+            "brand_13_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Edge</span>",
+            "brand_14_url": "/collections/wholesale-luxmo-phone-pouches",
+            "brand_14_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:500;'>Luxmo</span>",
+            "brand_15_url": "/collections/wholesale-maxpower-bluetooth-speakers",
+            "brand_15_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:800;'>MaxPower</span>",
+            "brand_16_url": "/collections/wholesale-mlb-bluetooth-speakers",
+            "brand_16_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Instrument Serif\",Georgia,serif;font-weight:700;color:#1D2636;'>MLB</span>",
+            "brand_17_url": "/collections/brand-mlb",
+            "brand_17_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:600;'>Scosche</span>",
+            "brand_18_url": "/collections/wholesale-sentry-accessories",
+            "brand_18_name": "<span class=\"vdn__brand-pill__name\" style='font-family:\"Inter\",sans-serif;font-weight:500;'>Sentry</span>",
+            "brand_19_url": "",
+            "brand_19_name": "",
+            "brand_20_url": "",
+            "brand_20_name": "",
+            "banner_eyebrow": "",
+            "banner_headline": "",
+            "banner_sub": "",
+            "banner_cta": "",
+            "banner_url": "",
+            "banner_from": "#c54448",
+            "banner_to": "#1d2636",
+            "banner_eyebrow_color": "#d4af37"
+          }
+        }
+      },
+      "block_order": [
+        "tab_featured_wCExb4",
+        "tab_designlab_9DkqVh",
+        "tab_accordion_6xJnnY",
+        "tab_accordion_6wc7UY",
+        "tab_brands_CiFAcp"
+      ],
+      "settings": {
+        "logo": "shopify://shop_images/valor_only_logo_full_color_1.png",
+        "footer_menu": "navmenu-footer"
+      }
+    }
+  },
+  "order": [
+    "header_announcements_VeCBNM",
+    "header_section",
+    "valor_desktop_nav",
+    "valor_menu_drawer"
+  ]
+}

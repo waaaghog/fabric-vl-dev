@@ -1,0 +1,540 @@
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <cmg-section
+    class="cmg-layout cmg-layout--{{ section.settings.content_position }}"
+    style="
+      --cmg-content-width: {{ section.settings.content_width }}%;
+      --cmg-section-gap: {{ section.settings.section_gap }}px;
+      --cmg-media-gap: {{ section.settings.media_gap }}px;
+      --cmg-aspect-ratio: {{ section.settings.aspect_ratio }};
+      --cmg-radius: {{ section.settings.border_radius }}px;
+      --cmg-play-bg: {{ section.settings.play_icon_bg }};
+      --cmg-play-color: {{ section.settings.play_icon_color }};
+    "
+  >
+    <div class="cmg-content">
+      {%- if section.settings.heading != blank -%}
+        <h2
+          class="cmg-heading"
+          {% if section.settings.heading_size != blank %}style="font-size: {{ section.settings.heading_size }};"{% endif %}
+        >
+          {{- section.settings.heading -}}
+        </h2>
+      {%- endif -%}
+
+      {%- if section.settings.text != blank -%}
+        <div class="cmg-text rte">{{ section.settings.text }}</div>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        <a
+          href="{{ section.settings.button_link | default: '#' }}"
+          class="cmg-button cmg-button--{{ section.settings.button_style }}"
+          style="
+            {%- if section.settings.button_color != blank -%}color: {{ section.settings.button_color }};{%- endif -%}
+            {%- if section.settings.button_bg != blank -%}background-color: {{ section.settings.button_bg }};{%- endif -%}
+          "
+        >
+          {{- section.settings.button_label -}}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="cmg-media-grid">
+      {%- for block in section.blocks -%}
+        {%- assign has_video = false -%}
+        {%- assign has_image = false -%}
+        {%- if block.settings.video != blank -%}{%- assign has_video = true -%}{%- endif -%}
+        {%- if block.settings.image != blank -%}{%- assign has_image = true -%}{%- endif -%}
+
+        <div
+          class="cmg-item{% if has_video %} cmg-item--has-video{% endif %}"
+          {{ block.shopify_attributes }}
+        >
+          {%- if has_video -%}
+            <video
+              class="cmg-video"
+              muted
+              playsinline
+              loop
+              preload="none"
+              {%- if has_image %} poster="{{ block.settings.image | image_url: width: 800 }}"{% endif -%}
+            >
+              {%- for source in block.settings.video.sources -%}
+                {%- if source.mime_type contains 'video/mp4' -%}
+                  <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                {%- endif -%}
+              {%- endfor -%}
+            </video>
+            <div class="cmg-play-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          {%- elsif has_image -%}
+            {%- assign img_alt = block.settings.image.alt | escape -%}
+            <img
+              src="{{ block.settings.image | image_url: width: 800 }}"
+              srcset="
+                {{ block.settings.image | image_url: width: 400 }} 400w,
+                {{ block.settings.image | image_url: width: 600 }} 600w,
+                {{ block.settings.image | image_url: width: 800 }} 800w
+              "
+              sizes="(min-width: 750px) 20vw, 80vw"
+              class="cmg-image"
+              alt="{{ img_alt }}"
+              loading="lazy"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+            >
+          {%- else -%}
+            <div class="cmg-placeholder">
+              {{- 'image' | placeholder_svg_tag -}}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </cmg-section>
+</div>
+
+<script>
+  (function () {
+    class CmgSection extends HTMLElement {
+      connectedCallback() {
+        this._items = Array.from(this.querySelectorAll('.cmg-item--has-video'));
+        this._observers = [];
+        this._isMobile = window.innerWidth <= 749;
+        this._onResize = this._handleResize.bind(this);
+        window.addEventListener('resize', this._onResize);
+        this._setup();
+      }
+
+      disconnectedCallback() {
+        window.removeEventListener('resize', this._onResize);
+        this._observers.forEach(o => o.disconnect());
+      }
+
+      _setup() {
+        if (this._isMobile) {
+          this._setupMobile();
+        } else {
+          this._setupDesktop();
+        }
+      }
+
+      _setupDesktop() {
+        this._items.forEach(item => {
+          const video = item.querySelector('.cmg-video');
+          if (!video) return;
+          item._onEnter = () => { video.play().catch(() => {}); item.classList.add('playing'); };
+          item._onLeave = () => { video.pause(); video.currentTime = 0; item.classList.remove('playing'); };
+          item.addEventListener('mouseenter', item._onEnter);
+          item.addEventListener('mouseleave', item._onLeave);
+        });
+      }
+
+      _setupMobile() {
+        this._items.forEach(item => {
+          const video = item.querySelector('.cmg-video');
+          if (!video) return;
+          const obs = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+              if (e.isIntersecting) {
+                video.play().catch(() => {});
+                item.classList.add('playing');
+              } else {
+                video.pause();
+                video.currentTime = 0;
+                item.classList.remove('playing');
+              }
+            });
+          }, { threshold: 0.5 });
+          obs.observe(item);
+          this._observers.push(obs);
+        });
+      }
+
+      _handleResize() {
+        const wasMobile = this._isMobile;
+        this._isMobile = window.innerWidth <= 749;
+        if (wasMobile === this._isMobile) return;
+
+        this._observers.forEach(o => o.disconnect());
+        this._observers = [];
+        this._items.forEach(item => {
+          const video = item.querySelector('.cmg-video');
+          if (video) { video.pause(); video.currentTime = 0; }
+          item.classList.remove('playing');
+          if (item._onEnter) item.removeEventListener('mouseenter', item._onEnter);
+          if (item._onLeave) item.removeEventListener('mouseleave', item._onLeave);
+        });
+        this._setup();
+      }
+    }
+
+    if (!customElements.get('cmg-section')) {
+      customElements.define('cmg-section', CmgSection);
+    }
+  })();
+</script>
+
+{% stylesheet %}
+  cmg-section {
+    display: block;
+  }
+
+  .cmg-layout {
+    display: grid;
+    grid-template-columns: var(--cmg-content-width, 35%) 1fr;
+    grid-template-areas: 'content media';
+    gap: var(--cmg-section-gap, 40px);
+    align-items: center;
+    width: 100%;
+  }
+
+  .cmg-layout--right {
+    grid-template-columns: 1fr var(--cmg-content-width, 35%);
+    grid-template-areas: 'media content';
+  }
+
+  .cmg-content {
+    grid-area: content;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .cmg-media-grid {
+    grid-area: media;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--cmg-media-gap, 12px);
+  }
+
+  .cmg-heading {
+    margin: 0;
+    line-height: 1.1;
+    font-weight: 400;
+  }
+
+  .cmg-text {
+    margin: 0;
+	font-size: calc(12px + 0.2vw);
+  }
+
+  .cmg-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    padding: 8px 28px;
+    border-radius: 50px;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 2px solid currentColor;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-size: 14px;
+	font-family: var(--font-body--family);
+	font-weight: 500;
+  }
+
+  .cmg-button--solid {
+    border-color: transparent;
+  }
+
+  .cmg-button:hover {
+    opacity: 0.75;
+  }
+
+  .cmg-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--cmg-radius, 8px);
+    aspect-ratio: var(--cmg-aspect-ratio, 9/16);
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .cmg-video,
+  .cmg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cmg-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cmg-placeholder svg {
+    width: 48%;
+    height: 48%;
+    opacity: 0.2;
+  }
+
+  .cmg-play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: var(--cmg-play-bg, rgba(255, 255, 255, 0.9));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+
+  .cmg-play-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--cmg-play-color, #000000);
+    margin-left: 3px;
+  }
+
+  .cmg-item.playing .cmg-play-icon {
+    opacity: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .cmg-layout,
+    .cmg-layout--right {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'content'
+        'media';
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "New: Content & Media grid",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Your nails, our craft"
+    },
+    {
+      "type": "text",
+      "id": "heading_size",
+      "label": "Heading size",
+      "placeholder": "e.g. 40px, 2.5rem"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Share your brand story or describe what makes your product unique.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        { "value": "outline", "label": "Outline" },
+        { "value": "solid", "label": "Solid" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button text color"
+    },
+    {
+      "type": "color",
+      "id": "button_bg",
+      "label": "Button background"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Content position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "Content column width",
+      "min": 20,
+      "max": 50,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "range",
+      "id": "section_gap",
+      "label": "Gap (content & media)",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "media_gap",
+      "label": "Gap between media items",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Media aspect ratio",
+      "options": [
+        { "value": "9/16", "label": "9:16 (Portrait)" },
+        { "value": "4/5", "label": "4:5" },
+        { "value": "1/1", "label": "1:1 (Square)" },
+        { "value": "4/3", "label": "4:3" },
+        { "value": "16/9", "label": "16:9 (Wide)" }
+      ],
+      "default": "9/16"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "play_icon_bg",
+      "label": "Play icon background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "play_icon_color",
+      "label": "Play icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Margin"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "media_item",
+      "name": "Media item",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Used as poster when a video is set, or shown as a static image when no video is provided"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Content & Media grid",
+      "category": "Storytelling",
+      "blocks": [
+        { "type": "media_item" },
+        { "type": "media_item" },
+        { "type": "media_item" }
+      ]
+    }
+  ]
+}
+{% endschema %}

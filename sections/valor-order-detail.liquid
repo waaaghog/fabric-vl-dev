@@ -1,0 +1,214 @@
+{% doc %}
+  Valor B2B order detail section.
+  Fetched on-demand via Shopify Section Rendering API from the valor-account portal:
+    GET /account/orders/<token>?sections=valor-order-detail
+  Injected into .va-od-content — inherits --va-* CSS variables from the portal page.
+{% enddoc %}
+
+{%- if order == nil -%}
+  <div class="va-od-error">Order not found.</div>
+{%- else -%}
+
+  {%- comment -%} Status label/class {%- endcomment -%}
+  {%- if order.cancelled_at -%}
+    {%- assign _od_sc = 'cancelled' -%}{%- assign _od_sl = 'Cancelled' -%}
+  {%- elsif order.fulfillment_status == 'fulfilled' -%}
+    {%- assign _od_sc = 'delivered' -%}{%- assign _od_sl = 'Delivered' -%}
+  {%- elsif order.fulfillment_status == 'partial' -%}
+    {%- assign _od_sc = 'shipped' -%}{%- assign _od_sl = 'Partially shipped' -%}
+  {%- else -%}
+    {%- assign _od_sc = 'processing' -%}{%- assign _od_sl = 'Processing' -%}
+  {%- endif -%}
+
+  {%- comment -%} Detect multiship {%- endcomment -%}
+  {%- assign _od_is_ms = false -%}
+  {%- if order.attributes['_order'] != blank -%}{%- assign _od_is_ms = true -%}{%- endif -%}
+
+  {%- comment -%} Build variantId→info JSON for multiship renderer {%- endcomment -%}
+  {%- if _od_is_ms -%}
+    {%- capture _od_li_json -%}{
+      {%- for li in order.line_items -%}
+        {%- unless forloop.first -%},{%- endunless -%}
+        "{{ li.variant_id }}":{"title":{{ li.title | json }},"variant":{{ li.variant_title | default: '' | json }},"sku":{{ li.sku | default: '' | json }},"qty":{{ li.quantity }},"price":"{{ li.price | money }}","img":{% if li.image %}"{{ li.image | image_url: width: 60 }}"{% else %}null{% endif %},"zoom":{% if li.image %}"{{ li.image | image_url: width: 800 }}"{% else %}null{% endif %},"url":{{ li.product.url | json }}}
+      {%- endfor -%}
+    }{%- endcapture -%}
+  {%- endif -%}
+
+  {%- comment -%} PO number {%- endcomment -%}
+  {%- assign _od_po = order.attributes['po_number'] | default: order.attributes['PO Number'] | default: order.attributes['PO #'] | default: '' -%}
+
+  <div class="va-od">
+
+    <!-- ── Meta row: status pills + date ── -->
+    <div class="va-od-meta">
+      <span class="va-status-pill {{ _od_sc }}"><span class="va-sd"></span>{{ _od_sl }}</span>
+      {%- if order.fulfillment_status != blank and order.fulfillment_status != 'unfulfilled' -%}
+        <span class="va-status-pill {{ order.fulfillment_status }}">
+          <span class="va-sd"></span>{{ order.fulfillment_status | capitalize | replace: '_', ' ' }}
+        </span>
+      {%- endif -%}
+      <span class="va-od-date-chip">{{ order.created_at | date: '%B %d, %Y' }}</span>
+      {%- if _od_po != blank -%}
+        <span class="va-od-date-chip">PO: {{ _od_po }}</span>
+      {%- endif -%}
+    </div>
+
+    <!-- ── Multiship distribution ── -->
+    {%- if _od_is_ms -%}
+    <div class="va-od-section">
+      <div class="va-od-section-title">Multiship distribution</div>
+      <div class="va-multiship-detail"
+           data-order="{{ order.attributes['_order'] | escape }}"
+           data-lineitems="{{ _od_li_json | escape }}">
+        <div class="va-od-loading-inline">Loading distribution…</div>
+      </div>
+    </div>
+    {%- endif -%}
+
+    <!-- ── Line items ── -->
+    <div class="va-od-section">
+      <div class="va-od-section-title">
+        {%- if _od_is_ms -%}All items ({{ order.line_items.size }}){%- else -%}Order items{%- endif -%}
+      </div>
+      <div class="va-od-lineitems">
+        {%- for li in order.line_items -%}
+        <div class="va-od-li">
+          <div class="va-od-li-img">
+            {%- if li.image -%}
+              <img
+                src="{{ li.image | image_url: width: 100 }}"
+                data-zoom="{{ li.image | image_url: width: 800 }}"
+                alt="{{ li.title | escape }}"
+                loading="lazy"
+                width="56" height="56"
+                class="va-zoomable"
+              >
+            {%- endif -%}
+          </div>
+          <div class="va-od-li-info">
+            <div class="va-od-li-name">
+              {%- if li.product -%}
+                <a href="{{ li.product.url }}" class="va-product-link">{{ li.title }}</a>
+              {%- else -%}
+                {{ li.title }}
+              {%- endif -%}
+            </div>
+            <div class="va-od-li-meta">
+              {%- if li.sku != blank -%}SKU: {{ li.sku }}{%- endif -%}
+              {%- if li.variant_title != blank and li.variant_title != 'Default Title' -%}
+                {%- if li.sku != blank %} &middot; {%- endif -%}{{ li.variant_title }}
+              {%- endif -%}
+            </div>
+          </div>
+          <div class="va-od-li-right">
+            <div class="va-od-li-qty">&times; {{ li.quantity }}</div>
+            <div class="va-od-li-price">{{ li.price | money }}</div>
+          </div>
+        </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    <!-- ── Bottom: addresses + totals ── -->
+    <div class="va-od-bottom">
+
+      <div class="va-od-addresses">
+        {%- if order.shipping_address -%}
+        <div class="va-od-addr-block">
+          <div class="va-od-section-title">Ship to</div>
+          <address class="va-od-addr">
+            <div>{{ order.shipping_address.name }}</div>
+            <div>{{ order.shipping_address.address1 }}</div>
+            {%- if order.shipping_address.address2 != blank -%}
+              <div>{{ order.shipping_address.address2 }}</div>
+            {%- endif -%}
+            <div>{{ order.shipping_address.city }}, {{ order.shipping_address.province_code }} {{ order.shipping_address.zip }}</div>
+            <div>{{ order.shipping_address.country }}</div>
+          </address>
+        </div>
+        {%- endif -%}
+
+        {%- if order.billing_address -%}
+        <div class="va-od-addr-block">
+          <div class="va-od-section-title">Bill to</div>
+          <address class="va-od-addr">
+            <div>{{ order.billing_address.name }}</div>
+            <div>{{ order.billing_address.address1 }}</div>
+            {%- if order.billing_address.address2 != blank -%}
+              <div>{{ order.billing_address.address2 }}</div>
+            {%- endif -%}
+            <div>{{ order.billing_address.city }}, {{ order.billing_address.province_code }} {{ order.billing_address.zip }}</div>
+            <div>{{ order.billing_address.country }}</div>
+          </address>
+        </div>
+        {%- endif -%}
+      </div>
+
+      <div class="va-od-totals">
+        <div class="va-od-trow"><span>Subtotal</span><span>{{ order.subtotal_price | money }}</span></div>
+        {%- if order.shipping_price > 0 -%}
+        <div class="va-od-trow"><span>Shipping</span><span>{{ order.shipping_price | money }}</span></div>
+        {%- endif -%}
+        {%- if order.total_tax > 0 -%}
+        <div class="va-od-trow"><span>Tax</span><span>{{ order.total_tax | money }}</span></div>
+        {%- endif -%}
+        {%- for discount in order.discount_applications -%}
+        <div class="va-od-trow va-od-trow--discount">
+          <span>
+            Discount
+            {%- if discount.title != blank %} ({{ discount.title }}){%- endif -%}
+          </span>
+          <span>&minus;{{ discount.total_allocated_amount | money }}</span>
+        </div>
+        {%- endfor -%}
+        <div class="va-od-trow va-od-trow--grand"><span>Total</span><span>{{ order.total_price | money }}</span></div>
+      </div>
+
+    </div><!-- /va-od-bottom -->
+
+    <!-- ── Tracking ── -->
+    {%- assign _od_has_tracking = false -%}
+    {%- for f in order.fulfillments -%}
+      {%- if f.tracking_number != blank -%}{%- assign _od_has_tracking = true -%}{%- endif -%}
+    {%- endfor -%}
+    {%- if _od_has_tracking -%}
+    <div class="va-od-section">
+      <div class="va-od-section-title">Tracking</div>
+      <div class="va-od-tracking-list">
+        {%- for f in order.fulfillments -%}
+          {%- if f.tracking_number != blank -%}
+          <div class="va-od-tracking">
+            {%- if f.tracking_url != blank -%}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              <a href="{{ f.tracking_url }}" target="_blank" rel="noopener" class="va-od-tracking-link">
+                {{ f.tracking_company | default: 'Carrier' }}: {{ f.tracking_number }}
+              </a>
+            {%- else -%}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              {{ f.tracking_company | default: 'Carrier' }}: {{ f.tracking_number }}
+            {%- endif -%}
+          </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+    {%- endif -%}
+
+    <!-- ── Order note ── -->
+    {%- if order.note != blank -%}
+    <div class="va-od-section">
+      <div class="va-od-section-title">Order note</div>
+      <div class="va-od-note">{{ order.note }}</div>
+    </div>
+    {%- endif -%}
+
+  </div><!-- /va-od -->
+
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Valor order detail",
+  "settings": []
+}
+{% endschema %}

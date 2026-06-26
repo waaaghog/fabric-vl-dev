@@ -1,0 +1,16 @@
+{%- doc -%}
+  Renders a single Design Lab menu link as an <li><a>, with an optional "New"
+  badge. To flag an item as new, end its title with an asterisk in the Shopify
+  navigation menu (e.g. "iPhone 17e / 16e *").
+
+  @param {object} link - A Shopify menu link object.
+  @param {string} variant - desktop or drawer (controls the badge class).
+{%- enddoc -%}
+
+{%- liquid
+  assign dl_badge_class = 'vdn__dl-new'
+  if variant == 'drawer'
+    assign dl_badge_class = 'vmd-dl-new'
+  endif
+-%}
+<li><a href="{{ link.url }}">{% render 'valor-menu-title-with-new-badge', title: link.title, badge_class: dl_badge_class %}</a></li>

@@ -1,0 +1,764 @@
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+
+  {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+    <div class="vg6__header" style="--vg6-header-gap: {{ section.settings.header_gap }}px;">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="vg6__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <div class="vg6__subheading rte">{{ section.settings.subheading }}</div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <video-gallery6
+    class="vg6"
+    style="
+      --vg6-gap: {{ section.settings.gap }}px;
+      --vg6-gap-mobile: {{ section.settings.gap_mobile }}px;
+      --vg6-aspect-ratio: {{ section.settings.aspect_ratio }};
+      --vg6-border-radius: {{ section.settings.border_radius }}px;
+      --vg6-placeholder-bg: {{ section.settings.placeholder_bg_color }};
+      --vg6-play-icon-bg: {{ section.settings.play_icon_bg }};
+      --vg6-play-icon-color: {{ section.settings.play_icon_color }};
+      --vg6-overlay-bg: {{ section.settings.overlay_bg_color }};
+      --vg6-overlay-text-color: {{ section.settings.overlay_text_color }};
+    "
+  >
+    <div class="vg6__outer">
+      {%- for block in section.blocks -%}
+        {%- assign b = block.settings -%}
+        <div class="vg6__pair" {{ block.shopify_attributes }}>
+
+          {%- comment -%}— Column A: single tall item —{%- endcomment -%}
+          <div class="vg6__col">
+            <div class="vg6__media">
+              {%- if b.video_a != blank -%}
+                <video class="vg6__video" muted playsinline loop preload="none">
+                  {%- for source in b.video_a.sources -%}
+                    {%- if source.mime_type contains 'video/mp4' -%}
+                      <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                    {%- endif -%}
+                  {%- endfor -%}
+                </video>
+                <div class="vg6__play-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              {%- elsif b.image_a != blank -%}
+                <img
+                  src="{{ b.image_a | image_url: width: 800 }}"
+                  srcset="{{ b.image_a | image_url: width: 400 }} 400w, {{ b.image_a | image_url: width: 800 }} 800w"
+                  sizes="25vw"
+                  alt="{{ b.image_a.alt | escape }}"
+                  loading="lazy"
+                  width="{{ b.image_a.width }}"
+                  height="{{ b.image_a.height }}"
+                  class="vg6__image"
+                >
+              {%- else -%}
+                <div class="vg6__placeholder">{{ 'image' | placeholder_svg_tag }}</div>
+              {%- endif -%}
+              {%- if b.overlay_text_a != blank or b.overlay_link_a != blank or b.show_rating_a -%}
+                <div class="vg6__overlay">
+                  {%- if b.overlay_text_a != blank -%}
+                    <p class="vg6__overlay-text">{{ b.overlay_text_a }}</p>
+                  {%- endif -%}
+                  <div class="vg6__overlay-footer">
+                    {%- if b.overlay_link_a != blank -%}
+                      <a href="{{ b.overlay_link_a }}" class="vg6__overlay-link">{{ b.overlay_link_label_a | default: 'SHOP NOW →' }}</a>
+                    {%- endif -%}
+                    {%- if b.show_rating_a -%}
+                      <span class="vg6__stars" aria-label="5 stars">★★★★★</span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+
+          {%- comment -%}— Column B: two stacked items —{%- endcomment -%}
+          <div class="vg6__col vg6__col--double">
+
+            <div class="vg6__media">
+              {%- if b.video_b1 != blank -%}
+                <video class="vg6__video" muted playsinline loop preload="none">
+                  {%- for source in b.video_b1.sources -%}
+                    {%- if source.mime_type contains 'video/mp4' -%}
+                      <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                    {%- endif -%}
+                  {%- endfor -%}
+                </video>
+                <div class="vg6__play-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              {%- elsif b.image_b1 != blank -%}
+                <img
+                  src="{{ b.image_b1 | image_url: width: 800 }}"
+                  srcset="{{ b.image_b1 | image_url: width: 400 }} 400w, {{ b.image_b1 | image_url: width: 800 }} 800w"
+                  sizes="25vw"
+                  alt="{{ b.image_b1.alt | escape }}"
+                  loading="lazy"
+                  width="{{ b.image_b1.width }}"
+                  height="{{ b.image_b1.height }}"
+                  class="vg6__image"
+                >
+              {%- else -%}
+                <div class="vg6__placeholder">{{ 'image' | placeholder_svg_tag }}</div>
+              {%- endif -%}
+              {%- if b.overlay_text_b1 != blank or b.overlay_link_b1 != blank or b.show_rating_b1 -%}
+                <div class="vg6__overlay">
+                  {%- if b.overlay_text_b1 != blank -%}
+                    <p class="vg6__overlay-text">{{ b.overlay_text_b1 }}</p>
+                  {%- endif -%}
+                  <div class="vg6__overlay-footer">
+                    {%- if b.overlay_link_b1 != blank -%}
+                      <a href="{{ b.overlay_link_b1 }}" class="vg6__overlay-link">{{ b.overlay_link_label_b1 | default: 'SHOP NOW →' }}</a>
+                    {%- endif -%}
+                    {%- if b.show_rating_b1 -%}
+                      <span class="vg6__stars" aria-label="5 stars">★★★★★</span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+
+            <div class="vg6__media">
+              {%- if b.video_b2 != blank -%}
+                <video class="vg6__video" muted playsinline loop preload="none">
+                  {%- for source in b.video_b2.sources -%}
+                    {%- if source.mime_type contains 'video/mp4' -%}
+                      <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                    {%- endif -%}
+                  {%- endfor -%}
+                </video>
+                <div class="vg6__play-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              {%- elsif b.image_b2 != blank -%}
+                <img
+                  src="{{ b.image_b2 | image_url: width: 800 }}"
+                  srcset="{{ b.image_b2 | image_url: width: 400 }} 400w, {{ b.image_b2 | image_url: width: 800 }} 800w"
+                  sizes="25vw"
+                  alt="{{ b.image_b2.alt | escape }}"
+                  loading="lazy"
+                  width="{{ b.image_b2.width }}"
+                  height="{{ b.image_b2.height }}"
+                  class="vg6__image"
+                >
+              {%- else -%}
+                <div class="vg6__placeholder">{{ 'image' | placeholder_svg_tag }}</div>
+              {%- endif -%}
+              {%- if b.overlay_text_b2 != blank or b.overlay_link_b2 != blank or b.show_rating_b2 -%}
+                <div class="vg6__overlay">
+                  {%- if b.overlay_text_b2 != blank -%}
+                    <p class="vg6__overlay-text">{{ b.overlay_text_b2 }}</p>
+                  {%- endif -%}
+                  <div class="vg6__overlay-footer">
+                    {%- if b.overlay_link_b2 != blank -%}
+                      <a href="{{ b.overlay_link_b2 }}" class="vg6__overlay-link">{{ b.overlay_link_label_b2 | default: 'SHOP NOW →' }}</a>
+                    {%- endif -%}
+                    {%- if b.show_rating_b2 -%}
+                      <span class="vg6__stars" aria-label="5 stars">★★★★★</span>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </video-gallery6>
+</div>
+
+{% stylesheet %}
+  /* ── Header ────────────────────────────────────── */
+  .vg6__header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    margin-bottom: var(--vg6-header-gap, 32px);
+  }
+
+  .vg6__heading {
+    margin: 0;
+    flex: 1 1 0;
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .vg6__subheading {
+    flex: 1 1 0;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .vg6__subheading p { margin: 0; }
+
+  @media screen and (max-width: 749px) {
+    .vg6__header {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
+
+  /* ── Outer: pairs in a row ──────────────────────── */
+  video-gallery6 { display: block; }
+
+  .vg6__outer {
+    display: flex;
+    flex-direction: row;
+    gap: var(--vg6-gap, 16px);
+    align-items: stretch;
+  }
+
+  /* ── Pair: always a 2-column grid ───────────────── */
+  .vg6__pair {
+    flex: 1 1 0;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vg6-gap, 16px);
+    align-items: stretch;
+  }
+
+  /* ── Column ─────────────────────────────────────── */
+  .vg6__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vg6-gap, 16px);
+    min-width: 0;
+  }
+
+  /* Single-item col: media fills full height */
+  .vg6__col:not(.vg6__col--double) .vg6__media {
+    flex: 1;
+    aspect-ratio: unset;
+  }
+
+  /* Double-item col: each media uses the configured aspect-ratio */
+  .vg6__col--double .vg6__media {
+    aspect-ratio: var(--vg6-aspect-ratio, 9/16);
+  }
+
+  /* ── Media item ─────────────────────────────────── */
+  .vg6__media {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: var(--vg6-border-radius, 8px);
+    background-color: var(--vg6-placeholder-bg, #f4f4f4);
+    min-height: 120px;
+  }
+
+  .vg6__video,
+  .vg6__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ── Placeholder ────────────────────────────────── */
+  .vg6__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .vg6__placeholder svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  /* ── Play icon ──────────────────────────────────── */
+  .vg6__play-icon {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background-color: var(--vg6-play-icon-bg, #ffffff);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+  }
+
+  .vg6__play-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--vg6-play-icon-color, #000000);
+    margin-left: 3px;
+  }
+
+  .vg6__media.playing .vg6__play-icon { opacity: 0; }
+
+  /* ── Overlay ────────────────────────────────────── */
+  .vg6__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    background: linear-gradient(to top, var(--vg6-overlay-bg, rgba(0,0,0,0.65)) 0%, transparent 100%);
+    color: var(--vg6-overlay-text-color, #ffffff);
+  }
+
+  .vg6__overlay-text {
+    margin: 0 0 10px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .vg6__overlay-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .vg6__overlay-link {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .vg6__overlay-link:hover { text-decoration: underline; }
+
+  .vg6__stars {
+    font-size: 0.875rem;
+    letter-spacing: 2px;
+    color: inherit;
+  }
+
+  /* ── Mobile: pairs stack vertically ─────────────── */
+  @media screen and (max-width: 749px) {
+    .vg6__outer {
+      flex-direction: column;
+      gap: var(--vg6-gap-mobile, 8px);
+    }
+
+    .vg6__pair {
+      gap: var(--vg6-gap-mobile, 8px);
+    }
+
+    .vg6__col {
+      gap: var(--vg6-gap-mobile, 8px);
+    }
+
+    .vg6__play-icon { width: 50px; height: 50px; }
+    .vg6__play-icon svg { width: 20px; height: 20px; }
+  }
+{% endstylesheet %}
+
+<script>
+  (function () {
+    class VideoGallery6 extends HTMLElement {
+      constructor() {
+        super();
+        this.mediaItems = [];
+        this.videos = [];
+        this.currentVideo = null;
+        this.isMobile = window.innerWidth <= 749;
+        this.observers = [];
+        this._handleResize = this.handleResize.bind(this);
+      }
+
+      connectedCallback() {
+        this.mediaItems = Array.from(this.querySelectorAll('.vg6__media'));
+        this.videos = Array.from(this.querySelectorAll('.vg6__video'));
+        window.addEventListener('resize', this._handleResize);
+        this.setup();
+      }
+
+      disconnectedCallback() {
+        window.removeEventListener('resize', this._handleResize);
+        this.cleanup();
+      }
+
+      handleResize() {
+        const wasMobile = this.isMobile;
+        this.isMobile = window.innerWidth <= 749;
+        if (wasMobile !== this.isMobile) {
+          this.cleanup();
+          this.setup();
+        }
+      }
+
+      setup() {
+        if (this.isMobile) {
+          this.setupMobileAutoplay();
+        } else {
+          this.setupDesktopHover();
+        }
+      }
+
+      cleanup() {
+        this.observers.forEach(o => o.disconnect());
+        this.observers = [];
+        this.videos.forEach(v => { v.pause(); v.currentTime = 0; });
+        this.mediaItems.forEach(item => item.classList.remove('playing'));
+        if (this.currentVideo) this.currentVideo = null;
+      }
+
+      setupDesktopHover() {
+        this.mediaItems.forEach(item => {
+          const video = item.querySelector('.vg6__video');
+          if (!video) return;
+          item.addEventListener('mouseenter', () => {
+            if (this.currentVideo && this.currentVideo !== video) {
+              this.currentVideo.pause();
+              this.currentVideo.currentTime = 0;
+              this.currentVideo.closest('.vg6__media')?.classList.remove('playing');
+            }
+            video.play().catch(() => {});
+            item.classList.add('playing');
+            this.currentVideo = video;
+          });
+          item.addEventListener('mouseleave', () => {
+            video.pause();
+            video.currentTime = 0;
+            item.classList.remove('playing');
+            if (this.currentVideo === video) this.currentVideo = null;
+          });
+        });
+      }
+
+      setupMobileAutoplay() {
+        this.mediaItems.forEach(item => {
+          const video = item.querySelector('.vg6__video');
+          if (!video) return;
+          const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                video.play().catch(() => {});
+                item.classList.add('playing');
+              } else {
+                video.pause();
+                video.currentTime = 0;
+                item.classList.remove('playing');
+              }
+            });
+          }, { threshold: 0.5 });
+          observer.observe(item);
+          this.observers.push(observer);
+        });
+      }
+    }
+
+    if (!customElements.get('video-gallery6')) {
+      customElements.define('video-gallery6', VideoGallery6);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "New: Video Gallery 6",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The people have spoken"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Share your brand story or describe what makes your product unique.</p>"
+    },
+    {
+      "type": "range",
+      "id": "header_gap",
+      "label": "Gap below heading",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Aspect ratio (stacked items in column B)",
+      "options": [
+        { "value": "9/16", "label": "9:16 (Portrait)" },
+        { "value": "3/4",  "label": "3:4" },
+        { "value": "4/5",  "label": "4:5" },
+        { "value": "1/1",  "label": "1:1 (Square)" },
+        { "value": "4/3",  "label": "4:3" },
+        { "value": "16/9", "label": "16:9 (Landscape)" }
+      ],
+      "default": "9/16"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap (desktop)",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap (mobile)",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "color",
+      "id": "overlay_bg_color",
+      "label": "Overlay gradient color",
+      "default": "#000000",
+      "info": "Bottom gradient overlay behind the text"
+    },
+    {
+      "type": "color",
+      "id": "overlay_text_color",
+      "label": "Overlay text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "placeholder_bg_color",
+      "label": "Placeholder background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "play_icon_bg",
+      "label": "Play icon background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "play_icon_color",
+      "label": "Play icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "pair",
+      "name": "Pair",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Column A — tall single item"
+        },
+        {
+          "type": "video",
+          "id": "video_a",
+          "label": "Video A"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_a",
+          "label": "Image A",
+          "info": "Fallback if no video"
+        },
+        {
+          "type": "textarea",
+          "id": "overlay_text_a",
+          "label": "Overlay quote"
+        },
+        {
+          "type": "url",
+          "id": "overlay_link_a",
+          "label": "Overlay link"
+        },
+        {
+          "type": "text",
+          "id": "overlay_link_label_a",
+          "label": "Overlay link label",
+          "default": "SHOP NOW →"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_rating_a",
+          "label": "Show star rating",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Column B — top item"
+        },
+        {
+          "type": "video",
+          "id": "video_b1",
+          "label": "Video B1"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_b1",
+          "label": "Image B1",
+          "info": "Fallback if no video"
+        },
+        {
+          "type": "textarea",
+          "id": "overlay_text_b1",
+          "label": "Overlay quote"
+        },
+        {
+          "type": "url",
+          "id": "overlay_link_b1",
+          "label": "Overlay link"
+        },
+        {
+          "type": "text",
+          "id": "overlay_link_label_b1",
+          "label": "Overlay link label",
+          "default": "SHOP NOW →"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_rating_b1",
+          "label": "Show star rating",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Column B — bottom item"
+        },
+        {
+          "type": "video",
+          "id": "video_b2",
+          "label": "Video B2"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_b2",
+          "label": "Image B2",
+          "info": "Fallback if no video"
+        },
+        {
+          "type": "textarea",
+          "id": "overlay_text_b2",
+          "label": "Overlay quote"
+        },
+        {
+          "type": "url",
+          "id": "overlay_link_b2",
+          "label": "Overlay link"
+        },
+        {
+          "type": "text",
+          "id": "overlay_link_label_b2",
+          "label": "Overlay link label",
+          "default": "SHOP NOW →"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_rating_b2",
+          "label": "Show star rating",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Video Gallery 6",
+      "blocks": [
+        { "type": "pair" },
+        { "type": "pair" }
+      ]
+    }
+  ]
+}
+{% endschema %}

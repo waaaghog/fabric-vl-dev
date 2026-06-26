@@ -1,0 +1,147 @@
+{%- doc -%}
+  Renders the Valor collection sidebar filter groups in a fixed visual order
+  while keeping options sourced from Shopify filters and FILTER_* tags.
+
+  @param {object} filters - Shopify filter objects.
+  @param {string} filter_style - Current filter style.
+  @param {boolean} [in_drawer] - Whether rendered inside the filters drawer.
+  @param {boolean} [show_swatch_label] - Whether to show labels beside color swatches.
+  @param {string} section_id - Current section ID.
+{%- enddoc -%}
+
+{%- liquid
+  assign ordered_targets = 'category|devices|brand|color|price|stock|features' | split: '|'
+  assign rendered_params = '|'
+-%}
+
+{% render 'design-lab-filter-card', filters: filters, section_id: section_id, in_drawer: in_drawer %}
+
+{%- for target in ordered_targets -%}
+  {%- liquid
+    assign target_label = target
+    case target
+      when 'category'
+        assign target_label = 'Category'
+      when 'devices'
+        assign target_label = 'Devices'
+      when 'brand'
+        assign target_label = 'Brand'
+      when 'color'
+        assign target_label = 'Color'
+      when 'price'
+        assign target_label = 'RETAIL PRICE'
+      when 'stock'
+        assign target_label = 'Stock Status'
+      when 'features'
+        assign target_label = 'Features'
+    endcase
+
+    assign did_render_target = false
+  -%}
+
+  {%- for filter in filters -%}
+    {%- liquid
+      assign filter_param_key = '|' | append: filter.param_name | append: '|'
+      if rendered_params contains filter_param_key
+        continue
+      endif
+
+      assign label_downcase = filter.label | downcase
+      assign param_downcase = filter.param_name | downcase
+      assign matches_target = false
+
+      case target
+        when 'category'
+          if label_downcase contains 'product categories' or label_downcase contains 'product subcategories' or param_downcase contains 'product_categories' or param_downcase contains 'product_subcategories'
+            assign matches_target = true
+          endif
+        when 'devices'
+          if label_downcase contains 'phone device' or label_downcase == 'devices' or param_downcase contains 'phone_devices'
+            assign matches_target = true
+          endif
+        when 'brand'
+          if label_downcase contains 'product brand' or param_downcase contains 'product_brand'
+            assign matches_target = true
+          elsif label_downcase == 'brand'
+            unless param_downcase contains 'vendor'
+              assign matches_target = true
+            endunless
+          endif
+        when 'color'
+          if label_downcase contains 'color' or label_downcase contains 'colour' or param_downcase contains 'color' or param_downcase contains 'colour'
+            assign matches_target = true
+          endif
+        when 'price'
+          if filter.type == 'price_range' or label_downcase contains 'retail price' or label_downcase contains 'wholesale price' or label_downcase == 'price' or param_downcase contains 'price'
+            assign matches_target = true
+          endif
+        when 'stock'
+          if label_downcase contains 'availability' or label_downcase contains 'stock' or param_downcase contains 'availability' or param_downcase contains 'available' or param_downcase contains 'stock_status' or param_downcase contains 'stock-status'
+            assign matches_target = true
+          endif
+        when 'features'
+          if label_downcase contains 'feature' or param_downcase contains 'feature'
+            assign matches_target = true
+          endif
+      endcase
+
+      if matches_target and filter.type != 'price_range' and filter.values.size == 0
+        assign matches_target = false
+      endif
+    -%}
+
+    {%- if matches_target -%}
+      {%- case filter.type -%}
+        {%- when 'price_range' -%}
+          {%- render 'price-filter',
+            filter: filter,
+            filter_style: filter_style,
+            should_render_clear: false,
+            id_prefix: target,
+            in_drawer: in_drawer,
+            label_override: target_label
+          -%}
+        {%- else -%}
+          {%- liquid
+            assign active_value_count = filter.active_values | size
+            assign render_as_color_swatches = false
+            if target == 'color'
+              assign render_as_color_swatches = true
+            endif
+            assign render_as_pills = false
+            if target == 'stock'
+              assign render_as_pills = true
+            endif
+          -%}
+          {%- render 'list-filter',
+            filter: filter,
+            filter_style: filter_style,
+            active_value_count: active_value_count,
+            should_render_clear: false,
+            show_swatch_label: show_swatch_label,
+            in_drawer: in_drawer,
+            sectionId: section_id,
+            label_override: target_label,
+            render_as_color_swatches: render_as_color_swatches,
+            render_as_pills: render_as_pills
+          -%}
+      {%- endcase -%}
+
+      {%- liquid
+        assign rendered_params = rendered_params | append: filter.param_name | append: '|'
+        assign did_render_target = true
+      -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- unless did_render_target -%}
+    {% render 'valor-derived-filter',
+      title: target_label,
+      source: target,
+      filter_style: filter_style,
+      in_drawer: in_drawer,
+      section_id: section_id
+    %}
+  {%- endunless -%}
+{%- endfor -%}

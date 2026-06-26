@@ -1,0 +1,485 @@
+{%- doc -%}
+  Inline Add-to-Cart block for product cards.
+  Always shows a quantity stepper next to the Add to Cart button.
+  Prevents rapid double-submissions by locking the button while the request is in flight.
+{%- enddoc -%}
+
+{%- assign product = closest.product -%}
+{%- if product != blank -%}
+  {%- assign variant = product.selected_or_first_available_variant -%}
+  {%- assign show_login = false -%}
+  {%- if settings.b2b_mode -%}
+    {%- if customer == nil or customer['b2b?'] == false -%}
+      {%- assign show_login = true -%}
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if show_login -%}
+    <button
+      type="button"
+      class="vqa__login js-shopify-login-trigger"
+      {{ block.shopify_attributes }}
+      style="--vqa-radius: {{ block.settings.border_radius }}px; --vqa-height: {{ block.settings.btn_height }}px;"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Login to see pricing
+    </button>
+  {%- else -%}
+	{%- liquid
+      if variant.available == false
+        assign stock_display = 'Out of stock'
+        assign stock_cls = 'oos'
+      elsif variant.inventory_management == blank
+        assign stock_display = '500+ in stock'
+        assign stock_cls = 'ok'
+      elsif variant.inventory_quantity >= 500
+        assign stock_display = '500+ in stock'
+        assign stock_cls = 'ok'
+      elsif variant.inventory_quantity > 0
+        assign stock_display = variant.inventory_quantity | append: ' in stock'
+        assign stock_cls = 'ok'
+        if variant.inventory_quantity < 50
+          assign stock_display = stock_display | append: ' · Low Stock'
+          assign stock_cls = 'low'
+        endif
+      elsif variant.inventory_policy == 'continue'
+        assign stock_display = '500+ in stock'
+        assign stock_cls = 'ok'
+      else
+        assign stock_display = 'Out of stock'
+        assign stock_cls = 'oos'
+      endif
+    -%}
+	<div
+		class="vqa-wrap"
+		{{ block.shopify_attributes }}
+		data-variant-id="{{ variant.id }}"
+		style="--vqa-radius: {{ block.settings.border_radius }}px; --vqa-height: {{ block.settings.btn_height }}px;"
+	>
+		<div class="vqa-info">
+			<span class="vqa-info__stock vqa-info__stock--{{ stock_cls }}">
+				<span class="vqa-info__dot"></span>
+				{{- stock_display -}}
+			</span>
+			<span class="vqa-info__cart" hidden></span>
+		</div>
+		<div class="vqa" data-variant-id="{{ variant.id }}">
+		<div class="vqa__qty">
+		<button type="button" class="vqa__qty-btn" data-action="decrease" aria-label="Decrease quantity">
+			<svg width="12" height="2" viewBox="0 0 12 2" fill="none" aria-hidden="true">
+			<path d="M1 1h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+			</svg>
+		</button>
+		<input type="number" class="vqa__qty-input" value="0" min="0" aria-label="Quantity">
+		<button type="button" class="vqa__qty-btn" data-action="increase" aria-label="Increase quantity">
+			<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+			<path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+			</svg>
+		</button>
+		</div>
+		<button
+		type="button"
+		class="vqa__btn"
+		{% if variant.available == false %}disabled{% endif %}
+		aria-label="{{ block.settings.label | escape }}: {{ product.title | escape }}"
+		>
+		<span class="vqa__label">{{- block.settings.label -}}</span>
+		<span class="vqa__check" aria-hidden="true">
+			<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+			<path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+		</span>
+		</button>
+		</div>
+	</div>
+  {%- endif -%}
+{%- endif -%}
+
+{% stylesheet %}
+.vqa__login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  height: var(--vqa-height);
+  border: 1px solid #1D2636;
+  border-radius: var(--vqa-radius);
+  background: transparent;
+  color: #1D2636;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.vqa__login:hover { background: #FFF; }
+
+.vqa-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.vqa-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #66717E;
+}
+
+.vqa-info__stock {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vqa-info__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.vqa-info__stock--ok .vqa-info__dot { background: #2d7a3f; }
+.vqa-info__stock--low { color: #B07E1A; }
+.vqa-info__stock--low .vqa-info__dot { background: #B07E1A; }
+.vqa-info__stock--oos .vqa-info__dot { background: #C54448; }
+.vqa-info__stock--oos { color: #C54448; }
+
+.vqa-info__cart {
+  color: #66717E;
+}
+
+.vqa {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: var(--vqa-height);
+  gap: 6px;
+}
+
+/* Stepper — matches .vp-quantity-stepper */
+.vqa__qty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: var(--vqa-height);
+  border: 1px solid #0003;
+  border-radius: var(--vqa-radius);
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+/* Stepper buttons — matches .vp-stepper-button */
+.vqa__qty-btn {
+  width: 28px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1D2636;
+  font-size: 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.vqa__qty-btn:hover { background: #F4F5F2; }
+
+/* Stepper input — matches .vp-quantity-input */
+.vqa__qty-input {
+  width: 2.6em;
+  border: none;
+  outline: none;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1D2636;
+  background: transparent;
+  font-family: inherit;
+  -moz-appearance: textfield;
+}
+
+.vqa__qty-input.vqa__qty-input--added {
+  color: #66717E;
+  background: rgba(45, 122, 63, 0.05);
+}
+
+.vqa__qty-input::-webkit-outer-spin-button,
+.vqa__qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ATC button — matches .vp-add-to-cart-button + .pcqv__btn */
+.vqa__btn {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #1D2636;
+  color: #F4F5F2;
+  border: none;
+  border-radius: var(--vqa-radius);
+  padding: 0 14px;
+  height: var(--vqa-height);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.vqa__btn:hover { background: #2B3A55; }
+
+.vqa__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Label + checkmark — matches .pcqv__btn-label / .pcqv__check */
+.vqa__label { transition: opacity 0.15s; }
+
+.vqa__check {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes vqa-check-in {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.vqa__btn[data-added] {
+  background: #2d7a3f;
+  color: #FFFFFF;
+  gap: 6px;
+  cursor: default;
+  opacity: 1;
+}
+.vqa__btn[data-added] .vqa__label { opacity: 1; }
+.vqa__btn[data-added] .vqa__check {
+  position: static;
+  inset: auto;
+  animation: vqa-check-in 0.2s ease forwards;
+}
+
+.product-card.just-added,
+product-card.just-added,
+.vpc-card.just-added {
+  border-color: #2d7a3f;
+  box-shadow: 0 0 0 1px #2d7a3f, 0 6px 22px -8px rgba(45, 122, 63, 0.25);
+}
+
+/* Loading spinner — matches .pcqv__btn[data-loading]::after */
+.vqa--loading { pointer-events: none; }
+.vqa__btn[data-loading] .vqa__label { opacity: 0; }
+.vqa__btn[data-loading]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(244, 245, 242, 0.35);
+  border-top-color: #F4F5F2;
+  border-radius: 50%;
+  animation: vqa-spin 0.6s linear infinite;
+}
+
+@keyframes vqa-spin {
+  to { transform: rotate(360deg); }
+}
+{% endstylesheet %}
+
+{% javascript %}
+if (!window._vqaAtcManager) {
+  window._vqaAtcManager = new (class {
+    constructor() {
+      this._inFlight = new WeakSet();
+      this._bind();
+      this._initCart();
+      window.__valorProductCardMarkAdded = (target, qty) => this.markAdded(target, qty);
+    }
+
+    _bind() {
+      document.addEventListener('click', (e) => {
+        /* +/- qty buttons */
+        const qtyBtn = e.target.closest('.vqa .vqa__qty-btn');
+        if (qtyBtn) {
+          const input = qtyBtn.closest('.vqa')?.querySelector('.vqa__qty-input');
+          if (!input) return;
+          const min = Number.isNaN(parseInt(input.min)) ? 0 : parseInt(input.min);
+          const cur = Number.isNaN(parseInt(input.value)) ? min : parseInt(input.value);
+          input.value = qtyBtn.dataset.action === 'increase'
+            ? cur + 1
+            : Math.max(min, cur - 1);
+          return;
+        }
+
+        /* ATC button */
+        const atcBtn = e.target.closest('.vqa .vqa__btn');
+        if (atcBtn) this._add(atcBtn);
+      });
+
+      document.addEventListener('cart:update', (e) => {
+        const cart = e.detail?.cart || e.detail?.resource;
+        if (cart) this._updateInfo(cart);
+        else fetch('/cart.js').then(r => r.json()).then(c => this._updateInfo(c));
+      });
+    }
+
+    _initCart() {
+      fetch('/cart.js').then(r => r.json()).then(c => this._updateInfo(c));
+    }
+
+    _updateInfo(cart) {
+      document.querySelectorAll('.vqa-wrap[data-variant-id]').forEach(wrap => {
+        const variantId = parseInt(wrap.dataset.variantId);
+        const cartEl = wrap.querySelector('.vqa-info__cart');
+        if (!cartEl) return;
+        const item = cart.items?.find(i => i.variant_id === variantId);
+        if (item && item.quantity > 0) {
+          cartEl.textContent = item.quantity + ' in cart';
+          cartEl.removeAttribute('hidden');
+        } else {
+          cartEl.setAttribute('hidden', '');
+        }
+      });
+    }
+
+    markAdded(target, qty) {
+      const wrap = target?.closest?.('.vqa-wrap') || target;
+      if (!wrap) return;
+
+      const card = wrap.closest('.vpc-card, .product-card, product-card');
+      if (card) {
+        card.classList.add('vpc-card--just-added', 'just-added');
+      }
+
+      const atcBtn = wrap.querySelector('.vqa__btn');
+      if (atcBtn) {
+        const label = atcBtn.querySelector('.vpc-add__label, .vqa__label');
+        if (label) {
+          if (!atcBtn.dataset.defaultLabel) atcBtn.dataset.defaultLabel = label.textContent.trim();
+          label.textContent = 'Added · ' + qty;
+        }
+        delete atcBtn.dataset.loading;
+        atcBtn.dataset.added = '';
+        atcBtn.disabled = true;
+      }
+
+      const input = wrap.querySelector('.vqa__qty-input');
+      if (input) {
+        input.value = '';
+        input.setAttribute('readonly', 'true');
+        input.classList.add('vqa__qty-input--added');
+      }
+    }
+
+    async _add(atcBtn) {
+      const block = atcBtn.closest('.vqa');
+      if (!block || this._inFlight.has(block)) return;
+
+      const variantId = parseInt(block.dataset.variantId);
+      const qty = Math.max(1, parseInt(block.querySelector('.vqa__qty-input')?.value) || 1);
+      const body = { id: variantId, quantity: qty };
+
+      this._inFlight.add(block);
+      block.classList.add('vqa--loading');
+      atcBtn.dataset.loading = '';
+
+      try {
+        const addRes = await fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!addRes.ok) return;
+
+        const cartData = await (await fetch('/cart.js')).json();
+        document.dispatchEvent(new CustomEvent('cart:update', {
+          bubbles: true,
+          detail: { cart: cartData, resource: cartData, sourceId: '', data: { itemCount: cartData.item_count ?? 0 } }
+        }));
+
+        delete atcBtn.dataset.loading;
+        this.markAdded(block, qty);
+        block.closest('.vqa-wrap')?.querySelector('.vqa__qty-input')?.dispatchEvent(new Event('input', { bubbles: true }));
+      } catch (_) {
+      } finally {
+        delete atcBtn.dataset.loading;
+        block.classList.remove('vqa--loading');
+        this._inFlight.delete(block);
+      }
+    }
+  })();
+}
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Qty add to cart",
+  "tag": null,
+  "presets": [
+    {
+      "name": "Qty add to cart",
+      "category": "Product"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Button label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "btn_height",
+      "label": "Button height",
+      "min": 28,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    }
+  ]
+}
+{% endschema %}

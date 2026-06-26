@@ -1,0 +1,327 @@
+
+{%- liquid
+  assign ncl_preset = section.settings.type_preset
+  if ncl_preset == 'rte'
+    assign ncl_preset = 'body'
+  elsif ncl_preset == 'paragraph'
+    assign ncl_preset = 'body'
+  endif
+
+  assign ncl_menu = linklists[section.settings.menu]
+  assign found_links = nil
+
+  for l1 in ncl_menu.links
+    unless found_links == nil
+      break
+    endunless
+    for l2 in l1.links
+      unless found_links == nil
+        break
+      endunless
+      for l3 in l2.links
+        if l3.active
+          assign found_links = l2.links
+          break
+        endif
+      endfor
+    endfor
+  endfor
+
+  if found_links == nil
+    for l1 in ncl_menu.links
+      unless found_links == nil
+        break
+      endunless
+      for l2 in l1.links
+        if l2.active
+          assign found_links = l1.links
+          break
+        endif
+      endfor
+    endfor
+  endif
+
+  if found_links == nil
+    for l1 in ncl_menu.links
+      if l1.active
+        assign found_links = ncl_menu.links
+        break
+      endif
+    endfor
+  endif
+-%}
+
+{%- if found_links != nil -%}
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="ncl section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="
+    {% render 'spacing-style', settings: section.settings %}
+    {%- if section.settings.background_color != blank -%}background-color: {{ section.settings.background_color }};{%- endif -%}
+    {%- if section.settings.text_color != blank -%}--ncl-color: {{ section.settings.text_color }};{%- endif -%}
+    {%- if section.settings.active_color != blank -%}--ncl-active-color: {{ section.settings.active_color }};{%- endif -%}
+    --ncl-gap: {{ section.settings.link_gap }}px;
+    --ncl-gap-mobile: {{ section.settings.link_gap_mobile }}px;
+    {%- if section.settings.type_preset == 'custom' -%}
+      --ncl-font: {{ section.settings.font }};
+      {%- if section.settings.font_size != blank -%}--ncl-font-size: {{ section.settings.font_size }};{%- endif -%}
+      {%- if section.settings.weight != blank -%}--ncl-font-weight: {{ section.settings.weight }};{%- endif -%}
+      --ncl-letter-spacing: var(--letter-spacing--heading-{{ section.settings.letter_spacing }});
+      --ncl-case: {{ section.settings.case }};
+    {%- elsif ncl_preset != 'body' -%}
+      --ncl-font: var(--font-{{ ncl_preset }}--family);
+      --ncl-font-size: var(--font-{{ ncl_preset }}--size);
+      --ncl-font-weight: var(--font-{{ ncl_preset }}--weight);
+      --ncl-letter-spacing: var(--font-{{ ncl_preset }}--letter-spacing);
+      --ncl-case: var(--font-{{ ncl_preset }}--case);
+    {%- endif -%}
+  "
+>
+  <nav class="ncl__nav" aria-label="{{ section.settings.menu | replace: '-', ' ' | capitalize }}">
+    {%- for link in found_links -%}
+      <a
+        href="{{ link.url }}"
+        class="ncl__link{% if link.active %} ncl__link--active{% endif %}"
+        {% if link.active %}aria-current="page"{% endif %}
+      >
+        {{- link.title -}}
+      </a>
+    {%- else -%}
+      <a href="#" class="ncl__link ncl__link--active">Collection 1</a>
+      <a href="#" class="ncl__link">Collection 2</a>
+      <a href="#" class="ncl__link">Collection 3</a>
+    {%- endfor -%}
+  </nav>
+</div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ncl__nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--ncl-gap-mobile, 20px);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ncl__nav {
+      gap: var(--ncl-gap, 32px);
+    }
+  }
+
+  .ncl__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ncl__link {
+    color: var(--ncl-color, currentColor);
+    text-decoration: none;
+    white-space: nowrap;
+    padding-block-end: 8px;
+    padding-inline: 6px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    font-family: var(--ncl-font, inherit);
+    font-size: var(--ncl-font-size, inherit);
+    font-weight: var(--ncl-font-weight, inherit);
+    letter-spacing: var(--ncl-letter-spacing, inherit);
+    text-transform: var(--ncl-case, none);
+  }
+
+  .ncl__link--active,
+  .ncl__link:hover {
+    color: var(--ncl-active-color, currentColor);
+    border-bottom-color: var(--ncl-active-color, currentColor);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "New: Collection links",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Menu"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "info": "Select a navigation menu. Active item is highlighted when its URL matches the current page."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "link_gap",
+      "label": "Gap between links (desktop)",
+      "min": 8,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "link_gap_mobile",
+      "label": "Gap between links (mobile)",
+      "min": 8,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background override"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Link color"
+    },
+    {
+      "type": "color",
+      "id": "active_color",
+      "label": "Active / hover color"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "select",
+      "id": "type_preset",
+      "label": "Preset",
+      "options": [
+        { "value": "rte", "label": "Default" },
+        { "value": "paragraph", "label": "Paragraph" },
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h4", "label": "H4" },
+        { "value": "h5", "label": "H5" },
+        { "value": "h6", "label": "H6" },
+        { "value": "custom", "label": "Custom" }
+      ],
+      "default": "h6"
+    },
+    {
+      "type": "select",
+      "id": "font",
+      "label": "Font",
+      "options": [
+        { "value": "var(--font-body--family)", "label": "Body" },
+        { "value": "var(--font-subheading--family)", "label": "Subheading" },
+        { "value": "var(--font-heading--family)", "label": "Heading" },
+        { "value": "var(--font-accent--family)", "label": "Accent" }
+      ],
+      "default": "var(--font-body--family)",
+      "visible_if": "{{ section.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "weight",
+      "label": "Font weight",
+      "options": [
+        { "value": "", "label": "Default" },
+        { "value": "300", "label": "300 – Light" },
+        { "value": "400", "label": "400 – Regular" },
+        { "value": "500", "label": "500 – Medium" },
+        { "value": "600", "label": "600 – Semi Bold" },
+        { "value": "700", "label": "700 – Bold" }
+      ],
+      "default": "",
+      "visible_if": "{{ section.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "text",
+      "id": "font_size",
+      "label": "Size",
+      "placeholder": "e.g. 1rem, 14px",
+      "visible_if": "{{ section.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "letter_spacing",
+      "label": "Letter spacing",
+      "options": [
+        { "value": "tight", "label": "Tight" },
+        { "value": "normal", "label": "Normal" },
+        { "value": "loose", "label": "Loose" }
+      ],
+      "default": "normal",
+      "visible_if": "{{ section.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "case",
+      "label": "Case",
+      "options": [
+        { "value": "none", "label": "Default" },
+        { "value": "uppercase", "label": "Uppercase" }
+      ],
+      "default": "none",
+      "visible_if": "{{ section.settings.type_preset == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Collection links",
+      "category": "Navigation"
+    }
+  ]
+}
+{% endschema %}

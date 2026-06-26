@@ -1,0 +1,192 @@
+{%- doc -%}
+  Renders filter remove buttons.
+
+  Accepts:
+
+  @param {object} filters - The filters to render
+  @param {boolean} show_filter_label - Whether to show the filter label
+  @param {string} results_url - The results URL
+  @param {boolean} should_show_clear_all - Whether to show the clear all button
+  @param {boolean} [show_tag_bubbles] - Whether to render the JS-managed tag filter pill container
+  @param {string} [form_id] - Optional facets form component ID used when this snippet is rendered outside the form
+{%- enddoc -%}
+
+{%- liquid
+  assign remove_form_id = form_id | default: ''
+-%}
+
+<div
+  class="facets-remove facets-remove--mobile-and-vertical"
+  {% if remove_form_id != blank %}
+    data-remove-form="{{ remove_form_id }}"
+  {% endif %}
+>
+  {% if show_tag_bubbles %}
+    <div style="display: contents" data-tag-active-filters></div>
+  {% endif %}
+  <div style="display: contents" data-design-lab-active-filter></div>
+
+  {%- if filters -%}
+    <h3 class="visually-hidden">{{ 'accessibility.active_filters' | t }}</h3>
+  {%- endif -%}
+
+  {%- for filter in filters -%}
+    {% if filter.type == 'price_range' and filter.min_value.value != null or filter.max_value.value != null %}
+      {%- liquid
+        assign is_active = true
+      -%}
+      <facet-remove-component
+        class="
+          pills__pill
+          pills__pill--desktop-small
+          facets-remove__pill
+        "
+        data-url="{{ filter.url_to_remove }}"
+        tabindex="0"
+        role="button"
+        on:click="/removeFilter?form={{ remove_form_id }}"
+        on:keydown="/removeFilter?form={{ remove_form_id }}"
+      >
+        {%- if filter.min_value.value != null and filter.max_value.value != null %}
+          {{- filter.min_value.value | money -}}
+          –
+          {{- filter.max_value.value | money -}}
+        {%- elsif filter.min_value.value != null -%}
+          {{ filter.min_value.value | money }}–{{ filter.range_max | money }}
+        {%- elsif filter.max_value.value != null -%}
+          {{- 0 | money -}}
+          –
+          {{- filter.max_value.value | money -}}
+        {%- endif -%}
+        <span class="svg-wrapper svg-wrapper--smaller">
+          {{- 'icon-filters-close.svg' | inline_asset_content -}}
+        </span>
+        <span class="visually-hidden">{{ 'actions.remove' | t }}</span>
+      </facet-remove-component>
+    {% else %}
+      {%- for value in filter.active_values -%}
+        {%- liquid
+          assign is_active = true
+          assign filter_label_key = filter.label | downcase | replace: '_', '' | replace: '-', '' | replace: ' ', ''
+          assign filter_param_key = filter.param_name | downcase | replace: '_', '' | replace: '-', '' | replace: '.', ''
+          assign is_design_lab_filter = false
+          if filter_label_key contains 'productdesignlab' or filter_label_key contains 'designlab' or filter_param_key contains 'productdesignlab' or filter_param_key contains 'designlab'
+            assign is_design_lab_filter = true
+          endif
+
+          assign design_lab_pill_label = ''
+          if is_design_lab_filter
+            capture design_lab_value_raw
+              echo value.value
+            endcapture
+            assign design_lab_value_key = design_lab_value_raw | downcase | strip
+            assign design_lab_label_key = value.label | downcase | strip
+            assign design_lab_pill_label = 'Design Lab: Show'
+            if design_lab_value_key == 'false' or design_lab_value_key == '0' or design_lab_label_key == 'false' or design_lab_label_key == 'no'
+              assign design_lab_pill_label = 'Design Lab: Hide'
+            endif
+          endif
+        -%}
+        <facet-remove-component
+          class="
+            pills__pill
+            pills__pill--desktop-small
+            facets-remove__pill
+            {% if value.swatch %}pills__pill--swatch{% endif %}
+          "
+          data-url="{{ value.url_to_remove }}"
+          tabindex="0"
+          role="button"
+          on:click="/removeFilter?form={{ remove_form_id }}"
+          on:keydown="/removeFilter?form={{ remove_form_id }}"
+        >
+          {% if value.swatch %}
+            {% render 'swatch', swatch: value.swatch, mode: 'pill' %}
+          {% endif %}
+
+          {% if design_lab_pill_label != blank %}
+            {{ design_lab_pill_label }}
+          {% elsif filter.type == 'boolean' or show_filter_label %}
+            {{ filter.label | escape }}: {{ value.label | escape }}
+          {% else %}
+            {{ value.label | escape }}
+          {% endif %}
+
+          <span class="svg-wrapper svg-wrapper--smaller">
+            {{- 'icon-filters-close.svg' | inline_asset_content -}}
+          </span>
+          <span class="visually-hidden">{{ 'actions.remove' | t }}</span>
+        </facet-remove-component>
+      {%- endfor -%}
+    {% endif %}
+  {%- endfor -%}
+  {% if should_show_clear_all and is_active %}
+    <facet-remove-component
+      data-url="{{ results_url }}"
+      data-clear-all-filters
+    >
+      <button
+        type="button"
+        class="button-unstyled facets__clear-all-link"
+        ref="clearButton"
+        on:click="/removeFilter?form={{ remove_form_id }}"
+        on:keydown="/removeFilter?form={{ remove_form_id }}"
+      >
+        {{- 'actions.clear_all' | t -}}
+      </button>
+    </facet-remove-component>
+  {% endif %}
+</div>
+
+{% stylesheet %}
+  /* Facets - Remove buttons */
+  .facets-remove {
+    --variant-picker-swatch-width: 20px;
+    --variant-picker-swatch-height: 20px;
+
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+    padding: 0 var(--drawer-padding);
+    margin: 0;
+
+    @media screen and (min-width: 750px) {
+      --variant-picker-swatch-width: 16px;
+      --variant-picker-swatch-height: 16px;
+
+      gap: var(--gap-2xs);
+    }
+  }
+
+  .facets-remove:has(facet-remove-component) {
+    display: flex;
+    margin-block-start: var(--margin-md);
+    margin-block-end: var(--margin-md);
+  }
+
+  .facets:not(.facets--drawer) .facets-remove--mobile-and-vertical {
+    @media screen and (min-width: 750px) {
+      padding: 0;
+    }
+  }
+
+  .facets--horizontal .facets-remove--mobile-and-vertical {
+    @media screen and (min-width: 750px) {
+      display: none;
+    }
+  }
+
+  .facets-remove__pill {
+    .svg-wrapper,
+    .swatch {
+      flex-shrink: 0;
+    }
+  }
+
+  .facets--horizontal .facets-remove {
+    @media screen and (min-width: 750px) {
+      display: none;
+    }
+  }
+{% endstylesheet %}

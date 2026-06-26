@@ -1,0 +1,1563 @@
+{% liquid
+  assign accent_color = section.settings.accent_color | default: '#c54448'
+  assign heading_bold_highlight_color = section.settings.heading_bold_highlight_color | default: accent_color
+  assign heading_italic_highlight_color = section.settings.heading_italic_highlight_color | default: accent_color
+  assign heading_bold_highlight_bold = section.settings.heading_bold_highlight_bold | append: '' | downcase
+  assign heading_italic_highlight_italic = section.settings.heading_italic_highlight_italic | append: '' | downcase
+  assign heading_bold_highlight_font_weight = 'bolder'
+  assign heading_italic_highlight_font_style = 'italic'
+
+  if section.settings.heading_bold_highlight_bold == false
+    assign heading_bold_highlight_font_weight = 'normal'
+  elsif heading_bold_highlight_bold == 'false' or heading_bold_highlight_bold == '0' or heading_bold_highlight_bold == 'off'
+    assign heading_bold_highlight_font_weight = 'normal'
+  endif
+
+  if section.settings.heading_italic_highlight_italic == false
+    assign heading_italic_highlight_font_style = 'normal'
+  elsif heading_italic_highlight_italic == 'false' or heading_italic_highlight_italic == '0' or heading_italic_highlight_italic == 'off'
+    assign heading_italic_highlight_font_style = 'normal'
+  endif
+
+  assign primary_url = section.settings.primary_link
+  if primary_url == blank
+    assign primary_url = routes.account_register_url | default: routes.root_url
+  endif
+  assign secondary_url = section.settings.secondary_link
+  if secondary_url == blank
+    assign secondary_url = routes.root_url | append: 'pages/contact'
+  endif
+%}
+
+{% style %}
+  .valor-about-core {
+    --valor-navy: #2b3a55;
+    --valor-navy-deep: #1d2636;
+    --valor-crimson: {{ accent_color }};
+    --valor-chalk: var(--color-background, #f4f5f2);
+    --valor-parchment: #eeede7;
+    --valor-steel: #66717e;
+    --valor-steel-light: #a8b0b8;
+    --valor-ink: #121820;
+    --valor-white: #ffffff;
+    --valor-border: rgba(29, 38, 54, 0.08);
+    --valor-border-strong: rgba(29, 38, 54, 0.14);
+    --heading-bold-highlight-color: {{ heading_bold_highlight_color }};
+    --heading-italic-highlight-color: {{ heading_italic_highlight_color }};
+    --heading-bold-highlight-font-weight: {{ heading_bold_highlight_font_weight }};
+    --heading-italic-highlight-font-style: {{ heading_italic_highlight_font_style }};
+
+    background: var(--valor-chalk);
+    color: var(--valor-ink);
+    font-family: var(--font-body--family), Inter, Arial, sans-serif;
+  }
+
+  .valor-about-core__page,
+  .valor-about-core__wide {
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .valor-about-core__page {
+    max-width: 1280px;
+  }
+
+  .valor-about-core__wide {
+  	max-width: var(--content-max-width);
+  }
+
+  .valor-about-core__crumb {
+    padding: 24px 0 0;
+    color: var(--valor-steel);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .valor-about-core__crumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .valor-about-core__crumb a:hover,
+  .valor-about-core__crumb-current {
+    color: var(--valor-navy-deep);
+  }
+
+  .valor-about-core__crumb-separator {
+    margin: 0 8px;
+    opacity: 0.5;
+  }
+
+  .valor-about-core__hero {
+    padding: 80px 0 0;
+    border-bottom: 1px solid var(--valor-border);
+  }
+
+  .valor-about-core__eyebrow,
+  .valor-about-core__closing-eyebrow,
+  .valor-about-core__mission-label,
+  .valor-about-core__label {
+    color: var(--valor-crimson);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .valor-about-core__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .valor-about-core__eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .valor-about-core__hero-title,
+  .valor-about-core__section-title,
+  .valor-about-core__section-num,
+  .valor-about-core__metric-value,
+  .valor-about-core__story-year,
+  .valor-about-core__pullquote,
+  .valor-about-core__mission-copy,
+  .valor-about-core__value-num,
+  .valor-about-core__value-name,
+  .valor-about-core__value-sub,
+  .valor-about-core__channel-title,
+  .valor-about-core__cap-num,
+  .valor-about-core__channel-kicker,
+  .valor-about-core__closing-title,
+  .valor-about-core__placeholder {
+    font-family: var(--font-heading--family), Georgia, serif;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .valor-about-core__hero-title {
+    max-width: 1100px;
+    margin: 0 0 36px;
+    color: var(--valor-navy-deep);
+    font-size: clamp(56px, 9vw, 124px);
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+  }
+
+  .valor-about-core__hero-title em {
+    display: block;
+  }
+
+  .valor-about-core em {
+    color: var(--heading-italic-highlight-color) !important;
+    font-style: var(--heading-italic-highlight-font-style) !important;
+  }
+
+  .valor-about-core :is(
+    .valor-about-core__hero-title,
+    .valor-about-core__section-title,
+    .valor-about-core__mission-copy,
+    .valor-about-core__channel-kicker,
+    .valor-about-core__closing-title
+  ) :is(strong, b) {
+    color: var(--heading-bold-highlight-color) !important;
+    font-weight: var(--heading-bold-highlight-font-weight) !important;
+  }
+
+  .valor-about-core__hero-meta {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 32px 40px;
+    max-width: 1100px;
+    padding: 32px 0 64px;
+    border-top: 1px solid var(--valor-border-strong);
+  }
+
+  .valor-about-core__metric--statement {
+    grid-column: 1 / -1;
+    padding-top: 12px;
+    border-top: 1px solid var(--valor-border);
+  }
+
+  .valor-about-core__metric-label,
+  .valor-about-core__story-label {
+    margin-bottom: 8px;
+    color: var(--valor-steel);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .valor-about-core__metric-value {
+    color: var(--valor-navy-deep);
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .valor-about-core__metric-unit {
+    margin-left: 4px;
+    color: var(--valor-steel);
+    font-family: var(--font-body--family), Inter, Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .valor-about-core__metric--statement .valor-about-core__metric-value {
+    color: var(--valor-navy);
+    font-family: var(--font-body--family), Inter, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0;
+  }
+
+  .valor-about-core__image {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--valor-parchment) 0%, var(--valor-chalk) 60%, var(--valor-parchment) 100%);
+    border: 1px solid var(--valor-border-strong);
+  }
+
+  .valor-about-core__image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, transparent 0, transparent 24px, rgba(29, 38, 54, 0.025) 24px, rgba(29, 38, 54, 0.025) 25px);
+    pointer-events: none;
+  }
+
+  .valor-about-core__image img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .valor-about-core__image--hero {
+    aspect-ratio: 21 / 9;
+  }
+
+  .valor-about-core__image--story {
+    aspect-ratio: 3 / 4;
+  }
+
+  .valor-about-core__image--interstitial {
+    aspect-ratio: 21 / 7;
+  }
+
+  .valor-about-core__image--channel {
+    aspect-ratio: 21 / 9;
+    margin-bottom: 80px;
+  }
+
+  .valor-about-core__image--closing {
+    aspect-ratio: 21 / 8;
+  }
+
+  .valor-about-core__placeholder {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--valor-navy-deep);
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .valor-about-core__placeholder-tag,
+  .valor-about-core__placeholder-spec {
+    display: block;
+    font-family: var(--font-body--family), Inter, Arial, sans-serif;
+    font-style: normal;
+  }
+
+  .valor-about-core__placeholder-tag {
+    margin-bottom: 10px;
+    color: var(--valor-crimson);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .valor-about-core__placeholder-spec {
+    margin-top: 12px;
+    color: var(--valor-steel);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .valor-about-core__section,
+  .valor-about-core__interstitial {
+    border-bottom: 1px solid var(--valor-border);
+  }
+
+  .valor-about-core__section {
+    padding: 120px 0;
+  }
+
+  .valor-about-core__section-head {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 64px;
+    align-items: baseline;
+    margin-bottom: 80px;
+  }
+
+  .valor-about-core__section-num {
+    color: var(--valor-crimson);
+    font-size: 22px;
+    font-style: italic;
+  }
+
+  .valor-about-core__section-title {
+    max-width: 880px;
+    margin: 0;
+    color: var(--valor-navy-deep);
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .valor-about-core__story-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+
+  .valor-about-core__story-aside {
+    position: sticky;
+    top: 96px;
+  }
+
+  .valor-about-core__story-year {
+    margin-bottom: 12px;
+    color: var(--valor-navy-deep);
+    font-size: 96px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .valor-about-core__story-place {
+    margin-bottom: 32px;
+    color: var(--valor-steel);
+    font-size: 13px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .valor-about-core__story-body {
+    max-width: 720px;
+    color: var(--valor-ink);
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  .valor-about-core__story-body p {
+    margin: 0 0 28px;
+  }
+
+  .valor-about-core__story-body p:first-child::first-letter {
+    float: left;
+    margin: 8px 14px 0 -2px;
+    color: var(--valor-crimson);
+    font-family: var(--font-heading--family), Georgia, serif;
+    font-size: 80px;
+    line-height: 0.85;
+  }
+
+  .valor-about-core__story-body strong,
+  .valor-about-core__closing-sub strong,
+  .valor-about-core__channel-lead strong {
+    color: var(--valor-navy-deep);
+    font-weight: 600;
+  }
+
+  .valor-about-core__pullquote {
+    margin: 36px 0;
+    padding: 36px 0;
+    border-top: 1px solid var(--valor-border-strong);
+    border-bottom: 1px solid var(--valor-border-strong);
+    color: var(--valor-navy);
+    font-size: 28px;
+    font-style: italic;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+
+  .valor-about-core__pullquote::before {
+    content: '"';
+    margin-right: 6px;
+    color: var(--valor-crimson);
+    font-size: 56px;
+    line-height: 0;
+    vertical-align: -16px;
+  }
+
+  .valor-about-core__mission {
+    margin-bottom: 96px;
+    padding: 48px 0;
+    border-top: 1px solid var(--valor-border-strong);
+    border-bottom: 1px solid var(--valor-border-strong);
+    text-align: center;
+  }
+
+  .valor-about-core__mission-label {
+    margin-bottom: 24px;
+  }
+
+  .valor-about-core__mission-copy {
+    max-width: 920px;
+    margin: 0 auto;
+    color: var(--valor-navy-deep);
+    font-size: clamp(28px, 3.4vw, 44px);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+
+  .valor-about-core__mission-copy p,
+  .valor-about-core__channel-kicker p,
+  .valor-about-core__closing-sub p {
+    margin: 0;
+  }
+
+  .valor-about-core__values,
+  .valor-about-core__capabilities {
+    display: grid;
+  }
+
+  .valor-about-core__values {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 40px;
+  }
+
+  .valor-about-core__value {
+    padding-top: 28px;
+    border-top: 1px solid var(--valor-navy-deep);
+  }
+
+  .valor-about-core__value-num {
+    margin-bottom: 16px;
+    color: var(--valor-steel);
+    font-size: 18px;
+    font-style: italic;
+  }
+
+  .valor-about-core__value-name {
+    margin-bottom: 8px;
+    color: var(--valor-navy-deep);
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .valor-about-core__value-sub {
+    margin-bottom: 18px;
+    color: var(--valor-crimson);
+    font-size: 18px;
+    font-style: italic;
+    line-height: 1.25;
+  }
+
+  .valor-about-core__value-desc,
+  .valor-about-core__channel-text,
+  .valor-about-core__cap-desc {
+    color: var(--valor-steel);
+  }
+
+  .valor-about-core__value-desc {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .valor-about-core__channel-lead {
+    max-width: 820px;
+    margin-bottom: 56px;
+    color: var(--valor-ink);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .valor-about-core__channel-lead p {
+    margin: 0 0 18px;
+  }
+
+  .valor-about-core__channel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px 80px;
+    margin-bottom: 96px;
+  }
+
+  .valor-about-core__channel {
+    padding-top: 24px;
+    border-top: 1px solid var(--valor-border-strong);
+  }
+
+  .valor-about-core__label {
+    margin-bottom: 14px;
+  }
+
+  .valor-about-core__channel-title {
+    margin: 0 0 16px;
+    color: var(--valor-navy-deep);
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+  }
+
+  .valor-about-core__channel-text {
+    margin: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .valor-about-core__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    margin-top: 18px;
+  }
+
+  .valor-about-core__pill {
+    padding: 5px 10px;
+    border: 1px solid var(--valor-border-strong);
+    border-radius: 999px;
+    background: var(--valor-white);
+    color: var(--valor-navy);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .valor-about-core__capabilities {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--valor-navy-deep);
+  }
+
+  .valor-about-core__cap {
+    padding: 36px 24px 36px 0;
+    border-right: 1px solid var(--valor-border);
+  }
+
+  .valor-about-core__cap:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .valor-about-core__cap-num {
+    margin-bottom: 12px;
+    color: var(--valor-crimson);
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  .valor-about-core__cap-name {
+    margin-bottom: 8px;
+    color: var(--valor-navy-deep);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .valor-about-core__cap-desc {
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+  .valor-about-core__channel-kicker {
+    max-width: 820px;
+    margin: 64px 0 0;
+    padding-top: 36px;
+    border-top: 1px solid var(--valor-border-strong);
+    color: var(--valor-navy-deep);
+    font-size: clamp(22px, 2.4vw, 30px);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .valor-about-core__closing {
+    padding: 120px 0 140px;
+    text-align: center;
+  }
+
+  .valor-about-core__closing-eyebrow {
+    margin-bottom: 28px;
+  }
+
+  .valor-about-core__closing-title {
+    max-width: 880px;
+    margin: 0 auto 24px;
+    color: var(--valor-navy-deep);
+    font-size: clamp(40px, 5.5vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .valor-about-core__closing-sub {
+    max-width: 620px;
+    margin: 0 auto 40px;
+    color: var(--valor-steel);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .valor-about-core__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .valor-about-core__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  }
+
+  .valor-about-core__btn--primary {
+    padding: 14px 28px;
+    background: var(--valor-navy-deep);
+    color: var(--valor-chalk);
+  }
+
+  .valor-about-core__btn--primary:hover {
+    background: var(--valor-crimson);
+  }
+
+  .valor-about-core__btn--secondary {
+    padding: 13px 26px;
+    border: 1px solid var(--valor-border-strong);
+    background: var(--valor-white);
+    color: var(--valor-navy);
+  }
+
+  .valor-about-core__btn--secondary:hover {
+    border-color: var(--valor-navy);
+    color: var(--valor-navy-deep);
+  }
+
+  @media (max-width: 1100px) {
+    .valor-about-core__hero-meta {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .valor-about-core__values {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 960px) {
+    .valor-about-core__hero-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .valor-about-core__section-head,
+    .valor-about-core__story-grid,
+    .valor-about-core__channel-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .valor-about-core__story-aside {
+      position: static;
+    }
+
+    .valor-about-core__story-year {
+      font-size: 64px;
+    }
+
+    .valor-about-core__image--story {
+      max-width: 480px;
+      aspect-ratio: 16 / 10;
+    }
+
+    .valor-about-core__capabilities {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .valor-about-core__cap {
+      border-bottom: 1px solid var(--valor-border);
+      border-right: none;
+    }
+
+    .valor-about-core__cap:nth-child(odd) {
+      border-right: 1px solid var(--valor-border);
+      padding-right: 16px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .valor-about-core__page,
+    .valor-about-core__wide {
+      padding: 0 20px;
+    }
+
+    .valor-about-core__hero {
+      padding-top: 56px;
+    }
+
+    .valor-about-core__section {
+      padding: 80px 0;
+    }
+
+    .valor-about-core__hero-meta,
+    .valor-about-core__values,
+    .valor-about-core__capabilities {
+      grid-template-columns: 1fr;
+    }
+
+    .valor-about-core__cap,
+    .valor-about-core__cap:nth-child(odd) {
+      border-right: none;
+      padding-right: 0;
+    }
+
+    .valor-about-core__closing {
+      padding: 80px 0 96px;
+    }
+  }
+{% endstyle %}
+
+<section class="valor-about-core color-{{ section.settings.color_scheme }}" {{ section.shopify_attributes }}>
+  <div class="valor-about-core__page">
+    {% if section.settings.show_breadcrumb %}
+      <nav class="valor-about-core__crumb" aria-label="Breadcrumb">
+        <a href="{{ routes.root_url }}">Home</a>
+        <span class="valor-about-core__crumb-separator">/</span>
+        <span class="valor-about-core__crumb-current">{{ section.settings.breadcrumb_label | escape }}</span>
+      </nav>
+    {% endif %}
+
+    <div class="valor-about-core__hero">
+      {% if section.settings.hero_eyebrow != blank %}
+        <div class="valor-about-core__eyebrow">{{ section.settings.hero_eyebrow | escape }}</div>
+      {% endif %}
+      <h1 class="valor-about-core__hero-title">{{ section.settings.hero_title }}</h1>
+
+      <div class="valor-about-core__hero-meta">
+        {% for block in section.blocks %}
+          {% if block.type == 'hero_metric' %}
+            <div class="valor-about-core__metric{% if block.settings.full_width %} valor-about-core__metric--statement{% endif %}" {{ block.shopify_attributes }}>
+              {% if block.settings.label != blank %}
+                <div class="valor-about-core__metric-label">{{ block.settings.label | escape }}</div>
+              {% endif %}
+              <div class="valor-about-core__metric-value">
+                {{ block.settings.value }}
+                {% if block.settings.unit != blank %}
+                  <span class="valor-about-core__metric-unit">{{ block.settings.unit | escape }}</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="valor-about-core__wide">
+    <div class="valor-about-core__image valor-about-core__image--hero">
+      {% if section.settings.hero_image != blank %}
+        {{ section.settings.hero_image | image_url: width: 2200 | image_tag: loading: 'eager', widths: '750, 1100, 1500, 2200', sizes: '(max-width: 1440px) 100vw, 1440px', alt: section.settings.hero_image_alt }}
+      {% else %}
+        <div class="valor-about-core__placeholder">
+          <span>
+            <span class="valor-about-core__placeholder-tag">Image - Hero</span>
+            {{ section.settings.hero_image_placeholder | escape }}
+            <span class="valor-about-core__placeholder-spec">21 : 9 recommended</span>
+          </span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="valor-about-core__page">
+    <div class="valor-about-core__section">
+      <div class="valor-about-core__section-head">
+        <div class="valor-about-core__section-num">{{ section.settings.story_num | escape }}</div>
+        <h2 class="valor-about-core__section-title">{{ section.settings.story_title }}</h2>
+      </div>
+
+      <div class="valor-about-core__story-grid">
+        <aside class="valor-about-core__story-aside">
+          <div class="valor-about-core__story-label">{{ section.settings.story_label | escape }}</div>
+          <div class="valor-about-core__story-year">{{ section.settings.story_year | escape }}</div>
+          <div class="valor-about-core__story-place">{{ section.settings.story_place | escape }}</div>
+          <div class="valor-about-core__image valor-about-core__image--story">
+            {% if section.settings.story_image != blank %}
+              {{ section.settings.story_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '360, 540, 720, 900', sizes: '(max-width: 960px) 480px, 280px', alt: section.settings.story_image_alt }}
+            {% else %}
+              <div class="valor-about-core__placeholder">
+                <span>
+                  <span class="valor-about-core__placeholder-tag">Image - Story</span>
+                  {{ section.settings.story_image_placeholder | escape }}
+                  <span class="valor-about-core__placeholder-spec">3 : 4 recommended</span>
+                </span>
+              </div>
+            {% endif %}
+          </div>
+        </aside>
+
+        <div class="valor-about-core__story-body">
+          {{ section.settings.story_body }}
+          {% if section.settings.story_quote != blank %}
+            <div class="valor-about-core__pullquote">{{ section.settings.story_quote | escape }}</div>
+          {% endif %}
+          {{ section.settings.story_body_after_quote }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="valor-about-core__wide valor-about-core__interstitial">
+    <div class="valor-about-core__image valor-about-core__image--interstitial">
+      {% if section.settings.interstitial_image != blank %}
+        {{ section.settings.interstitial_image | image_url: width: 2200 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 2200', sizes: '(max-width: 1440px) 100vw, 1440px', alt: section.settings.interstitial_image_alt }}
+      {% else %}
+        <div class="valor-about-core__placeholder">
+          <span>
+            <span class="valor-about-core__placeholder-tag">Image - Interstitial</span>
+            {{ section.settings.interstitial_image_placeholder | escape }}
+            <span class="valor-about-core__placeholder-spec">21 : 7 recommended</span>
+          </span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="valor-about-core__page">
+    <div class="valor-about-core__section">
+      <div class="valor-about-core__section-head">
+        <div class="valor-about-core__section-num">{{ section.settings.values_num | escape }}</div>
+        <h2 class="valor-about-core__section-title">{{ section.settings.values_title }}</h2>
+      </div>
+
+      <div class="valor-about-core__mission">
+        <div class="valor-about-core__mission-label">{{ section.settings.mission_label | escape }}</div>
+        <div class="valor-about-core__mission-copy">{{ section.settings.mission_copy }}</div>
+      </div>
+
+      <div class="valor-about-core__values">
+        {% for block in section.blocks %}
+          {% if block.type == 'value' %}
+            <article class="valor-about-core__value" {{ block.shopify_attributes }}>
+              <div class="valor-about-core__value-num">{{ block.settings.number | escape }}</div>
+              <h3 class="valor-about-core__value-name">{{ block.settings.title | escape }}</h3>
+              <div class="valor-about-core__value-sub">{{ block.settings.subtitle | escape }}</div>
+              <div class="valor-about-core__value-desc">{{ block.settings.description }}</div>
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="valor-about-core__page">
+    <div class="valor-about-core__section">
+      <div class="valor-about-core__section-head">
+        <div class="valor-about-core__section-num">{{ section.settings.channel_num | escape }}</div>
+        <h2 class="valor-about-core__section-title">{{ section.settings.channel_title }}</h2>
+      </div>
+
+      <div class="valor-about-core__image valor-about-core__image--channel">
+        {% if section.settings.channel_image != blank %}
+          {{ section.settings.channel_image | image_url: width: 1800 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 1800', sizes: '(max-width: 1280px) 100vw, 1280px', alt: section.settings.channel_image_alt }}
+        {% else %}
+          <div class="valor-about-core__placeholder">
+            <span>
+              <span class="valor-about-core__placeholder-tag">Image - Channel</span>
+              {{ section.settings.channel_image_placeholder | escape }}
+              <span class="valor-about-core__placeholder-spec">21 : 9 recommended</span>
+            </span>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="valor-about-core__channel-lead">{{ section.settings.channel_lead }}</div>
+
+      <div class="valor-about-core__channel-grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'channel' %}
+            <article class="valor-about-core__channel" {{ block.shopify_attributes }}>
+              <div class="valor-about-core__label">{{ block.settings.label | escape }}</div>
+              <h3 class="valor-about-core__channel-title">{{ block.settings.title | escape }}</h3>
+              <div class="valor-about-core__channel-text">{{ block.settings.description }}</div>
+              {% assign pills = block.settings.pills | newline_to_br | split: '<br />' %}
+              {% if pills.size > 0 %}
+                <div class="valor-about-core__pills">
+                  {% for pill in pills %}
+                    {% assign pill_text = pill | strip %}
+                    {% if pill_text != blank %}
+                      <span class="valor-about-core__pill">{{ pill_text | escape }}</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="valor-about-core__capabilities">
+        {% for block in section.blocks %}
+          {% if block.type == 'capability' %}
+            <article class="valor-about-core__cap" {{ block.shopify_attributes }}>
+              <div class="valor-about-core__cap-num">{{ block.settings.number | escape }}</div>
+              <div class="valor-about-core__cap-name">{{ block.settings.title | escape }}</div>
+              <div class="valor-about-core__cap-desc">{{ block.settings.description | escape }}</div>
+            </article>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if section.settings.channel_kicker != blank %}
+        <div class="valor-about-core__channel-kicker">{{ section.settings.channel_kicker }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="valor-about-core__wide">
+    <div class="valor-about-core__image valor-about-core__image--closing">
+      {% if section.settings.closing_image != blank %}
+        {{ section.settings.closing_image | image_url: width: 2200 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 2200', sizes: '(max-width: 1440px) 100vw, 1440px', alt: section.settings.closing_image_alt }}
+      {% else %}
+        <div class="valor-about-core__placeholder">
+          <span>
+            <span class="valor-about-core__placeholder-tag">Image - Closing</span>
+            {{ section.settings.closing_image_placeholder | escape }}
+            <span class="valor-about-core__placeholder-spec">21 : 8 recommended</span>
+          </span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="valor-about-core__page">
+    <div class="valor-about-core__closing">
+      <div class="valor-about-core__closing-eyebrow">{{ section.settings.closing_eyebrow | escape }}</div>
+      <h2 class="valor-about-core__closing-title">{{ section.settings.closing_title }}</h2>
+      <div class="valor-about-core__closing-sub">{{ section.settings.closing_copy }}</div>
+      <div class="valor-about-core__ctas">
+        {% if section.settings.primary_label != blank %}
+          <a href="{{ primary_url }}" class="valor-about-core__btn valor-about-core__btn--primary">
+            {{ section.settings.primary_label | escape }}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="M13 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        {% endif %}
+        {% if section.settings.secondary_label != blank %}
+          <a href="{{ secondary_url }}" class="valor-about-core__btn valor-about-core__btn--secondary">{{ section.settings.secondary_label | escape }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Valor about core",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#c54448"
+    },
+    {
+      "type": "header",
+      "content": "Heading highlights"
+    },
+    {
+      "type": "color",
+      "id": "heading_bold_highlight_color",
+      "label": "Bold highlight color",
+      "default": "#c54448"
+    },
+    {
+      "type": "color",
+      "id": "heading_italic_highlight_color",
+      "label": "Italic highlight color",
+      "default": "#c54448"
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_bold_highlight_bold",
+      "label": "Make bold highlights bold",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "heading_italic_highlight_italic",
+      "label": "Make italic highlights italic",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_label",
+      "label": "Breadcrumb label",
+      "default": "About Valor"
+    },
+    {
+      "type": "header",
+      "content": "Hero"
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow",
+      "default": "About Valor Communication"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "hero_title",
+      "label": "Title",
+      "default": "Ahead of the curve. <em>Already on the shelf.</em>"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "text",
+      "id": "hero_image_alt",
+      "label": "Hero image alt text",
+      "default": "Valor product and lifestyle scene"
+    },
+    {
+      "type": "text",
+      "id": "hero_image_placeholder",
+      "label": "Hero placeholder text",
+      "default": "Lifestyle / product still"
+    },
+    {
+      "type": "header",
+      "content": "Origin"
+    },
+    {
+      "type": "text",
+      "id": "story_num",
+      "label": "Section number",
+      "default": "01 - Origin"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "story_title",
+      "label": "Section title",
+      "default": "Here before wireless was everywhere. Still ahead of <em>what's next.</em>"
+    },
+    {
+      "type": "text",
+      "id": "story_label",
+      "label": "Aside label",
+      "default": "Founded"
+    },
+    {
+      "type": "text",
+      "id": "story_year",
+      "label": "Year",
+      "default": "1997"
+    },
+    {
+      "type": "text",
+      "id": "story_place",
+      "label": "Place",
+      "default": "Los Angeles, California"
+    },
+    {
+      "type": "image_picker",
+      "id": "story_image",
+      "label": "Story image"
+    },
+    {
+      "type": "text",
+      "id": "story_image_alt",
+      "label": "Story image alt text",
+      "default": "Valor founder, facility, or archive scene"
+    },
+    {
+      "type": "text",
+      "id": "story_image_placeholder",
+      "label": "Story placeholder text",
+      "default": "Founder, facility, or archive shot"
+    },
+    {
+      "type": "richtext",
+      "id": "story_body",
+      "label": "Story copy before quote",
+      "default": "<p>Valor Communication started in Los Angeles in 1997 with a wholesale operation built for the people who actually move wireless accessories - independent dealers, regional distributors, master agents, and the buyers stocking shelves at retail. The work was practical from day one: get the right product built, priced, packed, shipped, and ready before demand turned into a missed sale.</p><p>That channel-first mindset shaped a company designed to last, scale, and keep pace with how wireless accessories actually sell. Tooling, packaging, freight, MOQs, terms, fulfillment, manufacturing, testing, and certifications were never background details - they were the operating system. <strong>Every part of the business was designed around what holds up at the point of sale</strong>, not what looks good in a corporate lookbook.</p><p>Nearly 30 years later, those wholesale roots have grown into a full-scale wireless accessory partner with the product depth, supply chain control, and channel reach to support demand across every major wireless path to sale.</p>"
+    },
+    {
+      "type": "text",
+      "id": "story_quote",
+      "label": "Pull quote",
+      "default": "We do not build brands and hope the channel catches up. We build brands made to move through it."
+    },
+    {
+      "type": "richtext",
+      "id": "story_body_after_quote",
+      "label": "Story copy after quote",
+      "default": "<p>Today the operation spans <strong>250,000 square feet of fulfillment</strong> across California and Texas, a Shenzhen-based manufacturing arm running since 1999, and a portfolio of in-house brands covering protection, power, audio, attachables, and wearables. Product development, engineering, manufacturing, fulfillment, and custom programs now work as one connected system - from packaging through retail execution. Fewer handoffs, cleaner supply chains, more products ready where demand shows up.</p><p>Programs reach <strong>21,000+ retail locations at a 99% on-time delivery rate</strong> across major carrier networks, national retail, off-price chains, home improvement, OEM programs, and digital marketplaces. Retail intelligence, demand planning, inventory support, global logistics, and POS-ready integration help partners manage more than product availability - they help manage the systems that keep products stocked, moving, and selling.</p><p>What changed over those years is the depth of the operation. What didn't is the customer at the center of it: the operator selling phones at street level, the buyer stocking a planogram, the merchandiser picking next quarter's assortment, and the partner who needs the right products ready before the next ask hits.</p><p>The infrastructure scaled. The work didn't. <strong>Partners keep coming back because Valor keeps showing up.</strong></p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "interstitial_image",
+      "label": "Interstitial image"
+    },
+    {
+      "type": "text",
+      "id": "interstitial_image_alt",
+      "label": "Interstitial image alt text",
+      "default": "Valor warehouse, fulfillment floor, or product detail"
+    },
+    {
+      "type": "text",
+      "id": "interstitial_image_placeholder",
+      "label": "Interstitial placeholder text",
+      "default": "Warehouse, fulfillment floor, or product detail at scale"
+    },
+    {
+      "type": "header",
+      "content": "Mission and values"
+    },
+    {
+      "type": "text",
+      "id": "values_num",
+      "label": "Section number",
+      "default": "02 - Mission & Values"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "values_title",
+      "label": "Section title",
+      "default": "The way <em>we operate.</em>"
+    },
+    {
+      "type": "text",
+      "id": "mission_label",
+      "label": "Mission label",
+      "default": "Mission"
+    },
+    {
+      "type": "richtext",
+      "id": "mission_copy",
+      "label": "Mission copy",
+      "default": "<p>Help retailers, carriers, and wireless partners <em>move faster</em> with accessory solutions built for real market demand - making the path from concept to shelf cleaner, quicker, and a lot less complicated.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Channel expertise"
+    },
+    {
+      "type": "text",
+      "id": "channel_num",
+      "label": "Section number",
+      "default": "03 - Channel Expertise"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "channel_title",
+      "label": "Section title",
+      "default": "We don't change the channel. We know <em>how to work it.</em>"
+    },
+    {
+      "type": "image_picker",
+      "id": "channel_image",
+      "label": "Channel image"
+    },
+    {
+      "type": "text",
+      "id": "channel_image_alt",
+      "label": "Channel image alt text",
+      "default": "Valor channel, retail, or distribution scene"
+    },
+    {
+      "type": "text",
+      "id": "channel_image_placeholder",
+      "label": "Channel placeholder text",
+      "default": "Map, retail floor, or distribution still"
+    },
+    {
+      "type": "richtext",
+      "id": "channel_lead",
+      "label": "Channel lead copy",
+      "default": "<p>Every channel has its own pace, pressure points, and path to sale. <strong>Carrier programs don't move like off-price buys. Marketplace velocity doesn't move like a national retail reset. Dealer counters don't move like big-box planograms.</strong></p><p>Valor supports partners with channel-specific execution across assortment planning, packaging compliance, fulfillment, retail intelligence, API/EDI integration, and inventory visibility - keeping the right accessories ready for the channels that need them next.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "channel_kicker",
+      "label": "Channel kicker",
+      "default": "<p>Because the accessory aisle isn't just an add-on. <em>Done right, it's a revenue engine hiding in plain sight.</em></p>"
+    },
+    {
+      "type": "header",
+      "content": "Closing"
+    },
+    {
+      "type": "image_picker",
+      "id": "closing_image",
+      "label": "Closing image"
+    },
+    {
+      "type": "text",
+      "id": "closing_image_alt",
+      "label": "Closing image alt text",
+      "default": "Valor product or partnership lifestyle scene"
+    },
+    {
+      "type": "text",
+      "id": "closing_image_placeholder",
+      "label": "Closing placeholder text",
+      "default": "Wide product or partnership lifestyle"
+    },
+    {
+      "type": "text",
+      "id": "closing_eyebrow",
+      "label": "Closing eyebrow",
+      "default": "04 - Open accounts & partner programs"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "closing_title",
+      "label": "Closing title",
+      "default": "You bring the business. <em>We bring the backbone.</em>"
+    },
+    {
+      "type": "richtext",
+      "id": "closing_copy",
+      "label": "Closing copy",
+      "default": "<p>If you operate a dealer location, master agent network, regional or national retail program, OEM program, off-price business, or marketplace operation - Valor is ready to help make your wireless accessory program stronger from the first shipment to the next reorder. <strong>You bring the business. We bring the infrastructure to keep it moving.</strong></p>"
+    },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "Primary button label",
+      "default": "Apply for an account"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "Secondary button label",
+      "default": "Contact us"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary button link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hero_metric",
+      "name": "Hero metric",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Established"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "value",
+          "label": "Value",
+          "default": "1997"
+        },
+        {
+          "type": "text",
+          "id": "unit",
+          "label": "Unit"
+        },
+        {
+          "type": "checkbox",
+          "id": "full_width",
+          "label": "Full-width statement",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "value",
+      "name": "Value",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number",
+          "default": "i."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Foresight"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Built ahead of demand."
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Valor doesn't wait for the market to catch up. <strong>Decades of industry experience, early device insights, and in-house development capabilities</strong> help partners prepare for what customers will need next - before demand reaches the shelf.</p>"
+        }
+      ]
+    },
+    {
+      "type": "channel",
+      "name": "Channel",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Carrier programs"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Wireless carrier accessory programs"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Multi-year accessory programs across the carriers that anchor the U.S. wireless market - postpaid, prepaid, and cable-MVNO. Assortment planning tuned to device mix, launch calendars, seasonal cadence, packaging requirements, and reorder patterns.</p>"
+        },
+        {
+          "type": "textarea",
+          "id": "pills",
+          "label": "Pills",
+          "info": "Add one pill per line.",
+          "default": "AT&T\nVerizon\nBoost Mobile\nCricket Wireless"
+        }
+      ]
+    },
+    {
+      "type": "capability",
+      "name": "Capability",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number",
+          "default": "i."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Assortment planning"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "Device-cycle planning aligned to launch calendars, channel demand, partner reorder velocity, price points, and real customer behavior."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Valor about core",
+      "blocks": [
+        {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Established",
+            "value": "1997"
+          }
+        },
+        {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Headquarters",
+            "value": "Los Angeles",
+            "unit": "CA"
+          }
+        },
+        {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Distribution",
+            "value": "CA",
+            "unit": "TX"
+          }
+        },
+        {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Catalog",
+            "value": "16,000",
+            "unit": "+ SKUs"
+          }
+        },
+        {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Shipped",
+            "value": "220M",
+            "unit": "+ units"
+          }
+        },
+        {
+          "type": "hero_metric",
+          "settings": {
+            "label": "Summary",
+            "value": "Nearly 30 years building the wireless accessory industry from product development to shelf execution - backed by manufacturing control, fulfillment scale, deep device coverage, and channel programs spanning carriers, national retail, off-price, dealer networks, OEM, and digital marketplaces. Because the shelf does not stock itself.",
+            "full_width": true
+          }
+        },
+        {
+          "type": "value",
+          "settings": {
+            "number": "i.",
+            "title": "Foresight",
+            "subtitle": "Built ahead of demand.",
+            "description": "<p>Valor doesn't wait for the market to catch up. <strong>Decades of industry experience, early device insights, and in-house development capabilities</strong> help partners prepare for what customers will need next - before demand reaches the shelf.</p>"
+          }
+        },
+        {
+          "type": "value",
+          "settings": {
+            "number": "ii.",
+            "title": "Velocity",
+            "subtitle": "Fast only matters when it shows up on time.",
+            "description": "<p>Manufacturing control, deep inventory, and bicoastal distribution move products from development to delivery with <strong>fewer delays and more confidence.</strong> Speed isn't the headline here. Reliable speed is.</p>"
+          }
+        },
+        {
+          "type": "value",
+          "settings": {
+            "number": "iii.",
+            "title": "Precision",
+            "subtitle": "Details that drive performance.",
+            "description": "<p>Every product decision matters - from <strong>device fit and material selection to packaging, compliance, and shelf presentation.</strong> Engineering discipline and category expertise built into products made for everyday use, retail-ready performance, and fewer almost-fits moments.</p>"
+          }
+        },
+        {
+          "type": "value",
+          "settings": {
+            "number": "iv.",
+            "title": "Integrity",
+            "subtitle": "Three decades of proof.",
+            "description": "<p>Since 1997, Valor has built its reputation through <strong>consistency, reliability, and long-term partner trust.</strong> The numbers help tell the story, but the real proof is simpler: partners keep coming back because Valor keeps showing up.</p>"
+          }
+        },
+        {
+          "type": "channel",
+          "settings": {
+            "label": "Carrier programs",
+            "title": "Wireless carrier accessory programs",
+            "description": "<p>Multi-year accessory programs across the carriers that anchor the U.S. wireless market - postpaid, prepaid, and cable-MVNO. Assortment planning tuned to device mix, launch calendars, seasonal cadence, packaging requirements, and reorder patterns. Because when a new phone hits the floor, the accessories shouldn't be three steps behind.</p>",
+            "pills": "AT&T\nVerizon\nBoost Mobile\nCricket Wireless\nTotal Wireless\nXfinity\nSpectrum"
+          }
+        },
+        {
+          "type": "channel",
+          "settings": {
+            "label": "National retail & off-price",
+            "title": "Big shelves. Fast turns. Very little guesswork.",
+            "description": "<p>Wholesale programs across the retail formats consumers actually shop - mass retail, big-box electronics, off-price, and home improvement. Same California and Texas infrastructure. Different channel demands. Same job: get the right products where they need to be.</p>",
+            "pills": "Walmart\nTarget\nBest Buy\nHome Depot\nLowe's\nStaples\nTJ Maxx\nMarshalls\nHomeGoods\nRoss\nBurlington"
+          }
+        },
+        {
+          "type": "channel",
+          "settings": {
+            "label": "Digital marketplaces",
+            "title": "Clicks, carts, and catalog control.",
+            "description": "<p>Marketplace and direct-to-consumer programs built for digital velocity - without pulling inventory out from under physical retail. Listing infrastructure, catalog content, inventory allocation, marketplace operations, and social-commerce readiness for partners selling across online channels. Digital growth is great. Digital growth with inventory discipline is better.</p>",
+            "pills": "Amazon\nTikTok Shop\nMarketplace ops\nCatalog & content\nListing infrastructure"
+          }
+        },
+        {
+          "type": "channel",
+          "settings": {
+            "label": "Distribution & manufacturing",
+            "title": "More control under the hood. Fewer surprises on the shelf.",
+            "description": "<p>250,000 square feet of fulfillment across California and Texas, $8-10M in active on-site inventory, and a Shenzhen manufacturing arm operating since 1999 - handling mold creation, injection molding, assembly, packaging, testing, and production oversight under one roof. Fewer handoffs, cleaner timelines, more control from product development to delivery.</p>",
+            "pills": "250K sq ft fulfillment\nCA & TX warehouses\nShenzhen factory\nActive on-site inventory\nISO 9001 / 14001 / RoHS"
+          }
+        },
+        {
+          "type": "capability",
+          "settings": {
+            "number": "i.",
+            "title": "Assortment planning",
+            "description": "Device-cycle planning aligned to launch calendars, channel demand, partner reorder velocity, price points, and real customer behavior."
+          }
+        },
+        {
+          "type": "capability",
+          "settings": {
+            "number": "ii.",
+            "title": "Packaging & merchandising",
+            "description": "Channel-specific packaging, planogram-ready displays, sample-in-order programs, and merchandising built for how products actually sell."
+          }
+        },
+        {
+          "type": "capability",
+          "settings": {
+            "number": "iii.",
+            "title": "Co-branded, licensed & custom",
+            "description": "Licensed, co-branded, private-label, and build-to-suit accessory programs sized for wholesale, retail, OEM, and partner-specific opportunities."
+          }
+        },
+        {
+          "type": "capability",
+          "settings": {
+            "number": "iv.",
+            "title": "API, EDI & retail intelligence",
+            "description": "Direct catalog, inventory, order, and fulfillment integration with partner systems. Retail intelligence and supply chain visibility for data-backed planning."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

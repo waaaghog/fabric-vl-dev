@@ -1,0 +1,19 @@
+{%- doc -%}
+  Output the minimum product card size for cards in a product grid (main collection and search results).
+
+  @param {object} section - Section object that contains the product card block.
+
+  @example
+  {% capture product_card_size %}
+    {% render 'util-product-grid-card-size' section: section %}
+  {% endcapture %}
+{%- enddoc -%}
+
+{% liquid
+  if section.settings.layout_type == 'organic'
+    assign product_card_size = '250px'
+  else
+    assign product_card_size = section.settings.product_card_size | append: 'px'
+  endif
+  echo product_card_size
+%}

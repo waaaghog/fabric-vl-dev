@@ -1,0 +1,34 @@
+{%- comment -%}
+  Universal Modal Header for consistent popup headers (Cart, Login, Filter, Search).
+  Accepts:
+  - title (String): The text for the heading.
+  - title_id (String): Optional ID for accessibility.
+  - bubble_content (HTML): Optional HTML to show a badge or bubble next to title.
+  - custom_content (HTML): Optional HTML to replace the entire heading area.
+  - close_onclick (String): Action for the close button. Defaults to "dialog-component/closeDialog".
+  - close_ref (String): Optional ref attribute for the close button.
+  - additional_classes (String): Optional classes to add to the wrapper.
+{%- endcomment -%}
+
+<div class="drawer-shell__header{% if additional_classes %} {{ additional_classes }}{% endif %}">
+  <div class="drawer-shell__heading-area">
+    {%- if custom_content != blank -%}
+      {{ custom_content }}
+    {%- else -%}
+      <h2 class="drawer-shell__heading" {% if title_id != blank %}id="{{ title_id }}"{% endif %}>
+        {{ title }}
+        {{ bubble_content }}
+      </h2>
+    {%- endif -%}
+  </div>
+
+  <button
+    type="button"
+    class="button-unstyled drawer-shell__close"
+    aria-label="{{ 'actions.close_dialog' | t | default: 'Close dialog' }}"
+    on:click="{{ close_onclick | default: 'dialog-component/closeDialog' }}"
+    {% if close_ref != blank %}ref="{{ close_ref }}"{% endif %}
+  >
+    <span class="svg-wrapper">{{- 'icon-close.svg' | inline_asset_content -}}</span>
+  </button>
+</div>

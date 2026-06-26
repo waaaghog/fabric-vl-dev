@@ -1,0 +1,35 @@
+{%- doc -%}
+  This snippet is used to render a product SKU.
+  It is used in the sku block.
+
+  @param {product} product_resource - The product to render
+{%- enddoc -%}
+
+{%- liquid
+  assign sku = product_resource.selected_or_first_available_variant.sku
+  assign barcode = product_resource.selected_or_first_available_variant.barcode
+  assign display_field = display_field | default: 'sku'
+  if display_field == 'barcode'
+    assign display_text = barcode
+  elsif display_field == 'barcode_sku'
+    if barcode != blank and sku != blank
+      assign display_text = barcode | append: ' · ' | append: sku
+    elsif barcode != blank
+      assign display_text = barcode
+    else
+      assign display_text = sku
+    endif
+  else
+    assign display_text = sku
+  endif
+-%}
+
+<div ref="skuContainer">
+  <span
+    class="sku"
+    ref="sku"
+    data-testid="product-sku"
+  >
+    {{- display_text -}}
+  </span>
+</div>

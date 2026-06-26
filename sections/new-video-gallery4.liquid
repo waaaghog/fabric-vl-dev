@@ -1,0 +1,433 @@
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }} spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+>
+  <video-gallery4
+    class="video-gallery4"
+    style="
+      --vg4-columns: {{ section.blocks.size }};
+      --vg4-mobile-columns: {{ section.settings.mobile_columns }};
+      --vg4-gap: {{ section.settings.gap }}px;
+      --vg4-gap-mobile: {{ section.settings.gap_mobile }}px;
+      --vg4-aspect-ratio: {{ section.settings.aspect_ratio }};
+      --vg4-border-radius: {{ section.settings.border_radius }}px;
+      --vg4-placeholder-bg: {{ section.settings.placeholder_bg_color }};
+      --vg4-play-icon-bg: {{ section.settings.play_icon_bg }};
+      --vg4-play-icon-color: {{ section.settings.play_icon_color }};
+    "
+  >
+    <div class="video-gallery4__container">
+      {% for block in section.blocks %}
+        {% assign video = block.settings.video %}
+        <div class="video-gallery4__item" {{ block.shopify_attributes }}>
+          {% if video %}
+            <video
+              class="video-gallery4__video"
+              muted
+              playsinline
+              loop
+              preload="none"
+            >
+              {% for source in video.sources %}
+                {% if source.mime_type contains 'video/mp4' %}
+                  <source src="{{ source.url }}" type="{{ source.mime_type }}">
+                {% endif %}
+              {% endfor %}
+            </video>
+            <div class="video-gallery4__play-icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          {% else %}
+            <div class="video-gallery4__placeholder">
+              {{ 'image' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </video-gallery4>
+</div>
+
+{% stylesheet %}
+  video-gallery4 {
+    display: block;
+  }
+
+  .video-gallery4__container {
+    display: grid;
+    grid-template-columns: repeat(var(--vg4-columns, 4), 1fr);
+    gap: var(--vg4-gap, 16px);
+    width: 100%;
+  }
+
+  .video-gallery4__item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--vg4-aspect-ratio, 9/16);
+    overflow: hidden;
+    border-radius: var(--vg4-border-radius, 8px);
+    background-color: var(--vg4-placeholder-bg, #f4f4f4);
+  }
+
+  .video-gallery4__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .video-gallery4__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-gallery4__placeholder svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .video-gallery4__play-icon {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background-color: var(--vg4-play-icon-bg, #ffffff);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+  }
+
+  .video-gallery4__play-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--vg4-play-icon-color, #000000);
+    margin-left: 3px;
+  }
+
+  .video-gallery4__item.playing .video-gallery4__play-icon {
+    opacity: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .video-gallery4__container {
+      grid-template-columns: repeat(var(--vg4-mobile-columns, 1), 1fr);
+      gap: var(--vg4-gap-mobile, 16px);
+    }
+
+    .video-gallery4__play-icon {
+      width: 50px;
+      height: 50px;
+    }
+
+    .video-gallery4__play-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+{% endstylesheet %}
+
+<script>
+  (function () {
+    class VideoGallery4 extends HTMLElement {
+      constructor() {
+        super();
+        this.videos = [];
+        this.videoItems = [];
+        this.currentPlayingVideo = null;
+        this.isMobile = window.innerWidth <= 749;
+        this.observers = [];
+        this._handleResize = this.handleResize.bind(this);
+      }
+
+      connectedCallback() {
+        this.videos = Array.from(this.querySelectorAll('.video-gallery4__video'));
+        this.videoItems = Array.from(this.querySelectorAll('.video-gallery4__item'));
+        this.checkMobile();
+        window.addEventListener('resize', this._handleResize);
+        if (this.isMobile) {
+          this.setupMobileAutoplay();
+        } else {
+          this.setupDesktopHover();
+        }
+      }
+
+      disconnectedCallback() {
+        window.removeEventListener('resize', this._handleResize);
+        this.observers.forEach(observer => observer.disconnect());
+      }
+
+      checkMobile() {
+        this.isMobile = window.innerWidth <= 749;
+      }
+
+      handleResize() {
+        const wasMobile = this.isMobile;
+        this.checkMobile();
+        if (wasMobile !== this.isMobile) {
+          this.cleanup();
+          if (this.isMobile) {
+            this.setupMobileAutoplay();
+          } else {
+            this.setupDesktopHover();
+          }
+        }
+      }
+
+      cleanup() {
+        this.observers.forEach(observer => observer.disconnect());
+        this.observers = [];
+        this.videos.forEach(video => {
+          video.pause();
+          video.currentTime = 0;
+        });
+        this.videoItems.forEach(item => {
+          item.classList.remove('playing');
+          const clone = item.cloneNode(true);
+          item.parentNode.replaceChild(clone, item);
+        });
+        this.videos = Array.from(this.querySelectorAll('.video-gallery4__video'));
+        this.videoItems = Array.from(this.querySelectorAll('.video-gallery4__item'));
+      }
+
+      setupDesktopHover() {
+        this.videoItems.forEach((item, index) => {
+          const video = this.videos[index];
+          if (!video) return;
+          item.addEventListener('mouseenter', () => {
+            if (this.currentPlayingVideo && this.currentPlayingVideo !== video) {
+              this.currentPlayingVideo.pause();
+              this.currentPlayingVideo.currentTime = 0;
+              const prevItem = this.currentPlayingVideo.closest('.video-gallery4__item');
+              if (prevItem) prevItem.classList.remove('playing');
+            }
+            video.play().catch(() => {});
+            item.classList.add('playing');
+            this.currentPlayingVideo = video;
+          });
+          item.addEventListener('mouseleave', () => {
+            video.pause();
+            video.currentTime = 0;
+            item.classList.remove('playing');
+            if (this.currentPlayingVideo === video) this.currentPlayingVideo = null;
+          });
+        });
+      }
+
+      setupMobileAutoplay() {
+        this.videos.forEach((video, index) => {
+          const item = this.videoItems[index];
+          if (!video || !item) return;
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                video.play().catch(() => {});
+                item.classList.add('playing');
+              } else {
+                video.pause();
+                video.currentTime = 0;
+                item.classList.remove('playing');
+              }
+            });
+          }, { threshold: 0.5 });
+          observer.observe(item);
+          this.observers.push(observer);
+        });
+      }
+    }
+
+    if (!customElements.get('video-gallery4')) {
+      customElements.define('video-gallery4', VideoGallery4);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "New: Video gallery",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Columns (mobile)",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "aspect_ratio",
+      "label": "Aspect ratio",
+      "options": [
+        {
+          "value": "16/9",
+          "label": "16:9 (Landscape)"
+        },
+        {
+          "value": "9/16",
+          "label": "9:16 (Portrait)"
+        },
+        {
+          "value": "1/1",
+          "label": "1:1 (Square)"
+        },
+        {
+          "value": "4/3",
+          "label": "4:3"
+        }
+      ],
+      "default": "9/16"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap (desktop)",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap (mobile)",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Color"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "placeholder_bg_color",
+      "label": "Placeholder background",
+      "default": "#f4f4f4"
+    },
+    {
+      "type": "color",
+      "id": "play_icon_bg",
+      "label": "Play icon background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "play_icon_color",
+      "label": "Play icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "video_block",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "New: Video gallery",
+      "blocks": [
+        { "type": "video_block" },
+        { "type": "video_block" },
+        { "type": "video_block" },
+        { "type": "video_block" }
+      ]
+    }
+  ]
+}
+{% endschema %}

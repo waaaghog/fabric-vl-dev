@@ -1,0 +1,1078 @@
+{%- liquid
+  assign s = section.settings
+-%}
+
+{%- render 'valor-register-popup' -%}
+
+<div class="section section--{% if section.settings.layout == 'full_width' %}full-width{% else %}page-width{% endif %}">
+{%- comment -%} ══ Page sections ════════════════════════════════════════ {%- endcomment -%}
+<div class="vr-page-wrap vr-layout--{{ section.settings.layout | default: 'full_width' }}" style="margin-top: {{ section.settings.margin_top | default: '0px' }}; margin-bottom: {{ section.settings.margin_bottom | default: '0px' }}; --vr-sections-gap: {{ section.settings.gap | default: '0px' }};">
+
+{%- comment -%} ── Hero ──────────────────────────────────────────────── {%- endcomment -%}
+<section class="vr-hero">
+  <div class="vr-hero-grid">
+    <div class="vr-hero-main">
+      <div class="vr-hero-eyebrow">Become a Valor partner · Apply in 3 steps</div>
+      <h1 class="vr-hero-title">The brands your<br>customers want.<br><em>Ready for you.</em></h1>
+      <p class="vr-hero-sub">16,000+ SKUs across protection, power, audio, attachables, and wearables — engineered, stocked, and shipping from LA &amp; Texas.</p>
+      <div class="vr-hero-cta-row">
+        <button type="button" class="vr-btn vr-btn--chalk vr-btn--lg" data-vr-open>
+          Apply for an account
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <a class="vr-hero-ghost js-shopify-login-trigger">Sign in to existing account</a>
+      </div>
+      <div class="vr-hero-device" aria-hidden="true"></div>
+    </div>
+    <div class="vr-hero-side">
+      <div class="vr-hero-card vr-hero-card--sky">
+        <div>
+          <div class="vr-hcard-tag">Q2 carrier program</div>
+          <div class="vr-hcard-title">20% off<br>MyBat Pro.</div>
+          <div class="vr-hcard-sub">Stack on top of tier pricing</div>
+        </div>
+        <div class="vr-hcard-foot">
+          <span>Through May 31</span>
+          <div class="vr-hcard-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+      <div class="vr-hero-card vr-hero-card--crimson">
+        <div>
+          <div class="vr-hcard-tag">Limited drop</div>
+          <div class="vr-hcard-title">WWE Championship<br>Series.</div>
+          <div class="vr-hcard-sub">Allocation window open · 90 days</div>
+        </div>
+        <div class="vr-hcard-foot">
+          <span>Reserve now</span>
+          <div class="vr-hcard-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} ── Perks strip ───────────────────────────────────────── {%- endcomment -%}
+<div class="vr-perks">
+  <div class="vr-perks-inner">
+    <div class="vr-perk">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      <div><strong>16,000+ active SKUs</strong><span>Across all major carriers, brands &amp; product lines</span></div>
+    </div>
+    <div class="vr-perk">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div><strong>Zero MOQ on stocked SKUs</strong><span>Order by the unit, not by the case</span></div>
+    </div>
+    <div class="vr-perk">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <div><strong>Fast bicoastal shipping</strong><span>Same-day from LA &amp; Texas DCs</span></div>
+    </div>
+    <div class="vr-perk">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div><strong>Dedicated rep</strong><span>A rep who knows your channel and picks up the phone</span></div>
+    </div>
+  </div>
+</div>
+
+{%- comment -%} ── Shop by category ───────────────────────────────────── {%- endcomment -%}
+<section class="vr-category">
+  <div class="vr-category-inner">
+    <div class="vr-section-head">
+      <div>
+        <div class="vr-section-eyebrow">Shop by category</div>
+        <div class="vr-section-title">Find what <em>you need.</em></div>
+      </div>
+      <a href="{{ routes.root_url }}collections" class="vr-view-all">Browse full catalog <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    </div>
+    <div class="vr-cat-grid">
+      <a href="{{ routes.root_url }}collections/protection" class="vr-cat-card vr-cat-card--feat">
+        <div class="vr-cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/></svg></div>
+        <div class="vr-cat-body"><div class="vr-cat-name">Protection</div><div class="vr-cat-subs">Phone cases, tempered glass, lens &amp; screen protectors</div></div>
+        <div class="vr-cat-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="{{ routes.root_url }}collections/power" class="vr-cat-card">
+        <div class="vr-cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 13h7l-2 9 9-11h-7l2-9z"/></svg></div>
+        <div class="vr-cat-body"><div class="vr-cat-name">Power</div><div class="vr-cat-subs">Wall &amp; car chargers, cables, power banks, wireless</div></div>
+        <div class="vr-cat-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="{{ routes.root_url }}collections/audio" class="vr-cat-card">
+        <div class="vr-cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></svg></div>
+        <div class="vr-cat-body"><div class="vr-cat-name">Audio</div><div class="vr-cat-subs">Earbuds, headphones, speakers, smart glasses</div></div>
+        <div class="vr-cat-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="{{ routes.root_url }}collections/attachables" class="vr-cat-card">
+        <div class="vr-cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5.5 5.5l2.8 2.8M15.7 15.7l2.8 2.8M5.5 18.5l2.8-2.8M15.7 8.3l2.8-2.8"/></svg></div>
+        <div class="vr-cat-body"><div class="vr-cat-name">Attachables</div><div class="vr-cat-subs">Mounts, stands, grips, MagSafe, wallets</div></div>
+        <div class="vr-cat-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="{{ routes.root_url }}collections/wearables" class="vr-cat-card">
+        <div class="vr-cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 6V3h6v3M9 18v3h6v-3"/></svg></div>
+        <div class="vr-cat-body"><div class="vr-cat-name">Wearables</div><div class="vr-cat-subs">Smart watches, AirTag accessories, bags, trackers</div></div>
+        <div class="vr-cat-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+      </a>
+      <a href="{{ routes.root_url }}collections" class="vr-cat-card">
+        <div class="vr-cat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="5" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="12" cy="19" r="2"/><circle cx="19" cy="19" r="2"/></svg></div>
+        <div class="vr-cat-body"><div class="vr-cat-name">Everything Else</div><div class="vr-cat-subs">Gaming, stylus, tablet, cleaning, packaging</div></div>
+        <div class="vr-cat-arrow"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} ── Brand portfolio ────────────────────────────────────── {%- endcomment -%}
+<section class="vr-bp">
+  <div class="vr-bp-inner">
+    <div class="vr-bp-head">
+      <div class="vr-eyebrow">Brand portfolio</div>
+      <div class="vr-bp-title">Everything in one place. <em>One stop for your favorites.</em></div>
+      <p class="vr-bp-intro">From our own designed-and-engineered houses to authorized distribution of select consumer electronics, audio, and lifestyle brands — Valor's portfolio gives partners a true one-stop catalog without sourcing through multiple vendors.</p>
+    </div>
+    <div class="vr-bp-grid">
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">MyBat<span class="vr-bp-sub">Pro</span></span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">MyBat</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">Echelon</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">AmpNergy</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">Baseline</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">EcoBlvd</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans); font-weight: 700;">ADATA</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans); font-weight: 900;">Beats</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">Borne</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif); font-style: italic;">Coca-Cola</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans); font-weight: 700;">Deejays</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans); font-weight: 600;">Edge</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif);">Luxmo</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans); font-weight: 800;">MaxPower</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-serif); font-weight: 700;">MLB</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans); font-weight: 600;">Scosche</span></a>
+      <a href="#" class="vr-bp-tile"><span class="vr-bp-wordmark" style="font-family: var(--vr-sans);">Sentry</span></a>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} ── Design Lab ─────────────────────────────────────────── {%- endcomment -%}
+<section class="vr-dl">
+  <div class="vr-dl-inner">
+    <div class="vr-dl-visual">
+      <div class="vr-dl-overlay" aria-hidden="true"></div>
+      <div class="vr-dl-tag-row"><div class="vr-dl-tag">Print on demand</div></div>
+      <div class="vr-dl-visual-text">
+        <div class="vr-dl-eyebrow">Design Lab</div>
+        <div class="vr-dl-title">Design<br>your vibe.</div>
+      </div>
+      <div class="vr-dl-types">
+        <span>Cases</span><span class="vr-dl-dim">·</span>
+        <span>Power</span><span class="vr-dl-dim">·</span>
+        <span>Audio</span><span class="vr-dl-dim">·</span>
+        <span>MagSafe</span>
+      </div>
+    </div>
+    <div class="vr-dl-content">
+      <div class="vr-dl-content-eyebrow">500+ designs · Customization available</div>
+      <div class="vr-dl-content-title">A design for every <em>style.</em></div>
+      <p class="vr-dl-body">Browse 500+ ready-to-order designs across 12 style pillars — applied to cases, power banks, earbuds, wireless chargers, and more. Every design is made to order in 1–2 days. Want something custom? Upload your own art on top of any product.</p>
+      <div class="vr-dl-stats">
+        <span><strong>Zero MOQ</strong> on catalog</span>
+        <span class="vr-dl-sep">·</span>
+        <span><strong>Low MOQ</strong> on customs (from 4)</span>
+        <span class="vr-dl-sep">·</span>
+        <span><strong>1–2 day</strong> lead time</span>
+      </div>
+      <div class="vr-dl-actions">
+        <a href="{{ routes.root_url }}collections" class="vr-btn vr-btn--primary">Browse the catalog <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        <a href="#" class="vr-btn vr-btn--ghost">Start a custom design</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} ── Dashboard teaser ────────────────────────────────────── {%- endcomment -%}
+<section class="vr-dash">
+  <div class="vr-dash-inner">
+    <div class="vr-dash-left">
+      <div class="vr-eyebrow">Partner dashboard</div>
+      <h3 class="vr-dash-title">Your account, <em>in one view.</em></h3>
+      <p class="vr-dash-body">When you sign in, you get live order tracking, sell-through analytics, invoice status, and credit utilization — all in one place. Replace your spreadsheets, your email threads, and your "can you send me the PO again" asks.</p>
+      <ul class="vr-feat-list">
+        <li><span class="vr-feat-chk"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span> Live order and shipment tracking</li>
+        <li><span class="vr-feat-chk"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span> Custom price lists by tier</li>
+        <li><span class="vr-feat-chk"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span> Bulk CSV upload and saved lists</li>
+      </ul>
+      <div class="vr-dash-ctas">
+        <a class="vr-btn vr-btn--primary js-shopify-login-trigger">Sign in <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        <button type="button" class="vr-btn vr-btn--ghost" data-vr-open>Apply for an account</button>
+      </div>
+    </div>
+    <div class="vr-dash-mock">
+      <div class="vr-dash-mock-head">
+        <div class="vr-dash-mock-title">Pacific Cellular — account overview</div>
+        <div class="vr-dash-period">Last 30 days</div>
+      </div>
+      <div class="vr-stat-row">
+        <div class="vr-stat-box"><div class="vr-stat-lbl">Open orders</div><div class="vr-stat-val">14</div><div class="vr-stat-delta vr-delta--up">↑ 3 this week</div></div>
+        <div class="vr-stat-box"><div class="vr-stat-lbl">YTD volume</div><div class="vr-stat-val">$284k</div><div class="vr-stat-delta vr-delta--up">↑ 18% vs LY</div></div>
+        <div class="vr-stat-box"><div class="vr-stat-lbl">Net 30 credit</div><div class="vr-stat-val">$57,820</div><div class="vr-stat-delta">$17,180 of $75,000 used</div></div>
+      </div>
+      <div class="vr-chart-mock">
+        <svg viewBox="0 0 400 100" preserveAspectRatio="none">
+          <path d="M 0 80 Q 40 70, 60 65 T 120 45 T 180 55 T 240 30 T 300 38 T 360 20 T 400 25" stroke="#2B3A55" stroke-width="2" fill="none"/>
+          <path d="M 0 80 Q 40 70, 60 65 T 120 45 T 180 55 T 240 30 T 300 38 T 360 20 T 400 25 L 400 100 L 0 100 Z" fill="#2B3A55" opacity="0.08"/>
+          <circle cx="240" cy="30" r="4" fill="#C54448"/>
+          <circle cx="400" cy="25" r="4" fill="#63B9DE"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} ── Why Valor pillars ──────────────────────────────────── {%- endcomment -%}
+<section class="vr-pillars">
+  <div class="vr-pillars-inner">
+    <div class="vr-pillars-head">
+      <div class="vr-eyebrow">Why Valor</div>
+      <div class="vr-pillars-title">29 years in the industry. <em>And counting.</em></div>
+      <p class="vr-pillars-intro">We've been shipping wireless accessories from Los Angeles since 1997. Through every device cycle from flip phones to foldables, our partners have grown with a single source they trust to deliver — on time, on margin, and ready before the next launch.</p>
+    </div>
+    <div class="vr-pillars-grid">
+      <div class="vr-pillar">
+        <div class="vr-pillar-num">01</div>
+        <h3 class="vr-pillar-title">Always one step ahead.</h3>
+        <p>We engineer accessories for new devices before they're officially announced. By the time a phone hits retail, our cases, screen protectors, and chargers are already in your warehouse. Partners don't wait for "soon" — they reorder for what's already shipping.</p>
+      </div>
+      <div class="vr-pillar">
+        <div class="vr-pillar-num">02</div>
+        <h3 class="vr-pillar-title">Factory to shelf, no detours.</h3>
+        <p>We own our manufacturing, our R&amp;D, and 250,000 sq ft of bicoastal distribution across LA and Texas. No middlemen, no contract-manufacturer surprises. The mold, the unit, the carton, the truck — all under one roof.</p>
+      </div>
+      <div class="vr-pillar">
+        <div class="vr-pillar-num">03</div>
+        <h3 class="vr-pillar-title">More than a vendor.</h3>
+        <p>Wide selection across every category, brand, and device. Trends caught before they're trends. And a dedicated rep who knows your channel, picks up the phone, and helps you make it land.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} ── Apply CTA (dark) ───────────────────────────────────── {%- endcomment -%}
+<section class="vr-cta">
+  <div class="vr-cta-inner">
+    <div class="vr-cta-left">
+      <div class="vr-cta-eyebrow">Become a Valor partner</div>
+      <div class="vr-cta-title">Your accessory to <em>success.</em></div>
+      <p class="vr-cta-body">Register for a free account to unlock wholesale pricing, place orders, and access the full Valor catalog. You'll get marketing kits with every SKU, fast bicoastal shipping, flexible payment options, and a dedicated rep who knows your channel.</p>
+      <div class="vr-cta-actions">
+        <button type="button" class="vr-btn vr-btn--chalk" data-vr-open>
+          Apply for an account
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+        <a class="vr-btn vr-btn--outline js-shopify-login-trigger">Sign in to existing account</a>
+      </div>
+    </div>
+    <div class="vr-cta-right">
+      <div class="vr-cta-grid">
+        {%- assign cta_items = '16,000+ active SKUs|Across all major carriers, brands & product lines;Zero MOQ on stocked SKUs|Order by the unit, not by the case;Fast bicoastal shipping|Same-day from LA & Texas DCs;Flexible payment options|Net terms, credit card, Apple Pay, and PayPal;Marketing kit per SKU|Photography, copy, sell sheets, and short-form video;A real human in your corner|Dedicated rep who knows your channel and picks up the phone' | split: ';' -%}
+        {%- for item in cta_items -%}
+          {%- assign parts = item | split: '|' -%}
+          <div class="vr-cta-item">
+            <span class="vr-cta-star" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .587l3.668 7.568L24 9.423l-6 5.851L19.336 24 12 19.897 4.664 24 6 15.274 0 9.423l8.332-1.268z"/></svg>
+            </span>
+            <div>
+              <div class="vr-cta-item-title">{{ parts[0] }}</div>
+              <div class="vr-cta-item-sub">{{ parts[1] }}</div>
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>{%- comment -%}<!-- /vr-page-wrap -->{%- endcomment -%}
+</div>{%- comment -%}<!-- /section -->{%- endcomment -%}
+
+
+{% stylesheet %}
+/* ═══════════════════════════════════════════════════════════════════
+   VALOR REGISTER — sections/valor-register.liquid
+   Isolated styles; uses --vr- CSS custom properties.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Color tokens ─────────────────────────────────────────────────── */
+:root {
+  --vr-navy:        #2B3A55;
+  --vr-navy-deep:   #1D2636;
+  --vr-sky:         #63B9DE;
+  --vr-sky-pale:    #D9EEF6;
+  --vr-crimson:     #C54448;
+  --vr-chalk:       #F4F5F2;
+  --vr-parchment:   #EEEDE7;
+  --vr-steel:       #66717E;
+  --vr-steel-lt:    #A8B0B8;
+  --vr-ink:         #121820;
+  --vr-white:       #FFFFFF;
+  --vr-green:       #2d7a3f;
+  --vr-green-soft:  #E1F0E3;
+  --vr-border:      #0002;
+  --vr-border-str:  #0003;
+  --vr-serif:       var(--font-heading--family, 'Georgia', serif);
+  --vr-sans:        var(--font-body--family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+/* ── Page wrapper & layout ────────────────────────────────────────── */
+.vr-page-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vr-sections-gap, 0px);
+}
+.vr-page-wrap.vr-layout--page_width {
+  overflow: hidden;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   PAGE SECTIONS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Shared ───────────────────────────────────────────────────────── */
+.vr-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--vr-crimson);
+  margin-bottom: 16px;
+}
+.vr-eyebrow::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  background: var(--vr-crimson);
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────── */
+.vr-hero {}
+.vr-hero-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+  height: 540px;
+}
+.vr-hero-main {
+  background: var(--vr-navy-deep);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  color: var(--vr-chalk);
+  padding: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.vr-hero-main::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 55%;
+  background: linear-gradient(135deg, #2B3A55 0%, #1D2636 100%);
+  clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+}
+.vr-hero-main::after {
+  content: '';
+  position: absolute;
+  top: 50%; right: 8%;
+  transform: translateY(-50%);
+  width: 380px; height: 380px;
+  background: radial-gradient(circle, rgba(99,185,222,0.22) 0%, transparent 65%);
+  border-radius: 50%;
+}
+.vr-hero-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vr-sky);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 3;
+}
+.vr-hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--vr-sky); }
+.vr-hero-title {
+  font-family: var(--vr-serif);
+  font-size: 68px;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  max-width: 70%;
+  position: relative;
+  z-index: 3;
+  font-weight: 400;
+  color: var(--vr-chalk);
+  margin: 20px 0 14px;
+}
+.vr-hero-title em { color: var(--vr-sky) !important; font-style: italic; }
+.vr-hero-sub {
+  font-family: var(--vr-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(244, 245, 242, 0.78);
+  max-width: 480px;
+  margin: 0 0 28px;
+  position: relative;
+  z-index: 3;
+}
+.vr-hero-cta-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  z-index: 3;
+  flex-wrap: wrap;
+}
+.vr-hero-ghost {
+  font-family: var(--vr-sans);
+  color: var(--vr-chalk);
+  padding: 14px 24px;
+  border: 1px solid rgba(244,245,242,0.25);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.vr-hero-ghost:hover { background: rgba(244,245,242,0.08); }
+.vr-hero-device {
+  position: absolute;
+  right: 6%; top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  width: 280px; height: 400px;
+  background: linear-gradient(145deg, #2a2a2e 0%, #151517 100%);
+  border-radius: 36px;
+  border: 2px solid #3a3a40;
+  z-index: 2;
+  box-shadow: -30px 40px 80px rgba(0,0,0,0.5);
+}
+.vr-hero-device::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 30px;
+  background: linear-gradient(145deg, #C54448 0%, #8a2f33 100%);
+}
+.vr-hero-device::after {
+  content: 'MyBat Pro';
+  position: absolute;
+  bottom: 24px; left: 0; right: 0;
+  text-align: center;
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 500;
+  z-index: 1;
+  font-family: var(--vr-sans);
+}
+.vr-hero-side { display: grid; grid-template-rows: 1fr 1fr; gap: 20px; }
+.vr-hero-card {
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s;
+  text-decoration: none;
+}
+.vr-hero-card:hover { transform: translateY(-2px); }
+.vr-hero-card--sky { background: var(--vr-sky-pale); color: var(--vr-navy-deep); }
+.vr-hero-card--crimson { background: var(--vr-crimson); color: var(--vr-chalk); }
+.vr-hcard-tag {
+  font-family: var(--vr-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.vr-hcard-tag::before { content: '●'; color: var(--vr-crimson); font-size: 8px; }
+.vr-hero-card--crimson .vr-hcard-tag::before { color: var(--vr-chalk); }
+.vr-hcard-title {
+  font-family: var(--vr-serif);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 400;
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+.vr-hcard-sub { font-family: var(--vr-sans); font-size: 12px; opacity: 0.7; margin-top: 6px; }
+.vr-hcard-foot { font-family: var(--vr-sans); display: flex; justify-content: space-between; align-items: flex-end; font-size: 12px; }
+.vr-hcard-arrow {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s;
+}
+.vr-hero-card--crimson .vr-hcard-arrow { background: rgba(255,255,255,0.18); }
+.vr-hero-card:hover .vr-hcard-arrow { transform: translate(3px, -3px); }
+
+/* ── Section shared head ──────────────────────────────────────────── */
+.vr-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  gap: 40px;
+}
+.vr-section-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vr-crimson);
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.vr-section-title {
+  font-family: var(--vr-serif);
+  font-size: 56px;
+  line-height: 1;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+.vr-section-title em { font-style: italic; color: var(--vr-steel) !important; }
+.vr-view-all {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-navy);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: background 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.vr-view-all:hover { background: var(--vr-chalk); }
+
+/* ── Category ─────────────────────────────────────────────────────── */
+.vr-category {}
+.vr-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.vr-cat-card {
+  aspect-ratio: 1 / 1.15;
+  background: var(--vr-white);
+  border-radius: 16px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+  border: 1px solid var(--vr-border);
+  text-decoration: none;
+}
+.vr-cat-card:hover { transform: translateY(-3px); border-color: var(--vr-border-str); }
+.vr-cat-card--feat { background: var(--vr-navy-deep); color: var(--vr-chalk); }
+.vr-cat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--vr-chalk);
+  color: var(--vr-navy);
+  display: flex; align-items: center; justify-content: center;
+}
+.vr-cat-card--feat .vr-cat-icon { background: rgba(244,245,242,0.1); color: var(--vr-sky); }
+.vr-cat-body { display: flex; flex-direction: column; gap: 4px; }
+.vr-cat-name {
+  font-family: var(--vr-serif);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.vr-cat-card--feat .vr-cat-name { color: var(--vr-chalk); }
+.vr-cat-subs { font-family: var(--vr-sans); font-size: 11px; color: var(--vr-steel); line-height: 1.4; max-width: 90%; }
+.vr-cat-card--feat .vr-cat-subs { color: rgba(244,245,242,0.6); }
+.vr-cat-arrow {
+  position: absolute;
+  right: 16px; bottom: 16px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--vr-chalk);
+  color: var(--vr-navy-deep);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.vr-cat-card:hover .vr-cat-arrow { opacity: 1; transform: translateX(0); }
+
+/* ── Brand portfolio ──────────────────────────────────────────────── */
+.vr-bp {}
+.vr-bp-head { max-width: 760px; margin-bottom: 32px; }
+.vr-bp-title {
+  font-family: var(--vr-serif);
+  font-size: 56px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--vr-navy-deep);
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+.vr-bp-title em { color: var(--vr-steel) !important; font-style: italic; }
+.vr-bp-intro { font-family: var(--vr-sans); font-size: 14px; color: var(--vr-steel); line-height: 1.65; max-width: 640px; }
+.vr-bp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border);
+  border-radius: 18px;
+  padding: 12px;
+}
+.vr-bp-tile {
+  aspect-ratio: 3 / 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  background: var(--vr-chalk);
+  transition: background 0.15s, transform 0.15s;
+  text-decoration: none;
+  padding: 8px 16px;
+}
+.vr-bp-tile:hover { background: var(--vr-parchment); transform: translateY(-2px); }
+.vr-bp-wordmark { font-size: 20px; color: var(--vr-navy-deep); letter-spacing: -0.01em; text-align: center; line-height: 1; user-select: none; }
+.vr-bp-sub { font-style: italic; color: var(--vr-crimson); margin-left: 4px; }
+
+/* ── Design Lab ───────────────────────────────────────────────────── */
+.vr-dl {}
+.vr-dl-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border);
+  min-height: 400px;
+}
+.vr-dl-visual {
+  background: linear-gradient(135deg, #1D2636 0%, #2B3A55 60%, #C54448 130%);
+  color: var(--vr-chalk);
+  padding: 48px 44px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+.vr-dl-overlay {
+  position: absolute;
+  top: -10%; right: -20%;
+  width: 70%; height: 80%;
+  background: radial-gradient(circle, rgba(99,185,222,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.vr-dl-tag-row { display: flex; gap: 6px; position: relative; z-index: 1; }
+.vr-dl-tag {
+  font-family: var(--vr-sans);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vr-sky);
+  background: rgba(99,185,222,0.12);
+  border: 1px solid rgba(99,185,222,0.4);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.vr-dl-visual-text { position: relative; z-index: 1; margin: auto 0; }
+.vr-dl-eyebrow { font-family: var(--vr-serif); font-style: italic; font-size: 22px; color: var(--vr-sky); margin-bottom: 8px; }
+.vr-dl-title { font-family: var(--vr-serif); font-size: 76px; line-height: 0.95; color: var(--vr-chalk); letter-spacing: -0.03em; font-weight: 400; }
+.vr-dl-types {
+  font-family: var(--vr-sans);
+  position: relative; z-index: 1;
+  border-top: 1px solid rgba(244,245,242,0.12);
+  padding-top: 16px; margin-top: 24px;
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(244,245,242,0.85);
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  font-weight: 500;
+}
+.vr-dl-dim { color: rgba(244,245,242,0.3); }
+.vr-dl-content { padding: 48px 52px; display: flex; flex-direction: column; justify-content: center; }
+.vr-dl-content-eyebrow {
+  font-family: var(--vr-sans);
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--vr-crimson); font-weight: 500; margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.vr-dl-content-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--vr-crimson); }
+.vr-dl-content-title { font-family: var(--vr-serif); font-size: 44px; line-height: 1.05; color: var(--vr-navy-deep); letter-spacing: -0.02em; font-weight: 400; margin-bottom: 18px; }
+.vr-dl-content-title em { color: var(--vr-steel) !important; font-style: italic; }
+.vr-dl-body { font-family: var(--vr-sans); font-size: 14px; color: var(--vr-steel); line-height: 1.65; margin-bottom: 18px; max-width: 480px; }
+.vr-dl-stats {
+  font-family: var(--vr-sans);
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 6px;
+  padding: 14px 0; margin: 0 0 22px;
+  border-top: 1px solid var(--vr-border); border-bottom: 1px solid var(--vr-border);
+  font-size: 12px; color: var(--vr-steel);
+}
+.vr-dl-stats strong { color: var(--vr-navy-deep); font-weight: 600; }
+.vr-dl-sep { color: var(--vr-steel-lt); }
+.vr-dl-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── Dashboard teaser ─────────────────────────────────────────────── */
+.vr-dash {}
+.vr-dash-inner {
+  background: var(--vr-white);
+  border-radius: 24px;
+  padding: 48px;
+  border: 1px solid var(--vr-border);
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 56px;
+  align-items: center;
+}
+.vr-dash-left .vr-eyebrow { margin-bottom: 16px; }
+.vr-dash-title { font-family: var(--vr-serif); font-size: 48px; line-height: 1.05; color: var(--vr-navy-deep); letter-spacing: -0.02em; font-weight: 400; margin-bottom: 20px; }
+.vr-dash-title em { color: var(--vr-steel) !important; font-style: italic; }
+.vr-dash-body { font-family: var(--vr-sans); color: var(--vr-steel); font-size: 15px; line-height: 1.65; margin-bottom: 28px; }
+.vr-feat-list { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 14px; }
+.vr-feat-list li { font-family: var(--vr-sans); display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--vr-navy-deep); font-weight: 500; }
+.vr-feat-chk { width: 22px; height: 22px; border-radius: 50%; background: var(--vr-navy-deep); color: var(--vr-chalk); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.vr-dash-ctas { display: flex; gap: 8px; flex-wrap: wrap; }
+.vr-dash-mock { background: var(--vr-chalk); border-radius: 16px; padding: 24px; border: 1px solid var(--vr-border); }
+.vr-dash-mock-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.vr-dash-mock-title { font-family: var(--vr-sans); font-size: 13px; font-weight: 600; color: var(--vr-navy-deep); }
+.vr-dash-period { font-family: var(--vr-sans); font-size: 11px; color: var(--vr-steel); background: var(--vr-white); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--vr-border); }
+.vr-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+.vr-stat-box { background: var(--vr-white); border-radius: 10px; padding: 14px; border: 1px solid var(--vr-border); }
+.vr-stat-lbl { font-family: var(--vr-sans); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--vr-steel); font-weight: 500; }
+.vr-stat-val { font-family: var(--vr-sans); font-size: 20px; font-weight: 600; color: var(--vr-navy-deep); margin-top: 6px; letter-spacing: -0.01em; }
+.vr-stat-delta { font-family: var(--vr-sans); font-size: 11px; margin-top: 4px; display: flex; align-items: center; gap: 4px; color: var(--vr-steel); }
+.vr-delta--up { color: #2d7a3f; }
+.vr-chart-mock { background: var(--vr-white); border-radius: 10px; padding: 18px; border: 1px solid var(--vr-border); height: 140px; }
+.vr-chart-mock svg { width: 100%; height: 100%; }
+
+/* ── Perks strip ──────────────────────────────────────────────────── */
+.vr-perks {
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border);
+  padding: 20px 32px;
+  border-radius: 16px;
+}
+.vr-perks-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.vr-perk {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: var(--vr-sans);
+  font-size: 12px;
+  color: var(--vr-steel);
+  line-height: 1.4;
+}
+.vr-perk svg { flex-shrink: 0; color: var(--vr-navy); margin-top: 2px; }
+.vr-perk strong {
+  display: block;
+  color: var(--vr-navy-deep);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.vr-perk span { display: block; }
+
+/* ── Pillars ──────────────────────────────────────────────────────── */
+.vr-pillars {
+  background: var(--vr-chalk);
+}
+.vr-pillars-inner { margin: auto; }
+.vr-pillars-head {
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+.vr-pillars-title {
+  font-family: var(--vr-serif);
+  font-size: 56px;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+.vr-pillars-title em { color: var(--vr-steel) !important; font-style: italic; }
+.vr-pillars-intro {
+  font-family: var(--vr-sans);
+  font-size: 15px;
+  color: var(--vr-steel);
+  line-height: 1.65;
+}
+.vr-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.vr-pillar-num {
+  font-family: var(--vr-serif);
+  font-size: 36px;
+  color: var(--vr-crimson);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+.vr-pillar {
+  background: var(--vr-white);
+  border: 1px solid var(--vr-border);
+  border-radius: 18px;
+  padding: 32px 28px;
+}
+.vr-pillar-title {
+  font-family: var(--vr-serif);
+  font-size: 26px;
+  color: var(--vr-navy-deep);
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+.vr-pillar p {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  color: var(--vr-steel);
+  line-height: 1.65;
+}
+
+/* ── Apply CTA ────────────────────────────────────────────────────── */
+.vr-cta {}
+.vr-cta-inner {
+  background: var(--vr-navy-deep);
+  border-radius: 24px;
+  padding: 56px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.vr-cta-inner::before {
+  content: '';
+  position: absolute;
+  top: -50%; right: -10%;
+  width: 60%; height: 200%;
+  background: radial-gradient(ellipse, rgba(99, 185, 222, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.vr-cta-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--vr-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--vr-sky);
+  margin-bottom: 16px;
+}
+.vr-cta-eyebrow::before {
+  content: '';
+  width: 20px; height: 1px;
+  background: var(--vr-sky);
+}
+.vr-cta-title {
+  font-family: var(--vr-serif);
+  font-size: 46px;
+  color: var(--vr-chalk);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-weight: 400;
+  margin-bottom: 18px;
+}
+.vr-cta-title em { color: var(--vr-sky); font-style: italic; }
+.vr-cta-body {
+  font-family: var(--vr-sans);
+  font-size: 14px;
+  color: rgba(244, 245, 242, 0.7);
+  line-height: 1.65;
+  margin-bottom: 28px;
+  max-width: 420px;
+}
+.vr-cta-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.vr-cta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.vr-cta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.vr-cta-star {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(99, 185, 222, 0.15);
+  color: var(--vr-sky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.vr-cta-item-title {
+  font-family: var(--vr-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vr-chalk);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+.vr-cta-item-sub {
+  font-family: var(--vr-sans);
+  font-size: 12px;
+  color: rgba(244, 245, 242, 0.55);
+  line-height: 1.4;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .vr-hero-grid { grid-template-columns: 1fr; height: auto; }
+  .vr-hero-side { grid-template-rows: auto; grid-template-columns: 1fr 1fr; }
+  .vr-hero-main { min-height: 420px; }
+  .vr-cat-grid { grid-template-columns: repeat(3, 1fr); }
+  .vr-bp-grid { grid-template-columns: repeat(4, 1fr); }
+  .vr-bp-title { font-size: 36px; }
+  .vr-dl-inner { grid-template-columns: 1fr; }
+  .vr-dl-visual { padding: 36px 32px; min-height: 360px; }
+  .vr-dl-title { font-size: 56px; }
+  .vr-dl-content { padding: 36px 32px; }
+  .vr-dl-content-title { font-size: 34px; }
+  .vr-dash-inner { grid-template-columns: 1fr; gap: 32px; }
+  .vr-dash-title { font-size: 36px; }
+  .vr-section-title { font-size: 36px; }
+}
+@media (max-width: 749px) {
+  .vr-page-wrap { padding-inline: 16px; }
+  .vr-dialog-body { padding: 20px 20px 12px; }
+  .vr-actions { padding: 14px 20px 18px; }
+  .vr-row, .vr-row--three { grid-template-columns: 1fr; }
+  .vr-hero-main { padding: 36px 28px; }
+  .vr-hero-title { font-size: 40px; max-width: 100%; }
+  .vr-hero-side { grid-template-columns: 1fr; }
+  .vr-hero-device { display: none; }
+  .vr-cat-grid { grid-template-columns: repeat(2, 1fr); }
+  .vr-bp-grid { grid-template-columns: repeat(3, 1fr); }
+  .vr-dash-inner { padding: 28px 24px; }
+  .vr-stat-row { grid-template-columns: 1fr; }
+  .vr-perks-inner { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .vr-pillars-title { font-size: 36px; }
+  .vr-pillars-grid { grid-template-columns: 1fr; gap: 14px; }
+  .vr-cta-inner { grid-template-columns: 1fr; padding: 36px 28px; gap: 32px; }
+  .vr-cta-title { font-size: 34px; }
+  .vr-cta-grid { grid-template-columns: 1fr; gap: 12px; }
+  .vr-step-label { font-size: 10px; }
+  .vr-step { padding: 0 6px; }
+  .vr-section-head { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .vr-perks-inner { grid-template-columns: 1fr; }
+  .vr-cat-grid { grid-template-columns: 1fr 1fr; }
+  .vr-bp-grid { grid-template-columns: repeat(2, 1fr); }
+  .vr-bp-wordmark { font-size: 16px; }
+}
+{% endstylesheet %}
+
+
+
+{% schema %}
+{
+  "name": "Valor registration",
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "full_width", "label": "Full width" },
+        { "value": "page_width", "label": "Page width" }
+      ],
+      "default": "full_width"
+    },
+    {
+      "type": "text",
+      "id": "margin_top",
+      "label": "Space to the previous section",
+      "default": "0px"
+    },
+    {
+      "type": "text",
+      "id": "margin_bottom",
+      "label": "Space to the next section",
+      "default": "0px"
+    },
+    {
+      "type": "text",
+      "id": "gap",
+      "label": "Gap between sections",
+      "default": "0px"
+    },
+    {
+      "type": "header",
+      "content": "Hero"
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow",
+      "default": "Become a Valor partner"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Heading",
+      "default": "Apply for an account."
+    },
+    {
+      "type": "textarea",
+      "id": "hero_sub",
+      "label": "Subtext",
+      "default": "Three quick steps. Approved partners gain access to our expansive catalog, wholesale pricing, and a dedicated rep. Most applications are reviewed within 2 business days."
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA button text",
+      "default": "Apply for an account"
+    },
+  ],
+  "presets": [
+    {
+      "name": "Valor registration"
+    }
+  ]
+}
+{% endschema %}
