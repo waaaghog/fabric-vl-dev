@@ -1,0 +1,88 @@
+{%- liquid
+  assign page_size = 250
+  assign collection_title = collection.title | default: ''
+  assign collection_handle = collection.handle | default: ''
+-%}
+
+{%- paginate collection.products by page_size -%}
+  <script type="application/json" data-dailyfeed-export>
+    {
+      "collection": {
+        "title": {{ collection_title | json }},
+        "handle": {{ collection_handle | json }},
+        "url": {{ collection.url | json }},
+        "products_count": {{ collection.products_count | default: 0 | json }}
+      },
+      "pagination": {
+        "page": {{ paginate.current_page | json }},
+        "pages": {{ paginate.pages | json }},
+        "page_size": {{ page_size | json }},
+        "items": {{ paginate.items | json }}
+      },
+      "rows": [
+        {%- assign row_count = 0 -%}
+        {%- for product in collection.products -%}
+          {%- liquid
+            assign product_brand = product.metafields.custom.product_brand.value | default: product.vendor
+            assign product_model = product.metafields.custom.phone_devices | metafield_text
+            assign product_msrp = product.metafields.custom.product_msrp.value
+          -%}
+          {%- for variant in product.variants -%}
+            {%- liquid
+              assign variant_image = variant.featured_image | default: product.featured_image
+              assign msrp_cents = variant.compare_at_price | default: product.compare_at_price
+              assign msrp_display = ''
+              if msrp_cents != blank and msrp_cents > variant.price
+                assign msrp_display = msrp_cents | money_without_currency
+              elsif product_msrp != blank
+                assign msrp_display = product_msrp
+              endif
+
+              if variant.available == false
+                assign stock_label = 'Out of stock'
+              elsif variant.inventory_management == blank
+                assign stock_label = '500+ in stock'
+              elsif variant.inventory_quantity >= 500
+                assign stock_label = '500+ in stock'
+              elsif variant.inventory_quantity > 0
+                assign stock_label = variant.inventory_quantity | append: ' in stock'
+                if variant.inventory_quantity < 50
+                  assign stock_label = stock_label | append: ' - Low Stock'
+                endif
+              elsif variant.inventory_policy == 'continue'
+                assign stock_label = '500+ in stock'
+              else
+                assign stock_label = 'Out of stock'
+              endif
+            -%}
+            {%- if row_count > 0 -%},{%- endif -%}
+            {
+              "collection": {{ collection_title | json }},
+              "product_title": {{ product.title | json }},
+              "brand": {{ product_brand | json }},
+              "model": {{ product_model | json }},
+              "product_type": {{ product.type | json }},
+              "variant_title": {{ variant.title | json }},
+              "sku": {{ variant.sku | json }},
+              "upc": {{ variant.barcode | json }},
+              "price": {{ variant.price | money_without_currency | json }},
+              "msrp": {{ msrp_display | json }},
+              "stock": {{ stock_label | json }},
+              "inventory_quantity": {{ variant.inventory_quantity | default: 0 | json }},
+              "available": {{ variant.available | json }},
+              "product_url": {{ shop.url | append: variant.url | json }},
+              "image_url": {%- if variant_image -%}{{ variant_image | image_url: width: 1200 | prepend: 'https:' | json }}{%- else -%}""{%- endif -%}
+            }
+            {%- assign row_count = row_count | plus: 1 -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      ]
+    }
+  </script>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "Dailyfeed export"
+}
+{% endschema %}

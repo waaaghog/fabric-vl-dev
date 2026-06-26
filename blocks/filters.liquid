@@ -30,6 +30,12 @@
   fetchpriority="low"
 ></script>
 
+<script
+  src="{{ 'dailyfeed-download.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
 {%- liquid
   assign block_settings = block.settings
   assign enable_filtering = block_settings.enable_filtering
@@ -1485,11 +1491,19 @@
   }
 
   .dailyfeed-download-button:hover,
-  .dailyfeed-download-button:focus-visible {
+  .dailyfeed-download-button:focus-visible,
+  .dailyfeed-download-button.is-loading,
+  .dailyfeed-download-button.is-complete,
+  .dailyfeed-download-button.is-error {
     width: 198px;
     border-color: var(--valor-toolbar-navy, rgb(var(--color-foreground-rgb)));
     background: var(--valor-toolbar-navy-deep, rgb(var(--color-foreground-rgb)));
     color: #ffffff;
+  }
+
+  .dailyfeed-download-button.is-error {
+    border-color: var(--valor-toolbar-accent, #c54448);
+    background: var(--valor-toolbar-accent, #c54448);
   }
 
   .dailyfeed-download-button:focus-visible {
@@ -1510,7 +1524,10 @@
   }
 
   .dailyfeed-download-button:hover .dailyfeed-download-button__text,
-  .dailyfeed-download-button:focus-visible .dailyfeed-download-button__text {
+  .dailyfeed-download-button:focus-visible .dailyfeed-download-button__text,
+  .dailyfeed-download-button.is-loading .dailyfeed-download-button__text,
+  .dailyfeed-download-button.is-complete .dailyfeed-download-button__text,
+  .dailyfeed-download-button.is-error .dailyfeed-download-button__text {
     opacity: 1;
     transform: translateX(0);
   }

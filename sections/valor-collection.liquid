@@ -6,6 +6,12 @@
 
 {%- paginate collection.products by section.settings.products_per_page -%}
 
+<script
+  src="{{ 'dailyfeed-download.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
 {%- liquid
   assign sort_by = collection.sort_by | default: collection.default_sort_by
   assign active_filter_count = 0
@@ -144,11 +150,18 @@
     transition: width 0.2s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
   }
   #valor-collection-{{ section.id }} .vc-dailyfeed-button:hover,
-  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible {
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-loading,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-complete,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-error {
     width: 198px;
     border-color: var(--vc-navy);
     background: var(--vc-navy-deep);
     color: var(--vc-chalk);
+  }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-error {
+    background: var(--vc-crimson);
+    border-color: var(--vc-crimson);
   }
   #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible {
     outline: 2px solid var(--vc-sky-pale);
@@ -165,7 +178,10 @@
     transition: opacity 0.16s ease, transform 0.16s ease;
   }
   #valor-collection-{{ section.id }} .vc-dailyfeed-button:hover .vc-dailyfeed-button-text,
-  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible .vc-dailyfeed-button-text {
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible .vc-dailyfeed-button-text,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-loading .vc-dailyfeed-button-text,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-complete .vc-dailyfeed-button-text,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button.is-error .vc-dailyfeed-button-text {
     opacity: 1;
     transform: translateX(0);
   }
