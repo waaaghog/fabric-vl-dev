@@ -122,6 +122,53 @@
     gap: 6px;
     flex-shrink: 0;
   }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    overflow: hidden;
+    padding: 0 11px;
+    border: 1px solid var(--vc-border-strong);
+    border-radius: 999px;
+    background: var(--vc-white);
+    color: var(--vc-navy);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition: width 0.2s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:hover,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible {
+    width: 198px;
+    border-color: var(--vc-navy);
+    background: var(--vc-navy-deep);
+    color: var(--vc-chalk);
+  }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible {
+    outline: 2px solid var(--vc-sky-pale);
+    outline-offset: 2px;
+  }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+  }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button-text {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:hover .vc-dailyfeed-button-text,
+  #valor-collection-{{ section.id }} .vc-dailyfeed-button:focus-visible .vc-dailyfeed-button-text {
+    opacity: 1;
+    transform: translateX(0);
+  }
   #valor-collection-{{ section.id }} .vc-sort-pill {
     display: inline-flex;
     align-items: center;
@@ -839,6 +886,22 @@
     </div>
 
     <div class="vc-toolbar-right">
+      <button
+        class="vc-dailyfeed-button"
+        type="button"
+        title="Download this collection"
+        aria-label="Download this collection"
+        data-dailyfeed-download
+        data-collection-handle="{{ collection.handle | escape }}"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v11" />
+          <path d="m7 10 5 5 5-5" />
+          <path d="M5 20h14" />
+        </svg>
+        <span class="vc-dailyfeed-button-text">Download this collection</span>
+      </button>
+
       <!-- Sort -->
       <div class="vc-sort-pill">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M7 12h10M10 18h4"/></svg>

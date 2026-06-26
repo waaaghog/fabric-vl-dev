@@ -204,6 +204,24 @@
       <div class="valor-toolbar__right">
       {% endif %}
 
+      {% if collection != blank %}
+        <button
+          class="dailyfeed-download-button"
+          type="button"
+          title="Download this collection"
+          aria-label="Download this collection"
+          data-dailyfeed-download
+          data-collection-handle="{{ collection.handle | escape }}"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v11" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M5 20h14" />
+          </svg>
+          <span class="dailyfeed-download-button__text">Download this collection</span>
+        </button>
+      {% endif %}
+
       {% if block_settings.enable_sorting %}
         {% render 'sorting',
           results: results,
@@ -1442,6 +1460,59 @@
     flex: 0 0 auto;
     gap: 6px;
     margin-inline-start: auto;
+  }
+
+  .dailyfeed-download-button {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    overflow: hidden;
+    padding: 0 11px;
+    border: 1px solid var(--valor-toolbar-border, var(--color-border));
+    border-radius: 999px;
+    background: var(--valor-toolbar-surface, rgb(var(--color-background-rgb)));
+    color: var(--valor-toolbar-navy, rgb(var(--color-foreground-rgb)));
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    transition: width 0.2s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  }
+
+  .dailyfeed-download-button:hover,
+  .dailyfeed-download-button:focus-visible {
+    width: 198px;
+    border-color: var(--valor-toolbar-navy, rgb(var(--color-foreground-rgb)));
+    background: var(--valor-toolbar-navy-deep, rgb(var(--color-foreground-rgb)));
+    color: #ffffff;
+  }
+
+  .dailyfeed-download-button:focus-visible {
+    outline: 2px solid rgb(var(--color-foreground-rgb) / 0.2);
+    outline-offset: 2px;
+  }
+
+  .dailyfeed-download-button svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+  }
+
+  .dailyfeed-download-button__text {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .dailyfeed-download-button:hover .dailyfeed-download-button__text,
+  .dailyfeed-download-button:focus-visible .dailyfeed-download-button__text {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   .facets-controls-wrapper--valor-toolbar .facets--filters-title {
