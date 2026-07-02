@@ -13,7 +13,17 @@
   assign line_count = cart.items.size
   assign store_credit_ts = 'now' | date: '%s'
   assign store_credit_secret = shop.metafields.valor.connect.value[0]
-  assign store_credit_token = customer.id | append: '|' | append: store_credit_ts | hmac_sha256: store_credit_secret
+  assign store_credit_company_location_gid = ''
+  if customer and customer.b2b? and customer.current_location
+    assign store_credit_company_location_gid = 'gid://shopify/CompanyLocation/' | append: customer.current_location.id
+  elsif customer and customer.company_contact.company.locations.first.id
+    assign store_credit_company_location_gid = 'gid://shopify/CompanyLocation/' | append: customer.company_contact.company.locations.first.id
+  endif
+  assign store_credit_token_payload = customer.id | append: '|' | append: store_credit_ts
+  if store_credit_company_location_gid != blank
+    assign store_credit_token_payload = store_credit_token_payload | append: '|' | append: store_credit_company_location_gid
+  endif
+  assign store_credit_token = store_credit_token_payload | hmac_sha256: store_credit_secret
 %}
 
 <div class="section section--{% if section.settings.layout == 'full_width' %}full-width{% else %}page-width{% endif %}">
@@ -293,6 +303,7 @@
           data-cap-percent="{{ section.settings.store_credit_cap_percent }}"
           data-cart-total-cents="{{ cart.total_price }}"
           data-customer-id="{{ customer.id | default: '' }}"
+          data-company-location-id="{{ store_credit_company_location_gid }}"
           data-auth-ts="{{ store_credit_ts }}"
           data-auth-token="{{ store_credit_token }}"
           data-shop-domain="{{ shop.permanent_domain }}"
@@ -1464,6 +1475,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       const payload = {
         shop: root.dataset.shopDomain || Shopify.shop,
         customer_id: root.dataset.customerId || '',
+        company_location_id: root.dataset.companyLocationId || '',
         ts: Number(root.dataset.authTs || 0),
         token: root.dataset.authToken || '',
         amount: Number((quote.maxRedeemCents / 100).toFixed(2)),
@@ -1507,6 +1519,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         mode: state.shopifyTransactionId ? 'shopify_store_credit' : 'mock',
         reservation_id: state.reservationId,
         customer_id: root.dataset.customerId || '',
+        company_location_id: root.dataset.companyLocationId || '',
         available_amount: (quote.availableCents / 100).toFixed(2),
         reserved_amount: (state.reservedCents / 100).toFixed(2),
         cart_total: (quote.cartTotalCents / 100).toFixed(2),
@@ -1521,6 +1534,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         _store_credit_status: 'reserved',
         _store_credit_reservation_id: payload.reservation_id,
         _store_credit_customer_id: payload.customer_id,
+        _store_credit_company_location_id: payload.company_location_id,
         _store_credit_available: payload.available_amount,
         _store_credit_reserved: payload.reserved_amount,
         _store_credit_cart_total: payload.cart_total,
