@@ -426,6 +426,11 @@
         "low_stock_threshold": 30,
         "checkout_url": "",
         "checkout_label": "Proceed to checkout",
+        "store_credit_test_enabled": true,
+        "store_credit_label": "Store credit",
+        "store_credit_test_balance": 500,
+        "store_credit_cap_percent": 50,
+        "store_credit_api_url": "https://valor-middleplatform-dev.azurewebsites.net/api/store-credit/reserve",
         "next_steps_label": "At checkout you'll choose:"
       }
     },
