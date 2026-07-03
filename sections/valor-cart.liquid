@@ -1416,7 +1416,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         root.classList.remove('is-applied');
         if (applyBtn) applyBtn.textContent = 'Apply store credit';
         if (statusEl) {
-          statusEl.textContent = 'This will write test reservation attributes before checkout.';
+          statusEl.textContent = state?.errorMessage || 'This will write test reservation attributes before checkout.';
         }
       }
 
@@ -1436,6 +1436,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         if (!quote || quote.maxRedeemCents <= 0) return;
 
         this._storeCreditState.applied = true;
+        this._storeCreditState.errorMessage = '';
         this._storeCreditState.reservedCents = quote.maxRedeemCents;
         if (!this._storeCreditState.reservationId) {
           this._storeCreditState.reservationId = this._newStoreCreditReservationId();
@@ -1464,8 +1465,9 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         this._storeCreditState.shopifyTransactionId = '';
         this._storeCreditState.shopifyAccountId = '';
         this._storeCreditState.shopifyBalance = '';
+        this._storeCreditState.errorMessage = err?.message || 'Store credit test reservation failed. Please try again.';
         const statusEl = root.querySelector('[data-vc-sc-status]');
-        if (statusEl) statusEl.textContent = err?.message || 'Store credit test reservation failed. Please try again.';
+        if (statusEl) statusEl.textContent = this._storeCreditState.errorMessage;
       } finally {
         this._refreshStoreCreditDisplay();
       }
@@ -1960,7 +1962,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
           const name = saveInput.value.trim();
           if (!name) { saveErr.textContent = 'Please enter a name.'; saveErr.hidden = false; return; }
           saveConfirm.disabled = true;
-          saveConfirm.textContent = 'Saving…';
+          saveConfirm.textContent = 'Saving...';
           saveErr.hidden = true;
           try {
             const cart = await fetch('/cart.js').then((r) => r.json());
