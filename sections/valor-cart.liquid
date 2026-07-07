@@ -1362,7 +1362,13 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
 
       this._refreshStoreCreditDisplay();
       if (root.dataset.apiUrl) {
-        this._refreshStoreCreditApiQuote().catch((err) => {
+        const initPromise = (async () => {
+          const cart = await fetch('/cart.js').then((r) => r.json()).catch(() => null);
+          await this._releasePersistedStoreCreditReservation(cart, 'cart_reopened');
+          await this._refreshStoreCreditApiQuote(cart);
+        })();
+        this._storeCreditInitPromise = initPromise;
+        initPromise.catch((err) => {
           this._storeCreditState.errorMessage = err?.message || 'Store credit balance is unavailable.';
           this._refreshStoreCreditDisplay();
         });
@@ -1399,6 +1405,16 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       return cleanUrl + '/quote';
     }
 
+    _storeCreditReleaseApiUrl(root) {
+      const apiUrl = (root?.dataset?.apiUrl || '').trim();
+      if (!apiUrl) return '';
+      const cleanUrl = apiUrl.replace(/\/+$/, '');
+      if (/\/release$/i.test(cleanUrl)) return cleanUrl;
+      if (/\/reserve$/i.test(cleanUrl)) return cleanUrl.replace(/\/reserve$/i, '/release');
+      if (/\/quote$/i.test(cleanUrl)) return cleanUrl.replace(/\/quote$/i, '/release');
+      return cleanUrl + '/release';
+    }
+
     _extractStoreCreditCustomerNo(data) {
       if (!data) return '';
       return String(
@@ -1419,6 +1435,111 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       if (value === undefined || value === null || value === '') return 0;
       const amount = Number(value);
       return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+    }
+
+    _storeCreditAttributeClearPayload() {
+      return {
+        _store_credit_mode: '',
+        _store_credit_status: '',
+        _store_credit_reservation_id: '',
+        _store_credit_customer_id: '',
+        _store_credit_customer_no: '',
+        _store_credit_company_location_id: '',
+        _store_credit_available: '',
+        _store_credit_reserved: '',
+        _store_credit_cart_total: '',
+        _store_credit_cap_percent: '',
+        _store_credit_period: '',
+        _store_credit_shopify_transaction_id: '',
+        _store_credit_shopify_account_id: '',
+        _store_credit_shopify_balance_after: '',
+        _store_credit_shopify_status: '',
+        _store_credit_payload: '',
+      };
+    }
+
+    async _clearStoreCreditCartAttributes() {
+      await fetch('/cart/update.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attributes: this._storeCreditAttributeClearPayload() }),
+      });
+    }
+
+    async _releaseStoreCreditReservation(reservationId, customerNo, cart, reason) {
+      const root = this._storeCreditRoot;
+      const releaseUrl = this._storeCreditReleaseApiUrl(root);
+      if (!root || !releaseUrl || !reservationId) return null;
+
+      const payload = {
+        shop: root.dataset.shopDomain || Shopify.shop,
+        customer_id: root.dataset.customerId || '',
+        customer_no: customerNo || this._storeCreditState?.customerNo || root.dataset.customerNo || '',
+        company_location_id: root.dataset.companyLocationId || '',
+        ts: Number(root.dataset.authTs || 0),
+        token: root.dataset.authToken || '',
+        reservation_id: reservationId,
+        currency: cart?.currency || 'USD',
+        reason: reason || 'cart_reopened',
+      };
+
+      const response = await fetch(releaseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || 'Store credit release API failed.');
+      }
+      return data.data || {};
+    }
+
+    async _releasePersistedStoreCreditReservation(cart, reason) {
+      const attrs = cart?.attributes || {};
+      const reservationId = String(attrs._store_credit_reservation_id || '').trim();
+      if (!reservationId) return null;
+
+      const customerData = await (window.__vaCustomerInfo || Promise.resolve(null));
+      const customerNo = String(attrs._store_credit_customer_no || this._extractStoreCreditCustomerNo(customerData) || '').trim();
+      const result = await this._releaseStoreCreditReservation(reservationId, customerNo, cart, reason);
+      await this._clearStoreCreditCartAttributes();
+
+      const state = this._storeCreditState;
+      if (state) {
+        state.applied = false;
+        state.reservedCents = 0;
+        state.reservationId = '';
+        state.shopifyTransactionId = '';
+        state.shopifyAccountId = '';
+        state.shopifyBalance = '';
+        state.shopifyStatus = '';
+      }
+      return result;
+    }
+
+    async _releaseActiveStoreCreditReservation(reason) {
+      const state = this._storeCreditState;
+      if (!state?.reservationId) return null;
+
+      const cart = await fetch('/cart.js').then((r) => r.json()).catch(() => null);
+      const result = await this._releaseStoreCreditReservation(
+        state.reservationId,
+        state.customerNo || this._storeCreditRoot?.dataset?.customerNo || '',
+        cart,
+        reason || 'cart_changed'
+      );
+      await this._clearStoreCreditCartAttributes();
+
+      state.applied = false;
+      state.reservedCents = 0;
+      state.reservationId = '';
+      state.shopifyTransactionId = '';
+      state.shopifyAccountId = '';
+      state.shopifyBalance = '';
+      state.shopifyStatus = '';
+      this._refreshStoreCreditDisplay(cart);
+      return result;
     }
 
     async _refreshStoreCreditApiQuote(cart) {
@@ -1545,6 +1666,12 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       btn.textContent = 'Applying...';
 
       try {
+        if (this._storeCreditInitPromise) {
+          await this._storeCreditInitPromise;
+        }
+        if (this._storeCreditState?.applied && this._storeCreditState?.reservationId) {
+          await this._releaseActiveStoreCreditReservation('reapply_store_credit');
+        }
         const cart = await fetch('/cart.js').then((r) => r.json());
         if (root.dataset.apiUrl) {
           await this._refreshStoreCreditApiQuote(cart);
@@ -1716,12 +1843,14 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       }
     }
 
-    _updateLineAjax(lineEl, qty, remove) {
+    async _updateLineAjax(lineEl, qty, remove) {
       const key = lineEl.getAttribute('data-key');
       if (!key) return;
 
       lineEl.style.opacity = '0.5';
       lineEl.style.pointerEvents = 'none';
+
+      await this._releaseActiveStoreCreditReservation('cart_changed').catch(() => {});
 
       fetch('/cart/change.js', {
         method: 'POST',
@@ -1775,7 +1904,9 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         });
     }
 
-    _clearCart() {
+    async _clearCart() {
+      await this._releaseActiveStoreCreditReservation('cart_cleared').catch(() => {});
+
       const items = {};
       this.querySelectorAll('[data-vc-line]').forEach((el) => {
         const key = el.getAttribute('data-key');
@@ -1814,6 +1945,12 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       if (grandTotal) grandTotal.textContent = this._money(total / 100);
 
       this._refreshStoreCreditDisplay(cart);
+      if (this._storeCreditRoot?.dataset?.apiUrl && !this._storeCreditState?.applied && !this._storeCreditState?.isLoadingQuote) {
+        this._refreshStoreCreditApiQuote(cart).catch((err) => {
+          this._storeCreditState.errorMessage = err?.message || 'Store credit balance is unavailable.';
+          this._refreshStoreCreditDisplay(cart);
+        });
+      }
 
       // Freight bar
       const freightBox = this.querySelector('[data-vc-freight]');
