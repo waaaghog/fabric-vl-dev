@@ -1447,6 +1447,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
           this._storeCreditState.shopifyTransactionId = apiResult.transactionId || '';
           this._storeCreditState.shopifyAccountId = apiResult.accountId || '';
           this._storeCreditState.shopifyBalance = apiResult.balanceAfterTransaction || '';
+          this._storeCreditState.shopifyStatus = apiResult.status || '';
         }
 
         this._refreshStoreCreditDisplay(cart);
@@ -1518,7 +1519,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       }
 
       const payload = {
-        mode: state.shopifyTransactionId ? 'shopify_store_credit' : 'mock',
+        mode: (state.shopifyTransactionId || state.shopifyAccountId) ? 'shopify_store_credit' : 'mock',
         reservation_id: state.reservationId,
         customer_id: root.dataset.customerId || '',
         company_location_id: root.dataset.companyLocationId || '',
@@ -1529,6 +1530,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         shopify_transaction_id: state.shopifyTransactionId || '',
         shopify_account_id: state.shopifyAccountId || '',
         shopify_balance_after: state.shopifyBalance || '',
+        shopify_store_credit_status: state.shopifyStatus || '',
       };
 
       return {
@@ -1544,6 +1546,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         _store_credit_shopify_transaction_id: payload.shopify_transaction_id,
         _store_credit_shopify_account_id: payload.shopify_account_id,
         _store_credit_shopify_balance_after: payload.shopify_balance_after,
+        _store_credit_shopify_status: payload.shopify_store_credit_status,
         _store_credit_payload: JSON.stringify(payload),
       };
     }
