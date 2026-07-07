@@ -1351,12 +1351,22 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       this._storeCreditRoot = root;
       this._storeCreditState = {
         applied: false,
-        availableCents: parseInt(root.dataset.testBalanceCents || '0', 10) || 0,
+        availableCents: root.dataset.apiUrl ? 0 : (parseInt(root.dataset.testBalanceCents || '0', 10) || 0),
         reservedCents: 0,
         reservationId: '',
+        customerNo: '',
+        apiQuote: null,
+        apiMaxRedeemCents: 0,
+        isLoadingQuote: !!root.dataset.apiUrl,
       };
 
       this._refreshStoreCreditDisplay();
+      if (root.dataset.apiUrl) {
+        this._refreshStoreCreditApiQuote().catch((err) => {
+          this._storeCreditState.errorMessage = err?.message || 'Store credit balance is unavailable.';
+          this._refreshStoreCreditDisplay();
+        });
+      }
     }
 
     _currentStoreCreditQuote(cart) {
@@ -1364,7 +1374,9 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       if (!root) return null;
 
       const state = this._storeCreditState || {};
-      const availableCents = parseInt(String(state.availableCents || root.dataset.testBalanceCents || 0), 10) || 0;
+      const stateHasAvailable = state.availableCents !== undefined && state.availableCents !== null;
+      const fallbackAvailable = root.dataset.apiUrl ? 0 : (parseInt(root.dataset.testBalanceCents || '0', 10) || 0);
+      const availableCents = stateHasAvailable ? (parseInt(String(state.availableCents), 10) || 0) : fallbackAvailable;
       const cartTotalCents = cart?.total_price ?? parseInt(root.dataset.cartTotalCents || '0', 10) ?? 0;
       const capPercent = parseFloat(root.dataset.capPercent || '50') || 50;
       const maxByCartCents = Math.floor(cartTotalCents * capPercent / 100);
@@ -1376,6 +1388,102 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         capPercent,
         maxRedeemCents,
       };
+    }
+
+    _storeCreditQuoteApiUrl(root) {
+      const apiUrl = (root?.dataset?.apiUrl || '').trim();
+      if (!apiUrl) return '';
+      const cleanUrl = apiUrl.replace(/\/+$/, '');
+      if (/\/quote$/i.test(cleanUrl)) return cleanUrl;
+      if (/\/reserve$/i.test(cleanUrl)) return cleanUrl.replace(/\/reserve$/i, '/quote');
+      return cleanUrl + '/quote';
+    }
+
+    _extractStoreCreditCustomerNo(data) {
+      if (!data) return '';
+      return String(
+        data.CustomerNo ||
+        data.customerNo ||
+        data.customer_no ||
+        data.No ||
+        data.no ||
+        data.defaultShipTo?.customerNo ||
+        data.defaultShipTo?.CustomerNo ||
+        data.defaultShipTo?.No ||
+        data.defaultShipTo?.no ||
+        ''
+      ).trim();
+    }
+
+    _amountToCents(value) {
+      if (value === undefined || value === null || value === '') return 0;
+      const amount = Number(value);
+      return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+    }
+
+    async _refreshStoreCreditApiQuote(cart) {
+      const root = this._storeCreditRoot;
+      const state = this._storeCreditState;
+      const quoteUrl = this._storeCreditQuoteApiUrl(root);
+      if (!root || !state || !quoteUrl) return this._currentStoreCreditQuote(cart);
+
+      state.isLoadingQuote = true;
+      state.errorMessage = '';
+      this._refreshStoreCreditDisplay(cart);
+
+      try {
+        const [customerData, cartData] = await Promise.all([
+          window.__vaCustomerInfo || Promise.resolve(null),
+          cart ? Promise.resolve(cart) : fetch('/cart.js').then((r) => r.json()),
+        ]);
+        const customerNo = this._extractStoreCreditCustomerNo(customerData);
+        state.customerNo = customerNo;
+        root.dataset.customerNo = customerNo;
+        if (!customerNo) throw new Error('Customer # is required for store credit.');
+
+        const cartTotalCents = cartData?.total_price ?? parseInt(root.dataset.cartTotalCents || '0', 10) ?? 0;
+        const payload = {
+          shop: root.dataset.shopDomain || Shopify.shop,
+          customer_id: root.dataset.customerId || '',
+          customer_no: customerNo,
+          company_location_id: root.dataset.companyLocationId || '',
+          ts: Number(root.dataset.authTs || 0),
+          token: root.dataset.authToken || '',
+          currency: cartData?.currency || 'USD',
+          cart_total: Number((cartTotalCents / 100).toFixed(2)),
+          cap_percent: parseFloat(root.dataset.capPercent || '50') || 50,
+        };
+
+        const response = await fetch(quoteUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.ok === false) {
+          throw new Error(data.error || 'Store credit quote API failed.');
+        }
+
+        const quote = data.data || {};
+        state.apiQuote = quote;
+        state.availableCents = Number.isFinite(Number(quote.availableCents))
+          ? Number(quote.availableCents)
+          : this._amountToCents(quote.available);
+        state.apiMaxRedeemCents = Number.isFinite(Number(quote.maxRedeemCents))
+          ? Number(quote.maxRedeemCents)
+          : this._amountToCents(quote.maxRedeem);
+        state.period = quote.period || '';
+        root.dataset.cartTotalCents = String(cartTotalCents);
+        return this._currentStoreCreditQuote(cartData);
+      } catch (err) {
+        state.errorMessage = err?.message || 'Store credit balance is unavailable.';
+        state.availableCents = 0;
+        state.apiMaxRedeemCents = 0;
+        throw err;
+      } finally {
+        state.isLoadingQuote = false;
+        this._refreshStoreCreditDisplay(cart);
+      }
     }
 
     _refreshStoreCreditDisplay(cart) {
@@ -1395,32 +1503,38 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       if (availableEl) availableEl.textContent = this._money(quote.availableCents / 100);
       if (maxEl) maxEl.textContent = this._money(quote.maxRedeemCents / 100);
       if (modeEl) {
-        modeEl.textContent = root.dataset.apiUrl ? 'Creates Shopify native Store Credit before checkout' : 'Test balance from mock API';
+        modeEl.textContent = root.dataset.apiUrl ? 'Valor ledger balance' : 'Test balance from mock API';
       }
 
       const state = this._storeCreditState;
       if (state?.applied) {
-        state.reservedCents = quote.maxRedeemCents;
+        const reservedCents = parseInt(String(state.reservedCents || quote.maxRedeemCents || 0), 10) || 0;
         root.classList.add('is-applied');
-        if (applyBtn) applyBtn.textContent = quote.maxRedeemCents > 0 ? 'Store credit applied' : 'No credit available';
+        if (applyBtn) applyBtn.textContent = reservedCents > 0 ? 'Store credit applied' : 'No credit available';
         if (statusEl) {
-          if (quote.maxRedeemCents <= 0) {
+          if (reservedCents <= 0) {
             statusEl.textContent = 'Reservation cleared because this cart has no eligible amount.';
+          } else if (state.shopifyStatus === 'skipped_existing_credit') {
+            statusEl.textContent = 'Existing Shopify Store Credit will be used at checkout: ' + this._money(reservedCents / 100) + '.';
           } else if (state.shopifyTransactionId) {
-            statusEl.textContent = 'Shopify Store Credit created: ' + this._money(quote.maxRedeemCents / 100) + '.';
+            statusEl.textContent = 'Shopify Store Credit created: ' + this._money(reservedCents / 100) + '.';
+          } else if (state.shopifyStatus === 'skipped_existing_reservation') {
+            statusEl.textContent = 'Store credit reservation already exists: ' + this._money(reservedCents / 100) + '.';
           } else {
-            statusEl.textContent = 'Reserved ' + this._money(quote.maxRedeemCents / 100) + ' for this checkout test.';
+            statusEl.textContent = 'Reserved ' + this._money(reservedCents / 100) + ' for this checkout test.';
           }
         }
       } else {
         root.classList.remove('is-applied');
-        if (applyBtn) applyBtn.textContent = 'Apply store credit';
+        if (applyBtn) applyBtn.textContent = state?.isLoadingQuote ? 'Checking...' : 'Apply store credit';
         if (statusEl) {
-          statusEl.textContent = state?.errorMessage || 'This will write test reservation attributes before checkout.';
+          statusEl.textContent = state?.isLoadingQuote
+            ? 'Checking store credit balance...'
+            : (state?.errorMessage || 'This will write test reservation attributes before checkout.');
         }
       }
 
-      if (applyBtn) applyBtn.disabled = quote.maxRedeemCents <= 0;
+      if (applyBtn) applyBtn.disabled = !!state?.isLoadingQuote || quote.maxRedeemCents <= 0;
     }
 
     async _applyStoreCreditReservation(btn) {
@@ -1432,6 +1546,9 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
 
       try {
         const cart = await fetch('/cart.js').then((r) => r.json());
+        if (root.dataset.apiUrl) {
+          await this._refreshStoreCreditApiQuote(cart);
+        }
         const quote = this._currentStoreCreditQuote(cart);
         if (!quote || quote.maxRedeemCents <= 0) return;
 
@@ -1448,6 +1565,12 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
           this._storeCreditState.shopifyAccountId = apiResult.accountId || '';
           this._storeCreditState.shopifyBalance = apiResult.balanceAfterTransaction || '';
           this._storeCreditState.shopifyStatus = apiResult.status || '';
+          this._storeCreditState.customerNo = apiResult.customerNo || this._storeCreditState.customerNo || '';
+          this._storeCreditState.period = apiResult.period || this._storeCreditState.period || '';
+          const apiReservedCents = this._amountToCents(apiResult.amount);
+          if (apiReservedCents > 0) {
+            this._storeCreditState.reservedCents = apiReservedCents;
+          }
         }
 
         this._refreshStoreCreditDisplay(cart);
@@ -1466,6 +1589,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         this._storeCreditState.shopifyTransactionId = '';
         this._storeCreditState.shopifyAccountId = '';
         this._storeCreditState.shopifyBalance = '';
+        this._storeCreditState.shopifyStatus = '';
         this._storeCreditState.errorMessage = err?.message || 'Store credit test reservation failed. Please try again.';
         const statusEl = root.querySelector('[data-vc-sc-status]');
         if (statusEl) statusEl.textContent = this._storeCreditState.errorMessage;
@@ -1478,6 +1602,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       const payload = {
         shop: root.dataset.shopDomain || Shopify.shop,
         customer_id: root.dataset.customerId || '',
+        customer_no: this._storeCreditState.customerNo || root.dataset.customerNo || '',
         company_location_id: root.dataset.companyLocationId || '',
         ts: Number(root.dataset.authTs || 0),
         token: root.dataset.authToken || '',
@@ -1513,7 +1638,9 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       const quote = this._currentStoreCreditQuote(cart);
       if (!quote || quote.maxRedeemCents <= 0) return {};
 
-      state.reservedCents = quote.maxRedeemCents;
+      const reservedCents = parseInt(String(state.reservedCents || quote.maxRedeemCents || 0), 10) || 0;
+      if (reservedCents <= 0) return {};
+      state.reservedCents = reservedCents;
       if (!state.reservationId) {
         state.reservationId = this._newStoreCreditReservationId();
       }
@@ -1522,11 +1649,13 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         mode: (state.shopifyTransactionId || state.shopifyAccountId) ? 'shopify_store_credit' : 'mock',
         reservation_id: state.reservationId,
         customer_id: root.dataset.customerId || '',
+        customer_no: state.customerNo || root.dataset.customerNo || '',
         company_location_id: root.dataset.companyLocationId || '',
         available_amount: (quote.availableCents / 100).toFixed(2),
-        reserved_amount: (state.reservedCents / 100).toFixed(2),
+        reserved_amount: (reservedCents / 100).toFixed(2),
         cart_total: (quote.cartTotalCents / 100).toFixed(2),
         cap_percent: quote.capPercent,
+        period: state.period || state.apiQuote?.period || '',
         shopify_transaction_id: state.shopifyTransactionId || '',
         shopify_account_id: state.shopifyAccountId || '',
         shopify_balance_after: state.shopifyBalance || '',
@@ -1538,11 +1667,13 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         _store_credit_status: 'reserved',
         _store_credit_reservation_id: payload.reservation_id,
         _store_credit_customer_id: payload.customer_id,
+        _store_credit_customer_no: payload.customer_no,
         _store_credit_company_location_id: payload.company_location_id,
         _store_credit_available: payload.available_amount,
         _store_credit_reserved: payload.reserved_amount,
         _store_credit_cart_total: payload.cart_total,
         _store_credit_cap_percent: String(payload.cap_percent),
+        _store_credit_period: payload.period,
         _store_credit_shopify_transaction_id: payload.shopify_transaction_id,
         _store_credit_shopify_account_id: payload.shopify_account_id,
         _store_credit_shopify_balance_after: payload.shopify_balance_after,
