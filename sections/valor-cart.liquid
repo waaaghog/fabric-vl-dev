@@ -314,7 +314,7 @@
               <div class="vc-section-title">{{ section.settings.store_credit_label | default: 'Store credit' }}</div>
               <div class="vc-store-credit__sub" data-vc-sc-mode>Test balance from mock API</div>
             </div>
-            <span class="vc-store-credit__badge">Test</span>
+            <span class="vc-store-credit__badge">Account</span>
           </div>
           <div class="vc-store-credit__rows">
             <div class="vc-total-row">
@@ -326,11 +326,8 @@
               <span class="vc-total-val" data-vc-sc-max>$0.00</span>
             </div>
           </div>
-          <button type="button" class="vc-store-credit__btn" data-vc-sc-apply>
-            Apply store credit
-          </button>
           <div class="vc-store-credit__status" data-vc-sc-status>
-            This will write test reservation attributes before checkout.
+            Store credit is prepared automatically when you proceed to checkout.
           </div>
         </div>
       {%- endif -%}
@@ -1246,12 +1243,6 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         this._clearCart();
       });
 
-      this.addEventListener('click', async (e) => {
-        const btn = e.target.closest('[data-vc-sc-apply]');
-        if (!btn) return;
-        await this._applyStoreCreditReservation(btn);
-      });
-
       // Single-address checkout — write a single-entry _order so order processing
       // has the BC customer info even without the distribution component.
       const checkoutLinkEl = this.querySelector('#vc-checkout-link');
@@ -1260,6 +1251,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
           e.preventDefault();
           const href = checkoutLinkEl.href;
           checkoutLinkEl.dataset.loading = '';
+          let blockCheckout = false;
           try {
             const [customerData, cartRes] = await Promise.all([
               window.__vaCustomerInfo,
@@ -1269,7 +1261,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
             const cart  = cartRes.ok ? await cartRes.json() : null;
             const erpNo = customerData?.No || customerData?.no || '';
             if (!erpNo) {
-              const storeCreditAttrs = await this._storeCreditCheckoutAttributes(cart);
+              const storeCreditAttrs = await this._prepareStoreCreditForCheckout(cart);
               if (Object.keys(storeCreditAttrs).length) {
                 await fetch('/cart/update.js', {
                   method: 'POST',
@@ -1315,14 +1307,24 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
               _lineitems: '',
             };
 
-            Object.assign(attrs, await this._storeCreditCheckoutAttributes(cart));
+            Object.assign(attrs, await this._prepareStoreCreditForCheckout(cart));
 
             await fetch('/cart/update.js', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ attributes: attrs }),
             });
-          } catch (_) {}
+          } catch (err) {
+            if (err?.storeCreditCheckoutBlock) {
+              blockCheckout = true;
+              const statusEl = this._storeCreditRoot?.querySelector('[data-vc-sc-status]');
+              if (statusEl) statusEl.textContent = err.message || 'Store credit could not be prepared. Please try again.';
+            }
+          }
+          if (blockCheckout) {
+            delete checkoutLinkEl.dataset.loading;
+            return;
+          }
           window.location.href = href;
         });
       }
@@ -1618,7 +1620,6 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       const availableEl = root.querySelector('[data-vc-sc-available]');
       const maxEl = root.querySelector('[data-vc-sc-max]');
       const statusEl = root.querySelector('[data-vc-sc-status]');
-      const applyBtn = root.querySelector('[data-vc-sc-apply]');
       const modeEl = root.querySelector('[data-vc-sc-mode]');
 
       if (availableEl) availableEl.textContent = this._money(quote.availableCents / 100);
@@ -1628,63 +1629,65 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
       }
 
       const state = this._storeCreditState;
-      if (state?.applied) {
+      if (state?.isPreparingCheckout) {
+        root.classList.remove('is-applied');
+        if (statusEl) statusEl.textContent = 'Preparing store credit for checkout...';
+      } else if (state?.applied) {
         const reservedCents = parseInt(String(state.reservedCents || quote.maxRedeemCents || 0), 10) || 0;
         root.classList.add('is-applied');
-        if (applyBtn) applyBtn.textContent = reservedCents > 0 ? 'Store credit applied' : 'No credit available';
         if (statusEl) {
           if (reservedCents <= 0) {
             statusEl.textContent = 'Reservation cleared because this cart has no eligible amount.';
-          } else if (state.shopifyStatus === 'skipped_existing_credit') {
-            statusEl.textContent = 'Existing Shopify Store Credit will be used at checkout: ' + this._money(reservedCents / 100) + '.';
           } else if (state.shopifyTransactionId) {
-            statusEl.textContent = 'Shopify Store Credit created: ' + this._money(reservedCents / 100) + '.';
+            statusEl.textContent = 'Store credit prepared for checkout: ' + this._money(reservedCents / 100) + '.';
           } else if (state.shopifyStatus === 'skipped_existing_reservation') {
             statusEl.textContent = 'Store credit reservation already exists: ' + this._money(reservedCents / 100) + '.';
           } else {
-            statusEl.textContent = 'Reserved ' + this._money(reservedCents / 100) + ' for this checkout test.';
+            statusEl.textContent = 'Store credit prepared for checkout: ' + this._money(reservedCents / 100) + '.';
           }
         }
       } else {
         root.classList.remove('is-applied');
-        if (applyBtn) applyBtn.textContent = state?.isLoadingQuote ? 'Checking...' : 'Apply store credit';
         if (statusEl) {
           statusEl.textContent = state?.isLoadingQuote
             ? 'Checking store credit balance...'
-            : (state?.errorMessage || 'This will write test reservation attributes before checkout.');
+            : (state?.errorMessage || 'Store credit is prepared automatically when you proceed to checkout.');
         }
       }
-
-      if (applyBtn) applyBtn.disabled = !!state?.isLoadingQuote || quote.maxRedeemCents <= 0;
     }
 
-    async _applyStoreCreditReservation(btn) {
+    async _prepareStoreCreditForCheckout(cart) {
       const root = this._storeCreditRoot;
-      if (!root) return;
-
-      btn.disabled = true;
-      btn.textContent = 'Applying...';
+      if (!root) return {};
 
       try {
+        this._storeCreditState.isPreparingCheckout = true;
+        this._refreshStoreCreditDisplay(cart);
+
         if (this._storeCreditInitPromise) {
           await this._storeCreditInitPromise;
         }
-        if (this._storeCreditState?.applied && this._storeCreditState?.reservationId) {
-          await this._releaseActiveStoreCreditReservation('reapply_store_credit');
+        if (this._storeCreditState?.reservationId) {
+          await this._releaseActiveStoreCreditReservation('checkout_reprepare_store_credit');
         }
-        const cart = await fetch('/cart.js').then((r) => r.json());
+        if (!cart) {
+          cart = await fetch('/cart.js').then((r) => r.json()).catch(() => null);
+        }
         if (root.dataset.apiUrl) {
           await this._refreshStoreCreditApiQuote(cart);
         }
         const quote = this._currentStoreCreditQuote(cart);
-        if (!quote || quote.maxRedeemCents <= 0) return;
+        if (!quote || quote.maxRedeemCents <= 0) {
+          this._storeCreditState.applied = false;
+          this._storeCreditState.reservedCents = 0;
+          this._storeCreditState.errorMessage = '';
+          return {};
+        }
 
         this._storeCreditState.applied = true;
         this._storeCreditState.errorMessage = '';
         this._storeCreditState.reservedCents = quote.maxRedeemCents;
-        if (!this._storeCreditState.reservationId) {
-          this._storeCreditState.reservationId = this._newStoreCreditReservationId();
-        }
+        this._storeCreditState.reservationId = this._newStoreCreditReservationId();
 
         if (root.dataset.apiUrl) {
           const apiResult = await this._createShopifyStoreCredit(root, cart, quote);
@@ -1702,14 +1705,7 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
 
         this._refreshStoreCreditDisplay(cart);
 
-        const attrs = await this._storeCreditCheckoutAttributes(cart);
-        if (Object.keys(attrs).length) {
-          await fetch('/cart/update.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ attributes: attrs }),
-          });
-        }
+        return this._storeCreditCheckoutAttributes(cart);
       } catch (err) {
         this._storeCreditState.applied = false;
         this._storeCreditState.reservedCents = 0;
@@ -1720,8 +1716,12 @@ valor-cart-page .vc-trust-item svg { color: var(--vc-steel); flex-shrink: 0; }
         this._storeCreditState.errorMessage = err?.message || 'Store credit test reservation failed. Please try again.';
         const statusEl = root.querySelector('[data-vc-sc-status]');
         if (statusEl) statusEl.textContent = this._storeCreditState.errorMessage;
+        const blockingError = new Error(this._storeCreditState.errorMessage);
+        blockingError.storeCreditCheckoutBlock = true;
+        throw blockingError;
       } finally {
-        this._refreshStoreCreditDisplay();
+        this._storeCreditState.isPreparingCheckout = false;
+        this._refreshStoreCreditDisplay(cart);
       }
     }
 
