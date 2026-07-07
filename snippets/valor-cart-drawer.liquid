@@ -10,6 +10,19 @@
 
 {%- liquid
   assign free_shipping_cents = settings.free_shipping_minimum_amount | times: 100
+  assign store_credit_ts = 'now' | date: '%s'
+  assign store_credit_secret = shop.metafields.valor.connect.value[0]
+  assign store_credit_company_location_gid = ''
+  if customer and customer.b2b? and customer.current_location
+    assign store_credit_company_location_gid = 'gid://shopify/CompanyLocation/' | append: customer.current_location.id
+  elsif customer and customer.b2b? and customer.company_contact and customer.company_contact.company and customer.company_contact.company.locations.size > 0
+    assign store_credit_company_location_gid = 'gid://shopify/CompanyLocation/' | append: customer.company_contact.company.locations.first.id
+  endif
+  assign store_credit_token_payload = customer.id | append: '|' | append: store_credit_ts
+  if store_credit_company_location_gid != blank
+    assign store_credit_token_payload = store_credit_token_payload | append: '|' | append: store_credit_company_location_gid
+  endif
+  assign store_credit_token = store_credit_token_payload | hmac_sha256: store_credit_secret
   if free_shipping_cents > 0
     if cart.total_price >= free_shipping_cents
       assign shipping_reached = true
@@ -29,6 +42,13 @@
   class="vcd-host{% if display_style == 'text' %} vcd-host--text{% endif %}"
   data-free-shipping-cents="{{ free_shipping_cents }}"
   data-low-stock="{{ settings.low_stock_threshold | default: 300 }}"
+  data-store-credit-api-url="https://valor-middleplatform-dev.azurewebsites.net/api/store-credit/reserve"
+  data-store-credit-cap-percent="50"
+  data-store-credit-customer-id="{{ customer.id | default: '' }}"
+  data-store-credit-company-location-id="{{ store_credit_company_location_gid }}"
+  data-store-credit-auth-ts="{{ store_credit_ts }}"
+  data-store-credit-auth-token="{{ store_credit_token }}"
+  data-store-credit-shop-domain="{{ shop.permanent_domain }}"
 >
   {%- comment -%} Panel {%- endcomment -%}
   <div
@@ -876,6 +896,7 @@ body.vcd-scroll-locked { overflow: hidden; }
           e.preventDefault();
           const href = checkoutBtn.href;
           checkoutBtn.dataset.loading = '';
+          let blockCheckout = false;
           try {
             const [customerData, cartRes] = await Promise.all([
               window.__vaCustomerInfo,
@@ -884,7 +905,18 @@ body.vcd-scroll-locked { overflow: hidden; }
             const shipTo = customerData?.defaultShipTo || null;
             const cart  = cartRes.ok ? await cartRes.json() : null;
             const erpNo = customerData?.No || customerData?.no || '';
-            if (!erpNo) { window.location.href = href; return; }
+            if (!erpNo) {
+              const storeCreditAttrs = await this._prepareStoreCreditForCheckout(cart, customerData);
+              if (Object.keys(storeCreditAttrs).length) {
+                await fetch('/cart/update.js', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ attributes: storeCreditAttrs }),
+                });
+              }
+              window.location.href = href;
+              return;
+            }
 
             const items = {};
             if (cart?.items?.length) {
@@ -919,12 +951,29 @@ body.vcd-scroll-locked { overflow: hidden; }
               _lineitems: '',
             };
 
+            Object.assign(attrs, await this._prepareStoreCreditForCheckout(cart, customerData));
+
             await fetch('/cart/update.js', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ attributes: attrs }),
             });
-          } catch (_) {}
+          } catch (err) {
+            if (err?.storeCreditCheckoutBlock || /store credit/i.test(err?.message || '')) {
+              blockCheckout = true;
+              const label = checkoutBtn.querySelector('.vcd-checkout-label');
+              if (label) label.textContent = 'Store credit unavailable';
+              checkoutBtn.title = err?.message || 'Store credit could not be prepared.';
+            }
+          }
+          if (blockCheckout) {
+            delete checkoutBtn.dataset.loading;
+            setTimeout(() => {
+              const label = checkoutBtn.querySelector('.vcd-checkout-label');
+              if (label) label.textContent = 'Checkout';
+            }, 2600);
+            return;
+          }
           window.location.href = href;
         });
       }
@@ -985,6 +1034,187 @@ body.vcd-scroll-locked { overflow: hidden; }
         const itemEl = e.target.closest('[data-vcd-item]');
         if (!itemEl) return;
         this._changeQty(itemEl, 0, true);
+      });
+    }
+
+    _storeCreditApiUrl(kind) {
+      const apiUrl = (this.dataset.storeCreditApiUrl || '').trim();
+      if (!apiUrl) return '';
+      const cleanUrl = apiUrl.replace(/\/+$/, '');
+      if (new RegExp('/' + kind + '$', 'i').test(cleanUrl)) return cleanUrl;
+      if (/\/reserve$/i.test(cleanUrl)) return cleanUrl.replace(/\/reserve$/i, '/' + kind);
+      if (/\/quote$/i.test(cleanUrl)) return cleanUrl.replace(/\/quote$/i, '/' + kind);
+      if (/\/release$/i.test(cleanUrl)) return cleanUrl.replace(/\/release$/i, '/' + kind);
+      return cleanUrl + '/' + kind;
+    }
+
+    _extractStoreCreditCustomerNo(data) {
+      if (!data) return '';
+      return String(
+        data.CustomerNo ||
+        data.customerNo ||
+        data.customer_no ||
+        data.No ||
+        data.no ||
+        data.defaultShipTo?.customerNo ||
+        data.defaultShipTo?.CustomerNo ||
+        data.defaultShipTo?.No ||
+        data.defaultShipTo?.no ||
+        ''
+      ).trim();
+    }
+
+    _amountToCents(value) {
+      if (value === undefined || value === null || value === '') return 0;
+      const amount = Number(value);
+      return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+    }
+
+    _storeCreditClearAttrs() {
+      return {
+        _store_credit_mode: '',
+        _store_credit_status: '',
+        _store_credit_reservation_id: '',
+        _store_credit_customer_id: '',
+        _store_credit_customer_no: '',
+        _store_credit_company_location_id: '',
+        _store_credit_available: '',
+        _store_credit_reserved: '',
+        _store_credit_cart_total: '',
+        _store_credit_cap_percent: '',
+        _store_credit_period: '',
+        _store_credit_shopify_transaction_id: '',
+        _store_credit_shopify_account_id: '',
+        _store_credit_shopify_balance_after: '',
+        _store_credit_shopify_status: '',
+        _store_credit_payload: '',
+      };
+    }
+
+    async _releaseStoreCreditReservationFromCart(cart, customerData) {
+      const attrs = cart?.attributes || {};
+      const reservationId = String(attrs._store_credit_reservation_id || '').trim();
+      if (!reservationId) return;
+
+      const releaseUrl = this._storeCreditApiUrl('release');
+      if (!releaseUrl) return;
+
+      const customerNo = String(attrs._store_credit_customer_no || this._extractStoreCreditCustomerNo(customerData) || '').trim();
+      const response = await fetch(releaseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          shop: this.dataset.storeCreditShopDomain || Shopify.shop,
+          customer_id: this.dataset.storeCreditCustomerId || '',
+          customer_no: customerNo,
+          company_location_id: this.dataset.storeCreditCompanyLocationId || '',
+          ts: Number(this.dataset.storeCreditAuthTs || 0),
+          token: this.dataset.storeCreditAuthToken || '',
+          reservation_id: reservationId,
+          currency: cart?.currency || 'USD',
+          reason: 'drawer_checkout_reprepare',
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.ok === false) {
+        throw new Error(data.error || 'Store credit release failed.');
+      }
+    }
+
+    async _prepareStoreCreditForCheckout(cart, customerData) {
+      const reserveUrl = this._storeCreditApiUrl('reserve');
+      if (!reserveUrl || !this.dataset.storeCreditCustomerId) return {};
+
+      customerData = customerData || await (window.__vaCustomerInfo || Promise.resolve(null));
+      cart = cart || await fetch('/cart.js').then((r) => r.json()).catch(() => null);
+      await this._releaseStoreCreditReservationFromCart(cart, customerData);
+
+      const clearAttrs = this._storeCreditClearAttrs();
+      const customerNo = this._extractStoreCreditCustomerNo(customerData);
+      if (!customerNo || !cart) return clearAttrs;
+
+      const cartTotalCents = cart.total_price || 0;
+      const cartTotal = Number((cartTotalCents / 100).toFixed(2));
+      const capPercent = parseFloat(this.dataset.storeCreditCapPercent || '50') || 50;
+      const basePayload = {
+        shop: this.dataset.storeCreditShopDomain || Shopify.shop,
+        customer_id: this.dataset.storeCreditCustomerId || '',
+        customer_no: customerNo,
+        company_location_id: this.dataset.storeCreditCompanyLocationId || '',
+        ts: Number(this.dataset.storeCreditAuthTs || 0),
+        token: this.dataset.storeCreditAuthToken || '',
+        currency: cart.currency || 'USD',
+        cart_total: cartTotal,
+        cap_percent: capPercent,
+      };
+
+      const quoteResponse = await fetch(this._storeCreditApiUrl('quote'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(basePayload),
+      });
+      const quoteData = await quoteResponse.json().catch(() => ({}));
+      if (!quoteResponse.ok || quoteData.ok === false) {
+        throw new Error(quoteData.error || 'Store credit quote failed.');
+      }
+
+      const quote = quoteData.data || {};
+      const maxRedeemCents = Number.isFinite(Number(quote.maxRedeemCents))
+        ? Number(quote.maxRedeemCents)
+        : this._amountToCents(quote.maxRedeem);
+      if (maxRedeemCents <= 0) return clearAttrs;
+
+      const reservationId = 'SC-DRAWER-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const reserveResponse = await fetch(reserveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(Object.assign({}, basePayload, {
+          amount: Number((maxRedeemCents / 100).toFixed(2)),
+          expires_in_days: 30,
+          reservation_id: reservationId,
+        })),
+      });
+      const reserveData = await reserveResponse.json().catch(() => ({}));
+      if (!reserveResponse.ok || reserveData.ok === false) {
+        throw new Error(reserveData.error || 'Store credit reserve failed.');
+      }
+
+      const result = reserveData.data || {};
+      const reservedCents = this._amountToCents(result.amount) || maxRedeemCents;
+      const payload = {
+        mode: 'shopify_store_credit',
+        reservation_id: reservationId,
+        customer_id: this.dataset.storeCreditCustomerId || '',
+        customer_no: result.customerNo || customerNo,
+        company_location_id: this.dataset.storeCreditCompanyLocationId || '',
+        available_amount: ((Number.isFinite(Number(quote.availableCents)) ? Number(quote.availableCents) : this._amountToCents(quote.available)) / 100 || 0).toFixed(2),
+        reserved_amount: (reservedCents / 100).toFixed(2),
+        cart_total: cartTotal.toFixed(2),
+        cap_percent: capPercent,
+        period: result.period || quote.period || '',
+        shopify_transaction_id: result.transactionId || '',
+        shopify_account_id: result.accountId || '',
+        shopify_balance_after: result.balanceAfterTransaction || '',
+        shopify_store_credit_status: result.status || '',
+      };
+
+      return Object.assign(clearAttrs, {
+        _store_credit_mode: payload.mode,
+        _store_credit_status: 'reserved',
+        _store_credit_reservation_id: payload.reservation_id,
+        _store_credit_customer_id: payload.customer_id,
+        _store_credit_customer_no: payload.customer_no,
+        _store_credit_company_location_id: payload.company_location_id,
+        _store_credit_available: payload.available_amount,
+        _store_credit_reserved: payload.reserved_amount,
+        _store_credit_cart_total: payload.cart_total,
+        _store_credit_cap_percent: String(payload.cap_percent),
+        _store_credit_period: payload.period,
+        _store_credit_shopify_transaction_id: payload.shopify_transaction_id,
+        _store_credit_shopify_account_id: payload.shopify_account_id,
+        _store_credit_shopify_balance_after: payload.shopify_balance_after,
+        _store_credit_shopify_status: payload.shopify_store_credit_status,
+        _store_credit_payload: JSON.stringify(payload),
       });
     }
 
