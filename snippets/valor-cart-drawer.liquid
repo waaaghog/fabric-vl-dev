@@ -42,7 +42,7 @@
   class="vcd-host{% if display_style == 'text' %} vcd-host--text{% endif %}"
   data-free-shipping-cents="{{ free_shipping_cents }}"
   data-low-stock="{{ settings.low_stock_threshold | default: 300 }}"
-  data-store-credit-api-url="https://valor-middleplatform-prod.azurewebsites.net/api/store-credit/reserve"
+  data-store-credit-api-url="https://valor-middleplatform-dev.azurewebsites.net/api/store-credit/reserve"
   data-store-credit-cap-percent="50"
   data-store-credit-customer-id="{{ customer.id | default: '' }}"
   data-store-credit-company-location-id="{{ store_credit_company_location_gid }}"
