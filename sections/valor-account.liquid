@@ -804,6 +804,45 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-confirm-ok:hover { opacity: 0.85; }
 .va-confirm-ok.danger { background: #c0392b; }
 
+/* ── Customer bulk order import ───────────────────────────── */
+.va-bulk-content { padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+.va-bulk-intro { color: var(--va-steel); font-size: 13px; line-height: 1.6; max-width: 760px; }
+.va-bulk-grid { display: grid; grid-template-columns: minmax(240px, 1.3fr) minmax(220px, 1fr); gap: 14px; }
+.va-bulk-field { display: flex; flex-direction: column; gap: 7px; font-size: 12px; font-weight: 600; color: var(--va-navy-deep); }
+.va-bulk-field input, .va-bulk-field select {
+  width: 100%; min-height: 42px; border: 1px solid var(--va-border-strong); border-radius: 9px;
+  background: var(--va-white); color: var(--va-navy-deep); padding: 9px 11px; font: inherit;
+}
+.va-bulk-field input:focus, .va-bulk-field select:focus { outline: 2px solid var(--va-sky); outline-offset: 1px; }
+.va-bulk-hint { color: var(--va-steel); font-size: 11px; font-weight: 400; }
+.va-bulk-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.va-bulk-actions .va-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.va-bulk-status { border-radius: 10px; padding: 11px 13px; font-size: 12px; line-height: 1.5; background: var(--va-chalk); color: var(--va-steel); }
+.va-bulk-status--error { background: var(--va-crimson-soft); color: #7a2629; }
+.va-bulk-status--success { background: var(--va-green-soft); color: var(--va-green); }
+.va-bulk-status a { color: inherit; font-weight: 700; }
+.va-bulk-summary { display: flex; gap: 7px; flex-wrap: wrap; }
+.va-bulk-badge { background: var(--va-parchment); border-radius: 999px; padding: 4px 9px; font-size: 11px; color: var(--va-navy); }
+.va-bulk-badge--ready { background: var(--va-green-soft); color: var(--va-green); }
+.va-bulk-badge--blocked { background: var(--va-crimson-soft); color: #7a2629; }
+.va-bulk-table-wrap { overflow-x: auto; border: 1px solid var(--va-border); border-radius: 11px; }
+.va-bulk-table { width: 100%; border-collapse: collapse; min-width: 920px; font-size: 12px; }
+.va-bulk-table th { text-align: left; background: var(--va-chalk); color: var(--va-steel); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.va-bulk-table th, .va-bulk-table td { padding: 9px 10px; border-bottom: 1px solid var(--va-border); vertical-align: top; }
+.va-bulk-table tr:last-child td { border-bottom: 0; }
+.va-bulk-table tr.has-error { background: #fff7f7; }
+.va-bulk-money, .va-bulk-number { text-align: right !important; white-space: nowrap; }
+.va-bulk-row-msg { margin-top: 3px; font-size: 11px; color: var(--va-steel); }
+.va-bulk-row-msg--error { color: var(--va-crimson); }
+.va-bulk-row-msg--warning { color: var(--va-amber); }
+.va-bulk-results { display: flex; flex-direction: column; gap: 8px; }
+.va-bulk-result { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(120px, .8fr) 1fr; gap: 12px; padding: 11px 13px; border: 1px solid var(--va-border); border-radius: 10px; font-size: 12px; }
+.va-bulk-result--failed { border-color: #c5444866; background: #fff7f7; }
+@media (max-width: 700px) {
+  .va-bulk-grid { grid-template-columns: 1fr; }
+  .va-bulk-result { grid-template-columns: 1fr; gap: 3px; }
+}
+
 {% endstylesheet %}
 
 {%- style -%}
@@ -1245,10 +1284,38 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
       <!-- ── TAB: BULK UPLOAD ──────────────────────────────── -->
       <div class="va-tab" id="va-tab-bulk">
         <div class="va-page-head"><div class="va-page-head-left"><h1>Bulk <em>upload.</em></h1></div></div>
-        <div class="va-panel"><div class="va-empty">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Bulk upload coming soon.
-        </div></div>
+        <div class="va-panel va-bulk-panel" data-api-base="{{ section.settings.bulk_order_api_url | escape }}">
+          <div class="va-bulk-content">
+            <div>
+              <div class="va-panel-title">Import bulk orders</div>
+              <p class="va-bulk-intro">Upload a CSV with <strong>SFID, SKU, Quantity</strong>. Every SFID must belong to your signed-in customer account. Orders are only enabled after the file passes BC validation and an active ACH account is selected.</p>
+            </div>
+
+            <div class="va-bulk-grid">
+              <label class="va-bulk-field">
+                Order CSV
+                <input type="file" class="va-bulk-file" accept=".csv,text/csv">
+                <span class="va-bulk-hint">Maximum 25 MB. A header row is optional.</span>
+              </label>
+              <label class="va-bulk-field">
+                ACH payment method
+                <select class="va-bulk-ach" disabled>
+                  <option value="">Loading ACH accounts…</option>
+                </select>
+                <span class="va-bulk-hint">Accounts are read from Payment &amp; terms and verified again by the API.</span>
+              </label>
+            </div>
+
+            <div class="va-bulk-actions">
+              <button type="button" class="va-btn va-btn--outline va-bulk-check" disabled>Check File</button>
+              <button type="button" class="va-btn va-btn--primary va-bulk-import" disabled>Import Bulk Orders</button>
+            </div>
+
+            <div class="va-bulk-status" role="status">Loading your customer and payment information…</div>
+            <div class="va-bulk-preview" hidden></div>
+            <div class="va-bulk-results" hidden></div>
+          </div>
+        </div>
       </div><!-- /tab-bulk -->
 
       <!-- ── TAB: FAVORITES ────────────────────────────────── -->
@@ -2457,6 +2524,246 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
       e.preventDefault();
       open(img.dataset.zoom || img.src, img.alt);
     });
+  }());
+
+  // ── Customer bulk order import ────────────────────────────
+  (function () {
+    var panel = document.getElementById('va-tab-bulk');
+    if (!panel) return;
+
+    var root       = panel.querySelector('.va-bulk-panel');
+    var fileInput  = panel.querySelector('.va-bulk-file');
+    var achSelect  = panel.querySelector('.va-bulk-ach');
+    var checkBtn   = panel.querySelector('.va-bulk-check');
+    var importBtn  = panel.querySelector('.va-bulk-import');
+    var statusEl   = panel.querySelector('.va-bulk-status');
+    var previewEl  = panel.querySelector('.va-bulk-preview');
+    var resultsEl  = panel.querySelector('.va-bulk-results');
+    var apiBase    = (root.dataset.apiBase || '').replace(/\/$/, '');
+    var state = { contextLoaded: false, loadingContext: false, fileName: '', csv: '', canImport: false, busy: false };
+
+    function setStatus(message, kind, allowHtml) {
+      statusEl.className = 'va-bulk-status' + (kind ? ' va-bulk-status--' + kind : '');
+      if (allowHtml) statusEl.innerHTML = message;
+      else statusEl.textContent = message;
+    }
+
+    function refreshButtons() {
+      checkBtn.disabled = state.busy || !state.csv || !state.contextLoaded;
+      importBtn.disabled = state.busy || !state.canImport || !achSelect.value;
+      fileInput.disabled = state.busy;
+      achSelect.disabled = state.busy || !state.contextLoaded || achSelect.options.length <= 1;
+    }
+
+    function basePayload() {
+      var auth = window.__vaAuth || {};
+      var info = window.__vaCustomerInfoData || {};
+      return {
+        shop: Shopify.shop,
+        customer_id: auth.customer_id,
+        customer_no: info.No || info.no || '',
+        market_handle: vaMarketHandle || info.shopifyMarketHandle || '',
+        ts: auth.ts,
+        token: auth.token
+      };
+    }
+
+    function filePayload() {
+      return Object.assign(basePayload(), {
+        file_name: state.fileName,
+        csv_content: state.csv,
+        ach_account_system_id: achSelect.value || ''
+      });
+    }
+
+    function post(path, payload) {
+      if (!apiBase) return Promise.reject(new Error('Bulk order API URL is not configured.'));
+      return fetch(apiBase + '/' + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (response) {
+        return response.text().then(function (text) {
+          var data;
+          try { data = text ? JSON.parse(text) : {}; }
+          catch (_) { data = { error: text || ('HTTP ' + response.status) }; }
+          if (!response.ok || data.ok === false) {
+            var details = (data.errors || []).join(' ');
+            throw new Error([data.error || 'Bulk order request failed.', details].filter(Boolean).join(' '));
+          }
+          return data;
+        });
+      });
+    }
+
+    function loadContext() {
+      if (state.contextLoaded || state.loadingContext) return;
+      state.loadingContext = true;
+      setStatus('Loading your customer and payment information…');
+      window.__vaCustomerInfo.then(function (info) {
+        window.__vaCustomerInfoData = info || {};
+        return post('context', basePayload());
+      }).then(function (data) {
+        state.contextLoaded = true;
+        achSelect.innerHTML = '<option value="">Select an ACH account</option>';
+        (data.accounts || []).forEach(function (account) {
+          var option = document.createElement('option');
+          option.value = account.id;
+          option.textContent = [account.nickName || account.bankName || 'Bank account', account.last4 ? '•••• ' + account.last4 : 'ACH'].filter(Boolean).join(' · ');
+          if (account.isDefault) option.selected = true;
+          achSelect.appendChild(option);
+        });
+        if (!(data.accounts || []).length) {
+          setStatus('No active ACH account is available. <a href="#payment">Add or review an ACH account in Payment &amp; terms.</a>', 'error', true);
+        } else {
+          setStatus('Customer ' + (data.customerNo || '') + ' is ready. Choose a CSV to begin validation.');
+        }
+        refreshButtons();
+        if (state.csv) validateFile();
+      }).catch(function (err) {
+        setStatus('Could not load customer payment context: ' + err.message, 'error');
+      }).finally(function () {
+        state.loadingContext = false;
+        refreshButtons();
+      });
+    }
+
+    function money(value) {
+      return value == null ? '' : Number(value).toFixed(2);
+    }
+
+    function renderValidation(data) {
+      var rows = data.rows || [];
+      var errors = data.errors || [];
+      var html = '<div class="va-bulk-summary">'
+        + '<span class="va-bulk-badge">' + rows.length + ' row(s)</span>'
+        + '<span class="va-bulk-badge">' + (data.orderCount || 0) + ' order group(s)</span>'
+        + '<span class="va-bulk-badge ' + (data.canImport ? 'va-bulk-badge--ready' : 'va-bulk-badge--blocked') + '">' + (data.canImport ? 'Ready' : 'Needs attention') + '</span>'
+        + '</div>';
+
+      if (errors.length) {
+        html += '<div class="va-bulk-status va-bulk-status--error" style="margin-top:10px;">'
+          + errors.map(function (error) { return '<div>' + escHtml(error) + '</div>'; }).join('') + '</div>';
+      }
+
+      html += '<div class="va-bulk-table-wrap" style="margin-top:12px;"><table class="va-bulk-table"><thead><tr>'
+        + '<th>Row</th><th>SFID</th><th>Customer</th><th>SKU</th><th>BC item</th>'
+        + '<th class="va-bulk-number">Qty</th><th class="va-bulk-number">Import</th><th class="va-bulk-number">Available</th><th class="va-bulk-money">Amount</th><th>Status</th>'
+        + '</tr></thead><tbody>';
+      rows.forEach(function (row) {
+        var rowErrors = row.errors || [];
+        var warnings = row.warnings || [];
+        var itemNo = row.actualItemNo || row.itemNo || '';
+        var amount = row.importLineAmount == null ? row.lineAmount : row.importLineAmount;
+        html += '<tr' + (rowErrors.length ? ' class="has-error"' : '') + '>'
+          + '<td>' + escHtml(row.rowNumber) + '</td>'
+          + '<td>' + escHtml(row.addressCode || '') + '</td>'
+          + '<td><strong>' + escHtml(row.customerNo || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.customerName || '') + '</div></td>'
+          + '<td>' + escHtml(row.originalSku || '') + '</td>'
+          + '<td>' + escHtml(itemNo) + '</td>'
+          + '<td class="va-bulk-number">' + escHtml(row.quantity == null ? '' : row.quantity) + '</td>'
+          + '<td class="va-bulk-number">' + escHtml(row.importQuantity == null ? '' : row.importQuantity) + '</td>'
+          + '<td class="va-bulk-number">' + escHtml(row.availableQuantity == null ? '' : row.availableQuantity) + '</td>'
+          + '<td class="va-bulk-money">' + money(amount) + '</td><td>';
+        if (!rowErrors.length && !warnings.length) html += '<span class="va-bulk-badge va-bulk-badge--ready">OK</span>';
+        rowErrors.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--error">' + escHtml(message) + '</div>'; });
+        warnings.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--warning">' + escHtml(message) + '</div>'; });
+        html += '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      previewEl.innerHTML = html;
+      previewEl.hidden = false;
+    }
+
+    function validateFile() {
+      if (!state.csv || !state.contextLoaded || state.busy) return;
+      state.busy = true;
+      state.canImport = false;
+      resultsEl.hidden = true;
+      setStatus('Checking every SFID, SKU, inventory quantity, price, and ACH account…');
+      refreshButtons();
+      post('validate', filePayload()).then(function (data) {
+        state.canImport = data.canImport === true;
+        renderValidation(data);
+        setStatus(
+          state.canImport ? 'File checked successfully. Ready to import bulk orders.' : 'File checked. Resolve the highlighted items before importing.',
+          state.canImport ? 'success' : 'error'
+        );
+      }).catch(function (err) {
+        setStatus('Validation failed: ' + err.message, 'error');
+      }).finally(function () {
+        state.busy = false;
+        refreshButtons();
+      });
+    }
+
+    function importOrders() {
+      if (!state.canImport || state.busy) return;
+      state.busy = true;
+      setStatus('Importing validated orders to Business Central…');
+      refreshButtons();
+      post('import', filePayload()).then(function (data) {
+        state.canImport = false;
+        var results = data.results || [];
+        resultsEl.innerHTML = results.map(function (result) {
+          var failed = result.status !== 'Success';
+          return '<div class="va-bulk-result' + (failed ? ' va-bulk-result--failed' : '') + '">'
+            + '<strong>' + escHtml(result.addressCode || '') + '</strong>'
+            + '<span>' + escHtml(result.salesOrderNo || result.status || '') + '</span>'
+            + '<span>' + escHtml(result.details || '') + '</span></div>';
+        }).join('');
+        resultsEl.hidden = false;
+        setStatus(
+          data.success === false
+            ? (data.failedCount || 0) + ' order group(s) failed. Review the results below.'
+            : results.length + ' order group(s) processed successfully.',
+          data.success === false ? 'error' : 'success'
+        );
+      }).catch(function (err) {
+        setStatus('Import failed: ' + err.message, 'error');
+      }).finally(function () {
+        state.busy = false;
+        refreshButtons();
+      });
+    }
+
+    fileInput.addEventListener('change', function () {
+      var file = fileInput.files && fileInput.files[0];
+      state.fileName = '';
+      state.csv = '';
+      state.canImport = false;
+      previewEl.hidden = true;
+      resultsEl.hidden = true;
+      if (!file) { refreshButtons(); return; }
+      if (file.size > 25 * 1024 * 1024) {
+        setStatus('CSV file exceeds the 25 MB limit.', 'error');
+        refreshButtons();
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        state.fileName = file.name;
+        state.csv = String(reader.result || '');
+        refreshButtons();
+        if (state.contextLoaded) validateFile();
+        else loadContext();
+      };
+      reader.onerror = function () { setStatus('Could not read the selected CSV.', 'error'); };
+      reader.readAsText(file);
+    });
+
+    achSelect.addEventListener('change', function () {
+      state.canImport = false;
+      refreshButtons();
+      if (state.csv) validateFile();
+    });
+    checkBtn.addEventListener('click', validateFile);
+    importBtn.addEventListener('click', importOrders);
+
+    new MutationObserver(function () {
+      if (panel.classList.contains('va-tab--active')) loadContext();
+    }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+    if (panel.classList.contains('va-tab--active')) loadContext();
   }());
 
   // ── ACH accounts + Credit cards (Payment tab) ────────────
@@ -4218,6 +4525,12 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
         { "value": "full-width", "label": "Full" }
       ],
       "default": "page-width"
+    },
+    {
+      "type": "text",
+      "id": "bulk_order_api_url",
+      "label": "Bulk order API URL",
+      "default": "https://valor-middleplatform-dev.azurewebsites.net/api/shopify/bulk-orders"
     },
     {
       "type": "header",
