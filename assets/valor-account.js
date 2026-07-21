@@ -22,12 +22,25 @@
   var vaMarketHandle = null;
   var vaCompanyName  = null;
   var vaHasChildren  = false;
+  var vaBulkAllowed  = false;
   // window.__vaCustomerInfo is set by theme.liquid before any section script runs
   var vaMarketReady = window.__vaCustomerInfo.then(function (data) {
     if (data) {
-      vaMarketHandle = (data.shopifyMarketHandle || '').toUpperCase();
+      vaMarketHandle = String(data.shopifyMarketHandle || '').trim().toUpperCase();
       vaCompanyName  = data.Name || data.name || null;
       vaHasChildren  = (data.childCount || 0) > 0;
+      vaBulkAllowed  = vaMarketHandle === 'BOOST-MOBILE';
+      var bulkNavLink = document.querySelector('.va-side-link[data-tab="bulk"]');
+      var bulkPanel = document.getElementById('va-tab-bulk');
+      if (bulkNavLink) bulkNavLink.hidden = !vaBulkAllowed;
+      if (bulkPanel) bulkPanel.hidden = !vaBulkAllowed;
+      if (location.hash.replace('#', '') === 'bulk') {
+        if (vaBulkAllowed) applyHash();
+        else {
+          history.replaceState(null, '', '#dashboard');
+          activateTab('dashboard');
+        }
+      }
       // Show team & permissions nav entry only for multi-location accounts
       var teamNavLink = document.querySelector('.va-side-link[data-tab="team"]');
       if (teamNavLink) teamNavLink.style.display = vaHasChildren ? '' : 'none';
@@ -132,6 +145,7 @@
   // ── Tab activation ──────────────────────────────────────
   function activateTab(tab) {
     if (TABS.indexOf(tab) === -1) tab = 'dashboard';
+    if (tab === 'bulk' && !vaBulkAllowed) tab = 'dashboard';
     TABS.forEach(function (t) {
       var el = document.getElementById('va-tab-' + t);
       if (el) el.classList.toggle('va-tab--active', t === tab);

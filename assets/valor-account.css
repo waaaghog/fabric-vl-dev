@@ -86,6 +86,7 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 }
 .va-side-link svg { color: var(--va-steel); flex-shrink: 0; transition: color 0.15s; }
 .va-side-link:hover { background: var(--va-chalk); }
+.va-side-link[data-tab="bulk"][hidden] { display: none !important; }
 .va-side-link:hover svg { color: var(--va-navy); }
 .va-side-link--active,
 .va-side-link--active:hover { background: var(--va-navy-deep); color: var(--va-chalk); }
@@ -112,6 +113,7 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-main { min-width: 0; }
 .va-tab { display: none; }
 .va-tab--active { display: flex; flex-direction: column; gap: 20px; }
+#va-tab-bulk[hidden] { display: none !important; }
 
 /* ── Page header ──────────────────────────────────────── */
 .va-page-head { margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }

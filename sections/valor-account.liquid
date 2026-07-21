@@ -103,7 +103,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v5h5M22 12a10 10 0 1 1-3-7.3L22 8"/></svg>
           Returns &amp; RMA
         </a>
-        <a href="#bulk" class="va-side-link" data-tab="bulk">
+        <a href="#bulk" class="va-side-link" data-tab="bulk" hidden>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
           Bulk upload
         </a>
@@ -448,7 +448,7 @@
       </div><!-- /tab-rma -->
 
       <!-- ── TAB: BULK UPLOAD ──────────────────────────────── -->
-      <div class="va-tab" id="va-tab-bulk">
+      <div class="va-tab" id="va-tab-bulk" hidden>
         <div class="va-page-head"><div class="va-page-head-left"><h1>Bulk <em>upload.</em></h1></div></div>
         <div class="va-panel va-bulk-panel" data-api-base="{{ section.settings.bulk_order_api_url | escape }}">
           <div class="va-bulk-content">
