@@ -1137,7 +1137,7 @@
     function summaryCard(filter, label, value, description, deltaClass) {
       return '<button type="button" class="va-bulk-summary-card' + (filter === 'all' ? ' is-active' : '') + '" data-bulk-filter="' + filter + '" aria-pressed="' + (filter === 'all' ? 'true' : 'false') + '">'
         + '<span class="va-bulk-summary-head"><span class="va-bulk-summary-label">' + label + '</span><span class="va-bulk-summary-icon">' + summaryIcon(filter) + '</span></span>'
-        + '<span class="va-bulk-summary-value">' + value + '</span>'
+        + '<span class="va-bulk-summary-value">' + Number(value || 0).toLocaleString('en-US') + '</span>'
         + '<span class="va-bulk-summary-delta' + (deltaClass ? ' va-bulk-summary-delta--' + deltaClass : '') + '">' + description + '</span></button>';
     }
 
