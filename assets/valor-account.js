@@ -1002,7 +1002,7 @@
     var previewEl  = panel.querySelector('.va-bulk-preview');
     var resultsEl  = panel.querySelector('.va-bulk-results');
     var apiBase    = (root.dataset.apiBase || '').replace(/\/$/, '');
-    var state = { contextLoaded: false, loadingContext: false, fileName: '', csv: '', canImport: false, busy: false, jobId: '', jobToken: '', pollTimer: null };
+    var state = { contextLoaded: false, loadingContext: false, fileName: '', csv: '', canImport: false, busy: false, jobId: '', jobToken: '', pollTimer: null, activeFilter: 'all' };
 
     function setStatus(message, kind, allowHtml) {
       statusEl.className = 'va-bulk-status' + (kind ? ' va-bulk-status--' + kind : '');
@@ -1127,14 +1127,51 @@
       }).finally(function () { rulesSave.disabled = false; });
     }
 
+    function summaryIcon(type) {
+      if (type === 'ready') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      if (type === 'subbed') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M16 3l4 4-4 4M20 7H8a4 4 0 0 0-4 4M8 21l-4-4 4-4M4 17h12a4 4 0 0 0 4-4"></path></svg>';
+      if (type === 'short') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 17h.01"></path></svg>';
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M8 13h8M8 17h6"></path></svg>';
+    }
+
+    function summaryCard(filter, label, value, description, deltaClass) {
+      return '<button type="button" class="va-bulk-summary-card' + (filter === 'all' ? ' is-active' : '') + '" data-bulk-filter="' + filter + '" aria-pressed="' + (filter === 'all' ? 'true' : 'false') + '">'
+        + '<span class="va-bulk-summary-head"><span class="va-bulk-summary-label">' + label + '</span><span class="va-bulk-summary-icon">' + summaryIcon(filter) + '</span></span>'
+        + '<span class="va-bulk-summary-value">' + value + '</span>'
+        + '<span class="va-bulk-summary-delta' + (deltaClass ? ' va-bulk-summary-delta--' + deltaClass : '') + '">' + description + '</span></button>';
+    }
+
+    function applyBulkFilter(filter) {
+      var selected = filter || 'all';
+      state.activeFilter = selected;
+      summaryEl.querySelectorAll('[data-bulk-filter]').forEach(function (card) {
+        var active = card.dataset.bulkFilter === selected;
+        card.classList.toggle('is-active', active);
+        card.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+
+      var visibleRows = 0;
+      previewEl.querySelectorAll('.va-bulk-location').forEach(function (location) {
+        var locationVisible = 0;
+        location.querySelectorAll('tbody tr[data-bulk-status]').forEach(function (row) {
+          var show = selected === 'all' || row.dataset.bulkStatus === selected;
+          row.hidden = !show;
+          if (show) { locationVisible += 1; visibleRows += 1; }
+        });
+        location.hidden = locationVisible === 0;
+      });
+      var empty = previewEl.querySelector('.va-bulk-filter-empty');
+      if (empty) empty.hidden = visibleRows !== 0;
+    }
+
     function renderValidation(data) {
       var rows = data.rows || [];
       var errors = data.errors || [];
       summaryEl.innerHTML = ''
-        + '<div class="va-bulk-summary-card"><strong>' + (data.orderCount || 0) + '</strong><span>Uploaded locations</span></div>'
-        + '<div class="va-bulk-summary-card va-bulk-summary-card--ready"><strong>' + (data.readyCount || 0) + '</strong><span>Ready lines</span></div>'
-        + '<div class="va-bulk-summary-card va-bulk-summary-card--sub"><strong>' + (data.substitutionCount || 0) + '</strong><span>Substitutions</span></div>'
-        + '<div class="va-bulk-summary-card va-bulk-summary-card--action"><strong>' + ((data.actionRequiredCount || 0) + (data.blockingErrorCount || 0)) + '</strong><span>Action required</span></div>';
+        + summaryCard('all', 'Uploaded items', data.rowCount == null ? rows.length : data.rowCount, 'Total spreadsheet rows', '')
+        + summaryCard('ready', 'Ready to ship', data.readyCount || 0, '✅ 100% Core stock allocated', 'success')
+        + summaryCard('subbed', 'Substitutions run', data.substitutionCount || 0, '⚠️ Swapped with rules list', 'alert')
+        + summaryCard('short', 'Action required', (data.actionRequiredCount || 0) + (data.blockingErrorCount || 0), '❌ Completely out of stock', 'danger');
       summaryEl.hidden = false;
 
       var html = '';
@@ -1163,8 +1200,9 @@
           var warnings = row.warnings || [];
           var fulfillmentSku = row.actualSku || row.originalSku || '';
           var status = rowErrors.length ? 'Blocked' : (row.wasReplaced ? 'Substituted' : (Number(row.importQuantity || 0) > 0 ? 'Ready' : 'Action required'));
+          var filterStatus = rowErrors.length || warnings.length || Number(row.importQuantity || 0) <= 0 ? 'short' : (row.wasReplaced ? 'subbed' : 'ready');
           var statusClass = rowErrors.length ? 'va-bulk-badge--blocked' : (status === 'Ready' ? 'va-bulk-badge--ready' : '');
-          html += '<tr' + (rowErrors.length ? ' class="has-error"' : '') + '>'
+          html += '<tr data-bulk-status="' + filterStatus + '"' + (rowErrors.length ? ' class="has-error"' : '') + '>'
             + '<td>' + escHtml(row.rowNumber) + '</td>'
             + '<td><strong>' + escHtml(row.originalSku || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.itemNo || '') + '</div></td>'
             + '<td class="va-bulk-number">' + escHtml(row.quantity == null ? '' : row.quantity) + '</td>'
@@ -1178,8 +1216,10 @@
         });
         html += '</tbody></table></div></section>';
       });
+      html += '<div class="va-bulk-filter-empty" hidden>No rows match this filter.</div>';
       previewEl.innerHTML = html;
       previewEl.hidden = false;
+      applyBulkFilter('all');
     }
 
     function validateFile() {
@@ -1307,6 +1347,10 @@
       state.canImport = false;
       refreshButtons();
       if (state.csv) validateFile();
+    });
+    summaryEl.addEventListener('click', function (event) {
+      var card = event.target.closest('[data-bulk-filter]');
+      if (card && summaryEl.contains(card)) applyBulkFilter(card.dataset.bulkFilter);
     });
     checkBtn.addEventListener('click', validateFile);
     importBtn.addEventListener('click', importOrders);
