@@ -1002,7 +1002,20 @@
     var previewEl  = panel.querySelector('.va-bulk-preview');
     var resultsEl  = panel.querySelector('.va-bulk-results');
     var apiBase    = (root.dataset.apiBase || '').replace(/\/$/, '');
-    var state = { contextLoaded: false, loadingContext: false, fileName: '', csv: '', canImport: false, busy: false, jobId: '', jobToken: '', pollTimer: null, activeFilter: 'all' };
+    var state = {
+      contextLoaded: false,
+      loadingContext: false,
+      fileName: '',
+      csv: '',
+      canImport: false,
+      busy: false,
+      jobId: '',
+      jobToken: '',
+      pollTimer: null,
+      activeFilter: 'all',
+      lineOverrides: {},
+      collapsedLocations: {}
+    };
 
     function setStatus(message, kind, allowHtml) {
       statusEl.className = 'va-bulk-status' + (kind ? ' va-bulk-status--' + kind : '');
@@ -1035,7 +1048,11 @@
       return Object.assign(basePayload(), {
         file_name: state.fileName,
         csv_content: state.csv,
-        ach_account_system_id: achSelect.value || ''
+        ach_account_system_id: achSelect.value || '',
+        line_overrides: Object.keys(state.lineOverrides).map(function (rowNumber) {
+          var item = state.lineOverrides[rowNumber];
+          return { row_number: Number(rowNumber), action: item.action || '', sku: item.sku || '' };
+        })
       });
     }
 
@@ -1135,7 +1152,8 @@
     }
 
     function summaryCard(filter, label, value, description, deltaClass) {
-      return '<button type="button" class="va-bulk-summary-card' + (filter === 'all' ? ' is-active' : '') + '" data-bulk-filter="' + filter + '" aria-pressed="' + (filter === 'all' ? 'true' : 'false') + '">'
+      var selected = filter === state.activeFilter;
+      return '<button type="button" class="va-bulk-summary-card' + (selected ? ' is-active' : '') + '" data-bulk-filter="' + filter + '" aria-pressed="' + (selected ? 'true' : 'false') + '">'
         + '<span class="va-bulk-summary-head"><span class="va-bulk-summary-label">' + label + '</span><span class="va-bulk-summary-icon">' + summaryIcon(filter) + '</span></span>'
         + '<span class="va-bulk-summary-value">' + Number(value || 0).toLocaleString('en-US') + '</span>'
         + '<span class="va-bulk-summary-delta' + (deltaClass ? ' va-bulk-summary-delta--' + deltaClass : '') + '">' + description + '</span></button>';
@@ -1164,6 +1182,81 @@
       if (empty) empty.hidden = visibleRows !== 0;
     }
 
+    function rowDisplayStatus(row) {
+      if ((row.errors || []).length) return { key: 'blocked', label: 'Invalid' };
+      if (Number(row.importQuantity || 0) <= 0) return { key: 'short', label: 'Out of Stock' };
+      if (row.wasReplaced) return { key: 'subbed', label: 'Substituted' };
+      return { key: 'ready', label: 'Ready' };
+    }
+
+    function availableReplacementCandidates(row) {
+      return (row.replacementCandidates || []).filter(function (candidate) {
+        return !candidate.isOriginal && candidate.sku;
+      });
+    }
+
+    function renderOverrideControl(row, status) {
+      if (status.key === 'ready' || status.key === 'blocked') {
+        if (status.key === 'blocked') {
+          return (row.errors || []).map(function (message) {
+            return '<div class="va-bulk-row-msg va-bulk-row-msg--error">' + escHtml(message) + '</div>';
+          }).join('');
+        }
+        return '<button type="button" class="va-bulk-line-locked" disabled>Line Locked</button>';
+      }
+
+      var rowNumber = Number(row.rowNumber || 0);
+      var saved = state.lineOverrides[rowNumber] || {};
+      var candidates = availableReplacementCandidates(row);
+      if (saved.manual) {
+        candidates = candidates.filter(function (candidate) {
+          return String(candidate.sku || '').toUpperCase() !== String(saved.sku || '').toUpperCase();
+        });
+      }
+      var selectedSku = saved.action === 'use' && !saved.manual ? saved.sku : (!saved.action && status.key === 'subbed' ? row.actualSku : '');
+      var manualSelected = saved.action === 'use' && saved.manual;
+      var skipSelected = saved.action === 'skip' || (!saved.action && status.key === 'short');
+      var options = candidates.map(function (candidate, index) {
+        var available = Number(candidate.availableQuantity || 0);
+        var enough = available >= Number(row.quantity || 0);
+        var selected = selectedSku && String(candidate.sku).toUpperCase() === String(selectedSku).toUpperCase();
+        return '<option value="use|' + escHtml(candidate.sku) + '"' + (selected ? ' selected' : '') + (enough ? '' : ' disabled') + '>'
+          + 'Use Priority ' + (index + 1) + ' Match (' + escHtml(candidate.sku) + ')'
+          + (enough ? '' : ' — unavailable') + '</option>';
+      }).join('');
+
+      var feedback = row.overrideValidationStatus || '';
+      var feedbackKind = feedback === 'Available' ? 'success' : (feedback && feedback !== 'Skipped by customer' ? 'error' : '');
+      return '<select class="va-bulk-override-select' + (status.key === 'short' ? ' va-bulk-override-select--required' : '') + '" data-row-number="' + rowNumber + '">'
+        + options
+        + '<option value="skip"' + (skipSelected ? ' selected' : '') + '>Skip this line on submit</option>'
+        + '<option value="manual"' + (manualSelected ? ' selected' : '') + '>Enter a manual SKU…</option>'
+        + '</select>'
+        + '<div class="va-bulk-manual' + (manualSelected ? ' is-visible' : '') + '" data-manual-row="' + rowNumber + '">'
+        + '<input type="text" value="' + escHtml(saved.sku || row.overrideSku || '') + '" placeholder="Enter replacement SKU" aria-label="Manual replacement SKU for line ' + rowNumber + '">'
+        + '<button type="button" class="va-bulk-manual-apply" data-row-number="' + rowNumber + '">Confirm</button></div>'
+        + (feedback ? '<div class="va-bulk-override-feedback' + (feedbackKind ? ' va-bulk-override-feedback--' + feedbackKind : '') + '">' + escHtml(feedback) + '</div>' : '');
+    }
+
+    function fulfillmentCell(row, status) {
+      if (status.key === 'short') {
+        return '<strong class="va-bulk-fulfillment va-bulk-fulfillment--short">Unallocated Position</strong><div class="va-bulk-row-msg">No available substitute selected</div>';
+      }
+      if (status.key === 'blocked') {
+        return '<strong class="va-bulk-fulfillment va-bulk-fulfillment--short">Validation required</strong>';
+      }
+      if (status.key === 'subbed') {
+        var candidates = availableReplacementCandidates(row);
+        var priority = candidates.findIndex(function (candidate) {
+          return String(candidate.sku || '').toUpperCase() === String(row.actualSku || '').toUpperCase();
+        });
+        var saved = state.lineOverrides[Number(row.rowNumber || 0)] || {};
+        var detail = saved.manual ? 'Manual SKU override' : (priority >= 0 ? 'Mapped to Priority ' + (priority + 1) : 'Mapped from customer-group rules');
+        return '<strong class="va-bulk-fulfillment va-bulk-fulfillment--subbed">' + escHtml(row.actualSku || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(detail) + '</div>';
+      }
+      return '<strong class="va-bulk-fulfillment">' + escHtml(row.actualSku || row.originalSku || '') + '</strong><div class="va-bulk-row-msg">Original Request Allocated</div>';
+    }
+
     function renderValidation(data) {
       var rows = data.rows || [];
       var errors = data.errors || [];
@@ -1171,11 +1264,10 @@
         + summaryCard('all', 'Uploaded items', data.rowCount == null ? rows.length : data.rowCount, 'Total spreadsheet rows', '')
         + summaryCard('ready', 'Ready to ship', data.readyCount || 0, '✅ 100% Core stock allocated', 'success')
         + summaryCard('subbed', 'Substitutions run', data.substitutionCount || 0, '⚠️ Swapped with rules list', 'alert')
-        + summaryCard('short', 'Action required', (data.actionRequiredCount || 0) + (data.blockingErrorCount || 0), '❌ Completely out of stock', 'danger');
+        + summaryCard('short', 'Action required', data.actionRequiredCount || 0, '❌ Completely out of stock', 'danger');
       summaryEl.hidden = false;
 
       var html = '';
-
       if (errors.length) {
         html += '<div class="va-bulk-status va-bulk-status--error" style="margin-top:10px;">'
           + errors.map(function (error) { return '<div>' + escHtml(error) + '</div>'; }).join('') + '</div>';
@@ -1189,37 +1281,32 @@
       Object.keys(groups).forEach(function (location) {
         var groupRows = groups[location];
         var first = groupRows[0] || {};
-        html += '<section class="va-bulk-location"><div class="va-bulk-location-head">'
-          + '<strong>Location ' + escHtml(location) + '</strong>'
-          + '<span>' + escHtml(first.customerNo || '') + (first.customerName ? ' · ' + escHtml(first.customerName) : '') + '</span></div>'
+        var collapsed = state.collapsedLocations[location] === true;
+        html += '<section class="va-bulk-location' + (collapsed ? ' is-collapsed' : '') + '" data-bulk-location="' + escHtml(location) + '">'
+          + '<button type="button" class="va-bulk-location-head" data-location-toggle aria-expanded="' + (collapsed ? 'false' : 'true') + '">'
+          + '<span class="va-bulk-location-title"><span aria-hidden="true">📍</span> Location Code: <strong>' + escHtml(location) + '</strong>'
+          + (first.customerName ? ' — ' + escHtml(first.customerName) : '') + '</span>'
+          + '<span class="va-bulk-location-meta"><span class="va-bulk-location-count">' + groupRows.length + ' Lines Processed</span>'
+          + '<svg class="va-bulk-location-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 7.5l5 5 5-5"></path></svg></span></button>'
           + '<div class="va-bulk-table-wrap"><table class="va-bulk-table"><thead><tr>'
-          + '<th>Line</th><th>Original SKU</th><th class="va-bulk-number">Qty</th><th>Status</th><th>Fulfillment SKU</th><th>Action / Override</th>'
+          + '<th>Line #</th><th>Original SKU</th><th class="va-bulk-number">Req Qty</th><th>Match Status</th><th>Fulfillment SKU</th><th>Actions / Alternates Override</th>'
           + '</tr></thead><tbody>';
         groupRows.forEach(function (row) {
-          var rowErrors = row.errors || [];
-          var warnings = row.warnings || [];
-          var fulfillmentSku = row.actualSku || row.originalSku || '';
-          var status = rowErrors.length ? 'Blocked' : (row.wasReplaced ? 'Substituted' : (Number(row.importQuantity || 0) > 0 ? 'Ready' : 'Action required'));
-          var filterStatus = rowErrors.length || warnings.length || Number(row.importQuantity || 0) <= 0 ? 'short' : (row.wasReplaced ? 'subbed' : 'ready');
-          var statusClass = rowErrors.length ? 'va-bulk-badge--blocked' : (status === 'Ready' ? 'va-bulk-badge--ready' : '');
-          html += '<tr data-bulk-status="' + filterStatus + '"' + (rowErrors.length ? ' class="has-error"' : '') + '>'
-            + '<td>' + escHtml(row.rowNumber) + '</td>'
-            + '<td><strong>' + escHtml(row.originalSku || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.itemNo || '') + '</div></td>'
+          var status = rowDisplayStatus(row);
+          html += '<tr data-bulk-status="' + status.key + '" data-row-number="' + escHtml(row.rowNumber) + '"' + (status.key === 'blocked' ? ' class="has-error"' : '') + '>'
+            + '<td>#' + escHtml(row.rowNumber) + '</td>'
+            + '<td><strong>' + escHtml(row.originalSku || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.itemDescription || row.itemNo || '') + '</div></td>'
             + '<td class="va-bulk-number">' + escHtml(row.quantity == null ? '' : row.quantity) + '</td>'
-            + '<td><span class="va-bulk-badge ' + statusClass + '">' + escHtml(status) + '</span></td>'
-            + '<td><strong>' + escHtml(fulfillmentSku) + '</strong><div class="va-bulk-row-msg">' + escHtml(row.actualItemNo || row.itemNo || '') + '</div></td><td>';
-          if (!rowErrors.length && !warnings.length) html += '<span class="va-bulk-row-msg">No action needed</span>';
-          if (!rowErrors.length && Number(row.importQuantity || 0) <= 0) html += '<div class="va-bulk-row-msg va-bulk-row-msg--warning"><strong>Skip this line on submit</strong></div>';
-          rowErrors.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--error">' + escHtml(message) + '</div>'; });
-          warnings.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--warning">' + escHtml(message) + '</div>'; });
-          html += '</td></tr>';
+            + '<td><span class="va-bulk-badge va-bulk-badge--' + status.key + '"><span class="va-bulk-badge-dot"></span>' + escHtml(status.label) + '</span></td>'
+            + '<td>' + fulfillmentCell(row, status) + '</td>'
+            + '<td>' + renderOverrideControl(row, status) + '</td></tr>';
         });
         html += '</tbody></table></div></section>';
       });
       html += '<div class="va-bulk-filter-empty" hidden>No rows match this filter.</div>';
       previewEl.innerHTML = html;
       previewEl.hidden = false;
-      applyBulkFilter('all');
+      applyBulkFilter(state.activeFilter);
     }
 
     function validateFile() {
@@ -1321,6 +1408,9 @@
       clearTimeout(state.pollTimer);
       state.jobId = '';
       state.jobToken = '';
+      state.activeFilter = 'all';
+      state.lineOverrides = {};
+      state.collapsedLocations = {};
       progressEl.hidden = true;
       summaryEl.hidden = true;
       previewEl.hidden = true;
@@ -1351,6 +1441,65 @@
     summaryEl.addEventListener('click', function (event) {
       var card = event.target.closest('[data-bulk-filter]');
       if (card && summaryEl.contains(card)) applyBulkFilter(card.dataset.bulkFilter);
+    });
+    previewEl.addEventListener('click', function (event) {
+      var toggle = event.target.closest('[data-location-toggle]');
+      if (toggle) {
+        var location = toggle.closest('.va-bulk-location');
+        var collapsed = !location.classList.contains('is-collapsed');
+        location.classList.toggle('is-collapsed', collapsed);
+        toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        state.collapsedLocations[location.dataset.bulkLocation] = collapsed;
+        return;
+      }
+
+      var apply = event.target.closest('.va-bulk-manual-apply');
+      if (!apply || state.busy) return;
+      var rowNumber = Number(apply.dataset.rowNumber || 0);
+      var manual = previewEl.querySelector('[data-manual-row="' + rowNumber + '"]');
+      var input = manual && manual.querySelector('input');
+      var sku = String(input && input.value || '').trim().toUpperCase();
+      var feedback = manual && manual.parentElement.querySelector('.va-bulk-override-feedback');
+      if (!sku) {
+        if (!feedback) {
+          feedback = document.createElement('div');
+          feedback.className = 'va-bulk-override-feedback va-bulk-override-feedback--error';
+          manual.parentElement.appendChild(feedback);
+        }
+        feedback.textContent = 'Enter a SKU before confirming.';
+        input.focus();
+        return;
+      }
+      state.lineOverrides[rowNumber] = { action: 'use', sku: sku, manual: true };
+      validateFile();
+    });
+    previewEl.addEventListener('change', function (event) {
+      var select = event.target.closest('.va-bulk-override-select');
+      if (!select || state.busy) return;
+      var rowNumber = Number(select.dataset.rowNumber || 0);
+      var manual = previewEl.querySelector('[data-manual-row="' + rowNumber + '"]');
+      if (select.value === 'manual') {
+        if (manual) {
+          manual.classList.add('is-visible');
+          var input = manual.querySelector('input');
+          if (input) input.focus();
+        }
+        return;
+      }
+      if (manual) manual.classList.remove('is-visible');
+      if (select.value === 'skip') {
+        state.lineOverrides[rowNumber] = { action: 'skip', sku: '', manual: false };
+      } else if (select.value.indexOf('use|') === 0) {
+        state.lineOverrides[rowNumber] = { action: 'use', sku: select.value.slice(4), manual: false };
+      }
+      validateFile();
+    });
+    previewEl.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' || !event.target.closest('.va-bulk-manual input')) return;
+      event.preventDefault();
+      var manual = event.target.closest('.va-bulk-manual');
+      var apply = manual && manual.querySelector('.va-bulk-manual-apply');
+      if (apply) apply.click();
     });
     checkBtn.addEventListener('click', validateFile);
     importBtn.addEventListener('click', importOrders);
