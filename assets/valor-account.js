@@ -989,8 +989,9 @@
     var root       = panel.querySelector('.va-bulk-panel');
     var fileInput  = panel.querySelector('.va-bulk-file');
     var achSelect  = panel.querySelector('.va-bulk-ach');
-    var checkBtn   = panel.querySelector('.va-bulk-check');
+    var resetBtn   = panel.querySelector('.va-bulk-reset');
     var importBtn  = panel.querySelector('.va-bulk-import');
+    var importCountEl = panel.querySelector('.va-bulk-import-count');
     var rulesBtn   = panel.querySelector('.va-bulk-rules');
     var rulesDlg   = panel.querySelector('.va-bulk-rules-dialog');
     var rulesText  = panel.querySelector('.va-bulk-rules-text');
@@ -1013,6 +1014,7 @@
       jobToken: '',
       pollTimer: null,
       activeFilter: 'all',
+      orderCount: 0,
       lineOverrides: {},
       collapsedLocations: {}
     };
@@ -1024,8 +1026,9 @@
     }
 
     function refreshButtons() {
-      checkBtn.disabled = state.busy || !state.csv || !state.contextLoaded;
+      resetBtn.disabled = state.busy || !state.csv;
       importBtn.disabled = state.busy || !state.canImport || !achSelect.value;
+      importCountEl.textContent = String(state.orderCount || 0);
       rulesBtn.disabled = state.busy || !state.contextLoaded;
       fileInput.disabled = state.busy;
       achSelect.disabled = state.busy || !state.contextLoaded || achSelect.options.length <= 1;
@@ -1260,8 +1263,10 @@
     function renderValidation(data) {
       var rows = data.rows || [];
       var errors = data.errors || [];
+      state.orderCount = Number(data.orderCount || 0);
+      importCountEl.textContent = String(state.orderCount);
       summaryEl.innerHTML = ''
-        + summaryCard('all', 'Uploaded items', data.rowCount == null ? rows.length : data.rowCount, 'Total spreadsheet rows', '')
+        + summaryCard('all', 'Uploaded items', data.rowCount == null ? rows.length : data.rowCount, 'Total spreadsheet rows from ' + state.orderCount + ' ' + (state.orderCount === 1 ? 'order' : 'orders'), '')
         + summaryCard('ready', 'Ready to ship', data.readyCount || 0, '✅ 100% Core stock allocated', 'success')
         + summaryCard('subbed', 'Substitutions run', data.substitutionCount || 0, '⚠️ Swapped with rules list', 'alert')
         + summaryCard('short', 'Action required', data.actionRequiredCount || 0, '❌ Completely out of stock', 'danger');
@@ -1307,6 +1312,30 @@
       previewEl.innerHTML = html;
       previewEl.hidden = false;
       applyBulkFilter(state.activeFilter);
+    }
+
+    function resetDraft() {
+      if (state.busy) return;
+      clearTimeout(state.pollTimer);
+      state.fileName = '';
+      state.csv = '';
+      state.canImport = false;
+      state.jobId = '';
+      state.jobToken = '';
+      state.activeFilter = 'all';
+      state.orderCount = 0;
+      state.lineOverrides = {};
+      state.collapsedLocations = {};
+      fileInput.value = '';
+      progressEl.hidden = true;
+      summaryEl.hidden = true;
+      previewEl.hidden = true;
+      resultsEl.hidden = true;
+      summaryEl.innerHTML = '';
+      previewEl.innerHTML = '';
+      resultsEl.innerHTML = '';
+      setStatus('Draft workspace reset. Choose a CSV to begin validation.');
+      refreshButtons();
     }
 
     function validateFile() {
@@ -1409,6 +1438,7 @@
       state.jobId = '';
       state.jobToken = '';
       state.activeFilter = 'all';
+      state.orderCount = 0;
       state.lineOverrides = {};
       state.collapsedLocations = {};
       progressEl.hidden = true;
@@ -1501,7 +1531,7 @@
       var apply = manual && manual.querySelector('.va-bulk-manual-apply');
       if (apply) apply.click();
     });
-    checkBtn.addEventListener('click', validateFile);
+    resetBtn.addEventListener('click', resetDraft);
     importBtn.addEventListener('click', importOrders);
     rulesBtn.addEventListener('click', openRules);
     rulesCancel.addEventListener('click', function () { rulesDlg.close(); });

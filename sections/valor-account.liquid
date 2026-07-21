@@ -472,12 +472,6 @@
               </label>
             </div>
 
-            <div class="va-bulk-actions">
-              <button type="button" class="va-btn va-btn--outline va-bulk-rules">Edit substitution rules</button>
-              <button type="button" class="va-btn va-btn--outline va-bulk-check" disabled>Check File</button>
-              <button type="button" class="va-btn va-btn--primary va-bulk-import" disabled>Import Bulk Orders</button>
-            </div>
-
             <div class="va-bulk-status" role="status">Loading your customer and payment information…</div>
             <div class="va-bulk-progress" hidden>
               <div class="va-bulk-progress-head"><strong class="va-bulk-progress-label">Queued</strong><span class="va-bulk-progress-count">0 / 0 locations</span></div>
@@ -486,6 +480,19 @@
             <div class="va-bulk-summary-cards" hidden></div>
             <div class="va-bulk-preview" hidden></div>
             <div class="va-bulk-results" hidden></div>
+            <div class="va-bulk-actions">
+              <button type="button" class="va-bulk-footer-btn va-bulk-footer-btn--outline va-bulk-rules">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                Edit Substitution Rule Profiles
+              </button>
+              <div class="va-bulk-actions-right">
+                <button type="button" class="va-bulk-footer-btn va-bulk-footer-btn--reset va-bulk-reset" disabled>Reset Draft Workspace</button>
+                <button type="button" class="va-bulk-footer-btn va-bulk-footer-btn--primary va-bulk-import" disabled>
+                  Submit Multi-Location Orders (<span class="va-bulk-import-count">0</span>)
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"></path></svg>
+                </button>
+              </div>
+            </div>
             <dialog class="va-bulk-rules-dialog">
               <div class="va-bulk-rules-body">
                 <div class="va-panel-title">Customer-group substitution rules</div>
