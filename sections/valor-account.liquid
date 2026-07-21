@@ -822,6 +822,13 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-status--success { background: var(--va-green-soft); color: var(--va-green); }
 .va-bulk-status a { color: inherit; font-weight: 700; }
 .va-bulk-summary { display: flex; gap: 7px; flex-wrap: wrap; }
+.va-bulk-summary-cards { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 10px; }
+.va-bulk-summary-card { border: 1px solid var(--va-border); border-radius: 11px; padding: 13px 14px; background: var(--va-white); }
+.va-bulk-summary-card strong { display: block; font-size: 24px; line-height: 1; color: var(--va-navy-deep); }
+.va-bulk-summary-card span { display: block; margin-top: 6px; color: var(--va-steel); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.va-bulk-summary-card--ready { border-color: #5b9b744d; background: var(--va-green-soft); }
+.va-bulk-summary-card--sub { border-color: #cf9b4d55; background: #fff9ed; }
+.va-bulk-summary-card--action { border-color: #c5444855; background: var(--va-crimson-soft); }
 .va-bulk-badge { background: var(--va-parchment); border-radius: 999px; padding: 4px 9px; font-size: 11px; color: var(--va-navy); }
 .va-bulk-badge--ready { background: var(--va-green-soft); color: var(--va-green); }
 .va-bulk-badge--blocked { background: var(--va-crimson-soft); color: #7a2629; }
@@ -838,9 +845,24 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-results { display: flex; flex-direction: column; gap: 8px; }
 .va-bulk-result { display: grid; grid-template-columns: minmax(120px, .8fr) minmax(120px, .8fr) 1fr; gap: 12px; padding: 11px 13px; border: 1px solid var(--va-border); border-radius: 10px; font-size: 12px; }
 .va-bulk-result--failed { border-color: #c5444866; background: #fff7f7; }
+.va-bulk-location { border: 1px solid var(--va-border); border-radius: 12px; overflow: hidden; margin-top: 12px; }
+.va-bulk-location-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 11px 13px; background: var(--va-chalk); }
+.va-bulk-location-head strong { color: var(--va-navy-deep); font-size: 13px; }
+.va-bulk-location-head span { color: var(--va-steel); font-size: 11px; }
+.va-bulk-location .va-bulk-table-wrap { border: 0; border-radius: 0; }
+.va-bulk-progress { border: 1px solid var(--va-border); border-radius: 11px; padding: 13px; }
+.va-bulk-progress-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--va-navy-deep); margin-bottom: 8px; }
+.va-bulk-progress-track { height: 8px; border-radius: 999px; background: var(--va-parchment); overflow: hidden; }
+.va-bulk-progress-bar { height: 100%; width: 0; background: var(--va-navy); transition: width .25s ease; }
+.va-bulk-rules-dialog { border: 0; border-radius: 13px; padding: 0; width: min(720px, 92vw); box-shadow: 0 16px 50px rgba(0,0,0,.22); }
+.va-bulk-rules-dialog::backdrop { background: rgba(10,24,40,.45); }
+.va-bulk-rules-body { padding: 22px; }
+.va-bulk-rules-body textarea { width: 100%; min-height: 260px; margin-top: 12px; border: 1px solid var(--va-border-strong); border-radius: 9px; padding: 11px; font: 12px/1.55 'SF Mono','Monaco','Consolas',monospace; }
+.va-bulk-rules-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 13px; }
 @media (max-width: 700px) {
   .va-bulk-grid { grid-template-columns: 1fr; }
   .va-bulk-result { grid-template-columns: 1fr; gap: 3px; }
+  .va-bulk-summary-cards { grid-template-columns: 1fr 1fr; }
 }
 
 {% endstylesheet %}
@@ -1287,15 +1309,15 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
         <div class="va-panel va-bulk-panel" data-api-base="{{ section.settings.bulk_order_api_url | escape }}">
           <div class="va-bulk-content">
             <div>
-              <div class="va-panel-title">Import bulk orders</div>
-              <p class="va-bulk-intro">Upload a CSV with <strong>SFID, SKU, Quantity</strong>. Every SFID must belong to your signed-in customer account. Orders are only enabled after the file passes BC validation and an active ACH account is selected.</p>
+              <div class="va-panel-title">Bulk upload draft</div>
+              <p class="va-bulk-intro">Upload a CSV with <strong>SFID or BC Customer Location ID, SKU, Quantity</strong>. Data and SKU errors block the entire submission. Inventory issues stay actionable and do not block valid locations from being submitted.</p>
             </div>
 
             <div class="va-bulk-grid">
               <label class="va-bulk-field">
                 Order CSV
                 <input type="file" class="va-bulk-file" accept=".csv,text/csv">
-                <span class="va-bulk-hint">Maximum 25 MB. A header row is optional.</span>
+                <span class="va-bulk-hint">Maximum 25 MB. Header: Location ID / SFID, SKU, Quantity.</span>
               </label>
               <label class="va-bulk-field">
                 ACH payment method
@@ -1307,13 +1329,30 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
             </div>
 
             <div class="va-bulk-actions">
+              <button type="button" class="va-btn va-btn--outline va-bulk-rules">Edit substitution rules</button>
               <button type="button" class="va-btn va-btn--outline va-bulk-check" disabled>Check File</button>
               <button type="button" class="va-btn va-btn--primary va-bulk-import" disabled>Import Bulk Orders</button>
             </div>
 
             <div class="va-bulk-status" role="status">Loading your customer and payment information…</div>
+            <div class="va-bulk-progress" hidden>
+              <div class="va-bulk-progress-head"><strong class="va-bulk-progress-label">Queued</strong><span class="va-bulk-progress-count">0 / 0 locations</span></div>
+              <div class="va-bulk-progress-track"><div class="va-bulk-progress-bar"></div></div>
+            </div>
+            <div class="va-bulk-summary-cards" hidden></div>
             <div class="va-bulk-preview" hidden></div>
             <div class="va-bulk-results" hidden></div>
+            <dialog class="va-bulk-rules-dialog">
+              <div class="va-bulk-rules-body">
+                <div class="va-panel-title">Customer-group substitution rules</div>
+                <p class="va-bulk-intro">One group per line: Device, Product, then SKUs in priority order. Rules apply to this customer group across all locations.</p>
+                <textarea class="va-bulk-rules-text" spellcheck="false" placeholder="Device,Product,Priority 1 SKU,Priority 2 SKU"></textarea>
+                <div class="va-bulk-rules-actions">
+                  <button type="button" class="va-btn va-btn--outline va-bulk-rules-cancel">Cancel</button>
+                  <button type="button" class="va-btn va-btn--primary va-bulk-rules-save">Save rules</button>
+                </div>
+              </div>
+            </dialog>
           </div>
         </div>
       </div><!-- /tab-bulk -->
@@ -2536,11 +2575,18 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
     var achSelect  = panel.querySelector('.va-bulk-ach');
     var checkBtn   = panel.querySelector('.va-bulk-check');
     var importBtn  = panel.querySelector('.va-bulk-import');
+    var rulesBtn   = panel.querySelector('.va-bulk-rules');
+    var rulesDlg   = panel.querySelector('.va-bulk-rules-dialog');
+    var rulesText  = panel.querySelector('.va-bulk-rules-text');
+    var rulesSave  = panel.querySelector('.va-bulk-rules-save');
+    var rulesCancel = panel.querySelector('.va-bulk-rules-cancel');
     var statusEl   = panel.querySelector('.va-bulk-status');
+    var summaryEl  = panel.querySelector('.va-bulk-summary-cards');
+    var progressEl = panel.querySelector('.va-bulk-progress');
     var previewEl  = panel.querySelector('.va-bulk-preview');
     var resultsEl  = panel.querySelector('.va-bulk-results');
     var apiBase    = (root.dataset.apiBase || '').replace(/\/$/, '');
-    var state = { contextLoaded: false, loadingContext: false, fileName: '', csv: '', canImport: false, busy: false };
+    var state = { contextLoaded: false, loadingContext: false, fileName: '', csv: '', canImport: false, busy: false, jobId: '', jobToken: '', pollTimer: null };
 
     function setStatus(message, kind, allowHtml) {
       statusEl.className = 'va-bulk-status' + (kind ? ' va-bulk-status--' + kind : '');
@@ -2551,6 +2597,7 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
     function refreshButtons() {
       checkBtn.disabled = state.busy || !state.csv || !state.contextLoaded;
       importBtn.disabled = state.busy || !state.canImport || !achSelect.value;
+      rulesBtn.disabled = state.busy || !state.contextLoaded;
       fileInput.disabled = state.busy;
       achSelect.disabled = state.busy || !state.contextLoaded || achSelect.options.length <= 1;
     }
@@ -2632,45 +2679,89 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
       return value == null ? '' : Number(value).toFixed(2);
     }
 
+    function openRules() {
+      if (!state.contextLoaded || state.busy) return;
+      rulesBtn.disabled = true;
+      post('rules/get', basePayload()).then(function (data) {
+        rulesText.value = (data.groups || []).map(function (group) {
+          var cells = [group.device || '', group.product || ''];
+          (group.skus || []).sort(function (a, b) { return Number(a.sortOrder || 0) - Number(b.sortOrder || 0); })
+            .forEach(function (item) { cells.push(item.sku || ''); });
+          return cells.join(',');
+        }).join('\n');
+        rulesDlg.showModal();
+      }).catch(function (err) {
+        setStatus('Could not load substitution rules: ' + err.message, 'error');
+      }).finally(function () { rulesBtn.disabled = false; });
+    }
+
+    function saveRules() {
+      var groups = String(rulesText.value || '').split(/\r?\n/).map(function (line, index) {
+        var cells = line.split(',').map(function (cell) { return cell.trim(); });
+        var skus = cells.slice(2).filter(Boolean).map(function (sku, skuIndex) { return { sku: sku, sortOrder: skuIndex + 1 }; });
+        return { device: cells[0] || '', product: cells[1] || '', sortOrder: index + 1, skus: skus };
+      }).filter(function (group) { return group.skus.length; });
+      rulesSave.disabled = true;
+      post('rules/save', Object.assign(basePayload(), { groups: groups })).then(function () {
+        rulesDlg.close();
+        setStatus('Substitution rules saved for this customer group.', 'success');
+        if (state.csv) validateFile();
+      }).catch(function (err) {
+        setStatus('Could not save substitution rules: ' + err.message, 'error');
+      }).finally(function () { rulesSave.disabled = false; });
+    }
+
     function renderValidation(data) {
       var rows = data.rows || [];
       var errors = data.errors || [];
-      var html = '<div class="va-bulk-summary">'
-        + '<span class="va-bulk-badge">' + rows.length + ' row(s)</span>'
-        + '<span class="va-bulk-badge">' + (data.orderCount || 0) + ' order group(s)</span>'
-        + '<span class="va-bulk-badge ' + (data.canImport ? 'va-bulk-badge--ready' : 'va-bulk-badge--blocked') + '">' + (data.canImport ? 'Ready' : 'Needs attention') + '</span>'
-        + '</div>';
+      summaryEl.innerHTML = ''
+        + '<div class="va-bulk-summary-card"><strong>' + (data.orderCount || 0) + '</strong><span>Uploaded locations</span></div>'
+        + '<div class="va-bulk-summary-card va-bulk-summary-card--ready"><strong>' + (data.readyCount || 0) + '</strong><span>Ready lines</span></div>'
+        + '<div class="va-bulk-summary-card va-bulk-summary-card--sub"><strong>' + (data.substitutionCount || 0) + '</strong><span>Substitutions</span></div>'
+        + '<div class="va-bulk-summary-card va-bulk-summary-card--action"><strong>' + ((data.actionRequiredCount || 0) + (data.blockingErrorCount || 0)) + '</strong><span>Action required</span></div>';
+      summaryEl.hidden = false;
+
+      var html = '';
 
       if (errors.length) {
         html += '<div class="va-bulk-status va-bulk-status--error" style="margin-top:10px;">'
           + errors.map(function (error) { return '<div>' + escHtml(error) + '</div>'; }).join('') + '</div>';
       }
 
-      html += '<div class="va-bulk-table-wrap" style="margin-top:12px;"><table class="va-bulk-table"><thead><tr>'
-        + '<th>Row</th><th>SFID</th><th>Customer</th><th>SKU</th><th>BC item</th>'
-        + '<th class="va-bulk-number">Qty</th><th class="va-bulk-number">Import</th><th class="va-bulk-number">Available</th><th class="va-bulk-money">Amount</th><th>Status</th>'
-        + '</tr></thead><tbody>';
+      var groups = {};
       rows.forEach(function (row) {
-        var rowErrors = row.errors || [];
-        var warnings = row.warnings || [];
-        var itemNo = row.actualItemNo || row.itemNo || '';
-        var amount = row.importLineAmount == null ? row.lineAmount : row.importLineAmount;
-        html += '<tr' + (rowErrors.length ? ' class="has-error"' : '') + '>'
-          + '<td>' + escHtml(row.rowNumber) + '</td>'
-          + '<td>' + escHtml(row.addressCode || '') + '</td>'
-          + '<td><strong>' + escHtml(row.customerNo || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.customerName || '') + '</div></td>'
-          + '<td>' + escHtml(row.originalSku || '') + '</td>'
-          + '<td>' + escHtml(itemNo) + '</td>'
-          + '<td class="va-bulk-number">' + escHtml(row.quantity == null ? '' : row.quantity) + '</td>'
-          + '<td class="va-bulk-number">' + escHtml(row.importQuantity == null ? '' : row.importQuantity) + '</td>'
-          + '<td class="va-bulk-number">' + escHtml(row.availableQuantity == null ? '' : row.availableQuantity) + '</td>'
-          + '<td class="va-bulk-money">' + money(amount) + '</td><td>';
-        if (!rowErrors.length && !warnings.length) html += '<span class="va-bulk-badge va-bulk-badge--ready">OK</span>';
-        rowErrors.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--error">' + escHtml(message) + '</div>'; });
-        warnings.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--warning">' + escHtml(message) + '</div>'; });
-        html += '</td></tr>';
+        var key = row.addressCode || 'Unknown location';
+        (groups[key] || (groups[key] = [])).push(row);
       });
-      html += '</tbody></table></div>';
+      Object.keys(groups).forEach(function (location) {
+        var groupRows = groups[location];
+        var first = groupRows[0] || {};
+        html += '<section class="va-bulk-location"><div class="va-bulk-location-head">'
+          + '<strong>Location ' + escHtml(location) + '</strong>'
+          + '<span>' + escHtml(first.customerNo || '') + (first.customerName ? ' · ' + escHtml(first.customerName) : '') + '</span></div>'
+          + '<div class="va-bulk-table-wrap"><table class="va-bulk-table"><thead><tr>'
+          + '<th>Line</th><th>Original SKU</th><th class="va-bulk-number">Qty</th><th>Status</th><th>Fulfillment SKU</th><th>Action / Override</th>'
+          + '</tr></thead><tbody>';
+        groupRows.forEach(function (row) {
+          var rowErrors = row.errors || [];
+          var warnings = row.warnings || [];
+          var fulfillmentSku = row.actualSku || row.originalSku || '';
+          var status = rowErrors.length ? 'Blocked' : (row.wasReplaced ? 'Substituted' : (Number(row.importQuantity || 0) > 0 ? 'Ready' : 'Action required'));
+          var statusClass = rowErrors.length ? 'va-bulk-badge--blocked' : (status === 'Ready' ? 'va-bulk-badge--ready' : '');
+          html += '<tr' + (rowErrors.length ? ' class="has-error"' : '') + '>'
+            + '<td>' + escHtml(row.rowNumber) + '</td>'
+            + '<td><strong>' + escHtml(row.originalSku || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.itemNo || '') + '</div></td>'
+            + '<td class="va-bulk-number">' + escHtml(row.quantity == null ? '' : row.quantity) + '</td>'
+            + '<td><span class="va-bulk-badge ' + statusClass + '">' + escHtml(status) + '</span></td>'
+            + '<td><strong>' + escHtml(fulfillmentSku) + '</strong><div class="va-bulk-row-msg">' + escHtml(row.actualItemNo || row.itemNo || '') + '</div></td><td>';
+          if (!rowErrors.length && !warnings.length) html += '<span class="va-bulk-row-msg">No action needed</span>';
+          if (!rowErrors.length && Number(row.importQuantity || 0) <= 0) html += '<div class="va-bulk-row-msg va-bulk-row-msg--warning"><strong>Skip this line on submit</strong></div>';
+          rowErrors.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--error">' + escHtml(message) + '</div>'; });
+          warnings.forEach(function (message) { html += '<div class="va-bulk-row-msg va-bulk-row-msg--warning">' + escHtml(message) + '</div>'; });
+          html += '</td></tr>';
+        });
+        html += '</tbody></table></div></section>';
+      });
       previewEl.innerHTML = html;
       previewEl.hidden = false;
     }
@@ -2700,31 +2791,70 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
     function importOrders() {
       if (!state.canImport || state.busy) return;
       state.busy = true;
-      setStatus('Importing validated orders to Business Central…');
+      setStatus('Queueing validated location orders for Business Central...');
       refreshButtons();
       post('import', filePayload()).then(function (data) {
-        state.canImport = false;
-        var results = data.results || [];
-        resultsEl.innerHTML = results.map(function (result) {
-          var failed = result.status !== 'Success';
-          return '<div class="va-bulk-result' + (failed ? ' va-bulk-result--failed' : '') + '">'
-            + '<strong>' + escHtml(result.addressCode || '') + '</strong>'
-            + '<span>' + escHtml(result.salesOrderNo || result.status || '') + '</span>'
-            + '<span>' + escHtml(result.details || '') + '</span></div>';
-        }).join('');
-        resultsEl.hidden = false;
-        setStatus(
-          data.success === false
-            ? (data.failedCount || 0) + ' order group(s) failed. Review the results below.'
-            : results.length + ' order group(s) processed successfully.',
-          data.success === false ? 'error' : 'success'
-        );
+        state.jobId = data.jobId || '';
+        state.jobToken = data.jobToken || '';
+        if (!state.jobId || !state.jobToken) throw new Error('The API did not return a queue job.');
+        progressEl.hidden = false;
+        setStatus('Order job queued. You can keep this page open while locations are processed.');
+        pollJob(data.pollAfterMs || 1500);
       }).catch(function (err) {
         setStatus('Import failed: ' + err.message, 'error');
-      }).finally(function () {
         state.busy = false;
         refreshButtons();
       });
+    }
+
+    function renderJob(job) {
+      var complete = Number(job.completedGroups || 0);
+      var total = Number(job.totalGroups || 0);
+      var percent = Math.max(0, Math.min(100, Number(job.percentComplete || 0)));
+      progressEl.querySelector('.va-bulk-progress-label').textContent = job.status + (job.currentLocation ? ' · ' + job.currentLocation : '');
+      progressEl.querySelector('.va-bulk-progress-count').textContent = complete + ' / ' + total + ' locations';
+      progressEl.querySelector('.va-bulk-progress-bar').style.width = percent + '%';
+
+      var results = job.results || [];
+      resultsEl.innerHTML = results.map(function (result) {
+        var failed = result.status !== 'Success' && result.status !== 'Skipped';
+        return '<div class="va-bulk-result' + (failed ? ' va-bulk-result--failed' : '') + '">'
+          + '<strong>' + escHtml(result.addressCode || '') + '</strong>'
+          + '<span>' + escHtml(result.salesOrderNo || result.status || '') + '</span>'
+          + '<span>' + escHtml(result.details || '') + '</span></div>';
+      }).join('');
+      resultsEl.hidden = !results.length;
+    }
+
+    function pollJob(delay) {
+      clearTimeout(state.pollTimer);
+      state.pollTimer = setTimeout(function () {
+        fetch(apiBase + '/jobs/' + encodeURIComponent(state.jobId) + '?token=' + encodeURIComponent(state.jobToken))
+          .then(function (response) {
+            return response.json().then(function (data) {
+              if (!response.ok) throw new Error(data.error || 'Could not read job status.');
+              return data;
+            });
+          })
+          .then(function (data) {
+            var job = data.job || {};
+            renderJob(job);
+            var terminal = job.status === 'Completed' || job.status === 'CompletedWithErrors' || job.status === 'Failed';
+            if (!terminal) { pollJob(1500); return; }
+            state.busy = false;
+            state.canImport = false;
+            refreshButtons();
+            setStatus(
+              job.status === 'Completed'
+                ? 'All ' + (job.totalGroups || 0) + ' location orders were processed.'
+                : (job.failedGroups || 0) + ' location order(s) need review. Successful locations were still submitted.',
+              job.status === 'Completed' ? 'success' : 'error'
+            );
+          }).catch(function (err) {
+            setStatus('Progress check failed; retrying: ' + err.message, 'error');
+            pollJob(3000);
+          });
+      }, delay || 1500);
     }
 
     fileInput.addEventListener('change', function () {
@@ -2732,6 +2862,11 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
       state.fileName = '';
       state.csv = '';
       state.canImport = false;
+      clearTimeout(state.pollTimer);
+      state.jobId = '';
+      state.jobToken = '';
+      progressEl.hidden = true;
+      summaryEl.hidden = true;
       previewEl.hidden = true;
       resultsEl.hidden = true;
       if (!file) { refreshButtons(); return; }
@@ -2759,6 +2894,9 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
     });
     checkBtn.addEventListener('click', validateFile);
     importBtn.addEventListener('click', importOrders);
+    rulesBtn.addEventListener('click', openRules);
+    rulesCancel.addEventListener('click', function () { rulesDlg.close(); });
+    rulesSave.addEventListener('click', saveRules);
 
     new MutationObserver(function () {
       if (panel.classList.contains('va-tab--active')) loadContext();
