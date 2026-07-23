@@ -1021,6 +1021,9 @@
     var rulesFilter = panel.querySelector('.va-bulk-rules-filter');
     var rulesAdd = panel.querySelector('.va-bulk-rules-add');
     var rulesAddPriority = panel.querySelector('.va-bulk-rules-add-priority');
+    var rulesCsvImport = panel.querySelector('.va-bulk-rules-csv-import');
+    var rulesCsvFile = panel.querySelector('.va-bulk-rules-csv-file');
+    var rulesCsvExport = panel.querySelector('.va-bulk-rules-csv-export');
     var rulesFeedback = panel.querySelector('.va-bulk-rules-feedback');
     var statusEl   = panel.querySelector('.va-bulk-status');
     var summaryEl  = panel.querySelector('.va-bulk-summary-cards');
@@ -1293,6 +1296,184 @@
       rulesFeedback.textContent = message || '';
     }
 
+    function parseCsvTable(value) {
+      var text = String(value || '').replace(/^\uFEFF/, '');
+      var rows = [];
+      var row = [];
+      var cell = '';
+      var quoted = false;
+
+      for (var index = 0; index < text.length; index += 1) {
+        var character = text[index];
+        if (quoted) {
+          if (character === '"' && text[index + 1] === '"') {
+            cell += '"';
+            index += 1;
+          } else if (character === '"') {
+            quoted = false;
+          } else {
+            cell += character;
+          }
+          continue;
+        }
+
+        if (character === '"' && !cell) {
+          quoted = true;
+        } else if (character === ',') {
+          row.push(cell);
+          cell = '';
+        } else if (character === '\r' || character === '\n') {
+          row.push(cell);
+          rows.push(row);
+          row = [];
+          cell = '';
+          if (character === '\r' && text[index + 1] === '\n') index += 1;
+        } else {
+          cell += character;
+        }
+      }
+
+      if (quoted) throw new Error('The CSV contains an unclosed quoted value.');
+      if (cell || row.length) {
+        row.push(cell);
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function normalizedRuleHeader(value) {
+      return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+    }
+
+    function isPriorityHeader(value) {
+      var normalized = normalizedRuleHeader(value);
+      return /^priority\d+(sku)?$/.test(normalized) || /^sku\d+$/.test(normalized);
+    }
+
+    function parseRulesCsv(value) {
+      var rows = parseCsvTable(value).filter(function (row) {
+        return row.some(function (cell) { return String(cell || '').trim(); });
+      });
+      if (!rows.length) {
+        throw new Error('The CSV is empty. Use the header Note,Priority 1,Priority 2.');
+      }
+
+      var header = rows.shift();
+      var firstHeader = normalizedRuleHeader(header[0]);
+      var legacyFormat = firstHeader === 'device' && normalizedRuleHeader(header[1]) === 'product';
+      var priorityStart = legacyFormat ? 2 : 1;
+      if (!legacyFormat && firstHeader !== 'note') {
+        throw new Error('The first CSV column must be Note. Legacy Device,Product CSV files are also supported.');
+      }
+
+      var priorityHeaders = header.slice(priorityStart).filter(function (cell) {
+        return String(cell || '').trim();
+      });
+      if (!priorityHeaders.length || !priorityHeaders.every(isPriorityHeader)) {
+        throw new Error('Use priority headers such as Priority 1, Priority 2, and Priority 3.');
+      }
+
+      var importedRows = [];
+      var ignoredRows = 0;
+      var priorityCount = priorityHeaders.length;
+      rows.forEach(function (cells) {
+        var note = legacyFormat
+          ? [cells[0], cells[1]].map(function (cell) { return String(cell || '').trim(); }).filter(Boolean).join(' ')
+          : String(cells[0] || '').trim();
+        var skuValues = cells.slice(priorityStart).map(function (cell) {
+          return String(cell || '').trim().toUpperCase();
+        });
+        if (!skuValues.some(Boolean)) {
+          ignoredRows += 1;
+          return;
+        }
+        priorityCount = Math.max(priorityCount, skuValues.length);
+        importedRows.push({
+          id: importedRows.length + 1,
+          note: note,
+          skus: skuValues.map(function (sku, skuIndex) {
+            return makeRuleSlot(sku, skuIndex + 1);
+          })
+        });
+      });
+
+      return {
+        rows: importedRows,
+        ignoredRows: ignoredRows,
+        priorityCount: Math.max(3, priorityCount),
+        legacyFormat: legacyFormat
+      };
+    }
+
+    function exportRulesCsv() {
+      var header = ['Note'];
+      for (var priority = 1; priority <= rulesState.priorityCount; priority += 1) {
+        header.push('Priority ' + priority);
+      }
+      var exportRows = rulesState.rows.filter(function (row) {
+        return row.skus.some(function (slot) { return Boolean(String(slot.sku || '').trim()); });
+      });
+      var lines = [header.map(csvCell).join(',')];
+      exportRows.forEach(function (row) {
+        var cells = [String(row.note || '').trim()];
+        for (var index = 0; index < rulesState.priorityCount; index += 1) {
+          cells.push(String(row.skus[index] && row.skus[index].sku || '').trim().toUpperCase());
+        }
+        lines.push(cells.map(csvCell).join(','));
+      });
+      downloadCsv('valor-substitution-rule-profiles.csv', lines);
+      setRulesFeedback(
+        exportRows.length
+          ? 'Exported ' + exportRows.length + ' rule profiles without product or inventory details.'
+          : 'Exported an empty CSV template with the current priority columns.',
+        'success'
+      );
+    }
+
+    function importRulesCsv(file) {
+      if (!file || rulesState.loading) return;
+      if (file.size > 5 * 1024 * 1024) {
+        setRulesFeedback('The rule-profile CSV exceeds the 5 MB limit.', 'error');
+        if (rulesCsvFile) rulesCsvFile.value = '';
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var imported = parseRulesCsv(reader.result);
+          clearRulesSearchState();
+          rulesState.rows = imported.rows;
+          rulesState.priorityCount = imported.priorityCount;
+          rulesState.nextRowId = imported.rows.length + 1;
+          rulesState.filter = '';
+          if (rulesFilter) rulesFilter.value = '';
+          rulesState.rows.forEach(padRuleRow);
+          renderRulesGrid();
+          var message = 'Imported ' + imported.rows.length + ' rule profile'
+            + (imported.rows.length === 1 ? '' : 's')
+            + '; current editor rows were replaced. Save rule profiles to update the shared rules.';
+          if (imported.ignoredRows) {
+            message += ' ' + imported.ignoredRows + ' row'
+              + (imported.ignoredRows === 1 ? '' : 's') + ' without a SKU were ignored.';
+          }
+          if (imported.legacyFormat) {
+            message += ' Legacy Device and Product values were combined into Note.';
+          }
+          setRulesFeedback(message, 'success');
+        } catch (error) {
+          setRulesFeedback('Could not import CSV: ' + error.message, 'error');
+        } finally {
+          if (rulesCsvFile) rulesCsvFile.value = '';
+        }
+      };
+      reader.onerror = function () {
+        setRulesFeedback('Could not read the selected CSV.', 'error');
+        if (rulesCsvFile) rulesCsvFile.value = '';
+      };
+      reader.readAsText(file);
+    }
+
     function rulesCellKey(rowId, priority) {
       return String(rowId) + '-' + String(priority);
     }
@@ -1414,7 +1595,12 @@
           + '</tr>';
       }).join('');
 
-      if (rulesEmpty) rulesEmpty.hidden = visibleRows.length > 0;
+      if (rulesEmpty) {
+        rulesEmpty.hidden = visibleRows.length > 0;
+        rulesEmpty.textContent = rulesState.rows.length
+          ? 'No rule profiles match this filter.'
+          : 'No rule profiles yet. Add a rule group or import a CSV to begin.';
+      }
       if (rulesCount) rulesCount.textContent = rulesState.rows.length + ' rule group' + (rulesState.rows.length === 1 ? '' : 's');
       if (rulesPriorityCount) rulesPriorityCount.textContent = rulesState.priorityCount + ' priority column' + (rulesState.priorityCount === 1 ? '' : 's');
       if (rulesGridWrap) {
@@ -1440,6 +1626,8 @@
       if (rulesGridBody) rulesGridBody.innerHTML = '<tr><td class="va-bulk-rules-loading" colspan="5">Loading customer-group substitution rules...</td></tr>';
       setRulesFeedback('Loading rule profiles...');
       rulesBtn.disabled = true;
+      if (rulesCsvImport) rulesCsvImport.disabled = true;
+      if (rulesCsvExport) rulesCsvExport.disabled = true;
       post('rules/get', basePayload()).then(function (data) {
         var groups = data.groups || [];
         rulesState.rows = groups.map(makeRuleRow);
@@ -1456,6 +1644,8 @@
       }).finally(function () {
         rulesState.loading = false;
         rulesBtn.disabled = false;
+        if (rulesCsvImport) rulesCsvImport.disabled = false;
+        if (rulesCsvExport) rulesCsvExport.disabled = false;
       });
     }
 
@@ -2226,6 +2416,15 @@
       button.addEventListener('click', closeRules);
     });
     rulesSave.addEventListener('click', saveRules);
+    if (rulesCsvImport && rulesCsvFile) {
+      rulesCsvImport.addEventListener('click', function () {
+        if (!rulesState.loading) rulesCsvFile.click();
+      });
+      rulesCsvFile.addEventListener('change', function () {
+        importRulesCsv(rulesCsvFile.files && rulesCsvFile.files[0]);
+      });
+    }
+    if (rulesCsvExport) rulesCsvExport.addEventListener('click', exportRulesCsv);
     rulesDlg.addEventListener('cancel', function (event) {
       event.preventDefault();
       closeRules();

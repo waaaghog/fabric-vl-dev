@@ -530,6 +530,11 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
                     <input type="search" class="va-bulk-rules-filter" placeholder="Filter notes or SKUs…" autocomplete="off">
                   </label>
+                  <div class="va-bulk-rules-csv-actions">
+                    <button type="button" class="va-btn va-btn--outline va-bulk-rules-csv-import">Import CSV</button>
+                    <input type="file" class="va-bulk-rules-csv-file" accept=".csv,text/csv" hidden>
+                    <button type="button" class="va-btn va-btn--outline va-bulk-rules-csv-export">Export CSV</button>
+                  </div>
                   <button type="button" class="va-btn va-btn--outline va-bulk-rules-add">
                     <span aria-hidden="true">＋</span> Add rule group
                   </button>
@@ -540,7 +545,7 @@
 
                 <div class="va-bulk-rules-tip">
                   <span aria-hidden="true">💡</span>
-                  <span>Start with two or more SKU characters. Stock is read from Shopify for speed; selecting a result places that SKU into the priority cell.</span>
+                  <span>Start with two or more SKU characters. CSV columns are Note, Priority 1, Priority 2, and so on. Import replaces the current editor rows; Save rule profiles applies the replacement.</span>
                 </div>
 
                 <div class="va-bulk-rules-grid-wrap">
@@ -548,7 +553,7 @@
                     <thead class="va-bulk-rules-grid-head"></thead>
                     <tbody class="va-bulk-rules-grid-body"></tbody>
                   </table>
-                  <div class="va-bulk-rules-empty" hidden>No rule groups match this filter.</div>
+                  <div class="va-bulk-rules-empty" hidden>No rule profiles yet. Add a rule group or import a CSV to begin.</div>
                 </div>
 
                 <footer class="va-bulk-rules-footer">
