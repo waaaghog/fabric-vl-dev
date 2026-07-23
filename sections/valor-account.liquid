@@ -493,15 +493,56 @@
                 </button>
               </div>
             </div>
-            <dialog class="va-bulk-rules-dialog">
+            <dialog class="va-bulk-rules-dialog" aria-labelledby="va-bulk-rules-title">
               <div class="va-bulk-rules-body">
-                <div class="va-panel-title">Customer-group substitution rules</div>
-                <p class="va-bulk-intro">One group per line: Device, Product, then SKUs in priority order. Rules apply to this customer group across all locations.</p>
-                <textarea class="va-bulk-rules-text" spellcheck="false" placeholder="Device,Product,Priority 1 SKU,Priority 2 SKU"></textarea>
-                <div class="va-bulk-rules-actions">
-                  <button type="button" class="va-btn va-btn--outline va-bulk-rules-cancel">Cancel</button>
-                  <button type="button" class="va-btn va-btn--primary va-bulk-rules-save">Save rules</button>
+                <header class="va-bulk-rules-header">
+                  <div>
+                    <span class="va-bulk-rules-eyebrow">Customer-group rule editor</span>
+                    <h2 id="va-bulk-rules-title">Edit substitution rule profiles</h2>
+                    <p>Use the optional note to label a replacement group for your own reference. Search Shopify in any priority cell to see product details and current online stock before selecting a SKU.</p>
+                  </div>
+                  <button type="button" class="va-bulk-rules-close va-bulk-rules-cancel" aria-label="Close substitution rule editor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                  </button>
+                </header>
+
+                <div class="va-bulk-rules-toolbar">
+                  <div class="va-bulk-rules-stats">
+                    <strong class="va-bulk-rules-count">0 rule groups</strong>
+                    <span class="va-bulk-rules-priority-count">3 priority columns</span>
+                  </div>
+                  <label class="va-bulk-rules-filter-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+                    <input type="search" class="va-bulk-rules-filter" placeholder="Filter notes or SKUs…" autocomplete="off">
+                  </label>
+                  <button type="button" class="va-btn va-btn--outline va-bulk-rules-add">
+                    <span aria-hidden="true">＋</span> Add rule group
+                  </button>
+                  <button type="button" class="va-btn va-btn--outline va-bulk-rules-add-priority">
+                    <span aria-hidden="true">+</span> Add priority column
+                  </button>
                 </div>
+
+                <div class="va-bulk-rules-tip">
+                  <span aria-hidden="true">💡</span>
+                  <span>Start with two or more SKU characters. Stock is read from Shopify for speed; selecting a result places that SKU into the priority cell.</span>
+                </div>
+
+                <div class="va-bulk-rules-grid-wrap">
+                  <table class="va-bulk-rules-grid">
+                    <thead class="va-bulk-rules-grid-head"></thead>
+                    <tbody class="va-bulk-rules-grid-body"></tbody>
+                  </table>
+                  <div class="va-bulk-rules-empty" hidden>No rule groups match this filter.</div>
+                </div>
+
+                <footer class="va-bulk-rules-footer">
+                  <span class="va-bulk-rules-feedback" role="status" aria-live="polite"></span>
+                  <div class="va-bulk-rules-actions">
+                    <button type="button" class="va-btn va-btn--outline va-bulk-rules-cancel">Cancel</button>
+                    <button type="button" class="va-btn va-btn--primary va-bulk-rules-save">Save rule profiles</button>
+                  </div>
+                </footer>
               </div>
             </dialog>
           </div>
@@ -739,7 +780,7 @@
 
 {%- endif -%}
 
-<script src="{{ 'valor-account.js' | asset_url }}&feature=bulk-inline-product-search-20260723"></script>
+<script src="{{ 'valor-account.js' | asset_url }}&feature=bulk-rule-grid-20260723"></script>
 
 {% schema %}
 {

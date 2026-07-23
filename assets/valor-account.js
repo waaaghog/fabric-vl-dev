@@ -1010,9 +1010,18 @@
     var addressDownloadLink = panel.querySelector('.va-bulk-address-download');
     var rulesBtn   = panel.querySelector('.va-bulk-rules');
     var rulesDlg   = panel.querySelector('.va-bulk-rules-dialog');
-    var rulesText  = panel.querySelector('.va-bulk-rules-text');
     var rulesSave  = panel.querySelector('.va-bulk-rules-save');
-    var rulesCancel = panel.querySelector('.va-bulk-rules-cancel');
+    var rulesCancelButtons = panel.querySelectorAll('.va-bulk-rules-cancel');
+    var rulesGridHead = panel.querySelector('.va-bulk-rules-grid-head');
+    var rulesGridBody = panel.querySelector('.va-bulk-rules-grid-body');
+    var rulesGridWrap = panel.querySelector('.va-bulk-rules-grid-wrap');
+    var rulesEmpty = panel.querySelector('.va-bulk-rules-empty');
+    var rulesCount = panel.querySelector('.va-bulk-rules-count');
+    var rulesPriorityCount = panel.querySelector('.va-bulk-rules-priority-count');
+    var rulesFilter = panel.querySelector('.va-bulk-rules-filter');
+    var rulesAdd = panel.querySelector('.va-bulk-rules-add');
+    var rulesAddPriority = panel.querySelector('.va-bulk-rules-add-priority');
+    var rulesFeedback = panel.querySelector('.va-bulk-rules-feedback');
     var statusEl   = panel.querySelector('.va-bulk-status');
     var summaryEl  = panel.querySelector('.va-bulk-summary-cards');
     var progressEl = panel.querySelector('.va-bulk-progress');
@@ -1042,6 +1051,16 @@
       productSearchSequence: {},
       productSearchResults: {},
       collapsedLocations: {}
+    };
+    var rulesState = {
+      rows: [],
+      priorityCount: 3,
+      nextRowId: 1,
+      filter: '',
+      loading: false,
+      searchTimers: {},
+      searchSequence: {},
+      searchResults: {}
     };
 
     function setStatus(message, kind, allowHtml) {
@@ -1253,36 +1272,337 @@
       return value == null ? '' : Number(value).toFixed(2);
     }
 
+    function setRulesFeedback(message, kind) {
+      if (!rulesFeedback) return;
+      rulesFeedback.className = 'va-bulk-rules-feedback' + (kind ? ' va-bulk-rules-feedback--' + kind : '');
+      rulesFeedback.textContent = message || '';
+    }
+
+    function rulesCellKey(rowId, priority) {
+      return String(rowId) + '-' + String(priority);
+    }
+
+    function clearRulesSearchState() {
+      Object.keys(rulesState.searchTimers).forEach(function (key) {
+        clearTimeout(rulesState.searchTimers[key]);
+      });
+      rulesState.searchTimers = {};
+      rulesState.searchSequence = {};
+      rulesState.searchResults = {};
+      panel.querySelectorAll('.va-bulk-rule-search-results').forEach(function (results) {
+        results.hidden = true;
+      });
+    }
+
+    function makeRuleSlot(sku, priority) {
+      var normalized = String(sku || '').trim().toUpperCase();
+      return {
+        priority: priority,
+        sku: normalized,
+        originalSku: normalized,
+        product: null,
+        validated: Boolean(normalized)
+      };
+    }
+
+    function makeRuleRow(group) {
+      var device = String(group && group.device || '').trim();
+      var product = String(group && group.product || '').trim();
+      var skus = (group && group.skus || []).slice().sort(function (a, b) {
+        return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+      });
+      return {
+        id: rulesState.nextRowId++,
+        note: [device, product].filter(Boolean).join(' '),
+        skus: skus.map(function (item, index) { return makeRuleSlot(item.sku, index + 1); })
+      };
+    }
+
+    function padRuleRow(row) {
+      while (row.skus.length < rulesState.priorityCount) {
+        row.skus.push(makeRuleSlot('', row.skus.length + 1));
+      }
+      return row;
+    }
+
+    function ruleRowMatches(row) {
+      var query = String(rulesState.filter || '').trim().toUpperCase();
+      if (!query) return true;
+      if (String(row.note || '').toUpperCase().indexOf(query) >= 0) return true;
+      return row.skus.some(function (slot) {
+        return String(slot.sku || '').toUpperCase().indexOf(query) >= 0;
+      });
+    }
+
+    function ruleSelectedProductHtml(slot) {
+      if (slot.product) {
+        var product = slot.product;
+        var title = product.productTitle || product.displayName || product.sku || '';
+        var available = product.availableForSale === true;
+        return '<div class="va-bulk-rule-product">'
+          + (product.imageUrl
+            ? '<img src="' + escHtml(product.imageUrl) + '" alt="' + escHtml(product.imageAlt || title) + '" loading="lazy">'
+            : '<span class="va-bulk-product-image-placeholder" aria-hidden="true">SKU</span>')
+          + '<span class="va-bulk-rule-product-copy"><small>' + escHtml(title) + '</small>'
+          + '<strong class="' + (available ? 'is-available' : 'is-unavailable') + '">' + escHtml(shopifyStockLabel(product)) + '</strong></span>'
+          + '</div>';
+      }
+      if (slot.sku) {
+        return '<div class="va-bulk-rule-product va-bulk-rule-product--pending">'
+          + '<span class="va-bulk-rule-product-copy"><small>Saved SKU</small><strong>Focus to refresh Shopify stock</strong></span>'
+          + '</div>';
+      }
+      return '<div class="va-bulk-rule-product va-bulk-rule-product--hint">Choose a Shopify product to set this priority.</div>';
+    }
+
+    function ruleSkuCellHtml(row, slot, priority) {
+      return '<td class="va-bulk-rule-sku-cell">'
+        + '<div class="va-bulk-rule-sku-editor" data-rule-row-id="' + row.id + '" data-rule-priority="' + priority + '">'
+        + '<label><span class="visually-hidden">Priority ' + priority + ' SKU</span>'
+        + '<input type="search" class="va-bulk-rule-sku-input" value="' + escHtml(slot.sku || '') + '" '
+        + 'placeholder="Search partial SKU..." autocomplete="off" spellcheck="false"></label>'
+        + '<span class="va-bulk-rule-search-state" aria-live="polite"></span>'
+        + '<div class="va-bulk-rule-search-results" role="listbox" hidden></div>'
+        + ruleSelectedProductHtml(slot)
+        + '</div></td>';
+    }
+
+    function renderRulesGrid() {
+      if (!rulesGridHead || !rulesGridBody) return;
+      var scrollTop = rulesGridWrap ? rulesGridWrap.scrollTop : 0;
+      var scrollLeft = rulesGridWrap ? rulesGridWrap.scrollLeft : 0;
+      var priorityHeaders = '';
+      for (var priority = 1; priority <= rulesState.priorityCount; priority += 1) {
+        priorityHeaders += '<th scope="col"><span>Priority ' + priority + '</span><small>Shopify product &amp; live stock</small></th>';
+      }
+      rulesGridHead.innerHTML = '<tr><th scope="col" class="va-bulk-rule-number-head">#</th>'
+        + '<th scope="col" class="va-bulk-rule-note-head"><span>Note</span><small>Optional customer reference</small></th>'
+        + priorityHeaders
+        + '<th scope="col" class="va-bulk-rule-actions-head">Actions</th></tr>';
+
+      var visibleRows = rulesState.rows.filter(ruleRowMatches);
+      rulesGridBody.innerHTML = visibleRows.map(function (row) {
+        padRuleRow(row);
+        var cells = '';
+        for (var index = 0; index < rulesState.priorityCount; index += 1) {
+          cells += ruleSkuCellHtml(row, row.skus[index], index + 1);
+        }
+        var rowNumber = rulesState.rows.indexOf(row) + 1;
+        return '<tr data-rule-row="' + row.id + '">'
+          + '<th scope="row" class="va-bulk-rule-number">' + rowNumber + '</th>'
+          + '<td class="va-bulk-rule-note-cell"><label><span class="visually-hidden">Optional note</span>'
+          + '<input type="text" class="va-bulk-rule-note" value="' + escHtml(row.note || '') + '" '
+          + 'placeholder="Optional note, e.g. iPhone case group"></label></td>'
+          + cells
+          + '<td class="va-bulk-rule-row-actions"><button type="button" class="va-bulk-rule-delete" '
+          + 'data-rule-delete="' + row.id + '" aria-label="Delete rule group ' + rowNumber + '">Delete</button></td>'
+          + '</tr>';
+      }).join('');
+
+      if (rulesEmpty) rulesEmpty.hidden = visibleRows.length > 0;
+      if (rulesCount) rulesCount.textContent = rulesState.rows.length + ' rule group' + (rulesState.rows.length === 1 ? '' : 's');
+      if (rulesPriorityCount) rulesPriorityCount.textContent = rulesState.priorityCount + ' priority column' + (rulesState.priorityCount === 1 ? '' : 's');
+      if (rulesGridWrap) {
+        rulesGridWrap.scrollTop = scrollTop;
+        rulesGridWrap.scrollLeft = scrollLeft;
+      }
+    }
+
+    function closeRules() {
+      clearRulesSearchState();
+      if (rulesDlg && rulesDlg.open) rulesDlg.close();
+    }
+
     function openRules() {
       if (!state.contextLoaded || state.busy) return;
+      if (!rulesDlg.open) rulesDlg.showModal();
+      document.documentElement.classList.add('va-bulk-rules-open');
+      rulesState.loading = true;
+      rulesState.rows = [];
+      rulesState.priorityCount = 3;
+      rulesState.filter = '';
+      if (rulesFilter) rulesFilter.value = '';
+      if (rulesGridBody) rulesGridBody.innerHTML = '<tr><td class="va-bulk-rules-loading" colspan="5">Loading customer-group substitution rules...</td></tr>';
+      setRulesFeedback('Loading rule profiles...');
       rulesBtn.disabled = true;
       post('rules/get', basePayload()).then(function (data) {
-        rulesText.value = (data.groups || []).map(function (group) {
-          var cells = [group.device || '', group.product || ''];
-          (group.skus || []).sort(function (a, b) { return Number(a.sortOrder || 0) - Number(b.sortOrder || 0); })
-            .forEach(function (item) { cells.push(item.sku || ''); });
-          return cells.join(',');
-        }).join('\n');
-        rulesDlg.showModal();
+        var groups = data.groups || [];
+        rulesState.rows = groups.map(makeRuleRow);
+        rulesState.priorityCount = Math.max(3, groups.reduce(function (maximum, group) {
+          return Math.max(maximum, (group.skus || []).length);
+        }, 0));
+        rulesState.rows.forEach(padRuleRow);
+        renderRulesGrid();
+        setRulesFeedback('Loaded ' + rulesState.rows.length + ' customer-group rule profiles.', 'success');
       }).catch(function (err) {
-        setStatus('Could not load substitution rules: ' + err.message, 'error');
-      }).finally(function () { rulesBtn.disabled = false; });
+        rulesState.rows = [];
+        renderRulesGrid();
+        setRulesFeedback('Could not load substitution rules: ' + err.message, 'error');
+      }).finally(function () {
+        rulesState.loading = false;
+        rulesBtn.disabled = false;
+      });
     }
 
     function saveRules() {
-      var groups = String(rulesText.value || '').split(/\r?\n/).map(function (line, index) {
-        var cells = line.split(',').map(function (cell) { return cell.trim(); });
-        var skus = cells.slice(2).filter(Boolean).map(function (sku, skuIndex) { return { sku: sku, sortOrder: skuIndex + 1 }; });
-        return { device: cells[0] || '', product: cells[1] || '', sortOrder: index + 1, skus: skus };
+      var invalidSlot = null;
+      rulesState.rows.some(function (row) {
+        return row.skus.some(function (slot, index) {
+          if (slot.sku && !slot.validated) {
+            invalidSlot = { row: row, priority: index + 1 };
+            return true;
+          }
+          return false;
+        });
+      });
+      if (invalidSlot) {
+        setRulesFeedback('Choose a Shopify search result for rule ' + (rulesState.rows.indexOf(invalidSlot.row) + 1)
+          + ', Priority ' + invalidSlot.priority + ' before saving.', 'error');
+        var invalidInput = rulesGridBody.querySelector('[data-rule-row-id="' + invalidSlot.row.id
+          + '"][data-rule-priority="' + invalidSlot.priority + '"] .va-bulk-rule-sku-input');
+        if (invalidInput) invalidInput.focus();
+        return;
+      }
+
+      var groups = rulesState.rows.map(function (row, index) {
+        var skus = row.skus.filter(function (slot) { return Boolean(slot.sku); }).map(function (slot, skuIndex) {
+          return { sku: String(slot.sku).trim().toUpperCase(), sortOrder: skuIndex + 1 };
+        });
+        return {
+          device: String(row.note || '').trim(),
+          product: '',
+          sortOrder: index + 1,
+          skus: skus
+        };
       }).filter(function (group) { return group.skus.length; });
       rulesSave.disabled = true;
+      setRulesFeedback('Saving ' + groups.length + ' rule profiles...');
       post('rules/save', Object.assign(basePayload(), { groups: groups })).then(function () {
-        rulesDlg.close();
+        closeRules();
         setStatus('Substitution rules saved for this customer group.', 'success');
         if (state.csv) validateFile();
       }).catch(function (err) {
-        setStatus('Could not save substitution rules: ' + err.message, 'error');
+        setRulesFeedback('Could not save substitution rules: ' + err.message, 'error');
       }).finally(function () { rulesSave.disabled = false; });
+    }
+
+    function findRuleRow(rowId) {
+      return rulesState.rows.find(function (row) { return row.id === Number(rowId); });
+    }
+
+    function placeRuleSearchResults(editor) {
+      var results = editor && editor.querySelector('.va-bulk-rule-search-results');
+      var input = editor && editor.querySelector('.va-bulk-rule-sku-input');
+      if (!results || !input || results.hidden) return;
+      var rect = input.getBoundingClientRect();
+      var viewportGap = 12;
+      var width = Math.max(360, rect.width);
+      width = Math.min(width, window.innerWidth - viewportGap * 2);
+      var left = Math.min(Math.max(viewportGap, rect.left), window.innerWidth - width - viewportGap);
+      results.style.left = left + 'px';
+      results.style.width = width + 'px';
+      results.style.top = Math.min(rect.bottom + 5, window.innerHeight - Math.min(360, results.offsetHeight) - viewportGap) + 'px';
+    }
+
+    function renderRuleSearchResults(editor, key, products, query) {
+      var results = editor && editor.querySelector('.va-bulk-rule-search-results');
+      var stateText = editor && editor.querySelector('.va-bulk-rule-search-state');
+      if (!results) return;
+      rulesState.searchResults[key] = products || [];
+      if (!products || !products.length) {
+        results.innerHTML = '<div class="va-bulk-rule-search-empty">No public Shopify products found for "' + escHtml(query) + '".</div>';
+        results.hidden = false;
+        if (stateText) stateText.textContent = '';
+        placeRuleSearchResults(editor);
+        return;
+      }
+      results.innerHTML = products.map(function (product, index) {
+        var title = product.productTitle || product.displayName || product.sku || '';
+        var available = product.availableForSale === true;
+        return '<button type="button" class="va-bulk-rule-search-result" role="option" data-rule-result-index="' + index + '">'
+          + (product.imageUrl
+            ? '<img src="' + escHtml(product.imageUrl) + '" alt="' + escHtml(product.imageAlt || title) + '" loading="lazy">'
+            : '<span class="va-bulk-product-image-placeholder" aria-hidden="true">SKU</span>')
+          + '<span class="va-bulk-rule-result-copy"><strong>' + escHtml(product.sku || '') + '</strong>'
+          + '<small>' + escHtml(title) + '</small>'
+          + (product.barcode ? '<small>Barcode: ' + escHtml(product.barcode) + '</small>' : '')
+          + '</span><span class="va-bulk-product-stock ' + (available ? 'is-available' : 'is-unavailable') + '">'
+          + escHtml(shopifyStockLabel(product)) + '</span></button>';
+      }).join('');
+      results.hidden = false;
+      if (stateText) stateText.textContent = products.length + ' result' + (products.length === 1 ? '' : 's');
+      placeRuleSearchResults(editor);
+    }
+
+    function searchProductsForRule(input, immediate) {
+      var editor = input && input.closest('.va-bulk-rule-sku-editor');
+      if (!editor) return;
+      var row = findRuleRow(editor.dataset.ruleRowId);
+      var priority = Number(editor.dataset.rulePriority || 0);
+      var slot = row && row.skus[priority - 1];
+      if (!slot) return;
+      var key = rulesCellKey(row.id, priority);
+      var query = String(input.value || '').trim().toUpperCase();
+      var results = editor.querySelector('.va-bulk-rule-search-results');
+      var stateText = editor.querySelector('.va-bulk-rule-search-state');
+      clearTimeout(rulesState.searchTimers[key]);
+      rulesState.searchSequence[key] = Number(rulesState.searchSequence[key] || 0) + 1;
+      var sequence = rulesState.searchSequence[key];
+
+      if (query.length < 2) {
+        rulesState.searchResults[key] = [];
+        results.hidden = true;
+        results.innerHTML = '';
+        stateText.textContent = query ? 'Enter at least 2 characters' : '';
+        return;
+      }
+
+      stateText.textContent = 'Searching Shopify...';
+      rulesState.searchTimers[key] = setTimeout(function () {
+        post('product-search', Object.assign(basePayload(), { query: query, limit: 10 }))
+          .then(function (data) {
+            if (sequence !== rulesState.searchSequence[key] || !input.isConnected) return;
+            var products = data.results || [];
+            var exact = products.find(function (product) {
+              return String(product.sku || '').trim().toUpperCase() === query;
+            });
+            if (exact && slot.sku === query) {
+              slot.product = exact;
+              var productCard = editor.querySelector('.va-bulk-rule-product');
+              if (productCard) productCard.outerHTML = ruleSelectedProductHtml(slot);
+            }
+            renderRuleSearchResults(editor, key, products, query);
+          })
+          .catch(function (err) {
+            if (sequence !== rulesState.searchSequence[key] || !input.isConnected) return;
+            rulesState.searchResults[key] = [];
+            results.innerHTML = '<div class="va-bulk-rule-search-empty va-bulk-rule-search-empty--error">' + escHtml(err.message) + '</div>';
+            results.hidden = false;
+            stateText.textContent = 'Search unavailable';
+            placeRuleSearchResults(editor);
+          });
+      }, immediate ? 0 : 300);
+    }
+
+    function chooseRuleProduct(editor, resultIndex) {
+      var row = findRuleRow(editor.dataset.ruleRowId);
+      var priority = Number(editor.dataset.rulePriority || 0);
+      var key = rulesCellKey(row && row.id, priority);
+      var product = (rulesState.searchResults[key] || [])[Number(resultIndex || 0)];
+      var slot = row && row.skus[priority - 1];
+      if (!slot || !product || !product.sku) return;
+      slot.sku = String(product.sku).trim().toUpperCase();
+      slot.originalSku = slot.sku;
+      slot.product = product;
+      slot.validated = true;
+      var input = editor.querySelector('.va-bulk-rule-sku-input');
+      var results = editor.querySelector('.va-bulk-rule-search-results');
+      var stateText = editor.querySelector('.va-bulk-rule-search-state');
+      if (input) input.value = slot.sku;
+      if (results) results.hidden = true;
+      if (stateText) stateText.textContent = 'Selected from Shopify';
+      var productCard = editor.querySelector('.va-bulk-rule-product');
+      if (productCard) productCard.outerHTML = ruleSelectedProductHtml(slot);
     }
 
     function summaryIcon(type) {
@@ -1811,8 +2131,103 @@
     resetBtn.addEventListener('click', resetDraft);
     importBtn.addEventListener('click', importOrders);
     rulesBtn.addEventListener('click', openRules);
-    rulesCancel.addEventListener('click', function () { rulesDlg.close(); });
+    rulesCancelButtons.forEach(function (button) {
+      button.addEventListener('click', closeRules);
+    });
     rulesSave.addEventListener('click', saveRules);
+    rulesDlg.addEventListener('cancel', function (event) {
+      event.preventDefault();
+      closeRules();
+    });
+    rulesDlg.addEventListener('close', function () {
+      document.documentElement.classList.remove('va-bulk-rules-open');
+      clearRulesSearchState();
+    });
+    rulesFilter.addEventListener('input', function () {
+      rulesState.filter = rulesFilter.value || '';
+      clearRulesSearchState();
+      renderRulesGrid();
+    });
+    rulesAdd.addEventListener('click', function () {
+      var row = {
+        id: rulesState.nextRowId++,
+        note: '',
+        skus: []
+      };
+      rulesState.rows.push(padRuleRow(row));
+      rulesState.filter = '';
+      rulesFilter.value = '';
+      renderRulesGrid();
+      var noteInput = rulesGridBody.querySelector('[data-rule-row="' + row.id + '"] .va-bulk-rule-note');
+      if (noteInput) noteInput.focus();
+    });
+    rulesAddPriority.addEventListener('click', function () {
+      rulesState.priorityCount += 1;
+      rulesState.rows.forEach(padRuleRow);
+      clearRulesSearchState();
+      renderRulesGrid();
+      if (rulesGridWrap) rulesGridWrap.scrollLeft = rulesGridWrap.scrollWidth;
+    });
+    rulesGridBody.addEventListener('input', function (event) {
+      var rowElement = event.target.closest('[data-rule-row]');
+      var row = findRuleRow(rowElement && rowElement.dataset.ruleRow);
+      if (!row) return;
+      if (event.target.classList.contains('va-bulk-rule-note')) {
+        row.note = event.target.value;
+        return;
+      }
+      var input = event.target.closest('.va-bulk-rule-sku-input');
+      if (!input) return;
+      var editor = input.closest('.va-bulk-rule-sku-editor');
+      var priority = Number(editor.dataset.rulePriority || 0);
+      var slot = row.skus[priority - 1];
+      var sku = String(input.value || '').trim().toUpperCase();
+      slot.sku = sku;
+      slot.product = null;
+      slot.validated = !sku || sku === slot.originalSku;
+      var productCard = editor.querySelector('.va-bulk-rule-product');
+      if (productCard) productCard.outerHTML = ruleSelectedProductHtml(slot);
+      searchProductsForRule(input, false);
+    });
+    rulesGridBody.addEventListener('focusin', function (event) {
+      var input = event.target.closest('.va-bulk-rule-sku-input');
+      if (!input || String(input.value || '').trim().length < 2) return;
+      searchProductsForRule(input, true);
+    });
+    rulesGridBody.addEventListener('click', function (event) {
+      var result = event.target.closest('.va-bulk-rule-search-result');
+      if (result) {
+        chooseRuleProduct(result.closest('.va-bulk-rule-sku-editor'), result.dataset.ruleResultIndex);
+        return;
+      }
+      var remove = event.target.closest('[data-rule-delete]');
+      if (!remove) return;
+      var rowId = Number(remove.dataset.ruleDelete || 0);
+      rulesState.rows = rulesState.rows.filter(function (row) { return row.id !== rowId; });
+      clearRulesSearchState();
+      renderRulesGrid();
+      setRulesFeedback('Rule group removed. Save profiles to apply this change.');
+    });
+    rulesGridBody.addEventListener('keydown', function (event) {
+      var input = event.target.closest('.va-bulk-rule-sku-input');
+      if (!input) return;
+      var editor = input.closest('.va-bulk-rule-sku-editor');
+      var results = editor.querySelector('.va-bulk-rule-search-results');
+      if (event.key === 'Escape') {
+        results.hidden = true;
+        return;
+      }
+      if (event.key !== 'Enter' || results.hidden) return;
+      var firstResult = results.querySelector('.va-bulk-rule-search-result');
+      if (!firstResult) return;
+      event.preventDefault();
+      firstResult.click();
+    });
+    rulesGridWrap.addEventListener('scroll', function () {
+      panel.querySelectorAll('.va-bulk-rule-search-results').forEach(function (results) {
+        results.hidden = true;
+      });
+    });
 
     new MutationObserver(function () {
       if (panel.classList.contains('va-tab--active')) loadContext();
