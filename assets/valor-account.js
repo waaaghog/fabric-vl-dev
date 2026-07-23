@@ -1038,6 +1038,9 @@
       addressRecords: [],
       addressIssues: [],
       lineOverrides: {},
+      productSearchTimers: {},
+      productSearchSequence: {},
+      productSearchResults: {},
       collapsedLocations: {}
     };
 
@@ -1333,6 +1336,13 @@
       });
     }
 
+    function shopifyStockLabel(product) {
+      var quantity = Math.max(0, Number(product && product.sellableOnlineQuantity || 0));
+      if (quantity > 0) return quantity + ' available to order';
+      if (product && product.availableForSale) return 'Available for backorder';
+      return 'Out of stock';
+    }
+
     function renderOverrideControl(row, status) {
       if (status.key === 'ready' || status.key === 'blocked') {
         if (status.key === 'blocked') {
@@ -1365,15 +1375,102 @@
 
       var feedback = row.overrideValidationStatus || '';
       var feedbackKind = feedback === 'Available' ? 'success' : (feedback && feedback !== 'Skipped by customer' ? 'error' : '');
+      var selectedProduct = saved.productTitle
+        ? '<div class="va-bulk-product-selected">'
+          + (saved.imageUrl ? '<img src="' + escHtml(saved.imageUrl) + '" alt="" loading="lazy">' : '<span class="va-bulk-product-image-placeholder" aria-hidden="true">📦</span>')
+          + '<span><strong>' + escHtml(saved.sku || '') + '</strong>'
+          + '<small>' + escHtml(saved.productTitle) + '</small>'
+          + '<small class="' + (saved.availableForSale ? 'is-available' : 'is-unavailable') + '">' + escHtml(saved.stockLabel || '') + '</small></span></div>'
+        : '';
       return '<select class="va-bulk-override-select' + (status.key === 'short' ? ' va-bulk-override-select--required' : '') + '" data-row-number="' + rowNumber + '">'
         + options
         + '<option value="skip"' + (skipSelected ? ' selected' : '') + '>Skip this line on submit</option>'
-        + '<option value="manual"' + (manualSelected ? ' selected' : '') + '>Enter a manual SKU…</option>'
+        + '<option value="manual"' + (manualSelected ? ' selected' : '') + '>Search for another substitute…</option>'
         + '</select>'
-        + '<div class="va-bulk-manual' + (manualSelected ? ' is-visible' : '') + '" data-manual-row="' + rowNumber + '">'
-        + '<input type="text" value="' + escHtml(saved.sku || row.overrideSku || '') + '" placeholder="Enter replacement SKU" aria-label="Manual replacement SKU for line ' + rowNumber + '">'
-        + '<button type="button" class="va-bulk-manual-apply" data-row-number="' + rowNumber + '">Confirm</button></div>'
+        + '<div class="va-bulk-manual va-bulk-product-search' + (manualSelected ? ' is-visible' : '') + '" data-manual-row="' + rowNumber + '">'
+        + '<input type="search" class="va-bulk-product-search-input" value="' + escHtml(saved.sku || '') + '" placeholder="Search by partial SKU" aria-label="Search replacement SKU for line ' + rowNumber + '" autocomplete="off">'
+        + '<span class="va-bulk-product-search-state" aria-live="polite"></span>'
+        + '<div class="va-bulk-product-search-results" role="listbox" hidden></div>'
+        + selectedProduct
+        + '</div>'
         + (feedback ? '<div class="va-bulk-override-feedback' + (feedbackKind ? ' va-bulk-override-feedback--' + feedbackKind : '') + '">' + escHtml(feedback) + '</div>' : '');
+    }
+
+    function renderProductSearchResults(searchBox, rowNumber, products, query) {
+      var results = searchBox && searchBox.querySelector('.va-bulk-product-search-results');
+      var stateText = searchBox && searchBox.querySelector('.va-bulk-product-search-state');
+      if (!results) return;
+
+      state.productSearchResults[rowNumber] = products || [];
+      if (!products || !products.length) {
+        results.innerHTML = '<div class="va-bulk-product-search-empty">No public Shopify products found for “' + escHtml(query) + '”.</div>';
+        results.hidden = false;
+        if (stateText) stateText.textContent = '';
+        return;
+      }
+
+      results.innerHTML = products.map(function (product, index) {
+        var available = product.availableForSale === true;
+        var title = product.productTitle || product.displayName || product.sku || '';
+        return '<button type="button" class="va-bulk-product-search-result" role="option" data-row-number="' + rowNumber + '" data-result-index="' + index + '"' + (available ? '' : ' disabled') + '>'
+          + (product.imageUrl
+            ? '<img src="' + escHtml(product.imageUrl) + '" alt="' + escHtml(product.imageAlt || title) + '" loading="lazy">'
+            : '<span class="va-bulk-product-image-placeholder" aria-hidden="true">📦</span>')
+          + '<span class="va-bulk-product-result-info"><strong>' + escHtml(product.sku || '') + '</strong><small>' + escHtml(title) + '</small>'
+          + (product.barcode ? '<small>Barcode: ' + escHtml(product.barcode) + '</small>' : '') + '</span>'
+          + '<span class="va-bulk-product-stock ' + (available ? 'is-available' : 'is-unavailable') + '">' + escHtml(shopifyStockLabel(product)) + '</span>'
+          + '</button>';
+      }).join('');
+      results.hidden = false;
+      if (stateText) stateText.textContent = products.length + ' result' + (products.length === 1 ? '' : 's');
+    }
+
+    function searchProductsForRow(rowNumber, input) {
+      var searchBox = input && input.closest('.va-bulk-product-search');
+      if (!searchBox) return;
+      var results = searchBox.querySelector('.va-bulk-product-search-results');
+      var stateText = searchBox.querySelector('.va-bulk-product-search-state');
+      var query = String(input.value || '').trim().toUpperCase();
+      clearTimeout(state.productSearchTimers[rowNumber]);
+      state.productSearchSequence[rowNumber] = Number(state.productSearchSequence[rowNumber] || 0) + 1;
+      var sequence = state.productSearchSequence[rowNumber];
+
+      if (query.length < 2) {
+        state.productSearchResults[rowNumber] = [];
+        if (results) {
+          results.hidden = true;
+          results.innerHTML = '';
+        }
+        if (stateText) stateText.textContent = query ? 'Enter at least 2 characters' : '';
+        return;
+      }
+
+      if (stateText) stateText.textContent = 'Searching Shopify…';
+      state.productSearchTimers[rowNumber] = setTimeout(function () {
+        post('product-search', Object.assign(basePayload(), { query: query, limit: 10 }))
+          .then(function (data) {
+            if (sequence !== state.productSearchSequence[rowNumber] || !input.isConnected) return;
+            renderProductSearchResults(searchBox, rowNumber, data.results || [], query);
+          })
+          .catch(function (err) {
+            if (sequence !== state.productSearchSequence[rowNumber] || !input.isConnected) return;
+            state.productSearchResults[rowNumber] = [];
+            if (results) {
+              results.innerHTML = '<div class="va-bulk-product-search-empty va-bulk-product-search-empty--error">' + escHtml(err.message) + '</div>';
+              results.hidden = false;
+            }
+            if (stateText) stateText.textContent = 'Search unavailable';
+          });
+      }, 300);
+    }
+
+    function resetProductSearchState() {
+      Object.keys(state.productSearchTimers).forEach(function (rowNumber) {
+        clearTimeout(state.productSearchTimers[rowNumber]);
+      });
+      state.productSearchTimers = {};
+      state.productSearchSequence = {};
+      state.productSearchResults = {};
     }
 
     function fulfillmentCell(row, status) {
@@ -1475,6 +1572,7 @@
       state.activeFilter = 'all';
       state.orderCount = 0;
       state.lineOverrides = {};
+      resetProductSearchState();
       state.collapsedLocations = {};
       fileInput.value = '';
       progressEl.hidden = true;
@@ -1605,6 +1703,7 @@
       state.activeFilter = 'all';
       state.orderCount = 0;
       state.lineOverrides = {};
+      resetProductSearchState();
       state.collapsedLocations = {};
       progressEl.hidden = true;
       summaryEl.hidden = true;
@@ -1648,25 +1747,29 @@
         return;
       }
 
-      var apply = event.target.closest('.va-bulk-manual-apply');
-      if (!apply || state.busy) return;
-      var rowNumber = Number(apply.dataset.rowNumber || 0);
-      var manual = previewEl.querySelector('[data-manual-row="' + rowNumber + '"]');
-      var input = manual && manual.querySelector('input');
-      var sku = String(input && input.value || '').trim().toUpperCase();
-      var feedback = manual && manual.parentElement.querySelector('.va-bulk-override-feedback');
-      if (!sku) {
-        if (!feedback) {
-          feedback = document.createElement('div');
-          feedback.className = 'va-bulk-override-feedback va-bulk-override-feedback--error';
-          manual.parentElement.appendChild(feedback);
-        }
-        feedback.textContent = 'Enter a SKU before confirming.';
-        input.focus();
-        return;
-      }
-      state.lineOverrides[rowNumber] = { action: 'use', sku: sku, manual: true };
+      var resultButton = event.target.closest('.va-bulk-product-search-result');
+      if (!resultButton || resultButton.disabled || state.busy) return;
+      var rowNumber = Number(resultButton.dataset.rowNumber || 0);
+      var resultIndex = Number(resultButton.dataset.resultIndex || 0);
+      var product = (state.productSearchResults[rowNumber] || [])[resultIndex];
+      if (!product || !product.sku) return;
+      state.lineOverrides[rowNumber] = {
+        action: 'use',
+        sku: String(product.sku).trim().toUpperCase(),
+        manual: true,
+        productTitle: product.productTitle || product.displayName || '',
+        imageUrl: product.imageUrl || '',
+        availableForSale: product.availableForSale === true,
+        sellableOnlineQuantity: Math.max(0, Number(product.sellableOnlineQuantity || 0)),
+        stockLabel: shopifyStockLabel(product)
+      };
       validateFile();
+    });
+    previewEl.addEventListener('input', function (event) {
+      var input = event.target.closest('.va-bulk-product-search-input');
+      if (!input || state.busy) return;
+      var manual = input.closest('[data-manual-row]');
+      searchProductsForRow(Number(manual && manual.dataset.manualRow || 0), input);
     });
     previewEl.addEventListener('change', function (event) {
       var select = event.target.closest('.va-bulk-override-select');
@@ -1682,6 +1785,8 @@
         return;
       }
       if (manual) manual.classList.remove('is-visible');
+      state.productSearchResults[rowNumber] = [];
+      state.productSearchSequence[rowNumber] = Number(state.productSearchSequence[rowNumber] || 0) + 1;
       if (select.value === 'skip') {
         state.lineOverrides[rowNumber] = { action: 'skip', sku: '', manual: false };
       } else if (select.value.indexOf('use|') === 0) {
@@ -1690,11 +1795,18 @@
       validateFile();
     });
     previewEl.addEventListener('keydown', function (event) {
-      if (event.key !== 'Enter' || !event.target.closest('.va-bulk-manual input')) return;
+      var input = event.target.closest('.va-bulk-product-search-input');
+      if (!input) return;
+      var results = input.closest('.va-bulk-product-search').querySelector('.va-bulk-product-search-results');
+      if (event.key === 'Escape') {
+        results.hidden = true;
+        return;
+      }
+      if (event.key !== 'Enter') return;
+      var firstResult = results.querySelector('.va-bulk-product-search-result:not(:disabled)');
+      if (!firstResult) return;
       event.preventDefault();
-      var manual = event.target.closest('.va-bulk-manual');
-      var apply = manual && manual.querySelector('.va-bulk-manual-apply');
-      if (apply) apply.click();
+      firstResult.click();
     });
     resetBtn.addEventListener('click', resetDraft);
     importBtn.addEventListener('click', importOrders);
