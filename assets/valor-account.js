@@ -1006,6 +1006,7 @@
     var resetBtn   = panel.querySelector('.va-bulk-reset');
     var importBtn  = panel.querySelector('.va-bulk-import');
     var importCountEl = panel.querySelector('.va-bulk-import-count');
+    var templateLink = panel.querySelector('.va-bulk-template-download');
     var rulesBtn   = panel.querySelector('.va-bulk-rules');
     var rulesDlg   = panel.querySelector('.va-bulk-rules-dialog');
     var rulesText  = panel.querySelector('.va-bulk-rules-text');
@@ -1029,6 +1030,7 @@
       pollTimer: null,
       activeFilter: 'all',
       orderCount: 0,
+      templateLocations: [],
       lineOverrides: {},
       collapsedLocations: {}
     };
@@ -1093,6 +1095,32 @@
       });
     }
 
+    function csvCell(value) {
+      var text = String(value == null ? '' : value);
+      return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    }
+
+    function downloadCustomerTemplate(event) {
+      event.preventDefault();
+      if (!state.contextLoaded || !state.templateLocations.length) return;
+
+      var lines = ['SFID or BC Customer Location ID,SKU,Quantity'];
+      state.templateLocations.forEach(function (identifier, index) {
+        var sku = 'SKU' + String(index + 1).padStart(3, '0');
+        lines.push(csvCell(identifier) + ',' + sku + ',5');
+      });
+
+      var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var download = document.createElement('a');
+      download.href = url;
+      download.download = 'valor-bulk-order-template.csv';
+      document.body.appendChild(download);
+      download.click();
+      download.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    }
+
     function loadContext() {
       if (state.contextLoaded || state.loadingContext) return;
       state.loadingContext = true;
@@ -1102,6 +1130,19 @@
         return post('context', basePayload());
       }).then(function (data) {
         state.contextLoaded = true;
+        state.templateLocations = (data.templateLocations || []).map(function (identifier) {
+          return String(identifier || '').trim();
+        }).filter(function (identifier, index, all) {
+          return identifier && all.findIndex(function (item) {
+            return item.toLowerCase() === identifier.toLowerCase();
+          }) === index;
+        });
+        if (templateLink) {
+          templateLink.setAttribute('aria-disabled', state.templateLocations.length ? 'false' : 'true');
+          templateLink.title = state.templateLocations.length
+            ? 'Download ' + state.templateLocations.length + ' authorized location rows'
+            : 'No usable SFID or BC Location ID is available';
+        }
         achSelect.innerHTML = '<option value="">Select an ACH account</option>';
         (data.accounts || []).forEach(function (account) {
           var option = document.createElement('option');
@@ -1442,6 +1483,8 @@
           });
       }, delay || 1500);
     }
+
+    if (templateLink) templateLink.addEventListener('click', downloadCustomerTemplate);
 
     fileInput.addEventListener('change', function () {
       var file = fileInput.files && fileInput.files[0];

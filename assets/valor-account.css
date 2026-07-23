@@ -797,6 +797,9 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 /* ── Customer bulk order import ───────────────────────────── */
 .va-bulk-content { padding: 22px; display: flex; flex-direction: column; gap: 18px; }
 .va-bulk-intro { color: var(--va-steel); font-size: 13px; line-height: 1.6; max-width: 760px; }
+.va-bulk-template-download { color: var(--va-navy); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.va-bulk-template-download:hover { color: var(--va-accent); }
+.va-bulk-template-download[aria-disabled="true"] { color: var(--va-steel); cursor: wait; opacity: .62; pointer-events: none; }
 .va-bulk-grid { display: grid; grid-template-columns: minmax(240px, 1.3fr) minmax(220px, 1fr); gap: 14px; }
 .va-bulk-field { display: flex; flex-direction: column; gap: 7px; font-size: 12px; font-weight: 600; color: var(--va-navy-deep); }
 .va-bulk-field input, .va-bulk-field select {
