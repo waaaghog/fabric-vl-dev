@@ -1255,15 +1255,20 @@
               state.addressIssues.length + ' validation issue rows'
             : 'No child location address records are available';
         }
-        achSelect.innerHTML = '<option value="">Select an ACH account</option>';
-        (data.accounts || []).forEach(function (account) {
+        var usableAchAccounts = (data.accounts || []).filter(function (account) {
+          return account && account.id;
+        });
+        achSelect.innerHTML = '<option value="" disabled>Select an ACH account</option>';
+        usableAchAccounts.forEach(function (account) {
           var option = document.createElement('option');
           option.value = account.id;
           option.textContent = [account.nickName || account.bankName || 'Bank account', account.last4 ? '•••• ' + account.last4 : 'ACH'].filter(Boolean).join(' · ');
-          if (account.isDefault) option.selected = true;
           achSelect.appendChild(option);
         });
-        if (!(data.accounts || []).length) {
+        if (usableAchAccounts.length) {
+          achSelect.value = usableAchAccounts[0].id;
+        }
+        if (!usableAchAccounts.length) {
           setStatus('No active ACH account is available. <a href="#payment">Add or review an ACH account in Payment &amp; terms.</a>', 'error', true);
         } else {
           setStatus('Customer ' + (data.customerNo || '') + ' is ready. Choose a CSV to begin validation.');
