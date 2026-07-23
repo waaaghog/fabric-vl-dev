@@ -925,9 +925,10 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-location-head { appearance: none; display: flex; justify-content: space-between; gap: 12px; align-items: center; width: 100%; margin: 0; border: 0; padding: 10px 22px; background: var(--va-parchment); color: var(--va-navy-deep); font-family: 'Inter', sans-serif; text-align: left; cursor: pointer; }
 .va-bulk-location-head:hover { background: #efeee8; }
 .va-bulk-location-head:focus-visible { outline: 2px solid var(--va-navy); outline-offset: -2px; }
-.va-bulk-location-title { color: var(--va-navy-deep); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.va-bulk-location-title { min-width: 0; color: var(--va-navy-deep); font-size: 11px; font-weight: 600; line-height: 1.45; letter-spacing: .08em; text-transform: uppercase; }
 .va-bulk-location-title strong { font-size: inherit; }
-.va-bulk-location-meta { display: flex; align-items: center; gap: 10px; }
+.va-bulk-location-address { color: var(--va-steel); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.va-bulk-location-meta { display: flex; flex: 0 0 auto; align-items: center; gap: 10px; }
 .va-bulk-location-count { border-radius: 999px; padding: 3px 9px; background: var(--va-navy-deep); color: var(--va-chalk); font-size: 10px; font-weight: 600; white-space: nowrap; }
 .va-bulk-location-chevron { width: 16px; height: 16px; color: var(--va-navy); transition: transform .16s ease; }
 .va-bulk-location.is-collapsed .va-bulk-location-chevron { transform: rotate(-90deg); }

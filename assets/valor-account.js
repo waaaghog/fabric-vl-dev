@@ -1363,6 +1363,19 @@
       return '<strong class="va-bulk-fulfillment">' + escHtml(row.actualSku || row.originalSku || '') + '</strong><div class="va-bulk-row-msg">Original Request Allocated</div>';
     }
 
+    function shipToAddressText(row) {
+      var shipTo = row && row.shipTo ? row.shipTo : {};
+      var statePostal = [shipTo.stateProvince, shipTo.postalCode].filter(Boolean).join(' ');
+      var locality = [shipTo.city, statePostal].filter(Boolean).join(', ');
+      var country = String(shipTo.countryCode || '').trim();
+      return [
+        shipTo.addressLine1,
+        shipTo.addressLine2,
+        locality,
+        country && country.toUpperCase() !== 'US' ? country : ''
+      ].filter(Boolean).join(', ');
+    }
+
     function renderValidation(data) {
       var rows = data.rows || [];
       var errors = data.errors || [];
@@ -1389,11 +1402,13 @@
       Object.keys(groups).forEach(function (location) {
         var groupRows = groups[location];
         var first = groupRows[0] || {};
+        var resolvedLocation = first.shipToCode || location;
+        var shipToAddress = shipToAddressText(first);
         var collapsed = state.collapsedLocations[location] === true;
         html += '<section class="va-bulk-location' + (collapsed ? ' is-collapsed' : '') + '" data-bulk-location="' + escHtml(location) + '">'
           + '<button type="button" class="va-bulk-location-head" data-location-toggle aria-expanded="' + (collapsed ? 'false' : 'true') + '">'
-          + '<span class="va-bulk-location-title"><span aria-hidden="true">📍</span> Location Code: <strong>' + escHtml(location) + '</strong>'
-          + (first.customerName ? ' — ' + escHtml(first.customerName) : '') + '</span>'
+          + '<span class="va-bulk-location-title"><span aria-hidden="true">📍</span> Location Code: <strong>' + escHtml(resolvedLocation) + '</strong>'
+          + (shipToAddress ? '<span class="va-bulk-location-address"> — ' + escHtml(shipToAddress) + '</span>' : '') + '</span>'
           + '<span class="va-bulk-location-meta"><span class="va-bulk-location-count">' + groupRows.length + ' Lines Processed</span>'
           + '<svg class="va-bulk-location-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 7.5l5 5 5-5"></path></svg></span></button>'
           + '<div class="va-bulk-table-wrap"><table class="va-bulk-table"><thead><tr>'
