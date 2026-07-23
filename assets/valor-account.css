@@ -958,10 +958,22 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-location.is-collapsed .va-bulk-location-chevron { transform: rotate(-90deg); }
 .va-bulk-location.is-collapsed .va-bulk-table-wrap { display: none; }
 .va-bulk-location .va-bulk-table-wrap { border: 0; border-radius: 0; }
-.va-bulk-progress { border: 1px solid var(--va-border); border-radius: 11px; padding: 13px; }
+.va-bulk-progress { border: 1px solid var(--va-border); border-radius: 11px; padding: 13px; scroll-margin-top: 96px; }
 .va-bulk-progress-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--va-navy-deep); margin-bottom: 8px; }
 .va-bulk-progress-track { height: 8px; border-radius: 999px; background: var(--va-parchment); overflow: hidden; }
 .va-bulk-progress-bar { height: 100%; width: 0; background: var(--va-navy); transition: width .25s ease; }
+.va-bulk-orders-list-panel { margin-top: 14px; overflow: hidden; }
+.va-bulk-orders-list-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 16px 22px; border-bottom: 1px solid var(--va-border); background: var(--va-white);
+}
+.va-bulk-orders-list-head .va-panel-title { margin: 0; }
+.va-bulk-orders-list-sub { margin-top: 3px; color: var(--va-steel); font: 500 11px/1.45 'Inter',sans-serif; }
+.va-bulk-orders-view-all {
+  flex: 0 0 auto; border: 1px solid var(--va-border-strong); border-radius: 999px; padding: 8px 13px;
+  color: var(--va-navy-deep); font: 600 10px/1.2 'Inter',sans-serif; text-decoration: none;
+}
+.va-bulk-orders-view-all:hover { border-color: var(--va-navy); background: var(--va-sky-pale); }
 .va-bulk-busy-overlay {
   position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center;
   padding: 24px; background: rgba(10,24,40,.28); cursor: wait;
@@ -1152,6 +1164,10 @@ html.va-bulk-rules-open { scrollbar-gutter: auto !important; }
   .va-bulk-actions { align-items: stretch; flex-direction: column; padding: 14px; }
   .va-bulk-actions-right { align-items: stretch; flex-direction: column; }
   .va-bulk-footer-btn { width: 100%; }
+  .va-bulk-orders-list-head { align-items: flex-start; flex-direction: column; padding: 14px; }
+  .va-bulk-orders-list-panel .va-order-row { grid-template-columns: minmax(0,1fr) 90px 30px; gap: 8px; padding: 12px 14px; }
+  .va-bulk-orders-list-panel .va-order-row > :nth-child(3),
+  .va-bulk-orders-list-panel .va-order-row > :nth-child(4) { display: none; }
   .va-bulk-rules-header { padding: 16px; }
   .va-bulk-rules-toolbar { flex-wrap: wrap; padding: 10px 16px; }
   .va-bulk-rules-stats { min-width: 132px; }

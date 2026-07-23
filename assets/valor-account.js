@@ -1027,6 +1027,9 @@
     var progressEl = panel.querySelector('.va-bulk-progress');
     var previewEl  = panel.querySelector('.va-bulk-preview');
     var resultsEl  = panel.querySelector('.va-bulk-results');
+    var importedOrdersPanel = panel.querySelector('#va-bulk-orders-list-panel');
+    var importedOrdersList = panel.querySelector('.va-bulk-orders-list');
+    var importedOrdersSub = panel.querySelector('.va-bulk-orders-list-sub');
     var busyOverlay = panel.querySelector('.va-bulk-busy-overlay');
     var busyTitle = panel.querySelector('.va-bulk-busy-title');
     var busyDetail = panel.querySelector('.va-bulk-busy-detail');
@@ -1038,6 +1041,7 @@
       csv: '',
       canImport: false,
       busy: false,
+      busyMode: '',
       jobId: '',
       jobToken: '',
       pollTimer: null,
@@ -1083,11 +1087,12 @@
       if (busyDetail && detail) busyDetail.textContent = detail;
     }
 
-    function setBusy(isBusy, title, detail) {
+    function setBusy(isBusy, title, detail, showOverlay) {
       state.busy = isBusy === true;
+      state.busyMode = state.busy ? (showOverlay === false ? 'inline' : 'modal') : '';
       root.setAttribute('aria-busy', state.busy ? 'true' : 'false');
       document.documentElement.classList.toggle('va-bulk-page-busy', state.busy);
-      if (busyOverlay) busyOverlay.hidden = !state.busy;
+      if (busyOverlay) busyOverlay.hidden = !state.busy || state.busyMode === 'inline';
       if (state.busy) updateBusyMessage(title, detail);
       refreshButtons();
     }
@@ -1099,6 +1104,11 @@
 
     function blockBusyInteraction(event) {
       if (!state.busy || allowBrowserRefresh(event)) return;
+      if (state.busyMode === 'inline' && event.type !== 'click' && event.type !== 'keydown') return;
+      if (state.busyMode === 'inline' && event.type === 'keydown' &&
+          ['arrowup', 'arrowdown', 'pageup', 'pagedown', 'home', 'end'].includes(String(event.key || '').toLowerCase())) {
+        return;
+      }
       event.preventDefault();
       event.stopImmediatePropagation();
     }
@@ -1881,6 +1891,70 @@
       applyBulkFilter(state.activeFilter);
     }
 
+    function resetImportedOrdersPanel() {
+      if (importedOrdersPanel) importedOrdersPanel.hidden = true;
+      if (importedOrdersList) importedOrdersList.innerHTML = '';
+      if (importedOrdersSub) {
+        importedOrdersSub.textContent = "This bulk upload's successful orders, refreshed from Business Central.";
+      }
+    }
+
+    function renderImportedOrders(orders) {
+      if (!importedOrdersPanel || !importedOrdersList) return;
+      if (!orders || !orders.length) {
+        resetImportedOrdersPanel();
+        return;
+      }
+      importedOrdersList.innerHTML = orders.map(function (order) {
+        return renderOrderRowHtml(order, false);
+      }).join('');
+      importedOrdersPanel.hidden = false;
+    }
+
+    function loadImportedOrders(job) {
+      var successful = (job.results || []).filter(function (result) {
+        return result.status === 'Success' && result.salesOrderNo;
+      });
+      if (!successful.length || !state.jobId || !state.jobToken) {
+        resetImportedOrdersPanel();
+        return;
+      }
+
+      var requestedJobId = state.jobId;
+      importedOrdersPanel.hidden = false;
+      importedOrdersList.innerHTML = '<div class="va-empty">Refreshing the new orders from Business Central...</div>';
+      if (importedOrdersSub) {
+        importedOrdersSub.textContent = successful.length + ' successful order'
+          + (successful.length === 1 ? '' : 's') + ' from this bulk upload.';
+      }
+
+      fetch(apiBase + '/jobs/' + encodeURIComponent(requestedJobId) + '/orders?token=' + encodeURIComponent(state.jobToken))
+        .then(function (response) {
+          return response.json().then(function (data) {
+            if (!response.ok) throw new Error(data.error || 'Could not refresh imported orders.');
+            return data;
+          });
+        })
+        .then(function (data) {
+          if (requestedJobId !== state.jobId) return;
+          renderImportedOrders(data.orders || []);
+          if (importedOrdersSub) {
+            importedOrdersSub.textContent = data.warning
+              ? successful.length + ' successful order' + (successful.length === 1 ? '' : 's')
+                + '. ' + data.warning
+              : successful.length + ' successful order' + (successful.length === 1 ? '' : 's')
+                + ', refreshed from Business Central.';
+          }
+        })
+        .catch(function (err) {
+          if (requestedJobId !== state.jobId) return;
+          importedOrdersList.innerHTML = '<div class="va-empty">The orders were created, but their BC details could not be refreshed: '
+            + escHtml(err.message) + '</div>';
+          if (importedOrdersSub) importedOrdersSub.textContent = successful.length + ' successful order'
+            + (successful.length === 1 ? '' : 's') + ' from this bulk upload.';
+        });
+    }
+
     function resetDraft() {
       if (state.busy) return;
       clearTimeout(state.pollTimer);
@@ -1899,6 +1973,7 @@
       summaryEl.hidden = true;
       previewEl.hidden = true;
       resultsEl.hidden = true;
+      resetImportedOrdersPanel();
       summaryEl.innerHTML = '';
       previewEl.innerHTML = '';
       resultsEl.innerHTML = '';
@@ -1932,11 +2007,24 @@
 
     function importOrders() {
       if (!state.canImport || state.busy) return;
+      summaryEl.hidden = true;
+      previewEl.hidden = true;
+      resultsEl.hidden = true;
+      resultsEl.innerHTML = '';
+      resetImportedOrdersPanel();
+      progressEl.hidden = false;
+      progressEl.querySelector('.va-bulk-progress-label').textContent = 'Queueing orders';
+      progressEl.querySelector('.va-bulk-progress-count').textContent = '0 / ' + (state.orderCount || 0) + ' locations';
+      progressEl.querySelector('.va-bulk-progress-bar').style.width = '0%';
+      window.requestAnimationFrame(function () {
+        progressEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       setStatus('Queueing validated location orders for Business Central...');
       setBusy(
         true,
         'Submitting bulk orders…',
-        'Queueing the validated location orders for Business Central.'
+        'Queueing the validated location orders for Business Central.',
+        false
       );
       post('import', filePayload()).then(function (data) {
         state.jobId = data.jobId || '';
@@ -1944,14 +2032,13 @@
         if (!state.jobId || !state.jobToken) throw new Error('The API did not return a queue job.');
         progressEl.hidden = false;
         setStatus('Order job queued. You can keep this page open while locations are processed.');
-        updateBusyMessage(
-          'Processing location orders…',
-          'The job is queued. Please keep this page open until every location is complete.'
-        );
         pollJob(data.pollAfterMs || 1500);
       }).catch(function (err) {
         setStatus('Import failed: ' + err.message, 'error');
         setBusy(false);
+        progressEl.hidden = true;
+        summaryEl.hidden = false;
+        previewEl.hidden = false;
       });
     }
 
@@ -1962,12 +2049,6 @@
       progressEl.querySelector('.va-bulk-progress-label').textContent = job.status + (job.currentLocation ? ' · ' + job.currentLocation : '');
       progressEl.querySelector('.va-bulk-progress-count').textContent = complete + ' / ' + total + ' locations';
       progressEl.querySelector('.va-bulk-progress-bar').style.width = percent + '%';
-      updateBusyMessage(
-        'Processing location orders…',
-        complete + ' of ' + total + ' locations processed' +
-          (job.currentLocation ? ' · Current: ' + job.currentLocation : '') + '.'
-      );
-
       var results = job.results || [];
       resultsEl.innerHTML = results.map(function (result) {
         var failed = result.status !== 'Success' && result.status !== 'Skipped';
@@ -2002,6 +2083,7 @@
                 : (job.failedGroups || 0) + ' location order(s) need review. Successful locations were still submitted.',
               job.status === 'Completed' ? 'success' : 'error'
             );
+            loadImportedOrders(job);
           }).catch(function (err) {
             setStatus('Progress check failed; retrying: ' + err.message, 'error');
             pollJob(3000);
@@ -2029,6 +2111,7 @@
       summaryEl.hidden = true;
       previewEl.hidden = true;
       resultsEl.hidden = true;
+      resetImportedOrdersPanel();
       if (!file) { refreshButtons(); return; }
       if (file.size > 25 * 1024 * 1024) {
         setStatus('CSV file exceeds the 25 MB limit.', 'error');
