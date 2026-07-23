@@ -938,6 +938,29 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-progress-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--va-navy-deep); margin-bottom: 8px; }
 .va-bulk-progress-track { height: 8px; border-radius: 999px; background: var(--va-parchment); overflow: hidden; }
 .va-bulk-progress-bar { height: 100%; width: 0; background: var(--va-navy); transition: width .25s ease; }
+.va-bulk-busy-overlay {
+  position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center;
+  padding: 24px; background: rgba(10,24,40,.28); cursor: wait;
+  overscroll-behavior: contain; touch-action: none;
+}
+.va-bulk-busy-overlay[hidden] { display: none; }
+.va-bulk-busy-card {
+  display: grid; grid-template-columns: 32px minmax(0,1fr); gap: 2px 12px; align-items: center;
+  width: min(460px, calc(100vw - 32px)); padding: 18px 20px; border: 1px solid rgba(255,255,255,.72);
+  border-radius: 14px; background: var(--va-white); box-shadow: 0 18px 56px rgba(10,24,40,.24);
+  color: var(--va-navy-deep); cursor: wait;
+}
+.va-bulk-busy-spinner {
+  grid-row: 1 / span 2; width: 30px; height: 30px; border: 3px solid var(--va-border);
+  border-top-color: var(--va-navy); border-radius: 50%; animation: va-bulk-busy-spin .8s linear infinite;
+}
+.va-bulk-busy-title { font-size: 14px; line-height: 1.35; }
+.va-bulk-busy-detail { color: var(--va-steel); font-size: 12px; line-height: 1.45; }
+html.va-bulk-page-busy,
+html.va-bulk-page-busy body { overflow: hidden !important; cursor: wait !important; }
+html.va-bulk-page-busy * { cursor: wait !important; }
+@keyframes va-bulk-busy-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .va-bulk-busy-spinner { animation-duration: 1.6s; } }
 .va-bulk-rules-dialog { border: 0; border-radius: 13px; padding: 0; width: min(720px, 92vw); box-shadow: 0 16px 50px rgba(0,0,0,.22); }
 .va-bulk-rules-dialog::backdrop { background: rgba(10,24,40,.45); }
 .va-bulk-rules-body { padding: 22px; }

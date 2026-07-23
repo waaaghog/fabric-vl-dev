@@ -505,6 +505,13 @@
               </div>
             </dialog>
           </div>
+          <div class="va-bulk-busy-overlay" hidden role="status" aria-live="assertive" aria-label="Bulk order processing in progress">
+            <div class="va-bulk-busy-card">
+              <span class="va-bulk-busy-spinner" aria-hidden="true"></span>
+              <strong class="va-bulk-busy-title">Validating CSV…</strong>
+              <span class="va-bulk-busy-detail">Please keep this page open until processing completes.</span>
+            </div>
+          </div>
         </div>
       </div><!-- /tab-bulk -->
 
@@ -732,7 +739,7 @@
 
 {%- endif -%}
 
-<script src="{{ 'valor-account.js' | asset_url }}&feature=bulk-ship-to-header-20260723"></script>
+<script src="{{ 'valor-account.js' | asset_url }}&feature=bulk-page-busy-lock-20260723"></script>
 
 {% schema %}
 {

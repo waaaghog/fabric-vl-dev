@@ -1018,6 +1018,9 @@
     var progressEl = panel.querySelector('.va-bulk-progress');
     var previewEl  = panel.querySelector('.va-bulk-preview');
     var resultsEl  = panel.querySelector('.va-bulk-results');
+    var busyOverlay = panel.querySelector('.va-bulk-busy-overlay');
+    var busyTitle = panel.querySelector('.va-bulk-busy-title');
+    var busyDetail = panel.querySelector('.va-bulk-busy-detail');
     var apiBase    = (root.dataset.apiBase || '').replace(/\/$/, '');
     var state = {
       contextLoaded: false,
@@ -1052,6 +1055,35 @@
       fileInput.disabled = state.busy;
       achSelect.disabled = state.busy || !state.contextLoaded || achSelect.options.length <= 1;
     }
+
+    function updateBusyMessage(title, detail) {
+      if (busyTitle && title) busyTitle.textContent = title;
+      if (busyDetail && detail) busyDetail.textContent = detail;
+    }
+
+    function setBusy(isBusy, title, detail) {
+      state.busy = isBusy === true;
+      root.setAttribute('aria-busy', state.busy ? 'true' : 'false');
+      document.documentElement.classList.toggle('va-bulk-page-busy', state.busy);
+      if (busyOverlay) busyOverlay.hidden = !state.busy;
+      if (state.busy) updateBusyMessage(title, detail);
+      refreshButtons();
+    }
+
+    function allowBrowserRefresh(event) {
+      var key = String(event.key || '').toLowerCase();
+      return key === 'f5' || ((event.ctrlKey || event.metaKey) && key === 'r');
+    }
+
+    function blockBusyInteraction(event) {
+      if (!state.busy || allowBrowserRefresh(event)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+
+    ['click', 'pointerdown', 'mousedown', 'touchstart', 'wheel', 'keydown'].forEach(function (eventName) {
+      document.addEventListener(eventName, blockBusyInteraction, { capture: true, passive: false });
+    });
 
     function basePayload() {
       var auth = window.__vaAuth || {};
@@ -1458,11 +1490,14 @@
 
     function validateFile() {
       if (!state.csv || !state.contextLoaded || state.busy) return;
-      state.busy = true;
       state.canImport = false;
       resultsEl.hidden = true;
       setStatus('Checking every SFID, SKU, inventory quantity, price, and ACH account…');
-      refreshButtons();
+      setBusy(
+        true,
+        'Validating CSV…',
+        'Checking every location, SKU, inventory quantity, price, and ACH payment method.'
+      );
       post('validate', filePayload()).then(function (data) {
         state.canImport = data.canImport === true;
         renderValidation(data);
@@ -1473,27 +1508,32 @@
       }).catch(function (err) {
         setStatus('Validation failed: ' + err.message, 'error');
       }).finally(function () {
-        state.busy = false;
-        refreshButtons();
+        setBusy(false);
       });
     }
 
     function importOrders() {
       if (!state.canImport || state.busy) return;
-      state.busy = true;
       setStatus('Queueing validated location orders for Business Central...');
-      refreshButtons();
+      setBusy(
+        true,
+        'Submitting bulk orders…',
+        'Queueing the validated location orders for Business Central.'
+      );
       post('import', filePayload()).then(function (data) {
         state.jobId = data.jobId || '';
         state.jobToken = data.jobToken || '';
         if (!state.jobId || !state.jobToken) throw new Error('The API did not return a queue job.');
         progressEl.hidden = false;
         setStatus('Order job queued. You can keep this page open while locations are processed.');
+        updateBusyMessage(
+          'Processing location orders…',
+          'The job is queued. Please keep this page open until every location is complete.'
+        );
         pollJob(data.pollAfterMs || 1500);
       }).catch(function (err) {
         setStatus('Import failed: ' + err.message, 'error');
-        state.busy = false;
-        refreshButtons();
+        setBusy(false);
       });
     }
 
@@ -1504,6 +1544,11 @@
       progressEl.querySelector('.va-bulk-progress-label').textContent = job.status + (job.currentLocation ? ' · ' + job.currentLocation : '');
       progressEl.querySelector('.va-bulk-progress-count').textContent = complete + ' / ' + total + ' locations';
       progressEl.querySelector('.va-bulk-progress-bar').style.width = percent + '%';
+      updateBusyMessage(
+        'Processing location orders…',
+        complete + ' of ' + total + ' locations processed' +
+          (job.currentLocation ? ' · Current: ' + job.currentLocation : '') + '.'
+      );
 
       var results = job.results || [];
       resultsEl.innerHTML = results.map(function (result) {
@@ -1531,9 +1576,8 @@
             renderJob(job);
             var terminal = job.status === 'Completed' || job.status === 'CompletedWithErrors' || job.status === 'Failed';
             if (!terminal) { pollJob(1500); return; }
-            state.busy = false;
             state.canImport = false;
-            refreshButtons();
+            setBusy(false);
             setStatus(
               job.status === 'Completed'
                 ? 'All ' + (job.totalGroups || 0) + ' location orders were processed.'
