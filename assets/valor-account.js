@@ -1899,10 +1899,13 @@
       }
     }
 
-    function renderImportedOrders(orders) {
+    function renderImportedOrders(orders, emptyMessage) {
       if (!importedOrdersPanel || !importedOrdersList) return;
       if (!orders || !orders.length) {
-        resetImportedOrdersPanel();
+        importedOrdersList.innerHTML = '<div class="va-empty">'
+          + escHtml(emptyMessage || 'The created orders are still becoming available in Business Central.')
+          + '</div>';
+        importedOrdersPanel.hidden = false;
         return;
       }
       importedOrdersList.innerHTML = orders.map(function (order) {
@@ -1913,7 +1916,7 @@
 
     function loadImportedOrders(job) {
       var successful = (job.results || []).filter(function (result) {
-        return result.status === 'Success' && result.salesOrderNo;
+        return result.status === 'Success';
       });
       if (!successful.length || !state.jobId || !state.jobToken) {
         resetImportedOrdersPanel();
@@ -1937,7 +1940,7 @@
         })
         .then(function (data) {
           if (requestedJobId !== state.jobId) return;
-          renderImportedOrders(data.orders || []);
+          renderImportedOrders(data.orders || [], data.warning);
           if (importedOrdersSub) {
             importedOrdersSub.textContent = data.warning
               ? successful.length + ' successful order' + (successful.length === 1 ? '' : 's')
