@@ -1007,6 +1007,7 @@
     var importBtn  = panel.querySelector('.va-bulk-import');
     var importCountEl = panel.querySelector('.va-bulk-import-count');
     var templateLink = panel.querySelector('.va-bulk-template-download');
+    var addressDownloadLink = panel.querySelector('.va-bulk-address-download');
     var rulesBtn   = panel.querySelector('.va-bulk-rules');
     var rulesDlg   = panel.querySelector('.va-bulk-rules-dialog');
     var rulesText  = panel.querySelector('.va-bulk-rules-text');
@@ -1031,6 +1032,8 @@
       activeFilter: 'all',
       orderCount: 0,
       templateLocations: [],
+      addressRecords: [],
+      addressIssues: [],
       lineOverrides: {},
       collapsedLocations: {}
     };
@@ -1100,6 +1103,18 @@
       return /[",\r\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
     }
 
+    function downloadCsv(filename, lines) {
+      var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var download = document.createElement('a');
+      download.href = url;
+      download.download = filename;
+      document.body.appendChild(download);
+      download.click();
+      download.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    }
+
     function downloadCustomerTemplate(event) {
       event.preventDefault();
       if (!state.contextLoaded || !state.templateLocations.length) return;
@@ -1109,16 +1124,39 @@
         var sku = 'SKU' + String(index + 1).padStart(3, '0');
         lines.push(csvCell(identifier) + ',' + sku + ',5');
       });
+      downloadCsv('valor-bulk-order-template.csv', lines);
+    }
 
-      var blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-      var url = URL.createObjectURL(blob);
-      var download = document.createElement('a');
-      download.href = url;
-      download.download = 'valor-bulk-order-template.csv';
-      document.body.appendChild(download);
-      download.click();
-      download.remove();
-      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    function downloadAddressRecords(event) {
+      event.preventDefault();
+      if (!state.contextLoaded || (!state.addressRecords.length && !state.addressIssues.length)) return;
+
+      var lines = ['Parent Customer No.,Customer No.,SFID or BC Customer Location ID,Address 1,Address 2,City,State,ZIP Code'];
+      state.addressRecords.forEach(function (record) {
+        lines.push([
+          record.parentCustomerNo,
+          record.customerNo,
+          record.identifier,
+          record.address1,
+          record.address2,
+          record.city,
+          record.state,
+          record.zipCode
+        ].map(csvCell).join(','));
+      });
+      if (state.addressIssues.length) {
+        lines.push('');
+        lines.push('Parent Customer No.,Customer No.,SFID or BC Customer Location ID,validation_status');
+        state.addressIssues.forEach(function (issue) {
+          lines.push([
+            issue.parentCustomerNo,
+            issue.customerNo,
+            issue.identifier,
+            issue.validationStatus
+          ].map(csvCell).join(','));
+        });
+      }
+      downloadCsv('valor-customer-address-records.csv', lines);
     }
 
     function loadContext() {
@@ -1137,11 +1175,21 @@
             return item.toLowerCase() === identifier.toLowerCase();
           }) === index;
         });
+        state.addressRecords = Array.isArray(data.addressRecords) ? data.addressRecords : [];
+        state.addressIssues = Array.isArray(data.addressIssues) ? data.addressIssues : [];
         if (templateLink) {
           templateLink.setAttribute('aria-disabled', state.templateLocations.length ? 'false' : 'true');
           templateLink.title = state.templateLocations.length
             ? 'Download ' + state.templateLocations.length + ' authorized location rows'
             : 'No usable SFID or BC Location ID is available';
+        }
+        if (addressDownloadLink) {
+          var addressRowCount = state.addressRecords.length + state.addressIssues.length;
+          addressDownloadLink.setAttribute('aria-disabled', addressRowCount ? 'false' : 'true');
+          addressDownloadLink.title = addressRowCount
+            ? 'Download ' + state.addressRecords.length + ' valid address rows and ' +
+              state.addressIssues.length + ' validation issue rows'
+            : 'No child location address records are available';
         }
         achSelect.innerHTML = '<option value="">Select an ACH account</option>';
         (data.accounts || []).forEach(function (account) {
@@ -1485,6 +1533,7 @@
     }
 
     if (templateLink) templateLink.addEventListener('click', downloadCustomerTemplate);
+    if (addressDownloadLink) addressDownloadLink.addEventListener('click', downloadAddressRecords);
 
     fileInput.addEventListener('change', function () {
       var file = fileInput.files && fileInput.files[0];

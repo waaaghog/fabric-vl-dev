@@ -454,7 +454,7 @@
           <div class="va-bulk-content">
             <div>
               <div class="va-panel-title">Bulk upload draft</div>
-              <p class="va-bulk-intro">Upload a CSV with <strong>SFID or BC Customer Location ID, SKU, Quantity</strong>. <a href="#" class="va-bulk-template-download" aria-disabled="true">Download your customer CSV template</a>. Data and SKU errors block the entire submission. Inventory issues stay actionable and do not block valid locations from being submitted.</p>
+              <p class="va-bulk-intro">Upload a CSV with <strong>SFID or BC Customer Location ID, SKU, Quantity</strong>. <a href="#" class="va-bulk-download-link va-bulk-template-download" aria-disabled="true">Download your customer CSV template</a>. Data and SKU errors block the entire submission. Inventory issues stay actionable and do not block valid locations from being submitted. Contact our customer support if you need any assistance. Review your address records <a href="#" class="va-bulk-download-link va-bulk-address-download" aria-disabled="true">here</a>.</p>
             </div>
 
             <div class="va-bulk-grid">
@@ -732,7 +732,7 @@
 
 {%- endif -%}
 
-<script src="{{ 'valor-account.js' | asset_url }}&feature=bulk-location-template-20260723"></script>
+<script src="{{ 'valor-account.js' | asset_url }}&feature=bulk-location-audit-20260723"></script>
 
 {% schema %}
 {
