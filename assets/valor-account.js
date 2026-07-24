@@ -1040,6 +1040,7 @@
     var state = {
       contextLoaded: false,
       loadingContext: false,
+      contextUnavailable: false,
       fileName: '',
       csv: '',
       canImport: false,
@@ -1080,9 +1081,10 @@
       resetBtn.disabled = state.busy || !state.csv;
       importBtn.disabled = state.busy || !state.canImport || !achSelect.value;
       importCountEl.textContent = String(state.orderCount || 0);
-      rulesBtn.disabled = state.busy || !state.contextLoaded;
-      fileInput.disabled = state.busy;
-      achSelect.disabled = state.busy || !state.contextLoaded || achSelect.options.length <= 1;
+      rulesBtn.disabled = state.busy || state.loadingContext || state.contextUnavailable || !state.contextLoaded;
+      fileInput.disabled = state.busy || state.loadingContext || state.contextUnavailable;
+      achSelect.disabled = state.busy || state.loadingContext || state.contextUnavailable ||
+        !state.contextLoaded || achSelect.options.length <= 1;
     }
 
     function updateBusyMessage(title, detail) {
@@ -1226,10 +1228,34 @@
       downloadCsv('valor-customer-address-records.csv', lines);
     }
 
+    function bulkContextUnavailableMessage(missingAch) {
+      var title = missingAch
+        ? 'Bulk ordering is not set up for this account.'
+        : 'Bulk ordering is unavailable for this account right now.';
+      var detail = missingAch
+        ? 'An active ACH payment method is required before bulk orders can be uploaded.'
+        : 'We could not confirm the account and active ACH payment settings required for bulk ordering.';
+      return '<strong class="va-bulk-status-title">' + title + '</strong>'
+        + '<span class="va-bulk-status-detail">' + detail
+        + ' <a href="#payment">Review Payment &amp; Terms</a> or '
+        + '<a href="/pages/contact">contact customer support</a> if you need this feature.</span>';
+    }
+
+    function setBulkContextUnavailable(missingAch) {
+      state.contextUnavailable = true;
+      state.canImport = false;
+      achSelect.innerHTML = '<option value="">'
+        + (missingAch ? 'No active ACH account' : 'ACH account unavailable') + '</option>';
+      setStatus(bulkContextUnavailableMessage(missingAch), 'setup', true);
+      refreshButtons();
+    }
+
     function loadContext() {
       if (state.contextLoaded || state.loadingContext) return;
       state.loadingContext = true;
+      state.contextUnavailable = false;
       setStatus('Loading your customer and payment information…');
+      refreshButtons();
       window.__vaCustomerInfo.then(function (info) {
         window.__vaCustomerInfoData = info || {};
         return post('context', basePayload());
@@ -1272,14 +1298,16 @@
           achSelect.value = usableAchAccounts[0].id;
         }
         if (!usableAchAccounts.length) {
-          setStatus('No active ACH account is available. <a href="#payment">Add or review an ACH account in Payment &amp; terms.</a>', 'error', true);
+          setBulkContextUnavailable(true);
         } else {
+          state.contextUnavailable = false;
           setStatus('Customer ' + (data.customerNo || '') + ' is ready. Choose a CSV to begin validation.');
         }
         refreshButtons();
-        if (state.csv) validateFile();
+        if (state.csv && !state.contextUnavailable) validateFile();
       }).catch(function (err) {
-        setStatus('Could not load customer payment context: ' + err.message, 'error');
+        console.error('[bulk orders] Could not load customer payment context.', err);
+        setBulkContextUnavailable(false);
       }).finally(function () {
         state.loadingContext = false;
         refreshButtons();
@@ -1615,7 +1643,7 @@
     }
 
     function openRules() {
-      if (!state.contextLoaded || state.busy) return;
+      if (!state.contextLoaded || state.contextUnavailable || state.busy) return;
       if (!rulesDlg.open) rulesDlg.showModal();
       document.documentElement.classList.add('va-bulk-rules-open');
       rulesState.loading = true;
@@ -2180,7 +2208,7 @@
     }
 
     function validateFile() {
-      if (!state.csv || !state.contextLoaded || state.busy) return;
+      if (!state.csv || !state.contextLoaded || state.contextUnavailable || state.busy) return;
       state.canImport = false;
       resultsEl.hidden = true;
       setStatus('Checking every SFID, SKU, inventory quantity, price, and ACH account…');

@@ -824,6 +824,9 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-status { border-radius: 10px; padding: 11px 13px; font-size: 12px; line-height: 1.5; background: var(--va-chalk); color: var(--va-steel); }
 .va-bulk-status--error { background: var(--va-crimson-soft); color: #7a2629; }
 .va-bulk-status--success { background: var(--va-green-soft); color: var(--va-green); }
+.va-bulk-status--setup { border: 1px solid #e5d39a; background: #fff8e5; color: #59491a; }
+.va-bulk-status-title { display: block; margin-bottom: 2px; color: #44370e; font-weight: 750; }
+.va-bulk-status-detail { display: block; }
 .va-bulk-status a { color: inherit; font-weight: 700; }
 .va-bulk-summary { display: flex; gap: 7px; flex-wrap: wrap; }
 .va-bulk-summary-cards {
