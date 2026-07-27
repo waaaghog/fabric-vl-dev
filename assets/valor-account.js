@@ -1060,6 +1060,8 @@
       productSearchResults: {},
       collapsedLocations: {}
     };
+    var fileReadSequence = 0;
+    var xlsxLibraryPromise = null;
     var rulesState = {
       rows: [],
       priorityCount: 3,
@@ -1182,6 +1184,57 @@
       download.click();
       download.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    }
+
+    function isExcelWorkbook(bytes) {
+      var isZip = bytes.length >= 4 &&
+        bytes[0] === 0x50 && bytes[1] === 0x4B &&
+        (bytes[2] === 0x03 || bytes[2] === 0x05 || bytes[2] === 0x07) &&
+        (bytes[3] === 0x04 || bytes[3] === 0x06 || bytes[3] === 0x08);
+      var isCompoundFile = bytes.length >= 8 &&
+        bytes[0] === 0xD0 && bytes[1] === 0xCF && bytes[2] === 0x11 && bytes[3] === 0xE0 &&
+        bytes[4] === 0xA1 && bytes[5] === 0xB1 && bytes[6] === 0x1A && bytes[7] === 0xE1;
+      return isZip || isCompoundFile;
+    }
+
+    function loadXlsxLibrary() {
+      if (window.XLSX) return Promise.resolve(window.XLSX);
+      if (xlsxLibraryPromise) return xlsxLibraryPromise;
+
+      xlsxLibraryPromise = new Promise(function (resolve, reject) {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+        script.onload = function () {
+          if (window.XLSX) resolve(window.XLSX);
+          else reject(new Error('Spreadsheet reader did not initialize.'));
+        };
+        script.onerror = function () {
+          reject(new Error('Spreadsheet reader could not be loaded.'));
+        };
+        document.head.appendChild(script);
+      }).catch(function (err) {
+        xlsxLibraryPromise = null;
+        throw err;
+      });
+
+      return xlsxLibraryPromise;
+    }
+
+    function fileBufferToCsv(buffer, fileName) {
+      var bytes = new Uint8Array(buffer);
+      var hasExcelExtension = /\.(xls|xlsx)$/i.test(String(fileName || ''));
+      if (!isExcelWorkbook(bytes) && !hasExcelExtension) {
+        return Promise.resolve(new TextDecoder('utf-8').decode(bytes));
+      }
+
+      return loadXlsxLibrary().then(function (XL) {
+        var workbook = XL.read(bytes, { type: 'array' });
+        var sheetName = workbook.SheetNames && workbook.SheetNames[0];
+        if (!sheetName || !workbook.Sheets[sheetName]) {
+          throw new Error('The selected file does not contain a worksheet.');
+        }
+        return XL.utils.sheet_to_csv(workbook.Sheets[sheetName], { FS: ',', RS: '\r\n' });
+      });
     }
 
     function downloadCustomerTemplate(event) {
@@ -2183,6 +2236,7 @@
 
     function resetDraft() {
       if (state.busy) return;
+      fileReadSequence += 1;
       clearTimeout(state.pollTimer);
       state.fileName = '';
       state.csv = '';
@@ -2322,6 +2376,7 @@
 
     fileInput.addEventListener('change', function () {
       var file = fileInput.files && fileInput.files[0];
+      var readSequence = ++fileReadSequence;
       state.fileName = '';
       state.csv = '';
       state.canImport = false;
@@ -2346,14 +2401,24 @@
       }
       var reader = new FileReader();
       reader.onload = function () {
-        state.fileName = file.name;
-        state.csv = String(reader.result || '');
-        refreshButtons();
-        if (state.contextLoaded) validateFile();
-        else loadContext();
+        fileBufferToCsv(reader.result, file.name).then(function (csv) {
+          if (readSequence !== fileReadSequence) return;
+          state.fileName = file.name;
+          state.csv = csv;
+          refreshButtons();
+          if (state.contextLoaded) validateFile();
+          else loadContext();
+        }).catch(function () {
+          if (readSequence !== fileReadSequence) return;
+          setStatus('Could not read the selected CSV.', 'error');
+          refreshButtons();
+        });
       };
-      reader.onerror = function () { setStatus('Could not read the selected CSV.', 'error'); };
-      reader.readAsText(file);
+      reader.onerror = function () {
+        if (readSequence !== fileReadSequence) return;
+        setStatus('Could not read the selected CSV.', 'error');
+      };
+      reader.readAsArrayBuffer(file);
     });
 
     achSelect.addEventListener('change', function () {
