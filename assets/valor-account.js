@@ -1062,6 +1062,12 @@
     };
     var fileReadSequence = 0;
     var xlsxLibraryPromise = null;
+    var originalProductCache = Object.create(null);
+    var originalProductRequests = Object.create(null);
+    var originalProductQueue = [];
+    var activeOriginalProductLookups = 0;
+    var originalProductObserver = null;
+    var originalProductHydrationSequence = 0;
     var rulesState = {
       rows: [],
       priorityCount: 3,
@@ -1949,6 +1955,124 @@
       return 'Out of stock';
     }
 
+    function originalProductFallbackTitle(row) {
+      var sku = String(row && row.originalSku || '').trim();
+      var description = String(row && (row.itemDescription || row.itemNo) || '').trim();
+      return description && description.toUpperCase() !== sku.toUpperCase() ? description : '';
+    }
+
+    function pumpOriginalProductQueue() {
+      while (activeOriginalProductLookups < 4 && originalProductQueue.length) {
+        (function (task) {
+          activeOriginalProductLookups += 1;
+          post('product-search', Object.assign(basePayload(), { query: task.sku, limit: 20 }))
+            .then(function (data) {
+              return (data.results || []).find(function (product) {
+                return String(product.sku || '').trim().toUpperCase() === task.sku;
+              }) || null;
+            }, function () {
+              return null;
+            })
+            .then(function (product) {
+              originalProductCache[task.sku] = product;
+              delete originalProductRequests[task.sku];
+              task.resolve(product);
+            })
+            .finally(function () {
+              activeOriginalProductLookups -= 1;
+              pumpOriginalProductQueue();
+            });
+        }(originalProductQueue.shift()));
+      }
+    }
+
+    function loadOriginalProduct(sku) {
+      var key = String(sku || '').trim().toUpperCase();
+      if (!key) return Promise.resolve(null);
+      if (Object.prototype.hasOwnProperty.call(originalProductCache, key)) {
+        return Promise.resolve(originalProductCache[key]);
+      }
+      if (originalProductRequests[key]) return originalProductRequests[key];
+
+      var resolveRequest;
+      originalProductRequests[key] = new Promise(function (resolve) {
+        resolveRequest = resolve;
+      });
+      originalProductQueue.push({ sku: key, resolve: resolveRequest });
+      pumpOriginalProductQueue();
+      return originalProductRequests[key];
+    }
+
+    function originalProductImageUrl(url) {
+      var value = String(url || '').trim();
+      if (!value) return '';
+      return value + (value.indexOf('?') >= 0 ? '&' : '?') + 'width=96';
+    }
+
+    function applyOriginalProduct(rowElement, product) {
+      if (!rowElement || !rowElement.isConnected) return;
+      var titleElement = rowElement.querySelector('.va-bulk-original-title');
+      var imageElement = rowElement.querySelector('.va-bulk-original-image');
+      if (!titleElement || !imageElement) return;
+
+      var fallbackTitle = titleElement.dataset.fallbackTitle || '';
+      var title = product
+        ? String(product.productTitle || product.displayName || fallbackTitle || product.sku || '').trim()
+        : fallbackTitle;
+      if (!title) title = 'Product details unavailable';
+      titleElement.textContent = title;
+      titleElement.title = title;
+
+      var imageUrl = product ? originalProductImageUrl(product.imageUrl) : '';
+      if (imageUrl) {
+        imageElement.innerHTML = '<img src="' + escHtml(imageUrl) + '" alt="'
+          + escHtml(product.imageAlt || title) + '" loading="lazy" width="44" height="44">';
+      } else {
+        imageElement.innerHTML = '<span class="va-bulk-original-image-placeholder" aria-hidden="true">SKU</span>';
+      }
+    }
+
+    function hydrateOriginalProducts(sequence) {
+      if (sequence !== originalProductHydrationSequence) return;
+      if (originalProductObserver) originalProductObserver.disconnect();
+      originalProductObserver = null;
+
+      var rows = previewEl.querySelectorAll('tr[data-original-sku]');
+      function hydrateRow(rowElement) {
+        if (originalProductObserver) originalProductObserver.unobserve(rowElement);
+        var sku = String(rowElement.dataset.originalSku || '').trim().toUpperCase();
+        loadOriginalProduct(sku).then(function (product) {
+          if (sequence !== originalProductHydrationSequence) return;
+          applyOriginalProduct(rowElement, product);
+        });
+      }
+
+      if ('IntersectionObserver' in window) {
+        originalProductObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) hydrateRow(entry.target);
+          });
+        }, { rootMargin: '320px 0px' });
+        rows.forEach(function (rowElement) {
+          var sku = String(rowElement.dataset.originalSku || '').trim().toUpperCase();
+          if (Object.prototype.hasOwnProperty.call(originalProductCache, sku)) {
+            applyOriginalProduct(rowElement, originalProductCache[sku]);
+          } else {
+            originalProductObserver.observe(rowElement);
+          }
+        });
+      } else {
+        rows.forEach(hydrateRow);
+      }
+    }
+
+    function scheduleOriginalProductHydration() {
+      var sequence = ++originalProductHydrationSequence;
+      setTimeout(function () {
+        hydrateOriginalProducts(sequence);
+      }, 0);
+    }
+
     function renderOverrideControl(row, status) {
       if (status.key === 'ready' || status.key === 'blocked') {
         if (status.key === 'blocked') {
@@ -2147,13 +2271,17 @@
           + '<span class="va-bulk-location-meta"><span class="va-bulk-location-count">' + groupRows.length + ' Lines Processed</span>'
           + '<svg class="va-bulk-location-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 7.5l5 5 5-5"></path></svg></span></button>'
           + '<div class="va-bulk-table-wrap"><table class="va-bulk-table"><thead><tr>'
-          + '<th>Line #</th><th>Original SKU</th><th class="va-bulk-number">Req Qty</th><th>Match Status</th><th>Fulfillment SKU</th><th>Actions / Alternates Override</th>'
+          + '<th>Line #</th><th class="va-bulk-original-image-head">Product</th><th>Original SKU</th><th class="va-bulk-number">Req Qty</th><th>Match Status</th><th>Fulfillment SKU</th><th>Actions / Alternates Override</th>'
           + '</tr></thead><tbody>';
         groupRows.forEach(function (row) {
           var status = rowDisplayStatus(row);
-          html += '<tr data-bulk-status="' + status.key + '" data-row-number="' + escHtml(row.rowNumber) + '"' + (status.key === 'blocked' ? ' class="has-error"' : '') + '>'
+          var originalSku = String(row.originalSku || '').trim();
+          var fallbackTitle = originalProductFallbackTitle(row);
+          var initialTitle = fallbackTitle || 'Loading product details…';
+          html += '<tr data-bulk-status="' + status.key + '" data-row-number="' + escHtml(row.rowNumber) + '" data-original-sku="' + escHtml(originalSku) + '"' + (status.key === 'blocked' ? ' class="has-error"' : '') + '>'
             + '<td>#' + escHtml(row.rowNumber) + '</td>'
-            + '<td><strong>' + escHtml(row.originalSku || '') + '</strong><div class="va-bulk-row-msg">' + escHtml(row.itemDescription || row.itemNo || '') + '</div></td>'
+            + '<td class="va-bulk-original-image-cell"><span class="va-bulk-original-image"><span class="va-bulk-original-image-placeholder is-loading" aria-hidden="true"></span></span></td>'
+            + '<td class="va-bulk-original-cell"><strong>' + escHtml(originalSku) + '</strong><div class="va-bulk-row-msg va-bulk-original-title" data-fallback-title="' + escHtml(fallbackTitle) + '" title="' + escHtml(initialTitle) + '">' + escHtml(initialTitle) + '</div></td>'
             + '<td class="va-bulk-number">' + escHtml(row.quantity == null ? '' : row.quantity) + '</td>'
             + '<td><span class="va-bulk-badge va-bulk-badge--' + status.key + '"><span class="va-bulk-badge-dot"></span>' + escHtml(status.label) + '</span></td>'
             + '<td>' + fulfillmentCell(row, status) + '</td>'
@@ -2165,6 +2293,7 @@
       previewEl.innerHTML = html;
       previewEl.hidden = false;
       applyBulkFilter(state.activeFilter);
+      scheduleOriginalProductHydration();
     }
 
     function resetImportedOrdersPanel() {
@@ -2237,6 +2366,9 @@
     function resetDraft() {
       if (state.busy) return;
       fileReadSequence += 1;
+      originalProductHydrationSequence += 1;
+      if (originalProductObserver) originalProductObserver.disconnect();
+      originalProductObserver = null;
       clearTimeout(state.pollTimer);
       state.fileName = '';
       state.csv = '';

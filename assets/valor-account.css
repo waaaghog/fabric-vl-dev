@@ -897,13 +897,34 @@ html[data-channel="total"]   .va { --va-accent: #E81E26; --va-accent-soft: #FAD4
 .va-bulk-badge--subbed { background: #fbefd9; color: var(--va-amber); }
 .va-bulk-badge--short, .va-bulk-badge--blocked { background: var(--va-crimson-soft); color: var(--va-crimson); }
 .va-bulk-table-wrap { overflow-x: auto; border: 1px solid var(--va-border); border-radius: 11px; }
-.va-bulk-table { width: 100%; border-collapse: collapse; min-width: 920px; font-size: 12px; }
+.va-bulk-table { width: 100%; border-collapse: collapse; min-width: 1000px; font-size: 12px; }
 .va-bulk-table th { text-align: left; background: var(--va-chalk); color: var(--va-steel); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 .va-bulk-table th, .va-bulk-table td { padding: 9px 10px; border-bottom: 1px solid var(--va-border); vertical-align: top; }
 .va-bulk-table tr:last-child td { border-bottom: 0; }
 .va-bulk-table tr.has-error { background: #fff7f7; }
 .va-bulk-money, .va-bulk-number { text-align: right !important; white-space: nowrap; }
 .va-bulk-row-msg { margin-top: 3px; font-size: 11px; color: var(--va-steel); }
+.va-bulk-original-image-head, .va-bulk-original-image-cell { width: 64px; text-align: center !important; }
+.va-bulk-original-image-cell { vertical-align: middle !important; }
+.va-bulk-original-image {
+  display: grid; width: 46px; height: 46px; margin: 0 auto; place-items: center; overflow: hidden;
+  border: 1px solid var(--va-border); border-radius: 7px; background: var(--va-white);
+}
+.va-bulk-original-image img { display: block; width: 44px; height: 44px; object-fit: contain; }
+.va-bulk-original-image-placeholder {
+  display: grid; width: 100%; height: 100%; place-items: center; background: var(--va-chalk);
+  color: var(--va-steel); font: 700 8px/1 'Inter', sans-serif; letter-spacing: .04em;
+}
+.va-bulk-original-image-placeholder.is-loading {
+  background: linear-gradient(100deg, var(--va-chalk) 30%, #fff 50%, var(--va-chalk) 70%);
+  background-size: 220% 100%; animation: va-bulk-product-loading 1.2s ease-in-out infinite;
+}
+.va-bulk-original-cell { width: 260px; max-width: 260px; }
+.va-bulk-original-title {
+  display: block; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  cursor: help;
+}
+@keyframes va-bulk-product-loading { to { background-position: -220% 0; } }
 .va-bulk-row-msg--error { color: var(--va-crimson); }
 .va-bulk-row-msg--warning { color: var(--va-amber); }
 .va-bulk-fulfillment { color: var(--va-navy-deep); }
@@ -999,7 +1020,10 @@ html.va-bulk-page-busy,
 html.va-bulk-page-busy body { overflow: hidden !important; cursor: wait !important; }
 html.va-bulk-page-busy * { cursor: wait !important; }
 @keyframes va-bulk-busy-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .va-bulk-busy-spinner { animation-duration: 1.6s; } }
+@media (prefers-reduced-motion: reduce) {
+  .va-bulk-busy-spinner { animation-duration: 1.6s; }
+  .va-bulk-original-image-placeholder.is-loading { animation: none; }
+}
 .va-bulk-rules-dialog {
   inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0;
   border: 0; border-radius: 0; padding: 0; overflow: hidden; background: #f7f8fa;
