@@ -453,22 +453,22 @@
         <div class="va-panel va-bulk-panel" data-api-base="{{ section.settings.bulk_order_api_url | escape }}">
           <div class="va-bulk-content">
             <div>
-              <div class="va-panel-title">Bulk upload draft</div>
-              <p class="va-bulk-intro">Upload a CSV with <strong>SFID or BC Customer Location ID, SKU, Quantity</strong>. <a href="#" class="va-bulk-download-link va-bulk-template-download" aria-disabled="true">Download your customer CSV template</a>. Data and SKU errors block the entire submission. Inventory issues stay actionable and do not block valid locations from being submitted. Contact our customer support if you need any assistance. Review your address records <a href="#" class="va-bulk-download-link va-bulk-address-download" aria-disabled="true">here</a>.</p>
+              <div class="va-panel-title">Bulk order upload</div>
+              <p class="va-bulk-intro">Upload a CSV with your <strong>Customer Location ID or SFID, SKU, Quantity</strong>. <a href="#" class="va-bulk-download-link va-bulk-template-download" aria-disabled="true">Download your customer CSV template</a>. Data and SKU errors will block the entire submission. Inventory issues stay actionable and do not block valid locations from being submitted. Contact our customer support if you need any assistance. Download your address records <a href="#" class="va-bulk-download-link va-bulk-address-download" aria-disabled="true">here</a>.</p>
             </div>
 
             <div class="va-bulk-grid">
               <label class="va-bulk-field">
                 Order CSV
                 <input type="file" class="va-bulk-file" accept=".csv,text/csv,.xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                <span class="va-bulk-hint">Maximum 25 MB. Header: Location ID / SFID, SKU, Quantity.</span>
+                <span class="va-bulk-hint">Maximum file size 25 MB. Columns: Location ID / SFID, SKU, Quantity.</span>
               </label>
               <label class="va-bulk-field">
                 ACH payment method
                 <select class="va-bulk-ach" disabled>
                   <option value="">Loading ACH accounts…</option>
                 </select>
-                <span class="va-bulk-hint">Accounts are read from Payment &amp; terms and verified again by the API.</span>
+                <span class="va-bulk-hint">Your payment accounts are read from <a href="/pages/my-account#payment" target="_blank">Payment &amp; terms</a></span>
               </label>
             </div>
 
