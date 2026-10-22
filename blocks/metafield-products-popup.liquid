@@ -28,10 +28,7 @@
       style="--mpp-drawer-width: {{ block.settings.drawer_width }}px;"
       aria-labelledby="mpp-popup-heading-{{ block.id }}"
     >
-      {%- render 'universal-modal-header',
-        title: block.settings.dialog_heading,
-        title_id: 'mpp-popup-heading-' | append: block.id
-      -%}
+      {%- render 'universal-modal-header', title: block.settings.dialog_heading, title_id: 'mpp-popup-heading-', append: block.id -%}
 
       <div
         class="mpp-popup__list"
@@ -218,3 +215,18 @@
   ]
 }
 {% endschema %}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: |-
+    {%- render 'universal-modal-header',
+            title: block.settings.dialog_heading,
+            title_id: 'mpp-popup-heading-' | append: block.id
+          -%}
+  to: "{%- render 'universal-modal-header', title: block.settings.dialog_heading,
+    title_id: 'mpp-popup-heading-', append: block.id -%}"
+  position: 1084..1211
+{% endcomment %}

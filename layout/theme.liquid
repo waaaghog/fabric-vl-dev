@@ -334,8 +334,20 @@
   });
   </script>
 
-  {%- if customer == nil or (customer.b2b? == false and template.suffix != 'register') -%}
+  {%- if customer == nil or customer.b2b? == false and template.suffix != 'register' -%}
     {%- render 'valor-register-popup' -%}
   {%- endif -%}
   </body>
 </html>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- if customer == nil or (customer.b2b? == false and template.suffix !=
+    'register') -%}"
+  to: "{%- if customer == nil or customer.b2b? == false and template.suffix != 'register'
+    -%}"
+  position: 13197..13283
+{% endcomment %}
